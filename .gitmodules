@@ -1,0 +1,3 @@
+[submodule "libspdm"]
+	path = libspdm
+	url = https://github.com/DMTF/libspdm
