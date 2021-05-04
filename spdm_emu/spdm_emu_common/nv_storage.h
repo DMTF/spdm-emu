@@ -1,10 +1,7 @@
-/** @file
-  SPDM common library.
-  It follows the SPDM Specification.
-
-Copyright (c) 2020, Intel Corporation. All rights reserved.<BR>
-SPDX-License-Identifier: BSD-2-Clause-Patent
-
+/**
+    Copyright Notice:
+    Copyright 2021 DMTF. All rights reserved.
+    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
 **/
 
 #ifndef __SPDM_EMU_NV_STORAGE_LIB_H__

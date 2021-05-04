@@ -1,10 +1,7 @@
 /**
-@file
-UEFI OS based application.
-
-Copyright (c) 2020, Intel Corporation. All rights reserved.<BR>
-SPDX-License-Identifier: BSD-2-Clause-Patent
-
+    Copyright Notice:
+    Copyright 2021 DMTF. All rights reserved.
+    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
 **/
 
 #include "spdm_requester_emu.h"
@@ -69,7 +66,7 @@ spdm_authentication(IN void *context, OUT uint8 *slot_mask,
 
 /**
   This function executes SPDM authentication.
-  
+
   @param[in]  spdm_context            The SPDM context for the device.
 **/
 return_status do_authentication_via_spdm(void)

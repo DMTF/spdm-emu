@@ -1,10 +1,7 @@
 /**
-@file
-UEFI OS based application.
-
-Copyright (c) 2020, Intel Corporation. All rights reserved.<BR>
-SPDX-License-Identifier: BSD-2-Clause-Patent
-
+    Copyright Notice:
+    Copyright 2021 DMTF. All rights reserved.
+    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
 **/
 
 #include "spdm_requester_emu.h"
@@ -13,7 +10,7 @@ extern void *m_spdm_context;
 
 /**
   This function executes SPDM measurement and extend to TPM.
-  
+
   @param[in]  spdm_context            The SPDM context for the device.
 **/
 return_status spdm_send_receive_get_measurement(IN void *spdm_context,
@@ -83,7 +80,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
 
 /**
   This function executes SPDM measurement and extend to TPM.
-  
+
   @param[in]  spdm_context            The SPDM context for the device.
 **/
 return_status do_measurement_via_spdm(IN uint32 *session_id)
