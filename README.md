@@ -1,4 +1,4 @@
-# This spdm-emu is a sample SPDM emulator implementation using libspdm(https://github.com/DMTF/libspdm)
+# This spdm-emu is a sample SPDM emulator implementation using [libspdm](https://github.com/DMTF/libspdm)
 
 ## Feature
 
