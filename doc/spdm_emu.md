@@ -90,6 +90,6 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
    To test PCI_DOE, a user may use `spdm_requester_emu --trans PCI_DOE --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu  --trans PCI_DOE --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
 
-   [spdm_dump](https://github.com/DMTF/spdm-dump/blob/main/spdm_dump/doc/spdm_dump.md) tool can be used to parse the pcap file for offline analysis.
+   [spdm_dump](https://github.com/DMTF/spdm-dump/blob/main/doc/spdm_dump.md) tool can be used to parse the pcap file for offline analysis.
 
    NOTE: Not all combination is supported. Please file issue or submit patch for them if you find something is not expected.
