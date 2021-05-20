@@ -72,7 +72,7 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
 	m_support_measurement_hash_algo =
 		negotiated_state.measurement_hash_algo;
 	m_support_asym_algo = negotiated_state.base_asym_algo;
-	m_support_hash_algo = negotiated_state.bash_hash_algo;
+	m_support_hash_algo = negotiated_state.base_hash_algo;
 	m_support_dhe_algo = negotiated_state.dhe_named_group;
 	m_support_aead_algo = negotiated_state.aead_cipher_suite;
 	m_support_req_asym_algo = negotiated_state.req_base_asym_alg;
@@ -268,7 +268,7 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 	data_size = sizeof(data32);
 	spdm_get_data(spdm_context, SPDM_DATA_BASE_HASH_ALGO, &parameter,
 		      &data32, &data_size);
-	negotiated_state.bash_hash_algo = data32;
+	negotiated_state.base_hash_algo = data32;
 	data_size = sizeof(data16);
 	spdm_get_data(spdm_context, SPDM_DATA_DHE_NAME_GROUP, &parameter,
 		      &data16, &data_size);
