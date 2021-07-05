@@ -69,7 +69,7 @@ void print_usage(IN char8 *name)
 	printf("           SHA3 is not supported so far.\n");
 	printf("   [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.\n");
 	printf("   [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.\n");
-	printf("   [--meas_sum] is the measurment summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.\n");
+	printf("   [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.\n");
 	printf("   [--meas_op] is the measurement operation in GET_MEASUREMEMT. By default, ONE_BY_ONE is used.\n");
 	printf("   [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.\n");
 	printf("   [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.\n");
@@ -84,7 +84,7 @@ void print_usage(IN char8 *name)
 	printf("           The responder will save empty state, if the requester sets PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION.\n");
 	printf("   [--load_state] is to load the negotiated state to current session from a read-only file.\n");
 	printf("           The requester and responder will provision the state just after SPDM context is created.\n");
-	printf("           The user need guarantee the state file is gnerated correctly.\n");
+	printf("           The user need guarantee the state file is generated correctly.\n");
 	printf("           The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule are ignored.\n");
 	printf("           The requester will skip GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
 	printf("   [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.\n");
