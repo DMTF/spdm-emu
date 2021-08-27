@@ -127,6 +127,10 @@ void *spdm_server_init(void)
 		spdm_register_transport_layer_func(
 			spdm_context, spdm_transport_pci_doe_encode_message,
 			spdm_transport_pci_doe_decode_message);
+	} else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
+		spdm_register_transport_layer_func(
+			spdm_context, spdm_transport_none_encode_message,
+			spdm_transport_none_decode_message);
 	} else {
 		return NULL;
 	}

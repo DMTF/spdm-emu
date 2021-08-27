@@ -17,6 +17,7 @@
 //   payload (SPDM message, starting from SPDM_HEADER): PayloadSize (little endian)
 //
 
+#define SOCKET_TRANSPORT_TYPE_NONE 0x00
 #define SOCKET_TRANSPORT_TYPE_MCTP 0x01
 #define SOCKET_TRANSPORT_TYPE_PCI_DOE 0x02
 

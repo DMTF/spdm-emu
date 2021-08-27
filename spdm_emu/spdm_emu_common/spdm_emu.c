@@ -24,7 +24,7 @@ uint32 m_exe_session =
 
 void print_usage(IN char8 *name)
 {
-	printf("\n%s [--trans MCTP|PCI_DOE]\n", name);
+	printf("\n%s [--trans MCTP|PCI_DOE|NONE]\n", name);
 	printf("   [--ver 1.0|1.1]\n");
 	printf("   [--sec_ver 0|1.1]\n");
 	printf("   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID]\n");
@@ -112,6 +112,7 @@ typedef struct {
 } value_string_entry_t;
 
 value_string_entry_t m_transport_value_string_table[] = {
+	{ SOCKET_TRANSPORT_TYPE_NONE, "NONE"},
 	{ SOCKET_TRANSPORT_TYPE_MCTP, "MCTP" },
 	{ SOCKET_TRANSPORT_TYPE_PCI_DOE, "PCI_DOE" },
 };

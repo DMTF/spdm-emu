@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_requester_emu
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
+                    ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_transport_none_lib
                     ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/include/hal
@@ -21,6 +22,8 @@ SET(src_spdm_requester_emu
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/nv_storage.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/pcap.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
+    ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_transport_none_lib/common.c
+    ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_transport_none_lib/none.c
 )
 
 SET(spdm_requester_emu_LIBRARY

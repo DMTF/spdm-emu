@@ -110,14 +110,17 @@ boolean platform_client_routine(IN uint16 port_number)
 
 	m_socket = platform_socket;
 
-	response_size = sizeof(m_receive_buffer);
-	result = communicate_platform_data(platform_socket,
-					   SOCKET_SPDM_COMMAND_TEST,
-					   (uint8 *)"Client Hello!",
-					   sizeof("Client Hello!"), &response,
-					   &response_size, m_receive_buffer);
-	if (!result) {
-		goto done;
+	if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE) {
+		response_size = sizeof(m_receive_buffer);
+		result = communicate_platform_data(
+			platform_socket,
+			SOCKET_SPDM_COMMAND_TEST,
+			(uint8 *)"Client Hello!",
+			sizeof("Client Hello!"), &response,
+			&response_size, m_receive_buffer);
+		if (!result) {
+			goto done;
+		}
 	}
 
 	if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
