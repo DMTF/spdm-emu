@@ -10,6 +10,7 @@
 #include <base.h>
 #include <library/memlib.h>
 #include <library/spdm_responder_lib.h>
+#include <spdm_transport_none_lib.h>
 #include <library/spdm_transport_mctp_lib.h>
 #include <library/spdm_transport_pcidoe_lib.h>
 
