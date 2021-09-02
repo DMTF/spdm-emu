@@ -103,6 +103,8 @@ void *spdm_client_init(void)
 	uint32 data32;
 	void *hash;
 	uintn hash_size;
+	uint8 *root_cert;
+	uintn root_cert_size;
 	spdm_version_number_t spdm_version;
 
 	m_spdm_context = (void *)malloc(spdm_get_context_size());
@@ -254,12 +256,15 @@ void *spdm_client_init(void)
 							     m_use_asym_algo,
 							     &data, &data_size,
 							     &hash, &hash_size);
+		x509_get_cert_from_cert_chain((uint8 *)data + sizeof(spdm_cert_chain_t) + hash_size,
+			data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
+			&root_cert, &root_cert_size);
 		if (res) {
 			zero_mem(&parameter, sizeof(parameter));
 			parameter.location = SPDM_DATA_LOCATION_LOCAL;
 			spdm_set_data(spdm_context,
-				      SPDM_DATA_PEER_PUBLIC_ROOT_CERT_HASH,
-				      &parameter, hash, hash_size);
+				      SPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+				      &parameter, root_cert, root_cert_size);
 			// Do not free it.
 		}
 	}

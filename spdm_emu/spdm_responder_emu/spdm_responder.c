@@ -239,6 +239,8 @@ void spdm_server_connection_state_callback(
 	return_status status;
 	void *hash;
 	uintn hash_size;
+	uint8 *root_cert;
+	uintn root_cert_size;
 	uint8 index;
 
 	switch (connection_state) {
@@ -314,13 +316,16 @@ void spdm_server_connection_state_callback(
 			res = read_requester_root_public_certificate(
 				m_use_hash_algo, m_use_req_asym_algo, &data,
 				&data_size, &hash, &hash_size);
+			x509_get_cert_from_cert_chain((uint8 *)data + sizeof(spdm_cert_chain_t) + hash_size,
+				data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
+				&root_cert, &root_cert_size);
 			if (res) {
 				zero_mem(&parameter, sizeof(parameter));
 				parameter.location = SPDM_DATA_LOCATION_LOCAL;
 				spdm_set_data(
 					spdm_context,
-					SPDM_DATA_PEER_PUBLIC_ROOT_CERT_HASH,
-					&parameter, hash, hash_size);
+					SPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+					&parameter, root_cert, root_cert_size);
 				// Do not free it.
 			}
 		}
