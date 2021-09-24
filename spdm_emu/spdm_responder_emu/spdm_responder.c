@@ -109,6 +109,8 @@ void *spdm_server_init(void)
 	uint32 data32;
 	spdm_version_number_t spdm_version;
 
+	printf("context_size - 0x%x\n", (uint32)spdm_get_context_size());
+
 	m_spdm_context = (void *)malloc(spdm_get_context_size());
 	if (m_spdm_context == NULL) {
 		return NULL;
