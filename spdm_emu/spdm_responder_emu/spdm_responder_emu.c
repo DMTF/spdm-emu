@@ -43,6 +43,23 @@ boolean create_socket(IN uint16 port_number, IN SOCKET *listen_socket)
 		return FALSE;
 	}
 
+        // When the program stops unexpectedly the used port will stay in the TIME_WAIT
+        // state which prevents other programs from binding to this port until a timeout
+        // triggers. This timeout may be 30s to 120s. In this state the responder cannot
+        // be restarted since it cannot bind to its port.
+        // To prevent this SO_REUSEADDR is applied to the socket which allows the
+        // responder to bind to this port even if it is still in the TIME_WAIT state.
+	if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0){
+		printf("Cannot configure server listen socket.  Error is 0x%x\n",
+#ifdef _MSC_VER
+		       WSAGetLastError()
+#else
+		       errno
+#endif
+		);
+		return FALSE;
+	}
+
 	zero_mem(&my_address, sizeof(my_address));
 	my_address.sin_port = htons((short)port_number);
 	my_address.sin_family = AF_INET;
