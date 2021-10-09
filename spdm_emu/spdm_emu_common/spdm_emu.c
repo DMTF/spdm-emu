@@ -41,7 +41,7 @@ void print_usage(IN char8 *name)
 	printf("   [--meas_sum NO|TCB|ALL]\n");
 	printf("   [--meas_op ONE_BY_ONE|ALL]\n");
 	printf("   [--key_upd REQ|ALL|RSP]\n");
-	printf("   [--slot <0~7|0xFF>]\n");
+	printf("   [--slot_id <0~7|0xFF>]\n");
 	printf("   [--slot_count <1~8>]\n");
 	printf("   [--save_state <NegotiateStateFileName>]\n");
 	printf("   [--load_state <NegotiateStateFileName>]\n");
