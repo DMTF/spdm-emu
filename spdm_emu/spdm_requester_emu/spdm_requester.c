@@ -256,6 +256,11 @@ void *spdm_client_init(void)
 				      SPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
 				      &parameter, data, data_size);
 			// Do not free it.
+		} else {
+			printf("read_responder_public_certificate_chain fail!\n");
+			free(m_spdm_context);
+			m_spdm_context = NULL;
+			return NULL;
 		}
 	} else {
 		res = read_responder_root_public_certificate(m_use_hash_algo,
@@ -272,6 +277,11 @@ void *spdm_client_init(void)
 				      SPDM_DATA_PEER_PUBLIC_ROOT_CERT,
 				      &parameter, root_cert, root_cert_size);
 			// Do not free it.
+		} else {
+			printf("read_responder_root_public_certificate fail!\n");
+			free(m_spdm_context);
+			m_spdm_context = NULL;
+			return NULL;
 		}
 	}
 
@@ -293,6 +303,11 @@ void *spdm_client_init(void)
 				      &parameter, data, data_size);
 		}
 		// do not free it
+	} else {
+		printf("read_requester_public_certificate_chain fail!\n");
+		free(m_spdm_context);
+		m_spdm_context = NULL;
+		return NULL;
 	}
 
 	status = spdm_set_data(spdm_context, SPDM_DATA_PSK_HINT, NULL,
