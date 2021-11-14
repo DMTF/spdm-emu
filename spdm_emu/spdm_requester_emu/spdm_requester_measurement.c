@@ -32,7 +32,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
 		request_attribute =
 			SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
 		measurement_record_length = sizeof(measurement_record);
-		status = spdm_get_measurement(
+		status = libspdm_get_measurement(
 			spdm_context, session_id, request_attribute,
 			SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
 			m_use_slot_id & 0xF, &number_of_block,
@@ -45,7 +45,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
 		//
 		// 1. query the total number of measurements available.
 		//
-		status = spdm_get_measurement(
+		status = libspdm_get_measurement(
 			spdm_context, session_id, request_attribute,
 			SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS,
 			m_use_slot_id & 0xF, &number_of_blocks, NULL, NULL);
@@ -65,7 +65,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
 					SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
 			}
 			measurement_record_length = sizeof(measurement_record);
-			status = spdm_get_measurement(
+			status = libspdm_get_measurement(
 				spdm_context, session_id, request_attribute,
 				index, m_use_slot_id & 0xF, &number_of_block,
 				&measurement_record_length, measurement_record);

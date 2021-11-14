@@ -240,7 +240,7 @@ return_status spdm_transport_none_decode_message(
 
 	spdm_error.error_code = 0;
 	spdm_error.session_id = 0;
-	spdm_set_last_spdm_error_struct(spdm_context, &spdm_error);
+	libspdm_set_last_spdm_error_struct(spdm_context, &spdm_error);
 
 	spdm_secured_message_callbacks_t.version =
 		SPDM_SECURED_MESSAGE_CALLBACKS_VERSION;
@@ -275,7 +275,7 @@ return_status spdm_transport_none_decode_message(
 		if (secured_message_context == NULL) {
 			spdm_error.error_code = SPDM_ERROR_CODE_INVALID_SESSION;
 			spdm_error.session_id = *SecuredMessageSessionId;
-			spdm_set_last_spdm_error_struct(spdm_context,
+			libspdm_set_last_spdm_error_struct(spdm_context,
 							&spdm_error);
 			return RETURN_UNSUPPORTED;
 		}
@@ -292,7 +292,7 @@ return_status spdm_transport_none_decode_message(
 			       "spdm_decode_secured_message - %p\n", status));
 			spdm_secured_message_get_last_spdm_error_struct(
 				secured_message_context, &spdm_error);
-			spdm_set_last_spdm_error_struct(spdm_context,
+			libspdm_set_last_spdm_error_struct(spdm_context,
 							&spdm_error);
 			return RETURN_UNSUPPORTED;
 		}

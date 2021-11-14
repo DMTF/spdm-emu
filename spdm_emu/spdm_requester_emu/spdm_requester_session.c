@@ -68,7 +68,7 @@ return_status do_app_session_via_spdm(IN uint32 session_id)
 
 		request_size = sizeof(request);
 		response_size = sizeof(response);
-		status = spdm_send_receive_data(spdm_context, &session_id,
+		status = libspdm_send_receive_data(spdm_context, &session_id,
 						FALSE, &request, request_size,
 						&response, &response_size);
 		ASSERT_RETURN_ERROR(status);
@@ -90,7 +90,7 @@ return_status do_app_session_via_spdm(IN uint32 session_id)
 
 	if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
 		app_response_size = sizeof(app_response);
-		status = spdm_send_receive_data(spdm_context, &session_id, TRUE,
+		status = libspdm_send_receive_data(spdm_context, &session_id, TRUE,
 						&mSecureSessionRequest,
 						sizeof(mSecureSessionRequest),
 						&app_response,

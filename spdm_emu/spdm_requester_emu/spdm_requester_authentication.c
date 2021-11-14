@@ -12,7 +12,7 @@ extern void *m_spdm_context;
   This function sends GET_DIGEST, GET_CERTIFICATE, CHALLENGE
   to authenticate the device.
 
-  This function is combination of spdm_get_digest, spdm_get_certificate, spdm_challenge.
+  This function is combination of libspdm_get_digest, libspdm_get_certificate, libspdm_challenge.
 
   @param  spdm_context                  A pointer to the SPDM context.
   @param  slot_mask                     The slots which deploy the CertificateChain.
@@ -37,7 +37,7 @@ spdm_authentication(IN void *context, OUT uint8 *slot_mask,
 	return_status status;
 
 	if ((m_exe_connection & EXE_CONNECTION_DIGEST) != 0) {
-		status = spdm_get_digest(context, slot_mask,
+		status = libspdm_get_digest(context, slot_mask,
 					 total_digest_buffer);
 		if (RETURN_ERROR(status)) {
 			return status;
@@ -46,7 +46,7 @@ spdm_authentication(IN void *context, OUT uint8 *slot_mask,
 
 	if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
 		if (slot_id != 0xFF) {
-			status = spdm_get_certificate(
+			status = libspdm_get_certificate(
 				context, slot_id, cert_chain_size, cert_chain);
 			if (RETURN_ERROR(status)) {
 				return status;
@@ -55,7 +55,7 @@ spdm_authentication(IN void *context, OUT uint8 *slot_mask,
 	}
 
 	if ((m_exe_connection & EXE_CONNECTION_CHAL) != 0) {
-		status = spdm_challenge(context, slot_id, measurement_hash_type,
+		status = libspdm_challenge(context, slot_id, measurement_hash_type,
 					measurement_hash);
 		if (RETURN_ERROR(status)) {
 			return status;
