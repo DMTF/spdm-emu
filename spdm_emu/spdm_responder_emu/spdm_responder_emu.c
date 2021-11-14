@@ -139,7 +139,7 @@ boolean platform_server(IN SOCKET socket)
 			break;
 
 		case SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE:
-			spdm_init_key_update_encap_state(m_spdm_context);
+			libspdm_init_key_update_encap_state(m_spdm_context);
 			result = send_platform_data(
 				socket,
 				SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, NULL,

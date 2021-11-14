@@ -5,7 +5,6 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_emu
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_transport_none_lib
                     ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
                     ${LIBSPDM_DIR}/include
-                    ${LIBSPDM_DIR}/include/hal
                     ${LIBSPDM_DIR}/include/hal/${ARCH}
                     ${LIBSPDM_DIR}/os_stub/include
 )
