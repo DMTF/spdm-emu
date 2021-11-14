@@ -7,7 +7,7 @@
 #ifndef __SPDM_EMU_NV_STORAGE_LIB_H__
 #define __SPDM_EMU_NV_STORAGE_LIB_H__
 
-#include <base.h>
+#include <hal/base.h>
 #include <industry_standard/spdm.h>
 
 #define SPDM_NEGOTIATED_STATE_STRUCT_SIGNATURE SIGNATURE_32('S', 'P', 'D', 'M')

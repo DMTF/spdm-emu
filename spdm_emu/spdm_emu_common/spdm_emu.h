@@ -7,8 +7,8 @@
 #ifndef __SPDM_TEST_H__
 #define __SPDM_TEST_H__
 
-#include <base.h>
-#include <library/memlib.h>
+#include <hal/base.h>
+#include <hal/library/memlib.h>
 #include <library/spdm_common_lib.h>
 #include <industry_standard/mctp.h>
 #include <industry_standard/pldm.h>

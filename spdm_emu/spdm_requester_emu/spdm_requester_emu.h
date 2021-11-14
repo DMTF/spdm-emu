@@ -7,8 +7,8 @@
 #ifndef __SPDM_REQUESTER_TEST_H__
 #define __SPDM_REQUESTER_TEST_H__
 
-#include <base.h>
-#include <library/memlib.h>
+#include <hal/base.h>
+#include <hal/library/memlib.h>
 #include <library/spdm_requester_lib.h>
 #include <spdm_transport_none_lib.h>
 #include <library/spdm_transport_mctp_lib.h>
