@@ -125,7 +125,7 @@ return_status spdm_get_response_vendor_defined_request(
 						   request, request_size,
 						   response, response_size);
 	if (RETURN_ERROR(status)) {
-		spdm_generate_error_response(spdm_context,
+		libspdm_generate_error_response(spdm_context,
 					     SPDM_ERROR_CODE_INVALID_REQUEST, 0,
 					     response_size, response);
 	}

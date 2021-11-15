@@ -109,7 +109,7 @@ boolean platform_server(IN SOCKET socket)
 	return_status status;
 
 	while (TRUE) {
-		status = spdm_responder_dispatch_message(m_spdm_context);
+		status = libspdm_responder_dispatch_message(m_spdm_context);
 		if (status == RETURN_SUCCESS) {
 			// success dispatch SPDM message
 		}
