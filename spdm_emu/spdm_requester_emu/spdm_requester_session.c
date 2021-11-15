@@ -126,21 +126,21 @@ return_status do_session_via_spdm(IN boolean use_psk)
 
 	heartbeat_period = 0;
 	zero_mem(measurement_hash, sizeof(measurement_hash));
-	status = spdm_start_session(spdm_context, use_psk,
+	status = libspdm_start_session(spdm_context, use_psk,
 				    m_use_measurement_summary_hash_type,
 				    m_use_slot_id, &session_id,
 				    &heartbeat_period, measurement_hash);
 	if (RETURN_ERROR(status)) {
-		printf("spdm_start_session - %x\n", (uint32)status);
+		printf("libspdm_start_session - %x\n", (uint32)status);
 		return status;
 	}
 
 	do_app_session_via_spdm(session_id);
 
 	if ((m_exe_session & EXE_SESSION_HEARTBEAT) != 0) {
-		status = spdm_heartbeat(spdm_context, session_id);
+		status = libspdm_heartbeat(spdm_context, session_id);
 		if (RETURN_ERROR(status)) {
-			printf("spdm_heartbeat - %x\n", (uint32)status);
+			printf("libspdm_heartbeat - %x\n", (uint32)status);
 		}
 	}
 
@@ -148,18 +148,18 @@ return_status do_session_via_spdm(IN boolean use_psk)
 		switch (m_use_key_update_action) {
 		case SPDM_KEY_UPDATE_ACTION_REQUESTER:
 			status =
-				spdm_key_update(spdm_context, session_id, TRUE);
+				libspdm_key_update(spdm_context, session_id, TRUE);
 			if (RETURN_ERROR(status)) {
-				printf("spdm_key_update - %x\n",
+				printf("libspdm_key_update - %x\n",
 				       (uint32)status);
 			}
 			break;
 
 		case SPDM_KEY_UPDATE_ACTION_ALL:
-			status = spdm_key_update(spdm_context, session_id,
+			status = libspdm_key_update(spdm_context, session_id,
 						 FALSE);
 			if (RETURN_ERROR(status)) {
-				printf("spdm_key_update - %x\n",
+				printf("libspdm_key_update - %x\n",
 				       (uint32)status);
 			}
 			break;
@@ -173,10 +173,10 @@ return_status do_session_via_spdm(IN boolean use_psk)
 			if (!result) {
 				printf("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE fail\n");
 			} else {
-				status = spdm_send_receive_encap_request(
+				status = libspdm_send_receive_encap_request(
 					spdm_context, &session_id);
 				if (RETURN_ERROR(status)) {
-					printf("spdm_send_receive_encap_request - spdm_key_update - %x\n",
+					printf("libspdm_send_receive_encap_request - libspdm_key_update - %x\n",
 					       (uint32)status);
 				}
 			}
@@ -197,10 +197,10 @@ return_status do_session_via_spdm(IN boolean use_psk)
 	}
 
 	if ((m_exe_session & EXE_SESSION_NO_END) == 0) {
-		status = spdm_stop_session(spdm_context, session_id,
+		status = libspdm_stop_session(spdm_context, session_id,
 					   m_end_session_attributes);
 		if (RETURN_ERROR(status)) {
-			printf("spdm_stop_session - %x\n", (uint32)status);
+			printf("libspdm_stop_session - %x\n", (uint32)status);
 			return status;
 		}
 	}
