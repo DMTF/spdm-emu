@@ -135,7 +135,7 @@ return_status spdm_transport_none_encode_message(
 	transport_encode_message = none_encode_message;
 	if (session_id != NULL) {
 		secured_message_context =
-			spdm_get_secured_message_context_via_session_id(
+			libspdm_get_secured_message_context_via_session_id(
 				spdm_context, *session_id);
 		if (secured_message_context == NULL) {
 			return RETURN_UNSUPPORTED;
@@ -270,7 +270,7 @@ return_status spdm_transport_none_decode_message(
 		*session_id = SecuredMessageSessionId;
 
 		secured_message_context =
-			spdm_get_secured_message_context_via_session_id(
+			libspdm_get_secured_message_context_via_session_id(
 				spdm_context, *SecuredMessageSessionId);
 		if (secured_message_context == NULL) {
 			spdm_error.error_code = SPDM_ERROR_CODE_INVALID_SESSION;
