@@ -69,14 +69,14 @@ void append_pcap_packet_data(IN void *header, OPTIONAL IN uintn header_size,
 		time_t rawtime;
 		time(&rawtime);
 
-		pcap_packet_header.ts_sec = (uint32)rawtime;
+		pcap_packet_header.ts_sec = (uint32_t)rawtime;
 		pcap_packet_header.ts_usec = 0;
 
 		pcap_packet_header.incl_len =
-			(uint32)((total_size > PCAP_PACKET_MAX_SIZE) ?
+			(uint32_t)((total_size > PCAP_PACKET_MAX_SIZE) ?
 					 PCAP_PACKET_MAX_SIZE :
 					 total_size);
-		pcap_packet_header.orig_len = (uint32)total_size;
+		pcap_packet_header.orig_len = (uint32_t)total_size;
 
 		if ((fwrite(&pcap_packet_header, 1, sizeof(pcap_packet_header),
 			    m_pcap_file)) != sizeof(pcap_packet_header)) {

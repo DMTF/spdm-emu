@@ -6,9 +6,9 @@
 
 #include "spdm_responder_emu.h"
 
-uint32 m_command;
+uint32_t m_command;
 uintn m_receive_buffer_size;
-uint8 m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
+uint8_t m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
 
 SOCKET m_server_socket;
 
@@ -16,10 +16,10 @@ extern void *m_spdm_context;
 
 void *spdm_server_init(void);
 
-boolean create_socket(IN uint16 port_number, IN SOCKET *listen_socket)
+boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
 {
 	struct sockaddr_in my_address;
-	int32 res;
+	int32_t res;
 
 	// Initialize Winsock
 #ifdef _MSC_VER
@@ -97,7 +97,7 @@ doe_discovery_response_mine_t m_doe_response = {
 	{
 		PCI_DOE_VENDOR_ID_PCISIG,
 		PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY, 0,
-		sizeof(m_doe_response) / sizeof(uint32), // length
+		sizeof(m_doe_response) / sizeof(uint32_t), // length
 	},
 	{ PCI_DOE_VENDOR_ID_PCISIG, PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY,
 	  0x00 },
@@ -124,7 +124,7 @@ boolean platform_server(IN SOCKET socket)
 		case SOCKET_SPDM_COMMAND_TEST:
 			result = send_platform_data(socket,
 						    SOCKET_SPDM_COMMAND_TEST,
-						    (uint8 *)"Server Hello!",
+						    (uint8_t *)"Server Hello!",
 						    sizeof("Server Hello!"));
 			if (!result) {
 				printf("send_platform_data Error - %x\n",
@@ -204,7 +204,7 @@ boolean platform_server(IN SOCKET socket)
 				ASSERT(m_receive_buffer_size ==
 				       sizeof(doe_discovery_request_mine_t));
 				ASSERT(doe_request->doe_header.length ==
-				       sizeof(*doe_request) / sizeof(uint32));
+				       sizeof(*doe_request) / sizeof(uint32_t));
 
 				switch (doe_request->doe_discovery_request
 						.index) {
@@ -234,7 +234,7 @@ boolean platform_server(IN SOCKET socket)
 
 				result = send_platform_data(
 					socket, SOCKET_SPDM_COMMAND_NORMAL,
-					(uint8 *)&m_doe_response,
+					(uint8_t *)&m_doe_response,
 					sizeof(m_doe_response));
 				if (!result) {
 					printf("send_platform_data Error - %x\n",
@@ -272,12 +272,12 @@ boolean platform_server(IN SOCKET socket)
 	}
 }
 
-boolean platform_server_routine(IN uint16 port_number)
+boolean platform_server_routine(IN uint16_t port_number)
 {
 	SOCKET listen_socket;
 	struct sockaddr_in peer_address;
 	boolean result;
-	uint32 length;
+	uint32_t length;
 	boolean continue_serving;
 
 	result = create_socket(port_number, &listen_socket);

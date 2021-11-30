@@ -40,10 +40,10 @@ typedef struct {
 	spdm_message_header_t header;
 	// param1 == RSVD
 	// param2 == RSVD
-	uint16 standard_id;
-	uint8 len;
-	uint16 vendor_id;
-	uint16 payload_length;
+	uint16_t standard_id;
+	uint8_t len;
+	uint16_t vendor_id;
+	uint16_t payload_length;
 	pci_protocol_header_t pci_protocol;
 	pci_ide_km_query_t pci_ide_km_query;
 } spdm_vendor_defined_request_mine_t;
@@ -55,10 +55,10 @@ typedef struct {
 	spdm_message_header_t header;
 	// param1 == RSVD
 	// param2 == RSVD
-	uint16 standard_id;
-	uint8 len;
-	uint16 vendor_id;
-	uint16 payload_length;
+	uint16_t standard_id;
+	uint8_t len;
+	uint16_t vendor_id;
+	uint16_t payload_length;
 	pci_protocol_header_t pci_protocol;
 	pci_ide_km_query_resp_t pci_ide_km_query_resp;
 } spdm_vendor_defined_response_mine_t;
@@ -78,7 +78,7 @@ typedef struct {
 	mctp_message_header_t mctp_header;
 	pldm_message_header_t pldm_header;
 	pldm_message_response_header_t pldm_response_header;
-	uint8 tid;
+	uint8_t tid;
 } secure_session_response_mine_t;
 
 ///

@@ -25,52 +25,52 @@
 #include "command.h"
 #include "nv_storage.h"
 
-extern uint32 m_use_transport_layer;
-extern uint8 m_use_version;
-extern uint8 m_use_secured_message_version;
-extern uint32 m_use_requester_capability_flags;
-extern uint32 m_use_responder_capability_flags;
-extern uint32 m_use_capability_flags;
+extern uint32_t m_use_transport_layer;
+extern uint8_t m_use_version;
+extern uint8_t m_use_secured_message_version;
+extern uint32_t m_use_requester_capability_flags;
+extern uint32_t m_use_responder_capability_flags;
+extern uint32_t m_use_capability_flags;
 
-extern uint8 m_use_basic_mut_auth;
-extern uint8 m_use_mut_auth;
-extern uint8 m_use_measurement_summary_hash_type;
-extern uint8 m_use_measurement_operation;
-extern uint8 m_use_slot_id;
-extern uint8 m_use_slot_count;
+extern uint8_t m_use_basic_mut_auth;
+extern uint8_t m_use_mut_auth;
+extern uint8_t m_use_measurement_summary_hash_type;
+extern uint8_t m_use_measurement_operation;
+extern uint8_t m_use_slot_id;
+extern uint8_t m_use_slot_count;
 
 #define ENCAP_KEY_UPDATE 0x8000
 extern spdm_key_update_action_t m_use_key_update_action;
 
-extern uint32 m_use_hash_algo;
-extern uint32 m_use_measurement_hash_algo;
-extern uint32 m_use_asym_algo;
-extern uint16 m_use_req_asym_algo;
+extern uint32_t m_use_hash_algo;
+extern uint32_t m_use_measurement_hash_algo;
+extern uint32_t m_use_asym_algo;
+extern uint16_t m_use_req_asym_algo;
 
-extern uint8 m_support_measurement_spec;
-extern uint32 m_support_measurement_hash_algo;
-extern uint32 m_support_hash_algo;
-extern uint32 m_support_asym_algo;
-extern uint16 m_support_req_asym_algo;
-extern uint16 m_support_dhe_algo;
-extern uint16 m_support_aead_algo;
-extern uint16 m_support_key_schedule_algo;
+extern uint8_t m_support_measurement_spec;
+extern uint32_t m_support_measurement_hash_algo;
+extern uint32_t m_support_hash_algo;
+extern uint32_t m_support_asym_algo;
+extern uint16_t m_support_req_asym_algo;
+extern uint16_t m_support_dhe_algo;
+extern uint16_t m_support_aead_algo;
+extern uint16_t m_support_key_schedule_algo;
 
-extern uint8 m_end_session_attributes;
+extern uint8_t m_end_session_attributes;
 
 extern char8 *m_load_state_file_name;
 extern char8 *m_save_state_file_name;
 
 #define EXE_MODE_SHUTDOWN 0
 #define EXE_MODE_CONTINUE 1
-extern uint32 m_exe_mode;
+extern uint32_t m_exe_mode;
 
 #define EXE_CONNECTION_VERSION_ONLY 0x1
 #define EXE_CONNECTION_DIGEST 0x2
 #define EXE_CONNECTION_CERT 0x4
 #define EXE_CONNECTION_CHAL 0x8
 #define EXE_CONNECTION_MEAS 0x10
-extern uint32 m_exe_connection;
+extern uint32_t m_exe_connection;
 
 #define EXE_SESSION_KEY_EX 0x1
 #define EXE_SESSION_PSK 0x2
@@ -78,19 +78,19 @@ extern uint32 m_exe_connection;
 #define EXE_SESSION_KEY_UPDATE 0x8
 #define EXE_SESSION_HEARTBEAT 0x10
 #define EXE_SESSION_MEAS 0x20
-extern uint32 m_exe_session;
+extern uint32_t m_exe_session;
 
-void dump_hex_str(IN uint8 *buffer, IN uintn buffer_size);
+void dump_hex_str(IN uint8_t *buffer, IN uintn buffer_size);
 
-void dump_data(IN uint8 *buffer, IN uintn buffer_size);
+void dump_data(IN uint8_t *buffer, IN uintn buffer_size);
 
-void dump_hex(IN uint8 *buffer, IN uintn buffer_size);
+void dump_hex(IN uint8_t *buffer, IN uintn buffer_size);
 
-boolean send_platform_data(IN SOCKET socket, IN uint32 command,
-			   IN uint8 *send_buffer, IN uintn bytes_to_send);
+boolean send_platform_data(IN SOCKET socket, IN uint32_t command,
+			   IN uint8_t *send_buffer, IN uintn bytes_to_send);
 
-boolean receive_platform_data(IN SOCKET socket, OUT uint32 *command,
-			      OUT uint8 *receive_buffer,
+boolean receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
+			      OUT uint8_t *receive_buffer,
 			      IN OUT uintn *bytes_to_receive);
 
 boolean read_input_file(IN char8 *file_name, OUT void **file_data,

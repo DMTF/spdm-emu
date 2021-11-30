@@ -69,7 +69,7 @@ secure_session_response_mine_t m_secure_session_response = {
                                           to execute.
 **/
 return_status test_spdm_process_packet_callback(
-	IN uint32 *session_id, IN boolean is_app_message, IN void *request,
+	IN uint32_t *session_id, IN boolean is_app_message, IN void *request,
 	IN uintn request_size, OUT void *response, IN OUT uintn *response_size)
 {
 	spdm_vendor_defined_request_mine_t *spdm_request;
@@ -115,7 +115,7 @@ return_status test_spdm_process_packet_callback(
 }
 
 return_status spdm_get_response_vendor_defined_request(
-	IN void *spdm_context, IN uint32 *session_id, IN boolean is_app_message,
+	IN void *spdm_context, IN uint32_t *session_id, IN boolean is_app_message,
 	IN uintn request_size, IN void *request, IN OUT uintn *response_size,
 	OUT void *response)
 {
