@@ -10,13 +10,13 @@ extern SOCKET m_socket;
 
 extern void *m_spdm_context;
 
-boolean communicate_platform_data(IN SOCKET socket, IN uint32 command,
-				  IN uint8 *send_buffer, IN uintn bytes_to_send,
-				  OUT uint32 *response,
+boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
+				  IN uint8_t *send_buffer, IN uintn bytes_to_send,
+				  OUT uint32_t *response,
 				  IN OUT uintn *bytes_to_receive,
-				  OUT uint8 *receive_buffer);
+				  OUT uint8_t *receive_buffer);
 
-return_status do_measurement_via_spdm(IN uint32 *session_id);
+return_status do_measurement_via_spdm(IN uint32_t *session_id);
 
 spdm_vendor_defined_request_mine_t mVendorDefinedRequest = {
 	{
@@ -50,7 +50,7 @@ secure_session_request_mine_t mSecureSessionRequest = {
 	},
 };
 
-return_status do_app_session_via_spdm(IN uint32 session_id)
+return_status do_app_session_via_spdm(IN uint32_t session_id)
 {
 	void *spdm_context;
 	return_status status;
@@ -115,12 +115,12 @@ return_status do_session_via_spdm(IN boolean use_psk)
 {
 	void *spdm_context;
 	return_status status;
-	uint32 session_id;
-	uint8 heartbeat_period;
-	uint8 measurement_hash[MAX_HASH_SIZE];
+	uint32_t session_id;
+	uint8_t heartbeat_period;
+	uint8_t measurement_hash[MAX_HASH_SIZE];
 	uintn response_size;
 	boolean result;
-	uint32 response;
+	uint32_t response;
 
 	spdm_context = m_spdm_context;
 
@@ -131,7 +131,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 				    m_use_slot_id, &session_id,
 				    &heartbeat_period, measurement_hash);
 	if (RETURN_ERROR(status)) {
-		printf("libspdm_start_session - %x\n", (uint32)status);
+		printf("libspdm_start_session - %x\n", (uint32_t)status);
 		return status;
 	}
 
@@ -140,7 +140,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 	if ((m_exe_session & EXE_SESSION_HEARTBEAT) != 0) {
 		status = libspdm_heartbeat(spdm_context, session_id);
 		if (RETURN_ERROR(status)) {
-			printf("libspdm_heartbeat - %x\n", (uint32)status);
+			printf("libspdm_heartbeat - %x\n", (uint32_t)status);
 		}
 	}
 
@@ -151,7 +151,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 				libspdm_key_update(spdm_context, session_id, TRUE);
 			if (RETURN_ERROR(status)) {
 				printf("libspdm_key_update - %x\n",
-				       (uint32)status);
+				       (uint32_t)status);
 			}
 			break;
 
@@ -160,7 +160,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 						 FALSE);
 			if (RETURN_ERROR(status)) {
 				printf("libspdm_key_update - %x\n",
-				       (uint32)status);
+				       (uint32_t)status);
 			}
 			break;
 
@@ -177,7 +177,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 					spdm_context, &session_id);
 				if (RETURN_ERROR(status)) {
 					printf("libspdm_send_receive_encap_request - libspdm_key_update - %x\n",
-					       (uint32)status);
+					       (uint32_t)status);
 				}
 			}
 			break;
@@ -192,7 +192,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 		status = do_measurement_via_spdm(&session_id);
 		if (RETURN_ERROR(status)) {
 			printf("do_measurement_via_spdm - %x\n",
-			       (uint32)status);
+			       (uint32_t)status);
 		}
 	}
 
@@ -200,7 +200,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 		status = libspdm_stop_session(spdm_context, session_id,
 					   m_end_session_attributes);
 		if (RETURN_ERROR(status)) {
-			printf("libspdm_stop_session - %x\n", (uint32)status);
+			printf("libspdm_stop_session - %x\n", (uint32_t)status);
 			return status;
 		}
 	}

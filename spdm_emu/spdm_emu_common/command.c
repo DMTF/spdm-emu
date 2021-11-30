@@ -6,7 +6,7 @@
 
 #include "spdm_emu.h"
 
-uint32 m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
+uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
 
 /**
   Read number of bytes data in blocking mode.
@@ -14,11 +14,11 @@ uint32 m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
   If there is no enough data in socket, this function will wait.
   This function will return if enough data is read, or socket error.
 **/
-boolean read_bytes(IN SOCKET socket, OUT uint8 *buffer,
-		   IN uint32 number_of_bytes)
+boolean read_bytes(IN SOCKET socket, OUT uint8_t *buffer,
+		   IN uint32_t number_of_bytes)
 {
-	int32 result;
-	uint32 number_received;
+	int32_t result;
+	uint32_t number_received;
 
 	number_received = 0;
 	while (number_received < number_of_bytes) {
@@ -42,11 +42,11 @@ boolean read_bytes(IN SOCKET socket, OUT uint8 *buffer,
 	return TRUE;
 }
 
-boolean read_data32(IN SOCKET socket, OUT uint32 *data)
+boolean read_data32(IN SOCKET socket, OUT uint32_t *data)
 {
 	boolean result;
 
-	result = read_bytes(socket, (uint8 *)data, sizeof(uint32));
+	result = read_bytes(socket, (uint8_t *)data, sizeof(uint32_t));
 	if (!result) {
 		return result;
 	}
@@ -63,11 +63,11 @@ boolean read_data32(IN SOCKET socket, OUT uint32 *data)
   If there is no enough data in socket, this function will wait.
   This function will return if enough data is read, or socket error.
 **/
-boolean read_multiple_bytes(IN SOCKET socket, OUT uint8 *buffer,
-			    OUT uint32 *bytes_received,
-			    IN uint32 max_buffer_length)
+boolean read_multiple_bytes(IN SOCKET socket, OUT uint8_t *buffer,
+			    OUT uint32_t *bytes_received,
+			    IN uint32_t max_buffer_length)
 {
-	uint32 length;
+	uint32_t length;
 	boolean result;
 
 	result = read_data32(socket, &length);
@@ -76,7 +76,7 @@ boolean read_multiple_bytes(IN SOCKET socket, OUT uint8 *buffer,
 	}
 	printf("Platform port Receive size: ");
 	length = ntohl(length);
-	dump_data((uint8 *)&length, sizeof(uint32));
+	dump_data((uint8_t *)&length, sizeof(uint32_t));
 	printf("\n");
 	length = ntohl(length);
 
@@ -100,14 +100,14 @@ boolean read_multiple_bytes(IN SOCKET socket, OUT uint8 *buffer,
 	return TRUE;
 }
 
-boolean receive_platform_data(IN SOCKET socket, OUT uint32 *command,
-			      OUT uint8 *receive_buffer,
+boolean receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
+			      OUT uint8_t *receive_buffer,
 			      IN OUT uintn *bytes_to_receive)
 {
 	boolean result;
-	uint32 response;
-	uint32 transport_type;
-	uint32 bytes_received;
+	uint32_t response;
+	uint32_t transport_type;
+	uint32_t bytes_received;
 
 	result = read_data32(socket, &response);
 	if (!result) {
@@ -116,7 +116,7 @@ boolean receive_platform_data(IN SOCKET socket, OUT uint32 *command,
 	*command = response;
 	printf("Platform port Receive command: ");
 	response = ntohl(response);
-	dump_data((uint8 *)&response, sizeof(uint32));
+	dump_data((uint8_t *)&response, sizeof(uint32_t));
 	printf("\n");
 
 	result = read_data32(socket, &transport_type);
@@ -125,7 +125,7 @@ boolean receive_platform_data(IN SOCKET socket, OUT uint32 *command,
 	}
 	printf("Platform port Receive transport_type: ");
 	transport_type = ntohl(transport_type);
-	dump_data((uint8 *)&transport_type, sizeof(uint32));
+	dump_data((uint8_t *)&transport_type, sizeof(uint32_t));
 	printf("\n");
 	transport_type = ntohl(transport_type);
 	if (transport_type != m_use_transport_layer) {
@@ -135,7 +135,7 @@ boolean receive_platform_data(IN SOCKET socket, OUT uint32 *command,
 
 	bytes_received = 0;
 	result = read_multiple_bytes(socket, receive_buffer, &bytes_received,
-				     (uint32)*bytes_to_receive);
+				     (uint32_t)*bytes_to_receive);
 	if (!result) {
 		return result;
 	}
@@ -173,11 +173,11 @@ boolean receive_platform_data(IN SOCKET socket, OUT uint32 *command,
 
   This function will return if data is written, or socket error.
 **/
-boolean write_bytes(IN SOCKET socket, IN uint8 *buffer,
-		    IN uint32 number_of_bytes)
+boolean write_bytes(IN SOCKET socket, IN uint8_t *buffer,
+		    IN uint32_t number_of_bytes)
 {
-	int32 result;
-	uint32 number_sent;
+	int32_t result;
+	uint32_t number_sent;
 
 	number_sent = 0;
 	while (number_sent < number_of_bytes) {
@@ -206,10 +206,10 @@ boolean write_bytes(IN SOCKET socket, IN uint8 *buffer,
 	return TRUE;
 }
 
-boolean write_data32(IN SOCKET socket, IN uint32 data)
+boolean write_data32(IN SOCKET socket, IN uint32_t data)
 {
 	data = htonl(data);
-	return write_bytes(socket, (uint8 *)&data, sizeof(uint32));
+	return write_bytes(socket, (uint8_t *)&data, sizeof(uint32_t));
 }
 
 /**
@@ -218,8 +218,8 @@ boolean write_data32(IN SOCKET socket, IN uint32 data)
   The length is presented as first 4 bytes in big endian.
   The data follows the length.
 **/
-boolean write_multiple_bytes(IN SOCKET socket, IN uint8 *buffer,
-			     IN uint32 bytes_to_send)
+boolean write_multiple_bytes(IN SOCKET socket, IN uint8_t *buffer,
+			     IN uint32_t bytes_to_send)
 {
 	boolean result;
 
@@ -229,7 +229,7 @@ boolean write_multiple_bytes(IN SOCKET socket, IN uint8 *buffer,
 	}
 	printf("Platform port Transmit size: ");
 	bytes_to_send = htonl(bytes_to_send);
-	dump_data((uint8 *)&bytes_to_send, sizeof(uint32));
+	dump_data((uint8_t *)&bytes_to_send, sizeof(uint32_t));
 	printf("\n");
 	bytes_to_send = htonl(bytes_to_send);
 
@@ -243,12 +243,12 @@ boolean write_multiple_bytes(IN SOCKET socket, IN uint8 *buffer,
 	return TRUE;
 }
 
-boolean send_platform_data(IN SOCKET socket, IN uint32 command,
-			   IN uint8 *send_buffer, IN uintn bytes_to_send)
+boolean send_platform_data(IN SOCKET socket, IN uint32_t command,
+			   IN uint8_t *send_buffer, IN uintn bytes_to_send)
 {
 	boolean result;
-	uint32 request;
-	uint32 transport_type;
+	uint32_t request;
+	uint32_t transport_type;
 
 	request = command;
 	result = write_data32(socket, request);
@@ -257,7 +257,7 @@ boolean send_platform_data(IN SOCKET socket, IN uint32 command,
 	}
 	printf("Platform port Transmit command: ");
 	request = htonl(request);
-	dump_data((uint8 *)&request, sizeof(uint32));
+	dump_data((uint8_t *)&request, sizeof(uint32_t));
 	printf("\n");
 
 	result = write_data32(socket, m_use_transport_layer);
@@ -266,11 +266,11 @@ boolean send_platform_data(IN SOCKET socket, IN uint32 command,
 	}
 	printf("Platform port Transmit transport_type: ");
 	transport_type = ntohl(m_use_transport_layer);
-	dump_data((uint8 *)&transport_type, sizeof(uint32));
+	dump_data((uint8_t *)&transport_type, sizeof(uint32_t));
 	printf("\n");
 
 	result = write_multiple_bytes(socket, send_buffer,
-				      (uint32)bytes_to_send);
+				      (uint32_t)bytes_to_send);
 	if (!result) {
 		return result;
 	}

@@ -10,14 +10,14 @@
   EXE_MODE_SHUTDOWN
   EXE_MODE_CONTINUE
 */
-uint32 m_exe_mode = EXE_MODE_SHUTDOWN;
+uint32_t m_exe_mode = EXE_MODE_SHUTDOWN;
 
-uint32 m_exe_connection = (0 |
+uint32_t m_exe_connection = (0 |
 			   // EXE_CONNECTION_VERSION_ONLY |
 			   EXE_CONNECTION_DIGEST | EXE_CONNECTION_CERT |
 			   EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS | 0);
 
-uint32 m_exe_session =
+uint32_t m_exe_session =
 	(0 | EXE_SESSION_KEY_EX | EXE_SESSION_PSK |
 	 // EXE_SESSION_NO_END |
 	 EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS | 0);
@@ -107,7 +107,7 @@ void print_usage(IN char8 *name)
 }
 
 typedef struct {
-	uint32 value;
+	uint32_t value;
 	char8 *name;
 } value_string_entry_t;
 
@@ -292,7 +292,7 @@ value_string_entry_t m_exe_session_string_table[] = {
 
 boolean get_value_from_name(IN value_string_entry_t *table,
 			    IN uintn entry_count, IN char8 *name,
-			    OUT uint32 *value)
+			    OUT uint32_t *value)
 {
 	uintn index;
 
@@ -307,9 +307,9 @@ boolean get_value_from_name(IN value_string_entry_t *table,
 
 boolean get_flags_from_name(IN value_string_entry_t *table,
 			    IN uintn entry_count, IN char8 *name,
-			    OUT uint32 *flags)
+			    OUT uint32_t *flags)
 {
-	uint32 value;
+	uint32_t value;
 	char8 *flag_name;
 	char8 *local_name;
 	boolean ret;
@@ -347,7 +347,7 @@ done:
 
 void process_args(char *program_name, int argc, char *argv[])
 {
-	uint32 data32;
+	uint32_t data32;
 	char8 *pcap_file_name;
 
 	pcap_file_name = NULL;
@@ -398,7 +398,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_use_version = (uint8)data32;
+				m_use_version = (uint8_t)data32;
 				printf("ver - 0x%02x\n", m_use_version);
 				argc -= 2;
 				argv += 2;
@@ -422,7 +422,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_use_secured_message_version = (uint8)data32;
+				m_use_secured_message_version = (uint8_t)data32;
 				printf("sec_ver - 0x%02x\n",
 				       m_use_secured_message_version);
 				argc -= 2;
@@ -511,7 +511,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_support_measurement_spec = (uint8)data32;
+				m_support_measurement_spec = (uint8_t)data32;
 				printf("meas_spec - 0x%02x\n",
 				       m_support_measurement_spec);
 				argc -= 2;
@@ -583,7 +583,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_support_req_asym_algo = (uint16)data32;
+				m_support_req_asym_algo = (uint16_t)data32;
 				printf("req_asym - 0x%04x\n",
 				       m_support_req_asym_algo);
 				argc -= 2;
@@ -606,7 +606,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_support_dhe_algo = (uint16)data32;
+				m_support_dhe_algo = (uint16_t)data32;
 				printf("dhe - 0x%04x\n", m_support_dhe_algo);
 				argc -= 2;
 				argv += 2;
@@ -629,7 +629,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_support_aead_algo = (uint16)data32;
+				m_support_aead_algo = (uint16_t)data32;
 				printf("aead - 0x%04x\n", m_support_aead_algo);
 				argc -= 2;
 				argv += 2;
@@ -653,7 +653,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_support_key_schedule_algo = (uint16)data32;
+				m_support_key_schedule_algo = (uint16_t)data32;
 				printf("key_schedule - 0x%04x\n",
 				       m_support_key_schedule_algo);
 				argc -= 2;
@@ -678,7 +678,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_use_basic_mut_auth = (uint8)data32;
+				m_use_basic_mut_auth = (uint8_t)data32;
 				printf("basic_mut_auth - 0x%02x\n",
 				       m_use_basic_mut_auth);
 				argc -= 2;
@@ -703,7 +703,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_use_mut_auth = (uint8)data32;
+				m_use_mut_auth = (uint8_t)data32;
 				printf("mut_auth - 0x%02x\n", m_use_mut_auth);
 				argc -= 2;
 				argv += 2;
@@ -728,7 +728,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					exit(0);
 				}
 				m_use_measurement_summary_hash_type =
-					(uint8)data32;
+					(uint8_t)data32;
 				printf("meas_sum - 0x%02x\n",
 				       m_use_measurement_summary_hash_type);
 				argc -= 2;
@@ -753,7 +753,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_use_measurement_operation = (uint8)data32;
+				m_use_measurement_operation = (uint8_t)data32;
 				printf("meas_op - 0x%02x\n",
 				       m_use_measurement_operation);
 				argc -= 2;
@@ -802,7 +802,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_use_slot_id = (uint8)data32;
+				m_use_slot_id = (uint8_t)data32;
 				printf("slot_id - 0x%02x\n", m_use_slot_id);
 				argc -= 2;
 				argv += 2;
@@ -826,7 +826,7 @@ void process_args(char *program_name, int argc, char *argv[])
 					print_usage(program_name);
 					exit(0);
 				}
-				m_use_slot_count = (uint8)data32;
+				m_use_slot_count = (uint8_t)data32;
 				printf("slot_count - 0x%02x\n",
 				       m_use_slot_count);
 				argc -= 2;

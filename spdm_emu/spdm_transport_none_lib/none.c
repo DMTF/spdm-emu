@@ -20,14 +20,14 @@
   @retval RETURN_SUCCESS               The message is encoded successfully.
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
 **/
-return_status none_encode_message(IN uint32 *session_id, IN uintn message_size,
+return_status none_encode_message(IN uint32_t *session_id, IN uintn message_size,
 				  IN void *message,
 				  IN OUT uintn *transport_message_size,
 				  OUT void *transport_message)
 {
     *transport_message_size = message_size;
-    copy_mem((uint8 *)transport_message, message, message_size);
-    zero_mem((uint8 *)transport_message + message_size,
+    copy_mem((uint8_t *)transport_message, message, message_size);
+    zero_mem((uint8_t *)transport_message + message_size,
              *transport_message_size - message_size);
     return RETURN_SUCCESS;
 }
@@ -45,7 +45,7 @@ return_status none_encode_message(IN uint32 *session_id, IN uintn message_size,
   @retval RETURN_SUCCESS               The message is encoded successfully.
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
 **/
-return_status none_decode_message(OUT uint32 **session_id,
+return_status none_decode_message(OUT uint32_t **session_id,
 				  IN uintn transport_message_size,
 				  IN void *transport_message,
 				  IN OUT uintn *message_size, OUT void *message)
@@ -68,8 +68,8 @@ return_status none_decode_message(OUT uint32 **session_id,
           It shall be no greater than 8.
           0 means no sequence number is required.
 **/
-uint8 spdm_none_get_sequence_number(IN uint64 sequence_number,
-				    IN OUT uint8 *sequence_number_buffer)
+uint8_t spdm_none_get_sequence_number(IN uint64_t sequence_number,
+				    IN OUT uint8_t *sequence_number_buffer)
 {
     return 0;
 }
@@ -82,7 +82,7 @@ uint8 spdm_none_get_sequence_number(IN uint64 sequence_number,
   @return Max random number count in an SPDM secured message.
           0 means no randum number is required.
 **/
-uint32 spdm_none_get_max_random_number_count(void)
+uint32_t spdm_none_get_max_random_number_count(void)
 {
 	return 0;
 }

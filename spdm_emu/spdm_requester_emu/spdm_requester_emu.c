@@ -13,7 +13,7 @@ struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
 #else
 struct in_addr m_ip_address = { 0x0100007F };
 #endif
-uint8 m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
+uint8_t m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
 
 extern SOCKET m_socket;
 
@@ -21,23 +21,23 @@ extern void *m_spdm_context;
 
 void *spdm_client_init(void);
 
-boolean communicate_platform_data(IN SOCKET socket, IN uint32 command,
-				  IN uint8 *send_buffer, IN uintn bytes_to_send,
-				  OUT uint32 *response,
+boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
+				  IN uint8_t *send_buffer, IN uintn bytes_to_send,
+				  OUT uint32_t *response,
 				  IN OUT uintn *bytes_to_receive,
-				  OUT uint8 *receive_buffer);
+				  OUT uint8_t *receive_buffer);
 
-return_status do_measurement_via_spdm(IN uint32 *session_id);
+return_status do_measurement_via_spdm(IN uint32_t *session_id);
 
 return_status do_authentication_via_spdm(void);
 
 return_status do_session_via_spdm(IN boolean use_psk);
 
-boolean init_client(OUT SOCKET *sock, IN uint16 port)
+boolean init_client(OUT SOCKET *sock, IN uint16_t port)
 {
 	SOCKET client_socket;
 	struct sockaddr_in server_addr;
-	int32 ret_val;
+	int32_t ret_val;
 
 	client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (client_socket == INVALID_SOCKET) {
@@ -81,18 +81,18 @@ doe_discovery_request_mine_t m_doe_request = {
 	{
 		PCI_DOE_VENDOR_ID_PCISIG,
 		PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY, 0,
-		sizeof(m_doe_request) / sizeof(uint32), // length
+		sizeof(m_doe_request) / sizeof(uint32_t), // length
 	},
 	{
 		0, // index
 	},
 };
 
-boolean platform_client_routine(IN uint16 port_number)
+boolean platform_client_routine(IN uint16_t port_number)
 {
 	SOCKET platform_socket;
 	boolean result;
-	uint32 response;
+	uint32_t response;
 	uintn response_size;
 	return_status status;
 
@@ -115,7 +115,7 @@ boolean platform_client_routine(IN uint16 port_number)
 		result = communicate_platform_data(
 			platform_socket,
 			SOCKET_SPDM_COMMAND_TEST,
-			(uint8 *)"Client Hello!",
+			(uint8_t *)"Client Hello!",
 			sizeof("Client Hello!"), &response,
 			&response_size, m_receive_buffer);
 		if (!result) {
@@ -130,9 +130,9 @@ boolean platform_client_routine(IN uint16 port_number)
 			response_size = sizeof(doe_response);
 			result = communicate_platform_data(
 				platform_socket, SOCKET_SPDM_COMMAND_NORMAL,
-				(uint8 *)&m_doe_request, sizeof(m_doe_request),
+				(uint8_t *)&m_doe_request, sizeof(m_doe_request),
 				&response, &response_size,
-				(uint8 *)&doe_response);
+				(uint8_t *)&doe_response);
 			if (!result) {
 				goto done;
 			}
@@ -142,7 +142,7 @@ boolean platform_client_routine(IN uint16 port_number)
 			ASSERT(doe_response.doe_header.data_object_type ==
 			       PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY);
 			ASSERT(doe_response.doe_header.length ==
-			       sizeof(doe_response) / sizeof(uint32));
+			       sizeof(doe_response) / sizeof(uint32_t));
 			ASSERT(doe_response.doe_discovery_response.vendor_id ==
 			       PCI_DOE_VENDOR_ID_PCISIG);
 
@@ -160,7 +160,7 @@ boolean platform_client_routine(IN uint16 port_number)
 
 	status = do_authentication_via_spdm();
 	if (RETURN_ERROR(status)) {
-		printf("do_authentication_via_spdm - %x\n", (uint32)status);
+		printf("do_authentication_via_spdm - %x\n", (uint32_t)status);
 		goto done;
 	}
 
@@ -168,7 +168,7 @@ boolean platform_client_routine(IN uint16 port_number)
 		status = do_measurement_via_spdm(NULL);
 		if (RETURN_ERROR(status)) {
 			printf("do_measurement_via_spdm - %x\n",
-			       (uint32)status);
+			       (uint32_t)status);
 			goto done;
 		}
 	}
@@ -178,7 +178,7 @@ boolean platform_client_routine(IN uint16 port_number)
 			status = do_session_via_spdm(FALSE);
 			if (RETURN_ERROR(status)) {
 				printf("do_session_via_spdm - %x\n",
-				       (uint32)status);
+				       (uint32_t)status);
 				goto done;
 			}
 		}
@@ -187,7 +187,7 @@ boolean platform_client_routine(IN uint16 port_number)
 			status = do_session_via_spdm(TRUE);
 			if (RETURN_ERROR(status)) {
 				printf("do_session_via_spdm - %x\n",
-				       (uint32)status);
+				       (uint32_t)status);
 				goto done;
 			}
 		}

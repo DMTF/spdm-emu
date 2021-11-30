@@ -8,7 +8,7 @@
 
 char8 *m_load_state_file_name;
 char8 *m_save_state_file_name;
-uint8 m_end_session_attributes =
+uint8_t m_end_session_attributes =
 	SPDM_END_SESSION_REQUEST_ATTRIBUTES_PRESERVE_NEGOTIATED_STATE_CLEAR;
 
 /**
@@ -22,9 +22,9 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
 	uintn file_size;
 	spdm_negotiated_state_struct_t negotiated_state;
 	spdm_data_parameter_t parameter;
-	uint8 data8;
-	uint16 data16;
-	uint32 data32;
+	uint8_t data8;
+	uint16_t data16;
+	uint32_t data32;
 	spdm_version_number_t spdm_version;
 
 	if (m_load_state_file_name == NULL) {
@@ -162,9 +162,9 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 	spdm_negotiated_state_struct_t negotiated_state;
 	uintn data_size;
 	spdm_data_parameter_t parameter;
-	uint8 data8;
-	uint16 data16;
-	uint32 data32;
+	uint8_t data8;
+	uint16_t data16;
+	uint32_t data32;
 	spdm_version_number_t spdm_version[MAX_SPDM_VERSION_COUNT];
 	uintn index;
 
@@ -224,7 +224,7 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 	ASSERT(data_size / sizeof(spdm_version_number_t) > 0);
 	index = data_size / sizeof(spdm_version_number_t) - 1;
 	negotiated_state.spdm_version =
-		(uint8)((spdm_version[index].major_version << 4) |
+		(uint8_t)((spdm_version[index].major_version << 4) |
 			spdm_version[index].minor_version);
 
 	if (is_requester) {

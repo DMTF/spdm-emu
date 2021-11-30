@@ -9,11 +9,11 @@
 void *m_spdm_context;
 SOCKET m_socket;
 
-boolean communicate_platform_data(IN SOCKET socket, IN uint32 command,
-				  IN uint8 *send_buffer, IN uintn bytes_to_send,
-				  OUT uint32 *response,
+boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
+				  IN uint8_t *send_buffer, IN uintn bytes_to_send,
+				  OUT uint32_t *response,
 				  IN OUT uintn *bytes_to_receive,
-				  OUT uint8 *receive_buffer)
+				  OUT uint8_t *receive_buffer)
 {
 	boolean result;
 
@@ -47,12 +47,12 @@ boolean communicate_platform_data(IN SOCKET socket, IN uint32 command,
 
 return_status spdm_device_send_message(IN void *spdm_context,
 				       IN uintn request_size, IN void *request,
-				       IN uint64 timeout)
+				       IN uint64_t timeout)
 {
 	boolean result;
 
 	result = send_platform_data(m_socket, SOCKET_SPDM_COMMAND_NORMAL,
-				    request, (uint32)request_size);
+				    request, (uint32_t)request_size);
 	if (!result) {
 		printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -69,10 +69,10 @@ return_status spdm_device_send_message(IN void *spdm_context,
 return_status spdm_device_receive_message(IN void *spdm_context,
 					  IN OUT uintn *response_size,
 					  IN OUT void *response,
-					  IN uint64 timeout)
+					  IN uint64_t timeout)
 {
 	boolean result;
-	uint32 command;
+	uint32_t command;
 
 	result = receive_platform_data(m_socket, &command, response,
 				       response_size);
@@ -92,22 +92,22 @@ return_status spdm_device_receive_message(IN void *spdm_context,
 void *spdm_client_init(void)
 {
 	void *spdm_context;
-	uint8 index;
+	uint8_t index;
 	return_status status;
 	boolean res;
 	void *data;
 	uintn data_size;
 	spdm_data_parameter_t parameter;
-	uint8 data8;
-	uint16 data16;
-	uint32 data32;
+	uint8_t data8;
+	uint16_t data16;
+	uint32_t data32;
 	void *hash;
 	uintn hash_size;
-	uint8 *root_cert;
+	uint8_t *root_cert;
 	uintn root_cert_size;
 	spdm_version_number_t spdm_version;
 
-	printf("context_size - 0x%x\n", (uint32)libspdm_get_context_size());
+	printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
 	m_spdm_context = (void *)malloc(libspdm_get_context_size());
 	if (m_spdm_context == NULL) {
@@ -210,7 +210,7 @@ void *spdm_client_init(void)
 			spdm_context,
 			(m_exe_connection & EXE_CONNECTION_VERSION_ONLY) != 0);
 		if (RETURN_ERROR(status)) {
-			printf("libspdm_init_connection - 0x%x\n", (uint32)status);
+			printf("libspdm_init_connection - 0x%x\n", (uint32_t)status);
 			free(m_spdm_context);
 			m_spdm_context = NULL;
 			return NULL;
@@ -262,7 +262,7 @@ void *spdm_client_init(void)
 							     m_use_asym_algo,
 							     &data, &data_size,
 							     &hash, &hash_size);
-		x509_get_cert_from_cert_chain((uint8 *)data + sizeof(spdm_cert_chain_t) + hash_size,
+		x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
 			data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
 			&root_cert, &root_cert_size);
 		if (res) {
@@ -299,7 +299,7 @@ void *spdm_client_init(void)
 			       TEST_PSK_HINT_STRING,
 			       sizeof(TEST_PSK_HINT_STRING));
 	if (RETURN_ERROR(status)) {
-		printf("libspdm_set_data - %x\n", (uint32)status);
+		printf("libspdm_set_data - %x\n", (uint32_t)status);
 	}
 
 	if (m_save_state_file_name != NULL) {

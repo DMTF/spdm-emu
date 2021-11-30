@@ -14,15 +14,15 @@ extern void *m_spdm_context;
   @param[in]  spdm_context            The SPDM context for the device.
 **/
 return_status spdm_send_receive_get_measurement(IN void *spdm_context,
-						IN uint32 *session_id)
+						IN uint32_t *session_id)
 {
 	return_status status;
-	uint8 number_of_blocks;
-	uint8 number_of_block;
-	uint32 measurement_record_length;
-	uint8 measurement_record[MAX_SPDM_MEASUREMENT_RECORD_SIZE];
-	uint8 index;
-	uint8 request_attribute;
+	uint8_t number_of_blocks;
+	uint8_t number_of_block;
+	uint32_t measurement_record_length;
+	uint8_t measurement_record[MAX_SPDM_MEASUREMENT_RECORD_SIZE];
+	uint8_t index;
+	uint8_t request_attribute;
 
 	if (m_use_measurement_operation ==
 	    SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS) {
@@ -83,7 +83,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
 
   @param[in]  spdm_context            The SPDM context for the device.
 **/
-return_status do_measurement_via_spdm(IN uint32 *session_id)
+return_status do_measurement_via_spdm(IN uint32_t *session_id)
 {
 	return_status status;
 	void *spdm_context;

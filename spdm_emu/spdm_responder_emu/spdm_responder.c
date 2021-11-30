@@ -8,9 +8,9 @@
 
 void *m_spdm_context;
 
-extern uint32 m_command;
+extern uint32_t m_command;
 extern uintn m_receive_buffer_size;
-extern uint8 m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
+extern uint8_t m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
 
 extern SOCKET m_server_socket;
 
@@ -22,7 +22,7 @@ extern SOCKET m_server_socket;
   @param  session_state                 The state of a session.
 **/
 void spdm_server_session_state_callback(IN void *spdm_context,
-					IN uint32 session_id,
+					IN uint32_t session_id,
 					IN spdm_session_state_t session_state);
 
 /**
@@ -35,18 +35,18 @@ void spdm_server_connection_state_callback(
 	IN void *spdm_context, IN spdm_connection_state_t connection_state);
 
 return_status spdm_get_response_vendor_defined_request(
-	IN void *spdm_context, IN uint32 *session_id, IN boolean is_app_message,
+	IN void *spdm_context, IN uint32_t *session_id, IN boolean is_app_message,
 	IN uintn request_size, IN void *request, IN OUT uintn *response_size,
 	OUT void *response);
 
 return_status spdm_device_send_message(IN void *spdm_context,
 				       IN uintn request_size, IN void *request,
-				       IN uint64 timeout)
+				       IN uint64_t timeout)
 {
 	boolean result;
 
 	result = send_platform_data(m_server_socket, SOCKET_SPDM_COMMAND_NORMAL,
-				    request, (uint32)request_size);
+				    request, (uint32_t)request_size);
 	if (!result) {
 		printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -63,7 +63,7 @@ return_status spdm_device_send_message(IN void *spdm_context,
 return_status spdm_device_receive_message(IN void *spdm_context,
 					  IN OUT uintn *response_size,
 					  IN OUT void *response,
-					  IN uint64 timeout)
+					  IN uint64_t timeout)
 {
 	boolean result;
 
@@ -104,12 +104,12 @@ void *spdm_server_init(void)
 {
 	void *spdm_context;
 	spdm_data_parameter_t parameter;
-	uint8 data8;
-	uint16 data16;
-	uint32 data32;
+	uint8_t data8;
+	uint16_t data16;
+	uint32_t data32;
 	spdm_version_number_t spdm_version;
 
-	printf("context_size - 0x%x\n", (uint32)libspdm_get_context_size());
+	printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
 	m_spdm_context = (void *)malloc(libspdm_get_context_size());
 	if (m_spdm_context == NULL) {
@@ -239,15 +239,15 @@ void spdm_server_connection_state_callback(
 	void *data;
 	uintn data_size;
 	spdm_data_parameter_t parameter;
-	uint8 data8;
-	uint16 data16;
-	uint32 data32;
+	uint8_t data8;
+	uint16_t data16;
+	uint32_t data32;
 	return_status status;
 	void *hash;
 	uintn hash_size;
-	uint8 *root_cert;
+	uint8_t *root_cert;
 	uintn root_cert_size;
-	uint8 index;
+	uint8_t index;
 
 	switch (connection_state) {
 	case SPDM_CONNECTION_STATE_NOT_STARTED:
@@ -322,7 +322,7 @@ void spdm_server_connection_state_callback(
 			res = read_requester_root_public_certificate(
 				m_use_hash_algo, m_use_req_asym_algo, &data,
 				&data_size, &hash, &hash_size);
-			x509_get_cert_from_cert_chain((uint8 *)data + sizeof(spdm_cert_chain_t) + hash_size,
+			x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
 				data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
 				&root_cert, &root_cert_size);
 			if (res) {
@@ -356,7 +356,7 @@ void spdm_server_connection_state_callback(
 				       TEST_PSK_HINT_STRING,
 				       sizeof(TEST_PSK_HINT_STRING));
 		if (RETURN_ERROR(status)) {
-			printf("libspdm_set_data - %x\n", (uint32)status);
+			printf("libspdm_set_data - %x\n", (uint32_t)status);
 		}
 
 		if (m_save_state_file_name != NULL) {
@@ -380,12 +380,12 @@ void spdm_server_connection_state_callback(
   @param  session_state                 The state of a session.
 **/
 void spdm_server_session_state_callback(IN void *spdm_context,
-					IN uint32 session_id,
+					IN uint32_t session_id,
 					IN spdm_session_state_t session_state)
 {
 	uintn data_size;
 	spdm_data_parameter_t parameter;
-	uint8 data8;
+	uint8_t data8;
 
 	switch (session_state) {
 	case SPDM_SESSION_STATE_NOT_STARTED:
@@ -394,7 +394,7 @@ void spdm_server_session_state_callback(IN void *spdm_context,
 		if (m_save_state_file_name != NULL) {
 			zero_mem(&parameter, sizeof(parameter));
 			parameter.location = SPDM_DATA_LOCATION_SESSION;
-			*(uint32 *)parameter.additional_data = session_id;
+			*(uint32_t *)parameter.additional_data = session_id;
 
 			data_size = sizeof(data8);
 			libspdm_get_data(spdm_context,
