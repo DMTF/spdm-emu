@@ -6,6 +6,8 @@
 
 #include "spdm_requester_emu.h"
 
+#if (SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
+
 extern void *m_spdm_context;
 
 /**
@@ -95,3 +97,5 @@ return_status do_authentication_via_spdm(void)
 	}
 	return RETURN_SUCCESS;
 }
+
+#endif //(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
