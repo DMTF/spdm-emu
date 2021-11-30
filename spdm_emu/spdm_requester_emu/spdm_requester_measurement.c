@@ -6,6 +6,8 @@
 
 #include "spdm_requester_emu.h"
 
+#if SPDM_ENABLE_CAPABILITY_MEAS_CAP
+
 extern void *m_spdm_context;
 
 /**
@@ -96,3 +98,5 @@ return_status do_measurement_via_spdm(IN uint32_t *session_id)
 	}
 	return RETURN_SUCCESS;
 }
+
+#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP

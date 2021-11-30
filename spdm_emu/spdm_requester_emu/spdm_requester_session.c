@@ -16,7 +16,9 @@ boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
 				  IN OUT uintn *bytes_to_receive,
 				  OUT uint8_t *receive_buffer);
 
+#if SPDM_ENABLE_CAPABILITY_MEAS_CAP
 return_status do_measurement_via_spdm(IN uint32_t *session_id);
+#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP
 
 spdm_vendor_defined_request_mine_t mVendorDefinedRequest = {
 	{
@@ -188,6 +190,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 		}
 	}
 
+#if SPDM_ENABLE_CAPABILITY_MEAS_CAP
 	if ((m_exe_session & EXE_SESSION_MEAS) != 0) {
 		status = do_measurement_via_spdm(&session_id);
 		if (RETURN_ERROR(status)) {
@@ -195,6 +198,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 			       (uint32_t)status);
 		}
 	}
+#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP
 
 	if ((m_exe_session & EXE_SESSION_NO_END) == 0) {
 		status = libspdm_stop_session(spdm_context, session_id,
