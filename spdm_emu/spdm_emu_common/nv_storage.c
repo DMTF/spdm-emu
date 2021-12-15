@@ -21,7 +21,7 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
 	void *file_data;
 	uintn file_size;
 	spdm_negotiated_state_struct_t negotiated_state;
-	spdm_data_parameter_t parameter;
+	libspdm_data_parameter_t parameter;
 	uint8_t data8;
 	uint16_t data16;
 	uint32_t data32;
@@ -82,71 +82,71 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
 	// Set connection info
 	//
 	zero_mem(&parameter, sizeof(parameter));
-	parameter.location = SPDM_DATA_LOCATION_CONNECTION;
+	parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
 	spdm_version.major_version = (m_use_version >> 4) & 0xF;
 	spdm_version.minor_version = m_use_version & 0xF;
 	spdm_version.alpha = 0;
 	spdm_version.update_version_number = 0;
-	libspdm_set_data(spdm_context, SPDM_DATA_SPDM_VERSION, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
 		      &spdm_version, sizeof(spdm_version));
 
 	data8 = 0;
-	libspdm_set_data(spdm_context, SPDM_DATA_CAPABILITY_CT_EXPONENT,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
 		      &parameter, &data8, sizeof(data8));
 	if (is_requester) {
 		data32 = negotiated_state.responder_cap_flags;
 	} else {
 		data32 = negotiated_state.requester_cap_flags;
 	}
-	libspdm_set_data(spdm_context, SPDM_DATA_CAPABILITY_FLAGS, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
 		      &data32, sizeof(data32));
 
 	data8 = m_support_measurement_spec;
-	libspdm_set_data(spdm_context, SPDM_DATA_MEASUREMENT_SPEC, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
 		      &data8, sizeof(data8));
 	data32 = m_support_measurement_hash_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
 		      &data32, sizeof(data32));
 	data32 = m_support_asym_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_BASE_ASYM_ALGO, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_ASYM_ALGO, &parameter,
 		      &data32, sizeof(data32));
 	data32 = m_support_hash_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_BASE_HASH_ALGO, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
 		      &data32, sizeof(data32));
 	if (m_use_version == SPDM_MESSAGE_VERSION_11) {
 		data16 = m_support_dhe_algo;
-		libspdm_set_data(spdm_context, SPDM_DATA_DHE_NAME_GROUP,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP,
 			      &parameter, &data16, sizeof(data16));
 		data16 = m_support_aead_algo;
-		libspdm_set_data(spdm_context, SPDM_DATA_AEAD_CIPHER_SUITE,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_AEAD_CIPHER_SUITE,
 			      &parameter, &data16, sizeof(data16));
 		data16 = m_support_req_asym_algo;
-		libspdm_set_data(spdm_context, SPDM_DATA_REQ_BASE_ASYM_ALG,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG,
 			      &parameter, &data16, sizeof(data16));
 		data16 = m_support_key_schedule_algo;
-		libspdm_set_data(spdm_context, SPDM_DATA_KEY_SCHEDULE, &parameter,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter,
 			      &data16, sizeof(data16));
 	} else {
 		data16 = 0;
-		libspdm_set_data(spdm_context, SPDM_DATA_DHE_NAME_GROUP,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP,
 			      &parameter, &data16, sizeof(data16));
 		data16 = 0;
-		libspdm_set_data(spdm_context, SPDM_DATA_AEAD_CIPHER_SUITE,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_AEAD_CIPHER_SUITE,
 			      &parameter, &data16, sizeof(data16));
 		data16 = 0;
-		libspdm_set_data(spdm_context, SPDM_DATA_REQ_BASE_ASYM_ALG,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG,
 			      &parameter, &data16, sizeof(data16));
 		data16 = 0;
-		libspdm_set_data(spdm_context, SPDM_DATA_KEY_SCHEDULE, &parameter,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter,
 			      &data16, sizeof(data16));
 	}
 
 	//
 	// Set connection state finally.
 	//
-	data32 = SPDM_CONNECTION_STATE_NEGOTIATED;
-	libspdm_set_data(spdm_context, SPDM_DATA_CONNECTION_STATE, &parameter,
+	data32 = LIBSPDM_CONNECTION_STATE_NEGOTIATED;
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
 		      &data32, sizeof(data32));
 
 	return RETURN_SUCCESS;
@@ -161,11 +161,11 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 	boolean ret;
 	spdm_negotiated_state_struct_t negotiated_state;
 	uintn data_size;
-	spdm_data_parameter_t parameter;
+	libspdm_data_parameter_t parameter;
 	uint8_t data8;
 	uint16_t data16;
 	uint32_t data32;
-	spdm_version_number_t spdm_version[MAX_SPDM_VERSION_COUNT];
+	spdm_version_number_t spdm_version[SPDM_MAX_VERSION_COUNT];
 	uintn index;
 
 	if (m_save_state_file_name == NULL) {
@@ -184,24 +184,24 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 	// get setting fron local
 	//
 	zero_mem(&parameter, sizeof(parameter));
-	parameter.location = SPDM_DATA_LOCATION_LOCAL;
+	parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
 	if (is_requester) {
 		data_size = sizeof(data32);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_FLAGS,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
 			      &parameter, &data32, &data_size);
 		negotiated_state.requester_cap_flags = data32;
 		data_size = sizeof(data8);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_CT_EXPONENT,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
 			      &parameter, &data8, &data_size);
 		negotiated_state.requester_cap_ct_exponent = data8;
 	} else {
 		data_size = sizeof(data32);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_FLAGS,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
 			      &parameter, &data32, &data_size);
 		negotiated_state.responder_cap_flags = data32;
 		data_size = sizeof(data8);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_CT_EXPONENT,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
 			      &parameter, &data8, &data_size);
 		negotiated_state.responder_cap_ct_exponent = data8;
 	}
@@ -210,16 +210,16 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 	// get setting fron connection
 	//
 	zero_mem(&parameter, sizeof(parameter));
-	parameter.location = SPDM_DATA_LOCATION_CONNECTION;
+	parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_CONNECTION_STATE, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
 		      &data32, &data_size);
-	ASSERT(data32 == SPDM_CONNECTION_STATE_NEGOTIATED);
+	ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
 
 	data_size = sizeof(spdm_version);
 	zero_mem(spdm_version, sizeof(spdm_version));
-	libspdm_get_data(spdm_context, SPDM_DATA_SPDM_VERSION, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
 		      &spdm_version, &data_size);
 	ASSERT(data_size / sizeof(spdm_version_number_t) > 0);
 	index = data_size / sizeof(spdm_version_number_t) - 1;
@@ -229,20 +229,20 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 
 	if (is_requester) {
 		data_size = sizeof(data32);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_FLAGS,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
 			      &parameter, &data32, &data_size);
 		negotiated_state.responder_cap_flags = data32;
 		data_size = sizeof(data8);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_CT_EXPONENT,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
 			      &parameter, &data8, &data_size);
 		negotiated_state.responder_cap_ct_exponent = data8;
 	} else {
 		data_size = sizeof(data32);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_FLAGS,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
 			      &parameter, &data32, &data_size);
 		negotiated_state.requester_cap_flags = data32;
 		data_size = sizeof(data8);
-		libspdm_get_data(spdm_context, SPDM_DATA_CAPABILITY_CT_EXPONENT,
+		libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
 			      &parameter, &data8, &data_size);
 		negotiated_state.requester_cap_ct_exponent = data8;
 	}
@@ -254,35 +254,35 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 	}
 
 	data_size = sizeof(data8);
-	libspdm_get_data(spdm_context, SPDM_DATA_MEASUREMENT_SPEC, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
 		      &data8, &data_size);
 	negotiated_state.measurement_spec = data8;
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
 		      &data32, &data_size);
 	negotiated_state.measurement_hash_algo = data32;
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_BASE_ASYM_ALGO, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_BASE_ASYM_ALGO, &parameter,
 		      &data32, &data_size);
 	negotiated_state.base_asym_algo = data32;
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_BASE_HASH_ALGO, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
 		      &data32, &data_size);
 	negotiated_state.base_hash_algo = data32;
 	data_size = sizeof(data16);
-	libspdm_get_data(spdm_context, SPDM_DATA_DHE_NAME_GROUP, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP, &parameter,
 		      &data16, &data_size);
 	negotiated_state.dhe_named_group = data16;
 	data_size = sizeof(data16);
-	libspdm_get_data(spdm_context, SPDM_DATA_AEAD_CIPHER_SUITE, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_AEAD_CIPHER_SUITE, &parameter,
 		      &data16, &data_size);
 	negotiated_state.aead_cipher_suite = data16;
 	data_size = sizeof(data16);
-	libspdm_get_data(spdm_context, SPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
 		      &data16, &data_size);
 	negotiated_state.req_base_asym_alg = data16;
 	data_size = sizeof(data16);
-	libspdm_get_data(spdm_context, SPDM_DATA_KEY_SCHEDULE, &parameter, &data16,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter, &data16,
 		      &data_size);
 	negotiated_state.key_schedule = data16;
 

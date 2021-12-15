@@ -97,7 +97,7 @@ void *spdm_client_init(void)
 	boolean res;
 	void *data;
 	uintn data_size;
-	spdm_data_parameter_t parameter;
+	libspdm_data_parameter_t parameter;
 	uint8_t data8;
 	uint16_t data16;
 	uint32_t data32;
@@ -139,19 +139,19 @@ void *spdm_client_init(void)
 
 	if (m_use_version != SPDM_MESSAGE_VERSION_11) {
 		zero_mem(&parameter, sizeof(parameter));
-		parameter.location = SPDM_DATA_LOCATION_LOCAL;
+		parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 		spdm_version.major_version = (m_use_version >> 4) & 0xF;
 		spdm_version.minor_version = m_use_version & 0xF;
 		spdm_version.alpha = 0;
 		spdm_version.update_version_number = 0;
-		libspdm_set_data(spdm_context, SPDM_DATA_SPDM_VERSION, &parameter,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
 			      &spdm_version, sizeof(spdm_version));
 	}
 
 	if (m_use_secured_message_version != SPDM_MESSAGE_VERSION_11) {
 		zero_mem(&parameter, sizeof(parameter));
 		if (m_use_secured_message_version != 0) {
-			parameter.location = SPDM_DATA_LOCATION_LOCAL;
+			parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 			spdm_version.major_version =
 				(m_use_secured_message_version >> 4) & 0xF;
 			spdm_version.minor_version =
@@ -159,49 +159,49 @@ void *spdm_client_init(void)
 			spdm_version.alpha = 0;
 			spdm_version.update_version_number = 0;
 			libspdm_set_data(spdm_context,
-				      SPDM_DATA_SECURED_MESSAGE_VERSION,
+				      LIBSPDM_DATA_SECURED_MESSAGE_VERSION,
 				      &parameter, &spdm_version,
 				      sizeof(spdm_version));
 		} else {
 			libspdm_set_data(spdm_context,
-				      SPDM_DATA_SECURED_MESSAGE_VERSION,
+				      LIBSPDM_DATA_SECURED_MESSAGE_VERSION,
 				      &parameter, NULL, 0);
 		}
 	}
 
 	zero_mem(&parameter, sizeof(parameter));
-	parameter.location = SPDM_DATA_LOCATION_LOCAL;
+	parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
 	data8 = 0;
-	libspdm_set_data(spdm_context, SPDM_DATA_CAPABILITY_CT_EXPONENT,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
 		      &parameter, &data8, sizeof(data8));
 	data32 = m_use_requester_capability_flags;
 	if (m_use_capability_flags != 0) {
 		data32 = m_use_capability_flags;
 	}
-	libspdm_set_data(spdm_context, SPDM_DATA_CAPABILITY_FLAGS, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
 		      &data32, sizeof(data32));
 
 	data8 = m_support_measurement_spec;
-	libspdm_set_data(spdm_context, SPDM_DATA_MEASUREMENT_SPEC, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
 		      &data8, sizeof(data8));
 	data32 = m_support_asym_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_BASE_ASYM_ALGO, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_ASYM_ALGO, &parameter,
 		      &data32, sizeof(data32));
 	data32 = m_support_hash_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_BASE_HASH_ALGO, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
 		      &data32, sizeof(data32));
 	data16 = m_support_dhe_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_DHE_NAME_GROUP, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP, &parameter,
 		      &data16, sizeof(data16));
 	data16 = m_support_aead_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_AEAD_CIPHER_SUITE, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_AEAD_CIPHER_SUITE, &parameter,
 		      &data16, sizeof(data16));
 	data16 = m_support_req_asym_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
 		      &data16, sizeof(data16));
 	data16 = m_support_key_schedule_algo;
-	libspdm_set_data(spdm_context, SPDM_DATA_KEY_SCHEDULE, &parameter, &data16,
+	libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter, &data16,
 		      sizeof(data16));
 
 	if (m_load_state_file_name == NULL) {
@@ -218,27 +218,27 @@ void *spdm_client_init(void)
 	}
 
 	zero_mem(&parameter, sizeof(parameter));
-	parameter.location = SPDM_DATA_LOCATION_CONNECTION;
+	parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_CONNECTION_STATE, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
 		      &data32, &data_size);
-	ASSERT(data32 == SPDM_CONNECTION_STATE_NEGOTIATED);
+	ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
 
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
 		      &data32, &data_size);
 	m_use_measurement_hash_algo = data32;
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_BASE_ASYM_ALGO, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_BASE_ASYM_ALGO, &parameter,
 		      &data32, &data_size);
 	m_use_asym_algo = data32;
 	data_size = sizeof(data32);
-	libspdm_get_data(spdm_context, SPDM_DATA_BASE_HASH_ALGO, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
 		      &data32, &data_size);
 	m_use_hash_algo = data32;
 	data_size = sizeof(data16);
-	libspdm_get_data(spdm_context, SPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
+	libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
 		      &data16, &data_size);
 	m_use_req_asym_algo = data16;
 
@@ -251,9 +251,9 @@ void *spdm_client_init(void)
 							      NULL, NULL);
 		if (res) {
 			zero_mem(&parameter, sizeof(parameter));
-			parameter.location = SPDM_DATA_LOCATION_LOCAL;
+			parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 			libspdm_set_data(spdm_context,
-				      SPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
+				      LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
 				      &parameter, data, data_size);
 			// Do not free it.
 		} else {
@@ -272,9 +272,9 @@ void *spdm_client_init(void)
 			&root_cert, &root_cert_size);
 		if (res) {
 			zero_mem(&parameter, sizeof(parameter));
-			parameter.location = SPDM_DATA_LOCATION_LOCAL;
+			parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 			libspdm_set_data(spdm_context,
-				      SPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+				      LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
 				      &parameter, root_cert, root_cert_size);
 			// Do not free it.
 		} else {
@@ -291,15 +291,15 @@ void *spdm_client_init(void)
 						      NULL);
 	if (res) {
 		zero_mem(&parameter, sizeof(parameter));
-		parameter.location = SPDM_DATA_LOCATION_LOCAL;
+		parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 		data8 = m_use_slot_count;
-		libspdm_set_data(spdm_context, SPDM_DATA_LOCAL_SLOT_COUNT,
+		libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SLOT_COUNT,
 			      &parameter, &data8, sizeof(data8));
 
 		for (index = 0; index < m_use_slot_count; index++) {
 			parameter.additional_data[0] = index;
 			libspdm_set_data(spdm_context,
-				      SPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+				      LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
 				      &parameter, data, data_size);
 		}
 		// do not free it
@@ -310,7 +310,7 @@ void *spdm_client_init(void)
 		return NULL;
 	}
 
-	status = libspdm_set_data(spdm_context, SPDM_DATA_PSK_HINT, NULL,
+	status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
 			       TEST_PSK_HINT_STRING,
 			       sizeof(TEST_PSK_HINT_STRING));
 	if (RETURN_ERROR(status)) {
