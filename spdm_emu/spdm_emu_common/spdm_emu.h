@@ -7,14 +7,14 @@
 #ifndef __SPDM_TEST_H__
 #define __SPDM_TEST_H__
 
-#include <hal/base.h>
-#include <hal/library/memlib.h>
-#include <library/spdm_common_lib.h>
-#include <industry_standard/mctp.h>
-#include <industry_standard/pldm.h>
-#include <industry_standard/pcidoe.h>
-#include <industry_standard/pci_idekm.h>
-#include <spdm_device_secret_lib_internal.h>
+#include "hal/base.h"
+#include "hal/library/memlib.h"
+#include "library/spdm_common_lib.h"
+#include "industry_standard/mctp.h"
+#include "industry_standard/pldm.h"
+#include "industry_standard/pcidoe.h"
+#include "industry_standard/pci_idekm.h"
+#include "spdm_device_secret_lib_internal.h"
 
 #include "os_include.h"
 #include "stdio.h"

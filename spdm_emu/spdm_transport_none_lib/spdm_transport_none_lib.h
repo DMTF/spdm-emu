@@ -7,7 +7,7 @@
 #ifndef __SPDM_NONE_TRANSPORT_LIB_H__
 #define __SPDM_NONE_TRANSPORT_LIB_H__
 
-#include <library/spdm_common_lib.h>
+#include "library/spdm_common_lib.h"
 
 
 /**

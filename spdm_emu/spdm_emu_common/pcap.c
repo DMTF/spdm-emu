@@ -5,8 +5,8 @@
 **/
 
 #include "spdm_emu.h"
-#include <industry_standard/pcap.h>
-#include <industry_standard/link_type_ex.h>
+#include "industry_standard/pcap.h"
+#include "industry_standard/link_type_ex.h"
 
 #define PCAP_PACKET_MAX_SIZE 0x00010000
 

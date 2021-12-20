@@ -20,11 +20,11 @@
 #pragma warning(disable : 4028)
 #pragma warning(disable : 4133)
 
-#include <WinSock2.h>
-#include <winioctl.h>
+#include "WinSock2.h"
+#include "winioctl.h"
 #include "windows.h"
 #include "windowsx.h"
-#include <WS2tcpip.h>
+#include "WS2tcpip.h"
 
 //
 // Set the warnings back on as the EFI code must be /W4.
@@ -34,12 +34,12 @@
 
 #else
 // GCC
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#include "stdio.h"
+#include "stdlib.h"
+#include "unistd.h"
+#include "errno.h"
+#include "sys/socket.h"
+#include "arpa/inet.h"
 typedef int SOCKET;
 #define closesocket(x) close(x)
 #define INVALID_SOCKET (-1)
