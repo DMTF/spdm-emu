@@ -37,64 +37,64 @@
 /// SPDM VENDOR_DEFINED request
 ///
 typedef struct {
-	spdm_message_header_t header;
-	// param1 == RSVD
-	// param2 == RSVD
-	uint16_t standard_id;
-	uint8_t len;
-	uint16_t vendor_id;
-	uint16_t payload_length;
-	pci_protocol_header_t pci_protocol;
-	pci_ide_km_query_t pci_ide_km_query;
+    spdm_message_header_t header;
+    // param1 == RSVD
+    // param2 == RSVD
+    uint16_t standard_id;
+    uint8_t len;
+    uint16_t vendor_id;
+    uint16_t payload_length;
+    pci_protocol_header_t pci_protocol;
+    pci_ide_km_query_t pci_ide_km_query;
 } spdm_vendor_defined_request_mine_t;
 
 ///
 /// SPDM VENDOR_DEFINED response
 ///
 typedef struct {
-	spdm_message_header_t header;
-	// param1 == RSVD
-	// param2 == RSVD
-	uint16_t standard_id;
-	uint8_t len;
-	uint16_t vendor_id;
-	uint16_t payload_length;
-	pci_protocol_header_t pci_protocol;
-	pci_ide_km_query_resp_t pci_ide_km_query_resp;
+    spdm_message_header_t header;
+    // param1 == RSVD
+    // param2 == RSVD
+    uint16_t standard_id;
+    uint8_t len;
+    uint16_t vendor_id;
+    uint16_t payload_length;
+    pci_protocol_header_t pci_protocol;
+    pci_ide_km_query_resp_t pci_ide_km_query_resp;
 } spdm_vendor_defined_response_mine_t;
 
 ///
 /// Secure Session APP request
 ///
 typedef struct {
-	mctp_message_header_t mctp_header;
-	pldm_message_header_t pldm_header;
+    mctp_message_header_t mctp_header;
+    pldm_message_header_t pldm_header;
 } secure_session_request_mine_t;
 
 ///
 /// Secure Session APP response
 ///
 typedef struct {
-	mctp_message_header_t mctp_header;
-	pldm_message_header_t pldm_header;
-	pldm_message_response_header_t pldm_response_header;
-	uint8_t tid;
+    mctp_message_header_t mctp_header;
+    pldm_message_header_t pldm_header;
+    pldm_message_response_header_t pldm_response_header;
+    uint8_t tid;
 } secure_session_response_mine_t;
 
 ///
 /// DOE Discovery request
 ///
 typedef struct {
-	pci_doe_data_object_header_t doe_header;
-	pci_doe_discovery_request_t doe_discovery_request;
+    pci_doe_data_object_header_t doe_header;
+    pci_doe_discovery_request_t doe_discovery_request;
 } doe_discovery_request_mine_t;
 
 ///
 /// DOE Discovery response
 ///
 typedef struct {
-	pci_doe_data_object_header_t doe_header;
-	pci_doe_discovery_response_t doe_discovery_response;
+    pci_doe_data_object_header_t doe_header;
+    pci_doe_discovery_response_t doe_discovery_response;
 } doe_discovery_response_mine_t;
 
 #pragma pack()

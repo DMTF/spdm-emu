@@ -21,9 +21,9 @@
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
 **/
 return_status none_encode_message(IN uint32_t *session_id, IN uintn message_size,
-				  IN void *message,
-				  IN OUT uintn *transport_message_size,
-				  OUT void *transport_message)
+                  IN void *message,
+                  IN OUT uintn *transport_message_size,
+                  OUT void *transport_message)
 {
     *transport_message_size = message_size;
     copy_mem((uint8_t *)transport_message, message, message_size);
@@ -46,9 +46,9 @@ return_status none_encode_message(IN uint32_t *session_id, IN uintn message_size
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
 **/
 return_status none_decode_message(OUT uint32_t **session_id,
-				  IN uintn transport_message_size,
-				  IN void *transport_message,
-				  IN OUT uintn *message_size, OUT void *message)
+                  IN uintn transport_message_size,
+                  IN void *transport_message,
+                  IN OUT uintn *message_size, OUT void *message)
 {
     *message_size = transport_message_size;
     copy_mem(message, transport_message, transport_message_size);
@@ -69,7 +69,7 @@ return_status none_decode_message(OUT uint32_t **session_id,
           0 means no sequence number is required.
 **/
 uint8_t spdm_none_get_sequence_number(IN uint64_t sequence_number,
-				    IN OUT uint8_t *sequence_number_buffer)
+                    IN OUT uint8_t *sequence_number_buffer)
 {
     return 0;
 }
@@ -84,5 +84,5 @@ uint8_t spdm_none_get_sequence_number(IN uint64_t sequence_number,
 **/
 uint32_t spdm_none_get_max_random_number_count(void)
 {
-	return 0;
+    return 0;
 }

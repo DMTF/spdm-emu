@@ -15,21 +15,21 @@
 
 #pragma pack(1)
 typedef struct {
-	uint32_t signature;
-	uint32_t version;
-	uint8_t spdm_version;
-	uint8_t requester_cap_ct_exponent;
-	uint32_t requester_cap_flags;
-	uint8_t responder_cap_ct_exponent;
-	uint32_t responder_cap_flags;
-	uint8_t measurement_spec;
-	uint32_t measurement_hash_algo;
-	uint32_t base_asym_algo;
-	uint32_t base_hash_algo;
-	uint16_t dhe_named_group;
-	uint16_t aead_cipher_suite;
-	uint16_t req_base_asym_alg;
-	uint16_t key_schedule;
+    uint32_t signature;
+    uint32_t version;
+    uint8_t spdm_version;
+    uint8_t requester_cap_ct_exponent;
+    uint32_t requester_cap_flags;
+    uint8_t responder_cap_ct_exponent;
+    uint32_t responder_cap_flags;
+    uint8_t measurement_spec;
+    uint32_t measurement_hash_algo;
+    uint32_t base_asym_algo;
+    uint32_t base_hash_algo;
+    uint16_t dhe_named_group;
+    uint16_t aead_cipher_suite;
+    uint16_t req_base_asym_alg;
+    uint16_t key_schedule;
 } spdm_negotiated_state_struct_t;
 #pragma pack()
 
@@ -37,13 +37,13 @@ typedef struct {
   Load the negotiated_state from NV storage to an SPDM context.
 */
 return_status spdm_load_negotiated_state(IN void *spdm_context,
-					 IN boolean is_requester);
+                     IN boolean is_requester);
 
 /**
   Save the negotiated_state to NV storage from an SPDM context.
 */
 return_status spdm_save_negotiated_state(IN void *spdm_context,
-					 IN boolean is_requester);
+                     IN boolean is_requester);
 
 /**
   Clear the negotiated_state in the NV storage.

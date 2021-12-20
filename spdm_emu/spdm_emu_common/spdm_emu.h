@@ -87,24 +87,24 @@ void dump_data(IN uint8_t *buffer, IN uintn buffer_size);
 void dump_hex(IN uint8_t *buffer, IN uintn buffer_size);
 
 boolean send_platform_data(IN SOCKET socket, IN uint32_t command,
-			   IN uint8_t *send_buffer, IN uintn bytes_to_send);
+               IN uint8_t *send_buffer, IN uintn bytes_to_send);
 
 boolean receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
-			      OUT uint8_t *receive_buffer,
-			      IN OUT uintn *bytes_to_receive);
+                  OUT uint8_t *receive_buffer,
+                  IN OUT uintn *bytes_to_receive);
 
 boolean read_input_file(IN char8 *file_name, OUT void **file_data,
-			OUT uintn *file_size);
+            OUT uintn *file_size);
 
 boolean write_output_file(IN char8 *file_name, IN void *file_data,
-			  IN uintn file_size);
+              IN uintn file_size);
 
 boolean open_pcap_packet_file(IN char8 *pcap_file_name);
 
 void close_pcap_packet_file(void);
 
 void append_pcap_packet_data(IN void *header, OPTIONAL IN uintn header_size,
-			     OPTIONAL IN void *data, IN uintn size);
+                 OPTIONAL IN void *data, IN uintn size);
 
 void process_args(char *program_name, int argc, char *argv[]);
 

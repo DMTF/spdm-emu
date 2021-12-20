@@ -32,38 +32,38 @@ extern void *m_spdm_context;
 **/
 return_status
 spdm_authentication(IN void *context, OUT uint8_t *slot_mask,
-		    OUT void *total_digest_buffer, IN uint8_t slot_id,
-		    IN OUT uintn *cert_chain_size, OUT void *cert_chain,
-		    IN uint8_t measurement_hash_type, OUT void *measurement_hash)
+            OUT void *total_digest_buffer, IN uint8_t slot_id,
+            IN OUT uintn *cert_chain_size, OUT void *cert_chain,
+            IN uint8_t measurement_hash_type, OUT void *measurement_hash)
 {
-	return_status status;
+    return_status status;
 
-	if ((m_exe_connection & EXE_CONNECTION_DIGEST) != 0) {
-		status = libspdm_get_digest(context, slot_mask,
-					 total_digest_buffer);
-		if (RETURN_ERROR(status)) {
-			return status;
-		}
-	}
+    if ((m_exe_connection & EXE_CONNECTION_DIGEST) != 0) {
+        status = libspdm_get_digest(context, slot_mask,
+                     total_digest_buffer);
+        if (RETURN_ERROR(status)) {
+            return status;
+        }
+    }
 
-	if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
-		if (slot_id != 0xFF) {
-			status = libspdm_get_certificate(
-				context, slot_id, cert_chain_size, cert_chain);
-			if (RETURN_ERROR(status)) {
-				return status;
-			}
-		}
-	}
+    if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
+        if (slot_id != 0xFF) {
+            status = libspdm_get_certificate(
+                context, slot_id, cert_chain_size, cert_chain);
+            if (RETURN_ERROR(status)) {
+                return status;
+            }
+        }
+    }
 
-	if ((m_exe_connection & EXE_CONNECTION_CHAL) != 0) {
-		status = libspdm_challenge(context, slot_id, measurement_hash_type,
-					measurement_hash);
-		if (RETURN_ERROR(status)) {
-			return status;
-		}
-	}
-	return RETURN_SUCCESS;
+    if ((m_exe_connection & EXE_CONNECTION_CHAL) != 0) {
+        status = libspdm_challenge(context, slot_id, measurement_hash_type,
+                    measurement_hash);
+        if (RETURN_ERROR(status)) {
+            return status;
+        }
+    }
+    return RETURN_SUCCESS;
 }
 
 /**
@@ -73,29 +73,29 @@ spdm_authentication(IN void *context, OUT uint8_t *slot_mask,
 **/
 return_status do_authentication_via_spdm(void)
 {
-	return_status status;
-	void *spdm_context;
-	uint8_t slot_mask;
-	uint8_t total_digest_buffer[MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
-	uint8_t measurement_hash[MAX_HASH_SIZE];
-	uintn cert_chain_size;
-	uint8_t cert_chain[MAX_SPDM_CERT_CHAIN_SIZE];
+    return_status status;
+    void *spdm_context;
+    uint8_t slot_mask;
+    uint8_t total_digest_buffer[MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
+    uint8_t measurement_hash[MAX_HASH_SIZE];
+    uintn cert_chain_size;
+    uint8_t cert_chain[MAX_SPDM_CERT_CHAIN_SIZE];
 
-	spdm_context = m_spdm_context;
+    spdm_context = m_spdm_context;
 
-	zero_mem(total_digest_buffer, sizeof(total_digest_buffer));
-	cert_chain_size = sizeof(cert_chain);
-	zero_mem(cert_chain, sizeof(cert_chain));
-	zero_mem(measurement_hash, sizeof(measurement_hash));
-	status = spdm_authentication(spdm_context, &slot_mask,
-				     &total_digest_buffer, m_use_slot_id,
-				     &cert_chain_size, cert_chain,
-				     m_use_measurement_summary_hash_type,
-				     measurement_hash);
-	if (RETURN_ERROR(status)) {
-		return status;
-	}
-	return RETURN_SUCCESS;
+    zero_mem(total_digest_buffer, sizeof(total_digest_buffer));
+    cert_chain_size = sizeof(cert_chain);
+    zero_mem(cert_chain, sizeof(cert_chain));
+    zero_mem(measurement_hash, sizeof(measurement_hash));
+    status = spdm_authentication(spdm_context, &slot_mask,
+                     &total_digest_buffer, m_use_slot_id,
+                     &cert_chain_size, cert_chain,
+                     m_use_measurement_summary_hash_type,
+                     measurement_hash);
+    if (RETURN_ERROR(status)) {
+        return status;
+    }
+    return RETURN_SUCCESS;
 }
 
 #endif //(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
