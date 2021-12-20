@@ -147,9 +147,9 @@ boolean receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
         break;
     case SOCKET_SPDM_COMMAND_NORMAL:
         if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
-            //
-            // Append mctp_header_t for PCAP
-            //
+            
+            /* Append mctp_header_t for PCAP*/
+            
             mctp_header_t mctp_header;
             mctp_header.header_version = 0;
             mctp_header.destination_id = 0;
@@ -281,9 +281,9 @@ boolean send_platform_data(IN SOCKET socket, IN uint32_t command,
         break;
     case SOCKET_SPDM_COMMAND_NORMAL:
         if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
-            //
-            // Append mctp_header_t for PCAP
-            //
+            
+            /* Append mctp_header_t for PCAP*/
+            
             mctp_header_t mctp_header;
             mctp_header.header_version = 0;
             mctp_header.destination_id = 0;

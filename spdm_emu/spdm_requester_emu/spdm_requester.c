@@ -205,7 +205,7 @@ void *spdm_client_init(void)
               sizeof(data16));
 
     if (m_load_state_file_name == NULL) {
-        // Skip if state is loaded
+        /* Skip if state is loaded*/
         status = libspdm_init_connection(
             spdm_context,
             (m_exe_connection & EXE_CONNECTION_VERSION_ONLY) != 0);
@@ -255,7 +255,7 @@ void *spdm_client_init(void)
             libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
                       &parameter, data, data_size);
-            // Do not free it.
+            /* Do not free it.*/
         } else {
             printf("read_responder_public_certificate_chain fail!\n");
             free(m_spdm_context);
@@ -276,7 +276,7 @@ void *spdm_client_init(void)
             libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
                       &parameter, root_cert, root_cert_size);
-            // Do not free it.
+            /* Do not free it.*/
         } else {
             printf("read_responder_root_public_certificate fail!\n");
             free(m_spdm_context);
@@ -302,7 +302,7 @@ void *spdm_client_init(void)
                       LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
                       &parameter, data, data_size);
         }
-        // do not free it
+        /* do not free it*/
     } else {
         printf("read_requester_public_certificate_chain fail!\n");
         free(m_spdm_context);

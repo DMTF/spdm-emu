@@ -57,9 +57,9 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
 
     printf("LoadState from %s\n", m_load_state_file_name);
 
-    //
-    // Override local setting
-    //
+    
+    /* Override local setting*/
+    
     m_use_version = negotiated_state.spdm_version;
     m_use_requester_capability_flags = negotiated_state.requester_cap_flags;
     m_use_responder_capability_flags = negotiated_state.responder_cap_flags;
@@ -78,9 +78,9 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
     m_support_req_asym_algo = negotiated_state.req_base_asym_alg;
     m_support_key_schedule_algo = negotiated_state.key_schedule;
 
-    //
-    // Set connection info
-    //
+    
+    /* Set connection info*/
+    
     zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
@@ -142,9 +142,9 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
                   &data16, sizeof(data16));
     }
 
-    //
-    // Set connection state finally.
-    //
+    
+    /* Set connection state finally.*/
+    
     data32 = LIBSPDM_CONNECTION_STATE_NEGOTIATED;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
               &data32, sizeof(data32));
@@ -180,9 +180,9 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
     negotiated_state.signature = SPDM_NEGOTIATED_STATE_STRUCT_SIGNATURE;
     negotiated_state.version = SPDM_NEGOTIATED_STATE_STRUCT_VERSION;
 
-    //
-    // get setting fron local
-    //
+    
+    /* get setting fron local*/
+    
     zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
@@ -206,9 +206,9 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
         negotiated_state.responder_cap_ct_exponent = data8;
     }
 
-    //
-    // get setting fron connection
-    //
+    
+    /* get setting fron connection*/
+    
     zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 

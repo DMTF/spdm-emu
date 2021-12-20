@@ -21,7 +21,7 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
     struct sockaddr_in my_address;
     int32_t res;
 
-    // Initialize Winsock
+    /* Initialize Winsock*/
 #ifdef _MSC_VER
     WSADATA ws;
     res = WSAStartup(MAKEWORD(2, 2), &ws);
@@ -43,12 +43,12 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
         return FALSE;
     }
 
-        // When the program stops unexpectedly the used port will stay in the TIME_WAIT
-        // state which prevents other programs from binding to this port until a timeout
-        // triggers. This timeout may be 30s to 120s. In this state the responder cannot
-        // be restarted since it cannot bind to its port.
-        // To prevent this SO_REUSEADDR is applied to the socket which allows the
-        // responder to bind to this port even if it is still in the TIME_WAIT state.
+        /* When the program stops unexpectedly the used port will stay in the TIME_WAIT*/
+        /* state which prevents other programs from binding to this port until a timeout*/
+        /* triggers. This timeout may be 30s to 120s. In this state the responder cannot*/
+        /* be restarted since it cannot bind to its port.*/
+        /* To prevent this SO_REUSEADDR is applied to the socket which allows the*/
+        /* responder to bind to this port even if it is still in the TIME_WAIT state.*/
     if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0){
         printf("Cannot configure server listen socket.  Error is 0x%x\n",
 #ifdef _MSC_VER
@@ -97,7 +97,7 @@ doe_discovery_response_mine_t m_doe_response = {
     {
         PCI_DOE_VENDOR_ID_PCISIG,
         PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY, 0,
-        sizeof(m_doe_response) / sizeof(uint32_t), // length
+        sizeof(m_doe_response) / sizeof(uint32_t), /* length*/
     },
     { PCI_DOE_VENDOR_ID_PCISIG, PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY,
       0x00 },
@@ -111,7 +111,7 @@ boolean platform_server(IN SOCKET socket)
     while (TRUE) {
         status = libspdm_responder_dispatch_message(m_spdm_context);
         if (status == RETURN_SUCCESS) {
-            // success dispatch SPDM message
+            /* success dispatch SPDM message*/
         }
         if (status == RETURN_DEVICE_ERROR) {
             printf("Server Critical Error - STOP\n");
@@ -198,7 +198,7 @@ boolean platform_server(IN SOCKET socket)
                      PCI_DOE_VENDOR_ID_PCISIG) ||
                     (doe_request->doe_header.data_object_type !=
                      PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY)) {
-                    // unknown message
+                    /* unknown message*/
                     return TRUE;
                 }
                 ASSERT(m_receive_buffer_size ==
@@ -247,7 +247,7 @@ boolean platform_server(IN SOCKET socket)
                     return TRUE;
                 }
             } else {
-                // unknown message
+                /* unknown message*/
                 return TRUE;
             }
             break;

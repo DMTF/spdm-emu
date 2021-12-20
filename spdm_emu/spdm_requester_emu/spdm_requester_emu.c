@@ -29,11 +29,11 @@ boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
 
 #if SPDM_ENABLE_CAPABILITY_MEAS_CAP
 return_status do_measurement_via_spdm(IN uint32_t *session_id);
-#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
 #if (SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
 return_status do_authentication_via_spdm(void);
-#endif //(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
+#endif /*(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
 return_status do_session_via_spdm(IN boolean use_psk);
 
@@ -85,10 +85,10 @@ doe_discovery_request_mine_t m_doe_request = {
     {
         PCI_DOE_VENDOR_ID_PCISIG,
         PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY, 0,
-        sizeof(m_doe_request) / sizeof(uint32_t), // length
+        sizeof(m_doe_request) / sizeof(uint32_t), /* length*/
     },
     {
-        0, // index
+        0, /* index*/
     },
 };
 
@@ -160,14 +160,14 @@ boolean platform_client_routine(IN uint16_t port_number)
         goto done;
     }
 
-    // Do test - begin
+    /* Do test - begin*/
 #if (SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
     status = do_authentication_via_spdm();
     if (RETURN_ERROR(status)) {
         printf("do_authentication_via_spdm - %x\n", (uint32_t)status);
         goto done;
     }
-#endif //(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
+#endif /*(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
 #if SPDM_ENABLE_CAPABILITY_MEAS_CAP
     if ((m_exe_connection & EXE_CONNECTION_MEAS) != 0) {
@@ -178,7 +178,7 @@ boolean platform_client_routine(IN uint16_t port_number)
             goto done;
         }
     }
-#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
     if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
         if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
@@ -200,7 +200,7 @@ boolean platform_client_routine(IN uint16_t port_number)
         }
     }
 
-    // Do test - end
+    /* Do test - end*/
 
 done:
     response_size = 0;

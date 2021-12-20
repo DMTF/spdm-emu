@@ -9,13 +9,13 @@
 
 #define DEFAULT_SPDM_PLATFORM_PORT 2323
 
-//
-// Client->Server/Server->Client
-//   command/response: 4 bytes (big endian)
-//   transport_type: 4 bytes (big endian)
-//   PayloadSize (excluding command and PayloadSize): 4 bytes (big endian)
-//   payload (SPDM message, starting from SPDM_HEADER): PayloadSize (little endian)
-//
+
+/* Client->Server/Server->Client*/
+/*   command/response: 4 bytes (big endian)*/
+/*   transport_type: 4 bytes (big endian)*/
+/*   PayloadSize (excluding command and PayloadSize): 4 bytes (big endian)*/
+/*   payload (SPDM message, starting from SPDM_HEADER): PayloadSize (little endian)*/
+
 
 #define SOCKET_TRANSPORT_TYPE_NONE 0x00
 #define SOCKET_TRANSPORT_TYPE_MCTP 0x01
@@ -28,18 +28,18 @@
 #define SOCKET_SPDM_COMMAND_UNKOWN 0xFFFF
 #define SOCKET_SPDM_COMMAND_TEST 0xDEAD
 
-//
-// Vendor message
-//
+
+/* Vendor message*/
+
 #pragma pack(1)
 
-///
-/// SPDM VENDOR_DEFINED request
-///
+
+/* SPDM VENDOR_DEFINED request*/
+
 typedef struct {
     spdm_message_header_t header;
-    // param1 == RSVD
-    // param2 == RSVD
+    /* param1 == RSVD*/
+    /* param2 == RSVD*/
     uint16_t standard_id;
     uint8_t len;
     uint16_t vendor_id;
@@ -48,13 +48,13 @@ typedef struct {
     pci_ide_km_query_t pci_ide_km_query;
 } spdm_vendor_defined_request_mine_t;
 
-///
-/// SPDM VENDOR_DEFINED response
-///
+
+/* SPDM VENDOR_DEFINED response*/
+
 typedef struct {
     spdm_message_header_t header;
-    // param1 == RSVD
-    // param2 == RSVD
+    /* param1 == RSVD*/
+    /* param2 == RSVD*/
     uint16_t standard_id;
     uint8_t len;
     uint16_t vendor_id;
@@ -63,17 +63,17 @@ typedef struct {
     pci_ide_km_query_resp_t pci_ide_km_query_resp;
 } spdm_vendor_defined_response_mine_t;
 
-///
-/// Secure Session APP request
-///
+
+/* Secure Session APP request*/
+
 typedef struct {
     mctp_message_header_t mctp_header;
     pldm_message_header_t pldm_header;
 } secure_session_request_mine_t;
 
-///
-/// Secure Session APP response
-///
+
+/* Secure Session APP response*/
+
 typedef struct {
     mctp_message_header_t mctp_header;
     pldm_message_header_t pldm_header;
@@ -81,17 +81,17 @@ typedef struct {
     uint8_t tid;
 } secure_session_response_mine_t;
 
-///
-/// DOE Discovery request
-///
+
+/* DOE Discovery request*/
+
 typedef struct {
     pci_doe_data_object_header_t doe_header;
     pci_doe_discovery_request_t doe_discovery_request;
 } doe_discovery_request_mine_t;
 
-///
-/// DOE Discovery response
-///
+
+/* DOE Discovery response*/
+
 typedef struct {
     pci_doe_data_object_header_t doe_header;
     pci_doe_discovery_response_t doe_discovery_response;
