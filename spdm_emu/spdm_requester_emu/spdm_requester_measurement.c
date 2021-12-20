@@ -28,9 +28,9 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
 
     if (m_use_measurement_operation ==
         SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS) {
-        //
-        // request all at one time.
-        //
+        
+        /* request all at one time.*/
+        
         request_attribute =
             SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
         measurement_record_length = sizeof(measurement_record);
@@ -44,9 +44,9 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
         }
     } else {
         request_attribute = 0;
-        //
-        // 1. query the total number of measurements available.
-        //
+        
+        /* 1. query the total number of measurements available.*/
+        
         status = libspdm_get_measurement(
             spdm_context, session_id, request_attribute,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS,
@@ -58,10 +58,10 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
                number_of_blocks));
         for (index = 1; index <= number_of_blocks; index++) {
             DEBUG((DEBUG_INFO, "index - 0x%x\n", index));
-            //
-            // 2. query measurement one by one
-            // get signature in last message only.
-            //
+            
+            /* 2. query measurement one by one*/
+            /* get signature in last message only.*/
+            
             if (index == number_of_blocks) {
                 request_attribute =
                     SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
@@ -99,4 +99,4 @@ return_status do_measurement_via_spdm(IN uint32_t *session_id)
     return RETURN_SUCCESS;
 }
 
-#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/

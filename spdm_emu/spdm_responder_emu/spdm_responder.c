@@ -82,13 +82,13 @@ return_status spdm_device_receive_message(IN void *spdm_context,
         return RETURN_DEVICE_ERROR;
     }
     if (m_command == SOCKET_SPDM_COMMAND_NORMAL) {
-        //
-        // Cache the message in case it is not for SPDM.
-        //
+        
+        /* Cache the message in case it is not for SPDM.*/
+        
     } else {
-        //
-        // Cache the message
-        //
+        
+        /* Cache the message*/
+        
         return RETURN_UNSUPPORTED;
     }
     if (*response_size < m_receive_buffer_size) {
@@ -218,7 +218,7 @@ void *spdm_server_init(void)
         spdm_context, spdm_server_connection_state_callback);
 
     if (m_load_state_file_name != NULL) {
-        // Invoke callback to provision the rest
+        /* Invoke callback to provision the rest*/
         spdm_server_connection_state_callback(
             spdm_context, LIBSPDM_CONNECTION_STATE_NEGOTIATED);
     }
@@ -251,18 +251,18 @@ void spdm_server_connection_state_callback(
 
     switch (connection_state) {
     case LIBSPDM_CONNECTION_STATE_NOT_STARTED:
-        //
-        // clear perserved state
-        //
+        
+        /* clear perserved state*/
+        
         if (m_save_state_file_name != NULL) {
             spdm_clear_negotiated_state(spdm_context);
         }
         break;
 
     case LIBSPDM_CONNECTION_STATE_NEGOTIATED:
-        //
-        // Provision new content
-        //
+        
+        /* Provision new content*/
+        
         zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
@@ -300,7 +300,7 @@ void spdm_server_connection_state_callback(
                           LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
                           &parameter, data, data_size);
             }
-            // do not free it
+            /* do not free it*/
         }
 
         if ((m_use_slot_id == 0xFF) ||
@@ -316,7 +316,7 @@ void spdm_server_connection_state_callback(
                 libspdm_set_data(spdm_context,
                           LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
                           &parameter, data, data_size);
-                // Do not free it.
+                /* Do not free it.*/
             }
         } else {
             res = read_requester_root_public_certificate(
@@ -332,21 +332,21 @@ void spdm_server_connection_state_callback(
                     spdm_context,
                     LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
                     &parameter, root_cert, root_cert_size);
-                // Do not free it.
+                /* Do not free it.*/
             }
         }
 
         if (res) {
             data8 = m_use_mut_auth;
             parameter.additional_data[0] =
-                m_use_slot_id; // req_slot_id;
+                m_use_slot_id; /* req_slot_id;*/
             libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_MUT_AUTH_REQUESTED, &parameter,
                       &data8, sizeof(data8));
 
             data8 = m_use_basic_mut_auth;
             parameter.additional_data[0] =
-                m_use_slot_id; // req_slot_id;
+                m_use_slot_id; /* req_slot_id;*/
             libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_BASIC_MUT_AUTH_REQUESTED,
                       &parameter, &data8, sizeof(data8));
@@ -389,7 +389,7 @@ void spdm_server_session_state_callback(IN void *spdm_context,
 
     switch (session_state) {
     case SPDM_SESSION_STATE_NOT_STARTED:
-        // Session end
+        /* Session end*/
 
         if (m_save_state_file_name != NULL) {
             zero_mem(&parameter, sizeof(parameter));
@@ -403,21 +403,21 @@ void spdm_server_session_state_callback(IN void *spdm_context,
             if ((data8 &
                  SPDM_END_SESSION_REQUEST_ATTRIBUTES_PRESERVE_NEGOTIATED_STATE_CLEAR) !=
                 0) {
-                // clear
+                /* clear*/
                 spdm_clear_negotiated_state(spdm_context);
             } else {
-                // preserve - already done in LIBSPDM_CONNECTION_STATE_NEGOTIATED.
-                // spdm_save_negotiated_state (spdm_context, FALSE);
+                /* preserve - already done in LIBSPDM_CONNECTION_STATE_NEGOTIATED.*/
+                /* spdm_save_negotiated_state (spdm_context, FALSE);*/
             }
         }
         break;
 
     case SPDM_SESSION_STATE_HANDSHAKING:
-        // no action
+        /* no action*/
         break;
 
     case SPDM_SESSION_STATE_ESTABLISHED:
-        // no action
+        /* no action*/
         break;
 
     default:

@@ -13,13 +13,13 @@
 uint32_t m_exe_mode = EXE_MODE_SHUTDOWN;
 
 uint32_t m_exe_connection = (0 |
-               // EXE_CONNECTION_VERSION_ONLY |
+               /* EXE_CONNECTION_VERSION_ONLY |*/
                EXE_CONNECTION_DIGEST | EXE_CONNECTION_CERT |
                EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS | 0);
 
 uint32_t m_exe_session =
     (0 | EXE_SESSION_KEY_EX | EXE_SESSION_PSK |
-     // EXE_SESSION_NO_END |
+     /* EXE_SESSION_NO_END |*/
      EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS | 0);
 
 void print_usage(IN char8 *name)
@@ -320,9 +320,9 @@ boolean get_flags_from_name(IN value_string_entry_t *table,
     }
     strcpy(local_name, name);
 
-    //
-    // name = Flag1,Flag2,...,FlagN
-    //
+    
+    /* name = Flag1,Flag2,...,FlagN*/
+    
     *flags = 0;
     flag_name = strtok(local_name, ",");
     while (flag_name != NULL) {
@@ -951,9 +951,9 @@ void process_args(char *program_name, int argc, char *argv[])
         exit(0);
     }
 
-    //
-    // Open PCAP file as last option, after the user indicates transport type.
-    //
+    
+    /* Open PCAP file as last option, after the user indicates transport type.*/
+    
     if (pcap_file_name != NULL) {
         if (!open_pcap_packet_file(pcap_file_name)) {
             print_usage(program_name);

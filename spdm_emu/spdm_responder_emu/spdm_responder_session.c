@@ -9,14 +9,14 @@
 spdm_vendor_defined_response_mine_t m_vendor_defined_response = {
     {
         SPDM_MESSAGE_VERSION_10, SPDM_VENDOR_DEFINED_RESPONSE,
-        0, // param1
-        0, // param2
+        0, /* param1*/
+        0, /* param2*/
     },
-    SPDM_REGISTRY_ID_PCISIG, // standard_id
-    2, // len
-    SPDM_VENDOR_ID_PCISIG, // vendor_id
+    SPDM_REGISTRY_ID_PCISIG, /* standard_id*/
+    2, /* len*/
+    SPDM_VENDOR_ID_PCISIG, /* vendor_id*/
     sizeof(pci_protocol_header_t) +
-        sizeof(pci_ide_km_query_resp_t), // payload_length
+        sizeof(pci_ide_km_query_resp_t), /* payload_length*/
     {
         PCI_PROTOCAL_ID_IDE_KM,
     },
@@ -24,12 +24,12 @@ spdm_vendor_defined_response_mine_t m_vendor_defined_response = {
         {
             PCI_IDE_KM_OBJECT_ID_QUERY_RESP,
         },
-        0, // reserved
-        0, // port_index
-        0, // dev_func_num
-        0, // bus_num
-        0, // segment
-        7, // max_port_index
+        0, /* reserved*/
+        0, /* port_index*/
+        0, /* dev_func_num*/
+        0, /* bus_num*/
+        0, /* segment*/
+        7, /* max_port_index*/
     }
 };
 
@@ -43,7 +43,7 @@ secure_session_response_mine_t m_secure_session_response = {
     {
         PLDM_BASE_CODE_SUCCESS,
     },
-    1, // tid
+    1, /* tid*/
 };
 
 /**

@@ -18,19 +18,19 @@ boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
 
 #if SPDM_ENABLE_CAPABILITY_MEAS_CAP
 return_status do_measurement_via_spdm(IN uint32_t *session_id);
-#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
 spdm_vendor_defined_request_mine_t mVendorDefinedRequest = {
     {
         SPDM_MESSAGE_VERSION_10, SPDM_VENDOR_DEFINED_REQUEST,
-        0, // param1
-        0, // param2
+        0, /* param1*/
+        0, /* param2*/
     },
-    SPDM_REGISTRY_ID_PCISIG, // standard_id
-    2, // len
-    SPDM_VENDOR_ID_PCISIG, // vendor_id
+    SPDM_REGISTRY_ID_PCISIG, /* standard_id*/
+    2, /* len*/
+    SPDM_VENDOR_ID_PCISIG, /* vendor_id*/
     sizeof(pci_protocol_header_t) +
-        sizeof(pci_ide_km_query_t), // payload_length
+        sizeof(pci_ide_km_query_t), /* payload_length*/
     {
         PCI_PROTOCAL_ID_IDE_KM,
     },
@@ -38,8 +38,8 @@ spdm_vendor_defined_request_mine_t mVendorDefinedRequest = {
         {
             PCI_IDE_KM_OBJECT_ID_QUERY,
         },
-        0, // reserved
-        0, // port_index
+        0, /* reserved*/
+        0, /* port_index*/
     }
 };
 
@@ -198,7 +198,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
                    (uint32_t)status);
         }
     }
-#endif //SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
     if ((m_exe_session & EXE_SESSION_NO_END) == 0) {
         status = libspdm_stop_session(spdm_context, session_id,

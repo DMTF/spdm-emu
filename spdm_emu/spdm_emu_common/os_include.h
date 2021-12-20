@@ -8,13 +8,13 @@
 #define __WIN_NT_INCLUDE_H__
 
 #ifdef _MSC_VER
-// MSVC
-//
-// Win32 include files do not compile clean with /W4, so we use the warning
-// pragma to suppress the warnings for Win32 only. This way our code can stil
-// compile at /W4 (highest warning level) with /WX (warnings cause build
-// errors).
-//
+/* MSVC*/
+
+/* Win32 include files do not compile clean with /W4, so we use the warning*/
+/* pragma to suppress the warnings for Win32 only. This way our code can stil*/
+/* compile at /W4 (highest warning level) with /WX (warnings cause build*/
+/* errors).*/
+
 #pragma warning(disable : 4115)
 #pragma warning(disable : 4201)
 #pragma warning(disable : 4028)
@@ -26,14 +26,14 @@
 #include "windowsx.h"
 #include "WS2tcpip.h"
 
-//
-// Set the warnings back on as the EFI code must be /W4.
-//
+
+/* Set the warnings back on as the EFI code must be /W4.*/
+
 #pragma warning(default : 4115)
 #pragma warning(default : 4201)
 
 #else
-// GCC
+/* GCC*/
 #include "stdio.h"
 #include "stdlib.h"
 #include "unistd.h"
