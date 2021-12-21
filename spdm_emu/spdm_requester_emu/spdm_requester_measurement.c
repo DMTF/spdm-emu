@@ -6,7 +6,7 @@
 
 #include "spdm_requester_emu.h"
 
-#if SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
 
 extern void *m_spdm_context;
 
@@ -22,7 +22,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
     uint8_t number_of_blocks;
     uint8_t number_of_block;
     uint32_t measurement_record_length;
-    uint8_t measurement_record[MAX_SPDM_MEASUREMENT_RECORD_SIZE];
+    uint8_t measurement_record[LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE];
     uint8_t index;
     uint8_t request_attribute;
 
@@ -37,7 +37,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
         status = libspdm_get_measurement(
             spdm_context, session_id, request_attribute,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
-            m_use_slot_id & 0xF, &number_of_block,
+            m_use_slot_id & 0xF, NULL, &number_of_block,
             &measurement_record_length, measurement_record);
         if (RETURN_ERROR(status)) {
             return status;
@@ -50,7 +50,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
         status = libspdm_get_measurement(
             spdm_context, session_id, request_attribute,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS,
-            m_use_slot_id & 0xF, &number_of_blocks, NULL, NULL);
+            m_use_slot_id & 0xF, NULL, &number_of_blocks, NULL, NULL);
         if (RETURN_ERROR(status)) {
             return status;
         }
@@ -69,7 +69,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
             measurement_record_length = sizeof(measurement_record);
             status = libspdm_get_measurement(
                 spdm_context, session_id, request_attribute,
-                index, m_use_slot_id & 0xF, &number_of_block,
+                index, m_use_slot_id & 0xF, NULL, &number_of_block,
                 &measurement_record_length, measurement_record);
             if (RETURN_ERROR(status)) {
                 return status;
@@ -99,4 +99,4 @@ return_status do_measurement_via_spdm(IN uint32_t *session_id)
     return RETURN_SUCCESS;
 }
 
-#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/
+#endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/

@@ -6,7 +6,7 @@
 
 #include "spdm_requester_emu.h"
 
-#if (SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
+#if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
 
 extern void *m_spdm_context;
 
@@ -58,7 +58,7 @@ spdm_authentication(IN void *context, OUT uint8_t *slot_mask,
 
     if ((m_exe_connection & EXE_CONNECTION_CHAL) != 0) {
         status = libspdm_challenge(context, slot_id, measurement_hash_type,
-                    measurement_hash);
+                    measurement_hash, NULL);
         if (RETURN_ERROR(status)) {
             return status;
         }
@@ -79,7 +79,7 @@ return_status do_authentication_via_spdm(void)
     uint8_t total_digest_buffer[LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
     uintn cert_chain_size;
-    uint8_t cert_chain[MAX_SPDM_CERT_CHAIN_SIZE];
+    uint8_t cert_chain[LIBSPDM_MAX_CERT_CHAIN_SIZE];
 
     spdm_context = m_spdm_context;
 
@@ -98,4 +98,4 @@ return_status do_authentication_via_spdm(void)
     return RETURN_SUCCESS;
 }
 
-#endif /*(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/

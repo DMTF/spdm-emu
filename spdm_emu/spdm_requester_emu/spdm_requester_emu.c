@@ -27,13 +27,13 @@ boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
                   IN OUT uintn *bytes_to_receive,
                   OUT uint8_t *receive_buffer);
 
-#if SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
 return_status do_measurement_via_spdm(IN uint32_t *session_id);
-#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/
+#endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
-#if (SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
+#if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
 return_status do_authentication_via_spdm(void);
-#endif /*(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
 return_status do_session_via_spdm(IN boolean use_psk);
 
@@ -161,15 +161,15 @@ boolean platform_client_routine(IN uint16_t port_number)
     }
 
     /* Do test - begin*/
-#if (SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)
+#if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
     status = do_authentication_via_spdm();
     if (RETURN_ERROR(status)) {
         printf("do_authentication_via_spdm - %x\n", (uint32_t)status);
         goto done;
     }
-#endif /*(SPDM_ENABLE_CAPABILITY_CERT_CAP && SPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
-#if SPDM_ENABLE_CAPABILITY_MEAS_CAP
+#if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
     if ((m_exe_connection & EXE_CONNECTION_MEAS) != 0) {
         status = do_measurement_via_spdm(NULL);
         if (RETURN_ERROR(status)) {
@@ -178,8 +178,9 @@ boolean platform_client_routine(IN uint16_t port_number)
             goto done;
         }
     }
-#endif /*SPDM_ENABLE_CAPABILITY_MEAS_CAP*/
+#endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
+#if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
     if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
         if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
             status = do_session_via_spdm(FALSE);
@@ -199,6 +200,7 @@ boolean platform_client_routine(IN uint16_t port_number)
             }
         }
     }
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)*/
 
     /* Do test - end*/
 
