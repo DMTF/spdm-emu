@@ -10,7 +10,7 @@ void *m_spdm_context;
 
 extern uint32_t m_command;
 extern uintn m_receive_buffer_size;
-extern uint8_t m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
+extern uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 
 extern SOCKET m_server_socket;
 
@@ -23,7 +23,7 @@ extern SOCKET m_server_socket;
 **/
 void spdm_server_session_state_callback(IN void *spdm_context,
                     IN uint32_t session_id,
-                    IN spdm_session_state_t session_state);
+                    IN libspdm_session_state_t session_state);
 
 /**
   Notify the connection state to an SPDM context register.
@@ -121,12 +121,12 @@ void *spdm_server_init(void)
                      spdm_device_receive_message);
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
-            spdm_context, spdm_transport_mctp_encode_message,
-            spdm_transport_mctp_decode_message);
+            spdm_context, libspdm_transport_mctp_encode_message,
+            libspdm_transport_mctp_decode_message);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         libspdm_register_transport_layer_func(
-            spdm_context, spdm_transport_pci_doe_encode_message,
-            spdm_transport_pci_doe_decode_message);
+            spdm_context, libspdm_transport_pci_doe_encode_message,
+            libspdm_transport_pci_doe_decode_message);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context, spdm_transport_none_encode_message,
@@ -381,14 +381,14 @@ void spdm_server_connection_state_callback(
 **/
 void spdm_server_session_state_callback(IN void *spdm_context,
                     IN uint32_t session_id,
-                    IN spdm_session_state_t session_state)
+                    IN libspdm_session_state_t session_state)
 {
     uintn data_size;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
 
     switch (session_state) {
-    case SPDM_SESSION_STATE_NOT_STARTED:
+    case LIBSPDM_SESSION_STATE_NOT_STARTED:
         /* Session end*/
 
         if (m_save_state_file_name != NULL) {
@@ -412,11 +412,11 @@ void spdm_server_session_state_callback(IN void *spdm_context,
         }
         break;
 
-    case SPDM_SESSION_STATE_HANDSHAKING:
+    case LIBSPDM_SESSION_STATE_HANDSHAKING:
         /* no action*/
         break;
 
-    case SPDM_SESSION_STATE_ESTABLISHED:
+    case LIBSPDM_SESSION_STATE_ESTABLISHED:
         /* no action*/
         break;
 

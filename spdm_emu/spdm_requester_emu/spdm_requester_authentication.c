@@ -76,8 +76,8 @@ return_status do_authentication_via_spdm(void)
     return_status status;
     void *spdm_context;
     uint8_t slot_mask;
-    uint8_t total_digest_buffer[MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
-    uint8_t measurement_hash[MAX_HASH_SIZE];
+    uint8_t total_digest_buffer[LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
+    uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
     uintn cert_chain_size;
     uint8_t cert_chain[MAX_SPDM_CERT_CHAIN_SIZE];
 

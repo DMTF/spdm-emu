@@ -40,7 +40,7 @@ extern uint8_t m_use_slot_id;
 extern uint8_t m_use_slot_count;
 
 #define ENCAP_KEY_UPDATE 0x8000
-extern spdm_key_update_action_t m_use_key_update_action;
+extern libspdm_key_update_action_t m_use_key_update_action;
 
 extern uint32_t m_use_hash_algo;
 extern uint32_t m_use_measurement_hash_algo;

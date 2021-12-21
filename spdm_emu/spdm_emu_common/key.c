@@ -74,11 +74,11 @@ uint8_t m_use_slot_id = 0;
 uint8_t m_use_slot_count = 3;
 
 /*
-  SPDM_KEY_UPDATE_ACTION_REQUESTER
-  SPDM_KEY_UPDATE_ACTION_RESPONDER
-  SPDM_KEY_UPDATE_ACTION_ALL
+  LIBSPDM_KEY_UPDATE_ACTION_REQUESTER
+  LIBSPDM_KEY_UPDATE_ACTION_RESPONDER
+  LIBSPDM_KEY_UPDATE_ACTION_MAX == REQUESTER + RESPONDER
 */
-spdm_key_update_action_t m_use_key_update_action = SPDM_KEY_UPDATE_ACTION_ALL;
+libspdm_key_update_action_t m_use_key_update_action = LIBSPDM_KEY_UPDATE_ACTION_MAX;
 
 uint32_t m_use_hash_algo;
 uint32_t m_use_measurement_hash_algo;

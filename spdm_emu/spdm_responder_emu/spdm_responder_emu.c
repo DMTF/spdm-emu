@@ -8,7 +8,7 @@
 
 uint32_t m_command;
 uintn m_receive_buffer_size;
-uint8_t m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
+uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 
 SOCKET m_server_socket;
 

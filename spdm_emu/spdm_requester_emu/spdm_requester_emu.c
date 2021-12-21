@@ -13,7 +13,7 @@ struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
 #else
 struct in_addr m_ip_address = { 0x0100007F };
 #endif
-uint8_t m_receive_buffer[MAX_SPDM_MESSAGE_BUFFER_SIZE];
+uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 
 extern SOCKET m_socket;
 

@@ -252,9 +252,9 @@ value_string_entry_t m_measurement_operation_string_table[] = {
 };
 
 value_string_entry_t m_key_update_action_string_table[] = {
-    { SPDM_KEY_UPDATE_ACTION_REQUESTER, "REQ" },
-    { SPDM_KEY_UPDATE_ACTION_RESPONDER, "RSP" },
-    { SPDM_KEY_UPDATE_ACTION_ALL, "ALL" },
+    { LIBSPDM_KEY_UPDATE_ACTION_REQUESTER, "REQ" },
+    { LIBSPDM_KEY_UPDATE_ACTION_RESPONDER, "RSP" },
+    { LIBSPDM_KEY_UPDATE_ACTION_MAX, "ALL" },
 };
 
 value_string_entry_t m_slot_id_string_table[] = {

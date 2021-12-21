@@ -119,7 +119,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
     return_status status;
     uint32_t session_id;
     uint8_t heartbeat_period;
-    uint8_t measurement_hash[MAX_HASH_SIZE];
+    uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
     uintn response_size;
     boolean result;
     uint32_t response;
@@ -130,7 +130,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
     zero_mem(measurement_hash, sizeof(measurement_hash));
     status = libspdm_start_session(spdm_context, use_psk,
                     m_use_measurement_summary_hash_type,
-                    m_use_slot_id, &session_id,
+                    m_use_slot_id, 0, &session_id,
                     &heartbeat_period, measurement_hash);
     if (RETURN_ERROR(status)) {
         printf("libspdm_start_session - %x\n", (uint32_t)status);
@@ -148,7 +148,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 
     if ((m_exe_session & EXE_SESSION_KEY_UPDATE) != 0) {
         switch (m_use_key_update_action) {
-        case SPDM_KEY_UPDATE_ACTION_REQUESTER:
+        case LIBSPDM_KEY_UPDATE_ACTION_REQUESTER:
             status =
                 libspdm_key_update(spdm_context, session_id, TRUE);
             if (RETURN_ERROR(status)) {
@@ -157,7 +157,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
             }
             break;
 
-        case SPDM_KEY_UPDATE_ACTION_ALL:
+        case LIBSPDM_KEY_UPDATE_ACTION_MAX:
             status = libspdm_key_update(spdm_context, session_id,
                          FALSE);
             if (RETURN_ERROR(status)) {
@@ -166,7 +166,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
             }
             break;
 
-        case SPDM_KEY_UPDATE_ACTION_RESPONDER:
+        case LIBSPDM_KEY_UPDATE_ACTION_RESPONDER:
             response_size = 0;
             result = communicate_platform_data(
                 m_socket,

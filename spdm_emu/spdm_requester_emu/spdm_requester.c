@@ -119,12 +119,12 @@ void *spdm_client_init(void)
                      spdm_device_receive_message);
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
-            spdm_context, spdm_transport_mctp_encode_message,
-            spdm_transport_mctp_decode_message);
+            spdm_context, libspdm_transport_mctp_encode_message,
+            libspdm_transport_mctp_decode_message);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         libspdm_register_transport_layer_func(
-            spdm_context, spdm_transport_pci_doe_encode_message,
-            spdm_transport_pci_doe_decode_message);
+            spdm_context, libspdm_transport_pci_doe_encode_message,
+            libspdm_transport_pci_doe_decode_message);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context, spdm_transport_none_encode_message,
