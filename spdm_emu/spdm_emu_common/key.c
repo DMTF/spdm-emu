@@ -6,7 +6,7 @@
 
 #include "spdm_emu.h"
 
-uint8_t m_use_version = SPDM_MESSAGE_VERSION_11;
+uint8_t m_use_version = SPDM_MESSAGE_VERSION_12;
 uint8_t m_use_secured_message_version = SPDM_MESSAGE_VERSION_11;
 uint32_t m_use_requester_capability_flags =
     (0 |

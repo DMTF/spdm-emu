@@ -25,16 +25,16 @@ uint32_t m_exe_session =
 void print_usage(IN char8 *name)
 {
     printf("\n%s [--trans MCTP|PCI_DOE|NONE]\n", name);
-    printf("   [--ver 1.0|1.1]\n");
+    printf("   [--ver 1.0|1.1|1.2]\n");
     printf("   [--sec_ver 0|1.1]\n");
     printf("   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID]\n");
-    printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512]\n");
+    printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--meas_spec DMTF]\n");
-    printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512]\n");
-    printf("   [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521]\n");
-    printf("   [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521]\n");
-    printf("   [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1]\n");
-    printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305]\n");
+    printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
+    printf("   [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
+    printf("   [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
+    printf("   [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
+    printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
     printf("   [--key_schedule HMAC_HASH]\n");
     printf("   [--basic_mut_auth NO|BASIC]\n");
     printf("   [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]\n");
@@ -52,7 +52,7 @@ void print_usage(IN char8 *name)
     printf("\n");
     printf("NOTE:\n");
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
-    printf("   [--ver] is version. By default, 1.1 is used.\n");
+    printf("   [--ver] is version. By default, 1.2 is used.\n");
     printf("   [--sec_ver] is secured message version. By default, 1.1 is used. 0 means no secured message version negotiation.\n");
     printf("   [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.\n");
     printf("           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Requester.\n");
@@ -66,7 +66,8 @@ void print_usage(IN char8 *name)
     printf("   [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.\n");
     printf("   [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.\n");
     printf("           Above algorithms also support multiple flags. Please use ',' for them.\n");
-    printf("           SHA3 is not supported so far.\n");
+    printf("           Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.\n");
+    printf("           Please don't mix NIST algo with SMx algo.\n");
     printf("   [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.\n");
     printf("   [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.\n");
     printf("   [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.\n");
@@ -120,6 +121,7 @@ value_string_entry_t m_transport_value_string_table[] = {
 value_string_entry_t m_version_value_string_table[] = {
     { SPDM_MESSAGE_VERSION_10, "1.0" },
     { SPDM_MESSAGE_VERSION_11, "1.1" },
+    { SPDM_MESSAGE_VERSION_12, "1.2" },
 };
 
 value_string_entry_t m_secured_message_version_value_string_table[] = {
@@ -172,6 +174,7 @@ value_string_entry_t m_hash_value_string_table[] = {
     { SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA3_256, "SHA3_256" },
     { SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA3_384, "SHA3_384" },
     { SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA3_512, "SHA3_512" },
+    { SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SM3_256, "SM3_256" },
 };
 
 value_string_entry_t m_measurement_spec_value_string_table[] = {
@@ -187,6 +190,7 @@ value_string_entry_t m_measurement_hash_value_string_table[] = {
     { SPDM_ALGORITHMS_MEASUREMENT_HASH_ALGO_TPM_ALG_SHA3_256, "SHA3_256" },
     { SPDM_ALGORITHMS_MEASUREMENT_HASH_ALGO_TPM_ALG_SHA3_384, "SHA3_384" },
     { SPDM_ALGORITHMS_MEASUREMENT_HASH_ALGO_TPM_ALG_SHA3_512, "SHA3_512" },
+    { SPDM_ALGORITHMS_MEASUREMENT_HASH_ALGO_TPM_ALG_SM3_256, "SM3_256" },
 };
 
 value_string_entry_t m_asym_value_string_table[] = {
@@ -202,6 +206,9 @@ value_string_entry_t m_asym_value_string_table[] = {
       "ECDSA_P384" },
     { SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P521,
       "ECDSA_P521" },
+    { SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_SM2_ECC_SM2_P256, "SM2_P256" },
+    { SPDM_ALGORITHMS_BASE_ASYM_ALGO_EDDSA_ED25519, "EDDSA_25519" },
+    { SPDM_ALGORITHMS_BASE_ASYM_ALGO_EDDSA_ED448, "EDDSA_448" },
 };
 
 value_string_entry_t m_dhe_value_string_table[] = {
@@ -211,6 +218,7 @@ value_string_entry_t m_dhe_value_string_table[] = {
     { SPDM_ALGORITHMS_DHE_NAMED_GROUP_SECP_256_R1, "SECP_256_R1" },
     { SPDM_ALGORITHMS_DHE_NAMED_GROUP_SECP_384_R1, "SECP_384_R1" },
     { SPDM_ALGORITHMS_DHE_NAMED_GROUP_SECP_521_R1, "SECP_521_R1" },
+    { SPDM_ALGORITHMS_DHE_NAMED_GROUP_SM2_P256, "SM2_P256" },
 };
 
 value_string_entry_t m_aead_value_string_table[] = {
@@ -218,6 +226,7 @@ value_string_entry_t m_aead_value_string_table[] = {
     { SPDM_ALGORITHMS_AEAD_CIPHER_SUITE_AES_256_GCM, "AES_256_GCM" },
     { SPDM_ALGORITHMS_AEAD_CIPHER_SUITE_CHACHA20_POLY1305,
       "CHACHA20_POLY1305" },
+    { SPDM_ALGORITHMS_AEAD_CIPHER_SUITE_AEAD_SM4_GCM, "SM4_128_GCM" },
 };
 
 value_string_entry_t m_key_schedule_value_string_table[] = {

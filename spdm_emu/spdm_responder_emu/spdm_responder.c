@@ -139,7 +139,7 @@ void *spdm_server_init(void)
         spdm_load_negotiated_state(spdm_context, FALSE);
     }
 
-    if (m_use_version != SPDM_MESSAGE_VERSION_11) {
+    {
         zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version.major_version = (m_use_version >> 4) & 0xF;
@@ -150,7 +150,7 @@ void *spdm_server_init(void)
                   &spdm_version, sizeof(spdm_version));
     }
 
-    if (m_use_secured_message_version != SPDM_MESSAGE_VERSION_11) {
+    {
         zero_mem(&parameter, sizeof(parameter));
         if (m_use_secured_message_version != 0) {
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;

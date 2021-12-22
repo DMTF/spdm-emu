@@ -114,7 +114,7 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
     data32 = m_support_hash_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
               &data32, sizeof(data32));
-    if (m_use_version == SPDM_MESSAGE_VERSION_11) {
+    if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
         data16 = m_support_dhe_algo;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP,
                   &parameter, &data16, sizeof(data16));

@@ -6,16 +6,16 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
    <pre>
       spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE]
-         [--ver 1.0|1.1]
+         [--ver 1.0|1.1|1.2]
          [--sec_ver 0|1.1]
          [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID]
-         [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512]
+         [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
          [--meas_spec DMTF]
-         [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512]
-         [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521]
-         [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521]
-         [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1]
-         [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305]
+         [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
+         [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]
+         [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]
+         [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]
+         [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]
          [--key_schedule HMAC_HASH]
          [--basic_mut_auth NO|BASIC]
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
@@ -33,7 +33,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
       NOTE:
          [--trans] is used to select transport layer message. By default, MCTP is used.
-         [--ver] is version. By default, 1.1 is used.
+         [--ver] is version. By default, 1.2 is used.
          [--sec_ver] is secured message version. By default, 1.1 is used. 0 means no secured message version negotiation.
          [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.
                  By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Requester.
@@ -47,7 +47,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.
          [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.
                  Above algorithms also support multiple flags. Please use ',' for them.
-                 SHA3 is not supported so far.
+                 Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.
+                 Please don't mix NIST algo with SMx algo.
          [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.
          [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.
          [--meas_sum] is the measurment summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.
