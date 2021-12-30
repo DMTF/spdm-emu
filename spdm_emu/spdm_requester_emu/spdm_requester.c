@@ -140,10 +140,7 @@ void *spdm_client_init(void)
     {
         zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-        spdm_version.major_version = (m_use_version >> 4) & 0xF;
-        spdm_version.minor_version = m_use_version & 0xF;
-        spdm_version.alpha = 0;
-        spdm_version.update_version_number = 0;
+        spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
                   &spdm_version, sizeof(spdm_version));
     }
@@ -152,12 +149,7 @@ void *spdm_client_init(void)
         zero_mem(&parameter, sizeof(parameter));
         if (m_use_secured_message_version != 0) {
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-            spdm_version.major_version =
-                (m_use_secured_message_version >> 4) & 0xF;
-            spdm_version.minor_version =
-                m_use_secured_message_version & 0xF;
-            spdm_version.alpha = 0;
-            spdm_version.update_version_number = 0;
+            spdm_version = m_use_secured_message_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
             libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_SECURED_MESSAGE_VERSION,
                       &parameter, &spdm_version,

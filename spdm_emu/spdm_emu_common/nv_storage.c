@@ -84,10 +84,7 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
     zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
-    spdm_version.major_version = (m_use_version >> 4) & 0xF;
-    spdm_version.minor_version = m_use_version & 0xF;
-    spdm_version.alpha = 0;
-    spdm_version.update_version_number = 0;
+    spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
               &spdm_version, sizeof(spdm_version));
 
@@ -224,8 +221,7 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
     ASSERT(data_size / sizeof(spdm_version_number_t) > 0);
     index = data_size / sizeof(spdm_version_number_t) - 1;
     negotiated_state.spdm_version =
-        (uint8_t)((spdm_version[index].major_version << 4) |
-            spdm_version[index].minor_version);
+        (uint8_t)(spdm_version[index] >> SPDM_VERSION_NUMBER_SHIFT_BIT);
 
     if (is_requester) {
         data_size = sizeof(data32);
