@@ -57,6 +57,7 @@ extern uint16_t m_support_aead_algo;
 extern uint16_t m_support_key_schedule_algo;
 extern uint8_t m_support_other_params_support;
 
+extern uint8_t m_session_policy;
 extern uint8_t m_end_session_attributes;
 
 extern char8 *m_load_state_file_name;

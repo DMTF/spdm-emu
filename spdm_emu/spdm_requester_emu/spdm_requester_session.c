@@ -132,7 +132,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
     zero_mem(measurement_hash, sizeof(measurement_hash));
     status = libspdm_start_session(spdm_context, use_psk,
                     m_use_measurement_summary_hash_type,
-                    m_use_slot_id, 0, &session_id,
+                    m_use_slot_id, m_session_policy, &session_id,
                     &heartbeat_period, measurement_hash);
     if (RETURN_ERROR(status)) {
         printf("libspdm_start_session - %x\n", (uint32_t)status);
