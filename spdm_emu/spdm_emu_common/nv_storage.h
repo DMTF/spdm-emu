@@ -23,6 +23,7 @@ typedef struct {
     uint8_t responder_cap_ct_exponent;
     uint32_t responder_cap_flags;
     uint8_t measurement_spec;
+    uint8_t other_params_support;
     uint32_t measurement_hash_algo;
     uint32_t base_asym_algo;
     uint32_t base_hash_algo;

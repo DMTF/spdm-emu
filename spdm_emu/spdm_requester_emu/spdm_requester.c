@@ -195,6 +195,9 @@ void *spdm_client_init(void)
     data16 = m_support_key_schedule_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter, &data16,
               sizeof(data16));
+    data8 = m_support_other_params_support;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
+              &data8, sizeof(data8));
 
     if (m_load_state_file_name == NULL) {
         /* Skip if state is loaded*/

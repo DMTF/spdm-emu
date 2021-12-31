@@ -17,6 +17,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]
          [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]
          [--key_schedule HMAC_HASH]
+         [--other_param OPAQUE_FMT_1]
          [--basic_mut_auth NO|BASIC]
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
          [--meas_sum NO|TCB|ALL]
@@ -46,6 +47,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.
          [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.
          [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.
+         [--other_param] is other parameter support. By default, OPAQUE_FMT_1 is used.
                  Above algorithms also support multiple flags. Please use ',' for them.
                  Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.
                  Please don't mix NIST algo with SMx algo.
@@ -59,14 +61,14 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--slot_count] is to select the local slot count. By default, 3 is used.
          [--save_state] is to save the current negotiated state to a write-only file.
                  The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.
-                 (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule)
+                 (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param)
                  The responder should set CACHE capabilities, otherwise the state will not be saved.
                  The requester will clear PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION to preserve, otherwise this bit is set.
                  The responder will save empty state, if the requester sets PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION.
          [--load_state] is to load the negotiated state to current session from a read-only file.
                  The requester and responder will provision the state just after SPDM context is created.
                  The user need guarantee the state file is gnerated correctly.
-                 The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule are ignored.
+                 The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param are ignored.
                  The requester will skip GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.
          [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.
                  SHUTDOWN means the requester asks the responder to stop.

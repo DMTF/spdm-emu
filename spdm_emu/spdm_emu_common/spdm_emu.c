@@ -36,6 +36,7 @@ void print_usage(IN char8 *name)
     printf("   [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
     printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
     printf("   [--key_schedule HMAC_HASH]\n");
+    printf("   [--other_param OPAQUE_FMT_1]\n");
     printf("   [--basic_mut_auth NO|BASIC]\n");
     printf("   [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]\n");
     printf("   [--meas_sum NO|TCB|ALL]\n");
@@ -65,6 +66,7 @@ void print_usage(IN char8 *name)
     printf("   [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.\n");
     printf("   [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.\n");
     printf("   [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.\n");
+    printf("   [--other_param] is other parameter support. By default, OPAQUE_FMT_1 is used.\n");
     printf("           Above algorithms also support multiple flags. Please use ',' for them.\n");
     printf("           Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.\n");
     printf("           Please don't mix NIST algo with SMx algo.\n");
@@ -79,14 +81,14 @@ void print_usage(IN char8 *name)
     printf("   [--slot_count] is to select the local slot count. By default, 3 is used.\n");
     printf("   [--save_state] is to save the current negotiated state to a write-only file.\n");
     printf("           The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
-    printf("           (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule)\n");
+    printf("           (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param)\n");
     printf("           The responder should set CACHE capabilities, otherwise the state will not be saved.\n");
     printf("           The requester will clear PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION to preserve, otherwise this bit is set.\n");
     printf("           The responder will save empty state, if the requester sets PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION.\n");
     printf("   [--load_state] is to load the negotiated state to current session from a read-only file.\n");
     printf("           The requester and responder will provision the state just after SPDM context is created.\n");
     printf("           The user need guarantee the state file is generated correctly.\n");
-    printf("           The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule are ignored.\n");
+    printf("           The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param are ignored.\n");
     printf("           The requester will skip GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
     printf("   [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.\n");
     printf("           SHUTDOWN means the requester asks the responder to stop.\n");
@@ -231,6 +233,10 @@ value_string_entry_t m_aead_value_string_table[] = {
 
 value_string_entry_t m_key_schedule_value_string_table[] = {
     { SPDM_ALGORITHMS_KEY_SCHEDULE_HMAC_HASH, "HMAC_HASH" },
+};
+
+value_string_entry_t m_other_param_value_string_table[] = {
+    { SPDM_ALGORITHMS_OPAQUE_DATA_FORMAT_1, "OPAQUE_FMT_1" },
 };
 
 value_string_entry_t m_basic_mut_auth_policy_string_table[] = {
@@ -670,6 +676,31 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --key_schedule\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--other_param") == 0) {
+            if (argc >= 2) {
+                if (!get_flags_from_name(
+                        m_other_param_value_string_table,
+                        ARRAY_SIZE(
+                            m_other_param_value_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --other_param %s\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_support_other_params_support = (uint8_t)data32;
+                printf("other_param - 0x%04x\n",
+                       m_support_other_params_support);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --other_param\n");
                 print_usage(program_name);
                 exit(0);
             }
