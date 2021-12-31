@@ -41,6 +41,7 @@ void print_usage(IN char8 *name)
     printf("   [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]\n");
     printf("   [--meas_sum NO|TCB|ALL]\n");
     printf("   [--meas_op ONE_BY_ONE|ALL]\n");
+    printf("   [--meas_att HASH|RAW]\n");
     printf("   [--key_upd REQ|ALL|RSP]\n");
     printf("   [--slot_id <0~7|0xFF>]\n");
     printf("   [--slot_count <1~8>]\n");
@@ -74,6 +75,7 @@ void print_usage(IN char8 *name)
     printf("   [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.\n");
     printf("   [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.\n");
     printf("   [--meas_op] is the measurement operation in GET_MEASUREMEMT. By default, ONE_BY_ONE is used.\n");
+    printf("   [--meas_att] is the measurement attribute in GET_MEASUREMEMT. By default, HASH is used.\n");
     printf("   [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.\n");
     printf("   [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.\n");
     printf("           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
@@ -267,6 +269,13 @@ value_string_entry_t m_measurement_operation_string_table[] = {
       "ONE_BY_ONE" },
     { SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
       "ALL" },
+};
+
+value_string_entry_t m_measurement_attribute_string_table[] = {
+    { 0,
+      "HASH" },
+    { SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_RAW_BIT_STREAM_REQUESTED,
+      "RAW" },
 };
 
 value_string_entry_t m_key_update_action_string_table[] = {
@@ -804,6 +813,31 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --meas_op\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--meas_att") == 0) {
+            if (argc >= 2) {
+                if (!get_value_from_name(
+                        m_measurement_attribute_string_table,
+                        ARRAY_SIZE(
+                            m_measurement_attribute_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --meas_att %s\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_measurement_attribute = (uint8_t)data32;
+                printf("meas_att - 0x%02x\n",
+                       m_use_measurement_attribute);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --meas_att\n");
                 print_usage(program_name);
                 exit(0);
             }

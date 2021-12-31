@@ -44,7 +44,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
             return status;
         }
     } else {
-        request_attribute = 0;
+        request_attribute = m_use_measurement_attribute;
         
         /* 1. query the total number of measurements available.*/
         
@@ -68,7 +68,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
             /* get signature in last message only.*/
             
             if (received_number_of_block == number_of_blocks - 1) {
-                request_attribute =
+                request_attribute = m_use_measurement_attribute |
                     SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
             }
             measurement_record_length = sizeof(measurement_record);

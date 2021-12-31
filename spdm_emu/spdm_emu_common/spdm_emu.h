@@ -36,6 +36,7 @@ extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;
 extern uint8_t m_use_measurement_summary_hash_type;
 extern uint8_t m_use_measurement_operation;
+extern uint8_t m_use_measurement_attribute;
 extern uint8_t m_use_slot_id;
 extern uint8_t m_use_slot_count;
 
