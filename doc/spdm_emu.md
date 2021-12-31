@@ -22,6 +22,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
          [--meas_sum NO|TCB|ALL]
          [--meas_op ONE_BY_ONE|ALL]
+         [--meas_att HASH|RAW]
          [--key_upd REQ|ALL|RSP]
          [--slot_id <0~7|0xFF>]
          [--slot_count <1~8>]
@@ -55,6 +56,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.
          [--meas_sum] is the measurment summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.
          [--meas_op] is the measurement operation in GET_MEASUREMEMT. By default, ONE_BY_ONE is used.
+         [--meas_att] is the measurement attribute in GET_MEASUREMEMT. By default, HASH is used.
          [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.
          [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.
                  0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.

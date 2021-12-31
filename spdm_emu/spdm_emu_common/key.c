@@ -70,6 +70,11 @@ uint8_t m_use_measurement_summary_hash_type =
 */
 uint8_t m_use_measurement_operation =
     SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS;
+/*
+  0
+  SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_RAW_BIT_STREAM_REQUESTED
+*/
+uint8_t m_use_measurement_attribute = 0;
 uint8_t m_use_slot_id = 0;
 uint8_t m_use_slot_count = 3;
 
