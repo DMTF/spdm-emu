@@ -21,6 +21,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
     return_status status;
     uint8_t number_of_blocks;
     uint8_t number_of_block;
+    uint8_t received_number_of_block;
     uint32_t measurement_record_length;
     uint8_t measurement_record[LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE];
     uint8_t index;
@@ -56,13 +57,17 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
         }
         DEBUG((DEBUG_INFO, "number_of_blocks - 0x%x\n",
                number_of_blocks));
-        for (index = 1; index <= number_of_blocks; index++) {
+        received_number_of_block = 0;
+        for (index = 1; index <= 0xFE; index++) {
+            if (received_number_of_block == number_of_blocks) {
+                break;
+            }
             DEBUG((DEBUG_INFO, "index - 0x%x\n", index));
-            
+
             /* 2. query measurement one by one*/
             /* get signature in last message only.*/
             
-            if (index == number_of_blocks) {
+            if (received_number_of_block == number_of_blocks - 1) {
                 request_attribute =
                     SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
             }
@@ -72,8 +77,12 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
                 index, m_use_slot_id & 0xF, NULL, &number_of_block,
                 &measurement_record_length, measurement_record);
             if (RETURN_ERROR(status)) {
-                return status;
+                continue;
             }
+            received_number_of_block += 1;
+        }
+        if (received_number_of_block != number_of_blocks) {
+            return RETURN_DEVICE_ERROR;
         }
     }
 
