@@ -164,3 +164,8 @@ uint16_t m_support_aead_algo =
   SPDM_ALGORITHMS_KEY_SCHEDULE_HMAC_HASH,
 */
 uint16_t m_support_key_schedule_algo = SPDM_ALGORITHMS_KEY_SCHEDULE_HMAC_HASH;
+/*
+  SPDM_ALGORITHMS_OPAQUE_DATA_FORMAT_1,
+*/
+uint8_t m_support_other_params_support =
+    SPDM_ALGORITHMS_OPAQUE_DATA_FORMAT_1;

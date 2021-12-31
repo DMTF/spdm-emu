@@ -77,8 +77,8 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
     m_support_aead_algo = negotiated_state.aead_cipher_suite;
     m_support_req_asym_algo = negotiated_state.req_base_asym_alg;
     m_support_key_schedule_algo = negotiated_state.key_schedule;
+    m_support_other_params_support = negotiated_state.other_params_support;
 
-    
     /* Set connection info*/
     
     zero_mem(&parameter, sizeof(parameter));
@@ -124,6 +124,11 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
         data16 = m_support_key_schedule_algo;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter,
                   &data16, sizeof(data16));
+        if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
+            data8 = m_support_other_params_support;
+            libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
+                    &data8, sizeof(data8));
+        }
     } else {
         data16 = 0;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP,
@@ -281,6 +286,10 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
     libspdm_get_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter, &data16,
               &data_size);
     negotiated_state.key_schedule = data16;
+    data_size = sizeof(data8);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter, &data8,
+              &data_size);
+    negotiated_state.other_params_support = data8;
 
     ret = write_output_file(m_save_state_file_name, &negotiated_state,
                 sizeof(negotiated_state));
