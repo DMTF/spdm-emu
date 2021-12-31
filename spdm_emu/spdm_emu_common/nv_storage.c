@@ -8,8 +8,6 @@
 
 char8 *m_load_state_file_name;
 char8 *m_save_state_file_name;
-uint8_t m_end_session_attributes =
-    SPDM_END_SESSION_REQUEST_ATTRIBUTES_PRESERVE_NEGOTIATED_STATE_CLEAR;
 
 /**
   Load the negotiated_state from NV storage to an SPDM context.

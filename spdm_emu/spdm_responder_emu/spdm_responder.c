@@ -408,7 +408,19 @@ void spdm_server_session_state_callback(IN void *spdm_context,
         break;
 
     case LIBSPDM_SESSION_STATE_HANDSHAKING:
-        /* no action*/
+        /* collect session policy*/
+        if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
+            zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_SESSION;
+            *(uint32_t *)parameter.additional_data = session_id;
+
+            data8 = 0;
+            data_size = sizeof(data8);
+            libspdm_get_data(spdm_context,
+                    LIBSPDM_DATA_SESSION_POLICY,
+                    &parameter, &data8, &data_size);
+            printf("session policy - %x\n", data8);
+        }
         break;
 
     case LIBSPDM_SESSION_STATE_ESTABLISHED:
