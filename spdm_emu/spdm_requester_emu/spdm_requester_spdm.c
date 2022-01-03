@@ -89,6 +89,35 @@ return_status spdm_device_receive_message(IN void *spdm_context,
     return RETURN_SUCCESS;
 }
 
+/**
+  Send and receive an DOE message
+
+  @param request                       the PCI DOE request message, start from pci_doe_data_object_header_t.
+  @param request_size                  size in bytes of request.
+  @param response                      the PCI DOE response message, start from pci_doe_data_object_header_t.
+  @param response_size                 size in bytes of response.
+
+  @retval RETURN_SUCCESS               The request is sent and response is received.
+  @return ERROR                        The response is not received correctly.
+**/
+return_status pci_doe_send_receive_data(IN void *pci_doe_context,
+                      IN uintn request_size, IN void *request,
+                      IN OUT uintn *response_size, IN OUT void *response)
+{
+    boolean result;
+    uint32_t response_code;
+
+    result = communicate_platform_data(
+                m_socket, SOCKET_SPDM_COMMAND_NORMAL,
+                request, request_size,
+                &response_code, response_size,
+                response);
+    if (!result) {
+        return RETURN_DEVICE_ERROR;
+    }
+    return RETURN_SUCCESS;
+}
+
 void *spdm_client_init(void)
 {
     void *spdm_context;
