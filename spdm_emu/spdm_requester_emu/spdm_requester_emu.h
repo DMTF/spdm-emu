@@ -13,6 +13,8 @@
 #include "library/spdm_transport_none_lib.h"
 #include "library/spdm_transport_mctp_lib.h"
 #include "library/spdm_transport_pcidoe_lib.h"
+#include "library/mctp_requester_lib.h"
+#include "library/pci_doe_requester_lib.h"
 
 #include "os_include.h"
 #include "stdio.h"

@@ -21,6 +21,8 @@ extern void *m_spdm_context;
 
 void *spdm_client_init(void);
 
+return_status pci_doe_init_request(void);
+
 boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
                   IN uint8_t *send_buffer, IN uintn bytes_to_send,
                   OUT uint32_t *response,
@@ -36,6 +38,7 @@ return_status do_authentication_via_spdm(void);
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
 return_status do_session_via_spdm(IN boolean use_psk);
+
 
 boolean init_client(OUT SOCKET *sock, IN uint16_t port)
 {
@@ -81,17 +84,6 @@ boolean init_client(OUT SOCKET *sock, IN uint16_t port)
     return TRUE;
 }
 
-doe_discovery_request_mine_t m_doe_request = {
-    {
-        PCI_DOE_VENDOR_ID_PCISIG,
-        PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY, 0,
-        sizeof(m_doe_request) / sizeof(uint32_t), /* length*/
-    },
-    {
-        0, /* index*/
-    },
-};
-
 boolean platform_client_routine(IN uint16_t port_number)
 {
     SOCKET platform_socket;
@@ -128,31 +120,11 @@ boolean platform_client_routine(IN uint16_t port_number)
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
-        doe_discovery_response_mine_t doe_response;
-
-        do {
-            response_size = sizeof(doe_response);
-            result = communicate_platform_data(
-                platform_socket, SOCKET_SPDM_COMMAND_NORMAL,
-                (uint8_t *)&m_doe_request, sizeof(m_doe_request),
-                &response, &response_size,
-                (uint8_t *)&doe_response);
-            if (!result) {
-                goto done;
-            }
-            ASSERT(response_size == sizeof(doe_response));
-            ASSERT(doe_response.doe_header.vendor_id ==
-                   PCI_DOE_VENDOR_ID_PCISIG);
-            ASSERT(doe_response.doe_header.data_object_type ==
-                   PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY);
-            ASSERT(doe_response.doe_header.length ==
-                   sizeof(doe_response) / sizeof(uint32_t));
-            ASSERT(doe_response.doe_discovery_response.vendor_id ==
-                   PCI_DOE_VENDOR_ID_PCISIG);
-
-            m_doe_request.doe_discovery_request.index =
-                doe_response.doe_discovery_response.next_index;
-        } while (doe_response.doe_discovery_response.next_index != 0);
+        status = pci_doe_init_request ();
+        if (RETURN_ERROR(status)) {
+            printf("pci_doe_init_request - %x\n", (uint32_t)status);
+            goto done;
+        }
     }
 
     m_spdm_context = spdm_client_init();

@@ -22,94 +22,17 @@ boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
 return_status do_measurement_via_spdm(IN uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
-spdm_vendor_defined_request_mine_t mVendorDefinedRequest = {
-    {
-        SPDM_MESSAGE_VERSION_10, SPDM_VENDOR_DEFINED_REQUEST,
-        0, /* param1*/
-        0, /* param2*/
-    },
-    SPDM_REGISTRY_ID_PCISIG, /* standard_id*/
-    2, /* len*/
-    SPDM_VENDOR_ID_PCISIG, /* vendor_id*/
-    sizeof(pci_protocol_header_t) +
-        sizeof(pci_ide_km_query_t), /* payload_length*/
-    {
-        PCI_PROTOCAL_ID_IDE_KM,
-    },
-    {
-        {
-            PCI_IDE_KM_OBJECT_ID_QUERY,
-        },
-        0, /* reserved*/
-        0, /* port_index*/
-    }
-};
-
-secure_session_request_mine_t mSecureSessionRequest = {
-    { MCTP_MESSAGE_TYPE_PLDM },
-    {
-        0x80,
-        PLDM_MESSAGE_TYPE_CONTROL_DISCOVERY,
-        PLDM_CONTROL_DISCOVERY_COMMAND_GET_TID,
-    },
-};
+return_status pci_doe_process_session_message(IN void *spdm_context, IN uint32_t session_id);
+return_status mctp_process_session_message(IN void *spdm_context, IN uint32_t session_id);
 
 return_status do_app_session_via_spdm(IN uint32_t session_id)
 {
-    void *spdm_context;
-    return_status status;
-    spdm_vendor_defined_request_mine_t request;
-    uintn request_size;
-    spdm_vendor_defined_response_mine_t response;
-    uintn response_size;
-    secure_session_response_mine_t app_response;
-    uintn app_response_size;
-
-    spdm_context = m_spdm_context;
-
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
-        copy_mem(&request, &mVendorDefinedRequest, sizeof(request));
-
-        request_size = sizeof(request);
-        response_size = sizeof(response);
-        status = libspdm_send_receive_data(spdm_context, &session_id,
-                        FALSE, &request, request_size,
-                        &response, &response_size);
-        ASSERT_RETURN_ERROR(status);
-
-        ASSERT(response_size ==
-               sizeof(spdm_vendor_defined_response_mine_t));
-        ASSERT(response.header.request_response_code ==
-               SPDM_VENDOR_DEFINED_RESPONSE);
-        ASSERT(response.standard_id == SPDM_REGISTRY_ID_PCISIG);
-        ASSERT(response.vendor_id == SPDM_VENDOR_ID_PCISIG);
-        ASSERT(response.payload_length ==
-               sizeof(pci_protocol_header_t) +
-                   sizeof(pci_ide_km_query_resp_t));
-        ASSERT(response.pci_protocol.protocol_id ==
-               PCI_PROTOCAL_ID_IDE_KM);
-        ASSERT(response.pci_ide_km_query_resp.header.object_id ==
-               PCI_IDE_KM_OBJECT_ID_QUERY_RESP);
+        pci_doe_process_session_message (m_spdm_context, session_id);
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
-        app_response_size = sizeof(app_response);
-        status = libspdm_send_receive_data(spdm_context, &session_id, TRUE,
-                        &mSecureSessionRequest,
-                        sizeof(mSecureSessionRequest),
-                        &app_response,
-                        &app_response_size);
-        ASSERT_RETURN_ERROR(status);
-
-        ASSERT(app_response_size == sizeof(app_response));
-        ASSERT(app_response.mctp_header.message_type ==
-               MCTP_MESSAGE_TYPE_PLDM);
-        ASSERT(app_response.pldm_header.pldm_type ==
-               PLDM_MESSAGE_TYPE_CONTROL_DISCOVERY);
-        ASSERT(app_response.pldm_header.pldm_command_code ==
-               PLDM_CONTROL_DISCOVERY_COMMAND_GET_TID);
-        ASSERT(app_response.pldm_response_header.pldm_completion_code ==
-               PLDM_BASE_CODE_SUCCESS);
+        mctp_process_session_message (m_spdm_context, session_id);
     }
 
     return RETURN_SUCCESS;

@@ -13,6 +13,7 @@ uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 SOCKET m_server_socket;
 
 extern void *m_spdm_context;
+extern void *m_pci_doe_context;
 
 void *spdm_server_init(void);
 
@@ -93,20 +94,12 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
     return TRUE;
 }
 
-doe_discovery_response_mine_t m_doe_response = {
-    {
-        PCI_DOE_VENDOR_ID_PCISIG,
-        PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY, 0,
-        sizeof(m_doe_response) / sizeof(uint32_t), /* length*/
-    },
-    { PCI_DOE_VENDOR_ID_PCISIG, PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY,
-      0x00 },
-};
-
 boolean platform_server(IN SOCKET socket)
 {
     boolean result;
     return_status status;
+    uint8_t response[PCI_DOE_MAX_NON_SPDM_MESSAGE_SIZE];
+    uintn response_size;
 
     while (TRUE) {
         status = libspdm_responder_dispatch_message(m_spdm_context);
@@ -191,51 +184,16 @@ boolean platform_server(IN SOCKET socket)
         case SOCKET_SPDM_COMMAND_NORMAL:
             if (m_use_transport_layer ==
                 SOCKET_TRANSPORT_TYPE_PCI_DOE) {
-                doe_discovery_request_mine_t *doe_request;
-
-                doe_request = (void *)m_receive_buffer;
-                if ((doe_request->doe_header.vendor_id !=
-                     PCI_DOE_VENDOR_ID_PCISIG) ||
-                    (doe_request->doe_header.data_object_type !=
-                     PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY)) {
+                response_size = sizeof(response);
+                status = pci_doe_get_response_doe_request (m_pci_doe_context,
+                            m_receive_buffer, m_receive_buffer_size, response, &response_size);
+                if (RETURN_ERROR(status)) {
                     /* unknown message*/
                     return TRUE;
                 }
-                ASSERT(m_receive_buffer_size ==
-                       sizeof(doe_discovery_request_mine_t));
-                ASSERT(doe_request->doe_header.length ==
-                       sizeof(*doe_request) / sizeof(uint32_t));
-
-                switch (doe_request->doe_discovery_request
-                        .index) {
-                case 0:
-                    m_doe_response.doe_discovery_response
-                        .data_object_type =
-                        PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY;
-                    m_doe_response.doe_discovery_response
-                        .next_index = 1;
-                    break;
-                case 1:
-                    m_doe_response.doe_discovery_response
-                        .data_object_type =
-                        PCI_DOE_DATA_OBJECT_TYPE_SPDM;
-                    m_doe_response.doe_discovery_response
-                        .next_index = 2;
-                    break;
-                case 2:
-                default:
-                    m_doe_response.doe_discovery_response
-                        .data_object_type =
-                        PCI_DOE_DATA_OBJECT_TYPE_SECURED_SPDM;
-                    m_doe_response.doe_discovery_response
-                        .next_index = 0;
-                    break;
-                }
-
                 result = send_platform_data(
                     socket, SOCKET_SPDM_COMMAND_NORMAL,
-                    (uint8_t *)&m_doe_response,
-                    sizeof(m_doe_response));
+                    response, response_size);
                 if (!result) {
                     printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER

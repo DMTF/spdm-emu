@@ -6,6 +6,9 @@
 
 #include "spdm_emu.h"
 
+/* hack to add MCTP header for PCAP*/
+#include "industry_standard/mctp.h"
+
 uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
 
 /**
