@@ -525,5 +525,7 @@ endif()
     ADD_SUBDIRECTORY(${LIBSPDM_DIR}/os_stub/malloclib out/malloclib.out)
     ADD_SUBDIRECTORY(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample out/spdm_device_secret_lib_sample.out)
 
+    ADD_SUBDIRECTORY(library/spdm_transport_none_lib)
+
     ADD_SUBDIRECTORY(spdm_emu/spdm_requester_emu)
     ADD_SUBDIRECTORY(spdm_emu/spdm_responder_emu)
