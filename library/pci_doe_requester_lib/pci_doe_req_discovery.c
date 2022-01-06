@@ -54,7 +54,7 @@ return_status pci_doe_discovery (IN void *pci_doe_context,
 
     do {
         if (total_index < 
-                doe_request.doe_discovery_request.index + 1) {
+                (uintn)doe_request.doe_discovery_request.index + 1) {
             return RETURN_BUFFER_TOO_SMALL;
         }
 

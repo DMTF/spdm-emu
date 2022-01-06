@@ -13,7 +13,7 @@ return_status pci_doe_init_request()
     pci_doe_data_object_protocol_t data_object_protocol[6];
     uintn data_object_protocol_size;
     return_status  status;
-    int32_t index;
+    uint32_t index;
 
     data_object_protocol_size = sizeof(data_object_protocol);
     status = pci_doe_discovery (m_pci_doe_context, data_object_protocol, &data_object_protocol_size);
