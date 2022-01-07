@@ -32,7 +32,7 @@ return_status ide_km_send_receive_data (IN void *spdm_context, IN uint32_t *sess
     return_status status;
     pci_protocol_header_t pci_protocol;
 
-    pci_protocol.protocol_id = PCI_PROTOCAL_ID_IDE_KM;
+    pci_protocol.protocol_id = PCI_PROTOCOL_ID_IDE_KM;
     status = pci_doe_spdm_vendor_send_receive_data (spdm_context, session_id,
                     pci_protocol,
                     request, request_size, response, response_size);
