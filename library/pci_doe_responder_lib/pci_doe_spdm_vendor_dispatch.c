@@ -16,7 +16,7 @@ typedef struct {
 } pci_doe_spdm_dispatch_struct_t;
 
 pci_doe_spdm_dispatch_struct_t m_pci_doe_spdm_dispatch[] = {
-    {{PCI_PROTOCAL_ID_IDE_KM}, pci_ide_km_get_response}, 
+    {{PCI_PROTOCOL_ID_IDE_KM}, pci_ide_km_get_response},
 };
 
 /**

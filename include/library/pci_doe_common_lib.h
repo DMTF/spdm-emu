@@ -10,33 +10,6 @@
 #include "industry_standard/pcidoe.h"
 #include "industry_standard/pci_idekm.h"
 
-/* definition following PCI DOE specification*/
-
-#pragma pack(1)
-
-typedef struct {
-    spdm_message_header_t spdm_header;
-    /* param1 == RSVD*/
-    /* param2 == RSVD*/
-    uint16_t standard_id; /* SPDM_STANDARD_ID_PCISIG*/
-    uint8_t len;
-    uint16_t vendor_id;  /* SPDM_VENDOR_ID_PCISIG*/
-    uint16_t payload_length;
-    pci_protocol_header_t pci_protocol;
-} pci_doe_spdm_vendor_defined_request_t;
-
-typedef struct {
-    spdm_message_header_t spdm_header;
-    /* param1 == RSVD*/
-    /* param2 == RSVD*/
-    uint16_t standard_id; /* SPDM_STANDARD_ID_PCISIG*/
-    uint8_t len;
-    uint16_t vendor_id;  /* SPDM_VENDOR_ID_PCISIG*/
-    uint16_t payload_length;
-    pci_protocol_header_t pci_protocol;
-} pci_doe_spdm_vendor_defined_response_t;
-
-#pragma pack()
 
 /* PCI DOE - check below configuration*/
 /* only Discovery*/
