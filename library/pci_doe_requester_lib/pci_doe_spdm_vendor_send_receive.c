@@ -56,11 +56,11 @@ return_status pci_doe_spdm_vendor_send_receive_data (IN void *spdm_context, IN u
     zero_mem(spdm_request, sizeof(pci_doe_spdm_vendor_defined_request_t));
     spdm_request->spdm_header.spdm_version = (uint8_t)(spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT);
     spdm_request->spdm_header.request_response_code = SPDM_VENDOR_DEFINED_REQUEST;
-    spdm_request->standard_id = SPDM_STANDARD_ID_PCISIG;
-    spdm_request->len = sizeof(spdm_request->vendor_id);
-    spdm_request->vendor_id = SPDM_VENDOR_ID_PCISIG;
-    spdm_request->payload_length = (uint16_t)(sizeof(pci_protocol_header_t) + request_size);
-    spdm_request->pci_protocol = pci_protocol;
+    spdm_request->pci_doe_vendor_header.standard_id = SPDM_STANDARD_ID_PCISIG;
+    spdm_request->pci_doe_vendor_header.len = sizeof(spdm_request->pci_doe_vendor_header.vendor_id);
+    spdm_request->pci_doe_vendor_header.vendor_id = SPDM_VENDOR_ID_PCISIG;
+    spdm_request->pci_doe_vendor_header.payload_length = (uint16_t)(sizeof(pci_protocol_header_t) + request_size);
+    spdm_request->pci_doe_vendor_header.pci_protocol = pci_protocol;
     copy_mem(spdm_request + 1 , request, request_size);
 
     spdm_request_size = sizeof(pci_doe_spdm_vendor_defined_request_t) + request_size;
@@ -81,27 +81,27 @@ return_status pci_doe_spdm_vendor_send_receive_data (IN void *spdm_context, IN u
     if (spdm_response->spdm_header.request_response_code != SPDM_VENDOR_DEFINED_RESPONSE) {
         return RETURN_DEVICE_ERROR;
     }
-    if (spdm_response->standard_id != SPDM_STANDARD_ID_PCISIG) {
+    if (spdm_response->pci_doe_vendor_header.standard_id != SPDM_STANDARD_ID_PCISIG) {
         return RETURN_DEVICE_ERROR;
     }
-    if (spdm_response->len != sizeof(spdm_response->vendor_id)) {
+    if (spdm_response->pci_doe_vendor_header.len != sizeof(spdm_response->pci_doe_vendor_header.vendor_id)) {
         return RETURN_DEVICE_ERROR;
     }
-    if (spdm_response->vendor_id != SPDM_VENDOR_ID_PCISIG) {
+    if (spdm_response->pci_doe_vendor_header.vendor_id != SPDM_VENDOR_ID_PCISIG) {
         return RETURN_DEVICE_ERROR;
     }
-    if (spdm_response->pci_protocol.protocol_id != spdm_request->pci_protocol.protocol_id) {
+    if (spdm_response->pci_doe_vendor_header.pci_protocol.protocol_id != spdm_request->pci_doe_vendor_header.pci_protocol.protocol_id) {
         return RETURN_DEVICE_ERROR;
     }
-    if (spdm_response->payload_length < sizeof(pci_protocol_header_t)) {
+    if (spdm_response->pci_doe_vendor_header.payload_length < sizeof(pci_protocol_header_t)) {
         return RETURN_DEVICE_ERROR;
     }
-    if (spdm_response->payload_length - sizeof(pci_protocol_header_t) >
+    if (spdm_response->pci_doe_vendor_header.payload_length - sizeof(pci_protocol_header_t) >
         spdm_response_size - sizeof(pci_doe_spdm_vendor_defined_response_t)) {
         return RETURN_DEVICE_ERROR;
     }
 
-    *response_size = spdm_response->payload_length - sizeof(pci_protocol_header_t);
+    *response_size = spdm_response->pci_doe_vendor_header.payload_length - sizeof(pci_protocol_header_t);
     copy_mem (response, spdm_response + 1, *response_size);
 
     return RETURN_SUCCESS;
