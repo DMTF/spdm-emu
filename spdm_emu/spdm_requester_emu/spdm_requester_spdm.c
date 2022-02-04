@@ -166,7 +166,7 @@ void *spdm_client_init(void)
         spdm_load_negotiated_state(spdm_context, TRUE);
     }
 
-    {
+    if (m_use_version != 0) {
         zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
@@ -174,20 +174,14 @@ void *spdm_client_init(void)
                   &spdm_version, sizeof(spdm_version));
     }
 
-    {
+    if (m_use_secured_message_version != 0) {
         zero_mem(&parameter, sizeof(parameter));
-        if (m_use_secured_message_version != 0) {
-            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-            spdm_version = m_use_secured_message_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
-            libspdm_set_data(spdm_context,
+        parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+        spdm_version = m_use_secured_message_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
+        libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_SECURED_MESSAGE_VERSION,
                       &parameter, &spdm_version,
                       sizeof(spdm_version));
-        } else {
-            libspdm_set_data(spdm_context,
-                      LIBSPDM_DATA_SECURED_MESSAGE_VERSION,
-                      &parameter, NULL, 0);
-        }
     }
 
     zero_mem(&parameter, sizeof(parameter));
