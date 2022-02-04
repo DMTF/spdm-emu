@@ -20,6 +20,8 @@ if(NOT GCOV)
 endif()
 
 SET(LIBSPDM_DIR ${PROJECT_SOURCE_DIR}/libspdm)
+SET(SPDM_RESPONDER_VALIDATOR_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator)
+SET(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/common_test_framework)
 
 #
 # OpenSSL specific compiled libraries.
@@ -540,3 +542,7 @@ endif()
     ADD_SUBDIRECTORY(library/pci_ide_km_device_lib_sample)
     ADD_SUBDIRECTORY(spdm_emu/spdm_requester_emu)
     ADD_SUBDIRECTORY(spdm_emu/spdm_responder_emu)
+
+    ADD_SUBDIRECTORY(${COMMON_TEST_FRAMEWORK_DIR}/library/common_test_utility_lib out/common_test_utility_lib.out)
+    ADD_SUBDIRECTORY(${SPDM_RESPONDER_VALIDATOR_DIR}/library/spdm_responder_conformance_test_lib out/spdm_responder_conformance_test_lib.out)
+    ADD_SUBDIRECTORY(spdm_emu/spdm_responder_validator_emu)
