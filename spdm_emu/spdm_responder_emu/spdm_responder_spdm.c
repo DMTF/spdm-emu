@@ -214,6 +214,10 @@ void *spdm_server_init(void)
     libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
                      &data8, sizeof(data8));
 
+    data8 = 0xF0;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_HEARTBEAT_PERIOD, &parameter,
+                     &data8, sizeof(data8));
+
     libspdm_register_get_response_func(
         spdm_context, spdm_get_response_vendor_defined_request);
 
