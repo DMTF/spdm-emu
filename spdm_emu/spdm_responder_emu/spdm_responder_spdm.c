@@ -292,53 +292,55 @@ void spdm_server_connection_state_callback(
             /* do not free it*/
         }
 
-        if ((m_use_slot_id == 0xFF) ||
-            ((m_use_responder_capability_flags &
-              SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) !=
-             0)) {
-            res = read_requester_public_certificate_chain(
-                m_use_hash_algo, m_use_req_asym_algo, &data,
-                &data_size, NULL, NULL);
+        if (m_use_req_asym_algo != 0) {
+            if ((m_use_slot_id == 0xFF) ||
+                ((m_use_responder_capability_flags &
+                SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) !=
+                0)) {
+                res = read_requester_public_certificate_chain(
+                    m_use_hash_algo, m_use_req_asym_algo, &data,
+                    &data_size, NULL, NULL);
+                if (res) {
+                    zero_mem(&parameter, sizeof(parameter));
+                    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                    libspdm_set_data(spdm_context,
+                            LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
+                            &parameter, data, data_size);
+                    /* Do not free it.*/
+                }
+            } else {
+                res = read_requester_root_public_certificate(
+                    m_use_hash_algo, m_use_req_asym_algo, &data,
+                    &data_size, &hash, &hash_size);
+                x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
+                    data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
+                    &root_cert, &root_cert_size);
+                if (res) {
+                    zero_mem(&parameter, sizeof(parameter));
+                    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                    libspdm_set_data(
+                        spdm_context,
+                        LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+                        &parameter, root_cert, root_cert_size);
+                    /* Do not free it.*/
+                }
+            }
+
             if (res) {
-                zero_mem(&parameter, sizeof(parameter));
-                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                data8 = m_use_mut_auth;
+                parameter.additional_data[0] =
+                    m_use_slot_id; /* req_slot_id;*/
                 libspdm_set_data(spdm_context,
-                          LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
-                          &parameter, data, data_size);
-                /* Do not free it.*/
-            }
-        } else {
-            res = read_requester_root_public_certificate(
-                m_use_hash_algo, m_use_req_asym_algo, &data,
-                &data_size, &hash, &hash_size);
-            x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
-                data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
-                &root_cert, &root_cert_size);
-            if (res) {
-                zero_mem(&parameter, sizeof(parameter));
-                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-                libspdm_set_data(
-                    spdm_context,
-                    LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
-                    &parameter, root_cert, root_cert_size);
-                /* Do not free it.*/
-            }
-        }
+                        LIBSPDM_DATA_MUT_AUTH_REQUESTED, &parameter,
+                        &data8, sizeof(data8));
 
-        if (res) {
-            data8 = m_use_mut_auth;
-            parameter.additional_data[0] =
-                m_use_slot_id; /* req_slot_id;*/
-            libspdm_set_data(spdm_context,
-                      LIBSPDM_DATA_MUT_AUTH_REQUESTED, &parameter,
-                      &data8, sizeof(data8));
-
-            data8 = m_use_basic_mut_auth;
-            parameter.additional_data[0] =
-                m_use_slot_id; /* req_slot_id;*/
-            libspdm_set_data(spdm_context,
-                      LIBSPDM_DATA_BASIC_MUT_AUTH_REQUESTED,
-                      &parameter, &data8, sizeof(data8));
+                data8 = m_use_basic_mut_auth;
+                parameter.additional_data[0] =
+                    m_use_slot_id; /* req_slot_id;*/
+                libspdm_set_data(spdm_context,
+                        LIBSPDM_DATA_BASIC_MUT_AUTH_REQUESTED,
+                        &parameter, &data8, sizeof(data8));
+            }
         }
 
         status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
