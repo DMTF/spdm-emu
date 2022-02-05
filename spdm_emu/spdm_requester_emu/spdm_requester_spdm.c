@@ -303,29 +303,31 @@ void *spdm_client_init(void)
         }
     }
 
-    res = read_requester_public_certificate_chain(m_use_hash_algo,
-                              m_use_req_asym_algo,
-                              &data, &data_size, NULL,
-                              NULL);
-    if (res) {
-        zero_mem(&parameter, sizeof(parameter));
-        parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-        data8 = m_use_slot_count;
-        libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SLOT_COUNT,
-                  &parameter, &data8, sizeof(data8));
+    if (m_use_req_asym_algo != 0) {
+        res = read_requester_public_certificate_chain(m_use_hash_algo,
+                                m_use_req_asym_algo,
+                                &data, &data_size, NULL,
+                                NULL);
+        if (res) {
+            zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+            data8 = m_use_slot_count;
+            libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SLOT_COUNT,
+                    &parameter, &data8, sizeof(data8));
 
-        for (index = 0; index < m_use_slot_count; index++) {
-            parameter.additional_data[0] = index;
-            libspdm_set_data(spdm_context,
-                      LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                      &parameter, data, data_size);
+            for (index = 0; index < m_use_slot_count; index++) {
+                parameter.additional_data[0] = index;
+                libspdm_set_data(spdm_context,
+                        LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                        &parameter, data, data_size);
+            }
+            /* do not free it*/
+        } else {
+            printf("read_requester_public_certificate_chain fail!\n");
+            free(m_spdm_context);
+            m_spdm_context = NULL;
+            return NULL;
         }
-        /* do not free it*/
-    } else {
-        printf("read_requester_public_certificate_chain fail!\n");
-        free(m_spdm_context);
-        m_spdm_context = NULL;
-        return NULL;
     }
 
     status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
