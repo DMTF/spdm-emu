@@ -237,6 +237,7 @@ void spdm_server_connection_state_callback(
     uint8_t *root_cert;
     uintn root_cert_size;
     uint8_t index;
+    spdm_version_number_t spdm_version;
 
     switch (connection_state) {
     case LIBSPDM_CONNECTION_STATE_NOT_STARTED:
@@ -249,7 +250,16 @@ void spdm_server_connection_state_callback(
         break;
 
     case LIBSPDM_CONNECTION_STATE_NEGOTIATED:
-        
+
+        if (m_use_version == 0) {
+            zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+            data_size = sizeof(spdm_version);
+            libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
+                    &spdm_version, &data_size);
+            m_use_version = spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT;
+        }
+
         /* Provision new content*/
         
         zero_mem(&parameter, sizeof(parameter));
