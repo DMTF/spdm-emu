@@ -235,6 +235,15 @@ void *spdm_client_init(void)
         }
     }
 
+    if (m_use_version == 0) {
+        zero_mem(&parameter, sizeof(parameter));
+        parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+        data_size = sizeof(spdm_version);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
+                  &spdm_version, &data_size);
+        m_use_version = spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT;
+    }
+
     zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
