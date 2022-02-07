@@ -66,7 +66,7 @@ return_status pci_doe_spdm_vendor_send_receive_data (IN void *spdm_context, IN u
     spdm_request_size = sizeof(pci_doe_spdm_vendor_defined_request_t) + request_size;
     spdm_response_size = sizeof(pci_doe_spdm_vendor_defined_request_t) + (*response_size);
     status = libspdm_send_receive_data(spdm_context, session_id,
-                        FALSE, spdm_request, spdm_request_size,
+                        false, spdm_request, spdm_request_size,
                         spdm_response, &spdm_response_size);
     if (RETURN_ERROR(status)) {
         return status;

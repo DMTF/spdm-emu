@@ -9,13 +9,13 @@
 void *m_spdm_context;
 SOCKET m_socket;
 
-boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
+bool communicate_platform_data(IN SOCKET socket, IN uint32_t command,
                   IN uint8_t *send_buffer, IN uintn bytes_to_send,
                   OUT uint32_t *response,
                   IN OUT uintn *bytes_to_receive,
                   OUT uint8_t *receive_buffer)
 {
-    boolean result;
+    bool result;
 
     result =
         send_platform_data(socket, command, send_buffer, bytes_to_send);
@@ -49,7 +49,7 @@ return_status spdm_device_send_message(IN void *spdm_context,
                        IN uintn request_size, IN void *request,
                        IN uint64_t timeout)
 {
-    boolean result;
+    bool result;
 
     result = send_platform_data(m_socket, SOCKET_SPDM_COMMAND_NORMAL,
                     request, (uint32_t)request_size);
@@ -71,7 +71,7 @@ return_status spdm_device_receive_message(IN void *spdm_context,
                       IN OUT void *response,
                       IN uint64_t timeout)
 {
-    boolean result;
+    bool result;
     uint32_t command;
 
     result = receive_platform_data(m_socket, &command, response,
@@ -104,7 +104,7 @@ return_status pci_doe_send_receive_data(IN void *pci_doe_context,
                       IN uintn request_size, IN void *request,
                       IN OUT uintn *response_size, IN OUT void *response)
 {
-    boolean result;
+    bool result;
     uint32_t response_code;
 
     result = communicate_platform_data(
@@ -123,7 +123,7 @@ void *spdm_client_init(void)
     void *spdm_context;
     uint8_t index;
     return_status status;
-    boolean res;
+    bool res;
     void *data;
     uintn data_size;
     libspdm_data_parameter_t parameter;
@@ -163,7 +163,7 @@ void *spdm_client_init(void)
     }
 
     if (m_load_state_file_name != NULL) {
-        spdm_load_negotiated_state(spdm_context, TRUE);
+        spdm_load_negotiated_state(spdm_context, true);
     }
 
     if (m_use_version != 0) {
@@ -347,7 +347,7 @@ void *spdm_client_init(void)
     }
 
     if (m_save_state_file_name != NULL) {
-        spdm_save_negotiated_state(spdm_context, TRUE);
+        spdm_save_negotiated_state(spdm_context, true);
     }
 
     return m_spdm_context;

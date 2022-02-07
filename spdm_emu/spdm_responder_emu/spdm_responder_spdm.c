@@ -35,7 +35,7 @@ void spdm_server_connection_state_callback(
     IN void *spdm_context, IN libspdm_connection_state_t connection_state);
 
 return_status spdm_get_response_vendor_defined_request(
-    IN void *spdm_context, IN uint32_t *session_id, IN boolean is_app_message,
+    IN void *spdm_context, IN uint32_t *session_id, IN bool is_app_message,
     IN uintn request_size, IN void *request, IN OUT uintn *response_size,
     OUT void *response);
 
@@ -43,7 +43,7 @@ return_status spdm_device_send_message(IN void *spdm_context,
                        IN uintn request_size, IN void *request,
                        IN uint64_t timeout)
 {
-    boolean result;
+    bool result;
 
     result = send_platform_data(m_server_socket, SOCKET_SPDM_COMMAND_NORMAL,
                     request, (uint32_t)request_size);
@@ -65,7 +65,7 @@ return_status spdm_device_receive_message(IN void *spdm_context,
                       IN OUT void *response,
                       IN uint64_t timeout)
 {
-    boolean result;
+    bool result;
 
     m_receive_buffer_size = sizeof(m_receive_buffer);
     result =
@@ -136,7 +136,7 @@ void *spdm_server_init(void)
     }
 
     if (m_load_state_file_name != NULL) {
-        spdm_load_negotiated_state(spdm_context, FALSE);
+        spdm_load_negotiated_state(spdm_context, false);
     }
 
     if (m_use_version != 0) {
@@ -224,7 +224,7 @@ void *spdm_server_init(void)
 void spdm_server_connection_state_callback(
     IN void *spdm_context, IN libspdm_connection_state_t connection_state)
 {
-    boolean res;
+    bool res;
     void *data;
     uintn data_size;
     libspdm_data_parameter_t parameter;
@@ -361,7 +361,7 @@ void spdm_server_connection_state_callback(
         }
 
         if (m_save_state_file_name != NULL) {
-            spdm_save_negotiated_state(spdm_context, FALSE);
+            spdm_save_negotiated_state(spdm_context, false);
         }
 
         break;
@@ -408,7 +408,7 @@ void spdm_server_session_state_callback(IN void *spdm_context,
                 spdm_clear_negotiated_state(spdm_context);
             } else {
                 /* preserve - already done in LIBSPDM_CONNECTION_STATE_NEGOTIATED.*/
-                /* spdm_save_negotiated_state (spdm_context, FALSE);*/
+                /* spdm_save_negotiated_state (spdm_context, false);*/
             }
         }
         break;
@@ -434,7 +434,7 @@ void spdm_server_session_state_callback(IN void *spdm_context,
         break;
 
     default:
-        ASSERT(FALSE);
+        ASSERT(false);
         break;
     }
 }

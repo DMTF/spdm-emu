@@ -57,8 +57,8 @@ extern uint8_t m_support_other_params_support;
 extern uint8_t m_session_policy;
 extern uint8_t m_end_session_attributes;
 
-extern char8 *m_load_state_file_name;
-extern char8 *m_save_state_file_name;
+extern char *m_load_state_file_name;
+extern char *m_save_state_file_name;
 
 #define EXE_MODE_SHUTDOWN 0
 #define EXE_MODE_CONTINUE 1
@@ -85,20 +85,20 @@ void dump_data(IN uint8_t *buffer, IN uintn buffer_size);
 
 void dump_hex(IN uint8_t *buffer, IN uintn buffer_size);
 
-boolean send_platform_data(IN SOCKET socket, IN uint32_t command,
+bool send_platform_data(IN SOCKET socket, IN uint32_t command,
                IN uint8_t *send_buffer, IN uintn bytes_to_send);
 
-boolean receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
+bool receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
                   OUT uint8_t *receive_buffer,
                   IN OUT uintn *bytes_to_receive);
 
-boolean read_input_file(IN char8 *file_name, OUT void **file_data,
+bool read_input_file(IN char *file_name, OUT void **file_data,
             OUT uintn *file_size);
 
-boolean write_output_file(IN char8 *file_name, IN void *file_data,
+bool write_output_file(IN char *file_name, IN void *file_data,
               IN uintn file_size);
 
-boolean open_pcap_packet_file(IN char8 *pcap_file_name);
+bool open_pcap_packet_file(IN char *pcap_file_name);
 
 void close_pcap_packet_file(void);
 

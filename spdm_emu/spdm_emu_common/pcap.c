@@ -12,12 +12,12 @@
 
 FILE *m_pcap_file;
 
-boolean open_pcap_packet_file(IN char8 *pcap_file_name)
+bool open_pcap_packet_file(IN char *pcap_file_name)
 {
     pcap_global_header_t pcap_global_header;
 
     if (pcap_file_name == NULL) {
-        return FALSE;
+        return false;
     }
 
     pcap_global_header.magic_number = PCAP_GLOBAL_HEADER_MAGIC;
@@ -31,22 +31,22 @@ boolean open_pcap_packet_file(IN char8 *pcap_file_name)
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         pcap_global_header.network = LINKTYPE_PCI_DOE;
     } else {
-        return FALSE;
+        return false;
     }
 
     if ((m_pcap_file = fopen(pcap_file_name, "wb")) == NULL) {
         printf("!!!Unable to open pcap file %s!!!\n", pcap_file_name);
-        return FALSE;
+        return false;
     }
 
     if ((fwrite(&pcap_global_header, 1, sizeof(pcap_global_header),
             m_pcap_file)) != sizeof(pcap_global_header)) {
         printf("!!!Write pcap file error!!!\n");
         close_pcap_packet_file();
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void close_pcap_packet_file(void)

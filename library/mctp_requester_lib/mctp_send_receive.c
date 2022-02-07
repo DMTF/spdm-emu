@@ -61,7 +61,7 @@ return_status mctp_send_receive_data (IN void *mctp_context,
     mctp_request_size = sizeof(mctp_message_header_t) + request_size;
     mctp_response_size = sizeof(mctp_message_header_t) + (*response_size);
     status = libspdm_send_receive_data(spdm_context, session_id,
-                        TRUE, mctp_request, mctp_request_size,
+                        true, mctp_request, mctp_request_size,
                         mctp_response, &mctp_response_size);
     if (RETURN_ERROR(status)) {
         return status;

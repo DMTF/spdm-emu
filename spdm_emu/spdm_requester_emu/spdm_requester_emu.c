@@ -23,7 +23,7 @@ void *spdm_client_init(void);
 
 return_status pci_doe_init_request(void);
 
-boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
+bool communicate_platform_data(IN SOCKET socket, IN uint32_t command,
                   IN uint8_t *send_buffer, IN uintn bytes_to_send,
                   OUT uint32_t *response,
                   IN OUT uintn *bytes_to_receive,
@@ -37,10 +37,10 @@ return_status do_measurement_via_spdm(IN uint32_t *session_id);
 return_status do_authentication_via_spdm(void);
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
-return_status do_session_via_spdm(IN boolean use_psk);
+return_status do_session_via_spdm(IN bool use_psk);
 
 
-boolean init_client(OUT SOCKET *sock, IN uint16_t port)
+bool init_client(OUT SOCKET *sock, IN uint16_t port)
 {
     SOCKET client_socket;
     struct sockaddr_in server_addr;
@@ -55,7 +55,7 @@ boolean init_client(OUT SOCKET *sock, IN uint16_t port)
                errno
 #endif
         );
-        return FALSE;
+        return false;
     }
 
     server_addr.sin_family = AF_INET;
@@ -75,19 +75,19 @@ boolean init_client(OUT SOCKET *sock, IN uint16_t port)
 #endif
         );
         closesocket(client_socket);
-        return FALSE;
+        return false;
     }
 
     printf("connect success!\n");
 
     *sock = client_socket;
-    return TRUE;
+    return true;
 }
 
-boolean platform_client_routine(IN uint16_t port_number)
+bool platform_client_routine(IN uint16_t port_number)
 {
     SOCKET platform_socket;
-    boolean result;
+    bool result;
     uint32_t response;
     uintn response_size;
     return_status status;
@@ -96,12 +96,12 @@ boolean platform_client_routine(IN uint16_t port_number)
     WSADATA ws;
     if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
         printf("Init Windows socket Failed - %x\n", WSAGetLastError());
-        return FALSE;
+        return false;
     }
 #endif
     result = init_client(&platform_socket, port_number);
     if (!result) {
-        return FALSE;
+        return false;
     }
 
     m_socket = platform_socket;
@@ -155,7 +155,7 @@ boolean platform_client_routine(IN uint16_t port_number)
 #if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
     if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
         if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
-            status = do_session_via_spdm(FALSE);
+            status = do_session_via_spdm(false);
             if (RETURN_ERROR(status)) {
                 printf("do_session_via_spdm - %x\n",
                        (uint32_t)status);
@@ -164,7 +164,7 @@ boolean platform_client_routine(IN uint16_t port_number)
         }
 
         if ((m_exe_session & EXE_SESSION_PSK) != 0) {
-            status = do_session_via_spdm(TRUE);
+            status = do_session_via_spdm(true);
             if (RETURN_ERROR(status)) {
                 printf("do_session_via_spdm - %x\n",
                        (uint32_t)status);
@@ -192,7 +192,7 @@ done:
     WSACleanup();
 #endif
 
-    return TRUE;
+    return true;
 }
 
 int main(int argc, char *argv[])
