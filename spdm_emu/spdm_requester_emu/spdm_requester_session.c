@@ -12,7 +12,7 @@ extern SOCKET m_socket;
 
 extern void *m_spdm_context;
 
-boolean communicate_platform_data(IN SOCKET socket, IN uint32_t command,
+bool communicate_platform_data(IN SOCKET socket, IN uint32_t command,
                   IN uint8_t *send_buffer, IN uintn bytes_to_send,
                   OUT uint32_t *response,
                   IN OUT uintn *bytes_to_receive,
@@ -38,7 +38,7 @@ return_status do_app_session_via_spdm(IN uint32_t session_id)
     return RETURN_SUCCESS;
 }
 
-return_status do_session_via_spdm(IN boolean use_psk)
+return_status do_session_via_spdm(IN bool use_psk)
 {
     void *spdm_context;
     return_status status;
@@ -46,7 +46,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
     uint8_t heartbeat_period;
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
     uintn response_size;
-    boolean result;
+    bool result;
     uint32_t response;
 
     spdm_context = m_spdm_context;
@@ -75,7 +75,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
         switch (m_use_key_update_action) {
         case LIBSPDM_KEY_UPDATE_ACTION_REQUESTER:
             status =
-                libspdm_key_update(spdm_context, session_id, TRUE);
+                libspdm_key_update(spdm_context, session_id, true);
             if (RETURN_ERROR(status)) {
                 printf("libspdm_key_update - %x\n",
                        (uint32_t)status);
@@ -84,7 +84,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
 
         case LIBSPDM_KEY_UPDATE_ACTION_MAX:
             status = libspdm_key_update(spdm_context, session_id,
-                         FALSE);
+                         false);
             if (RETURN_ERROR(status)) {
                 printf("libspdm_key_update - %x\n",
                        (uint32_t)status);
@@ -110,7 +110,7 @@ return_status do_session_via_spdm(IN boolean use_psk)
             break;
 
         default:
-            ASSERT(FALSE);
+            ASSERT(false);
             break;
         }
     }

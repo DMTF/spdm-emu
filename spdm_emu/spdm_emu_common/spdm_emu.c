@@ -22,7 +22,7 @@ uint32_t m_exe_session =
      /* EXE_SESSION_NO_END |*/
      EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS | 0);
 
-void print_usage(IN char8 *name)
+void print_usage(IN char *name)
 {
     printf("\n%s [--trans MCTP|PCI_DOE|NONE]\n", name);
     printf("   [--ver 1.0|1.1|1.2]\n");
@@ -113,7 +113,7 @@ void print_usage(IN char8 *name)
 
 typedef struct {
     uint32_t value;
-    char8 *name;
+    char *name;
 } value_string_entry_t;
 
 value_string_entry_t m_transport_value_string_table[] = {
@@ -318,8 +318,8 @@ value_string_entry_t m_exe_session_string_table[] = {
     { EXE_SESSION_MEAS, "MEAS" },
 };
 
-boolean get_value_from_name(IN value_string_entry_t *table,
-                IN uintn entry_count, IN char8 *name,
+bool get_value_from_name(IN value_string_entry_t *table,
+                IN uintn entry_count, IN char *name,
                 OUT uint32_t *value)
 {
     uintn index;
@@ -327,24 +327,24 @@ boolean get_value_from_name(IN value_string_entry_t *table,
     for (index = 0; index < entry_count; index++) {
         if (strcmp(name, table[index].name) == 0) {
             *value = table[index].value;
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
-boolean get_flags_from_name(IN value_string_entry_t *table,
-                IN uintn entry_count, IN char8 *name,
+bool get_flags_from_name(IN value_string_entry_t *table,
+                IN uintn entry_count, IN char *name,
                 OUT uint32_t *flags)
 {
     uint32_t value;
-    char8 *flag_name;
-    char8 *local_name;
-    boolean ret;
+    char *flag_name;
+    char *local_name;
+    bool ret;
 
     local_name = (void *)malloc(strlen(name) + 1);
     if (local_name == NULL) {
-        return FALSE;
+        return false;
     }
     strcpy(local_name, name);
 
@@ -357,16 +357,16 @@ boolean get_flags_from_name(IN value_string_entry_t *table,
         if (!get_value_from_name(table, entry_count, flag_name,
                      &value)) {
             printf("unsupported flag - %s\n", flag_name);
-            ret = FALSE;
+            ret = false;
             goto done;
         }
         *flags |= value;
         flag_name = strtok(NULL, ",");
     }
     if (*flags == 0) {
-        ret = FALSE;
+        ret = false;
     } else {
-        ret = TRUE;
+        ret = true;
     }
 done:
     free(local_name);
@@ -376,7 +376,7 @@ done:
 void process_args(char *program_name, int argc, char *argv[])
 {
     uint32_t data32;
-    char8 *pcap_file_name;
+    char *pcap_file_name;
 
     pcap_file_name = NULL;
 
@@ -481,7 +481,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     count = ARRAY_SIZE(
                         m_spdm_responder_capabilities_string_table);
                 } else {
-                    ASSERT(FALSE);
+                    ASSERT(false);
                     printf("unsupported --cap\n");
                     print_usage(program_name);
                     exit(0);

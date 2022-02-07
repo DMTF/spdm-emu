@@ -38,13 +38,13 @@ typedef struct {
   Load the negotiated_state from NV storage to an SPDM context.
 */
 return_status spdm_load_negotiated_state(IN void *spdm_context,
-                     IN boolean is_requester);
+                     IN bool is_requester);
 
 /**
   Save the negotiated_state to NV storage from an SPDM context.
 */
 return_status spdm_save_negotiated_state(IN void *spdm_context,
-                     IN boolean is_requester);
+                     IN bool is_requester);
 
 /**
   Clear the negotiated_state in the NV storage.

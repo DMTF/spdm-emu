@@ -6,16 +6,16 @@
 
 #include "spdm_emu.h"
 
-char8 *m_load_state_file_name;
-char8 *m_save_state_file_name;
+char *m_load_state_file_name;
+char *m_save_state_file_name;
 
 /**
   Load the negotiated_state from NV storage to an SPDM context.
 */
 return_status spdm_load_negotiated_state(IN void *spdm_context,
-                     IN boolean is_requester)
+                     IN bool is_requester)
 {
-    boolean ret;
+    bool ret;
     void *file_data;
     uintn file_size;
     spdm_negotiated_state_struct_t negotiated_state;
@@ -156,9 +156,9 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
   Save the negotiated_state to NV storage from an SPDM context.
 */
 return_status spdm_save_negotiated_state(IN void *spdm_context,
-                     IN boolean is_requester)
+                     IN bool is_requester)
 {
-    boolean ret;
+    bool ret;
     spdm_negotiated_state_struct_t negotiated_state;
     uintn data_size;
     libspdm_data_parameter_t parameter;
@@ -303,7 +303,7 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 */
 return_status spdm_clear_negotiated_state(IN void *spdm_context)
 {
-    boolean ret;
+    bool ret;
 
     if (m_save_state_file_name == NULL) {
         return RETURN_UNSUPPORTED;

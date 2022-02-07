@@ -17,7 +17,7 @@ extern void *m_pci_doe_context;
 
 void *spdm_server_init(void);
 
-boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
+bool create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
 {
     struct sockaddr_in my_address;
     int32_t res;
@@ -28,7 +28,7 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
     res = WSAStartup(MAKEWORD(2, 2), &ws);
     if (res != 0) {
         printf("WSAStartup failed with error: %d\n", res);
-        return FALSE;
+        return false;
     }
 #endif
 
@@ -41,7 +41,7 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
                errno
 #endif
         );
-        return FALSE;
+        return false;
     }
 
         /* When the program stops unexpectedly the used port will stay in the TIME_WAIT*/
@@ -58,7 +58,7 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
                errno
 #endif
         );
-        return FALSE;
+        return false;
     }
 
     zero_mem(&my_address, sizeof(my_address));
@@ -76,7 +76,7 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
 #endif
         );
         closesocket(*listen_socket);
-        return FALSE;
+        return false;
     }
 
     res = listen(*listen_socket, 3);
@@ -89,26 +89,26 @@ boolean create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
 #endif
         );
         closesocket(*listen_socket);
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-boolean platform_server(IN SOCKET socket)
+bool platform_server(IN SOCKET socket)
 {
-    boolean result;
+    bool result;
     return_status status;
     uint8_t response[PCI_DOE_MAX_NON_SPDM_MESSAGE_SIZE];
     uintn response_size;
 
-    while (TRUE) {
+    while (true) {
         status = libspdm_responder_dispatch_message(m_spdm_context);
         if (status == RETURN_SUCCESS) {
             /* success dispatch SPDM message*/
         }
         if (status == RETURN_DEVICE_ERROR) {
             printf("Server Critical Error - STOP\n");
-            return FALSE;
+            return false;
         }
         if (status != RETURN_UNSUPPORTED) {
             continue;
@@ -127,7 +127,7 @@ boolean platform_server(IN SOCKET socket)
                        errno
 #endif
                 );
-                return TRUE;
+                return true;
             }
             break;
 
@@ -145,7 +145,7 @@ boolean platform_server(IN SOCKET socket)
                        errno
 #endif
                 );
-                return TRUE;
+                return true;
             }
             break;
 
@@ -160,9 +160,9 @@ boolean platform_server(IN SOCKET socket)
                        errno
 #endif
                 );
-                return TRUE;
+                return true;
             }
-            return FALSE;
+            return false;
             break;
 
         case SOCKET_SPDM_COMMAND_CONTINUE:
@@ -176,9 +176,9 @@ boolean platform_server(IN SOCKET socket)
                        errno
 #endif
                 );
-                return TRUE;
+                return true;
             }
-            return TRUE;
+            return true;
             break;
 
         case SOCKET_SPDM_COMMAND_NORMAL:
@@ -189,7 +189,7 @@ boolean platform_server(IN SOCKET socket)
                             m_receive_buffer, m_receive_buffer_size, response, &response_size);
                 if (RETURN_ERROR(status)) {
                     /* unknown message*/
-                    return TRUE;
+                    return true;
                 }
                 result = send_platform_data(
                     socket, SOCKET_SPDM_COMMAND_NORMAL,
@@ -202,11 +202,11 @@ boolean platform_server(IN SOCKET socket)
                            errno
 #endif
                     );
-                    return TRUE;
+                    return true;
                 }
             } else {
                 /* unknown message*/
-                return TRUE;
+                return true;
             }
             break;
 
@@ -223,20 +223,20 @@ boolean platform_server(IN SOCKET socket)
                        errno
 #endif
                 );
-                return TRUE;
+                return true;
             }
-            return TRUE;
+            return true;
         }
     }
 }
 
-boolean platform_server_routine(IN uint16_t port_number)
+bool platform_server_routine(IN uint16_t port_number)
 {
     SOCKET listen_socket;
     struct sockaddr_in peer_address;
-    boolean result;
+    bool result;
     uint32_t length;
-    boolean continue_serving;
+    bool continue_serving;
 
     result = create_socket(port_number, &listen_socket);
     if (!result) {
@@ -263,7 +263,7 @@ boolean platform_server_routine(IN uint16_t port_number)
             WSACleanup();
 #endif
             closesocket(listen_socket);
-            return FALSE;
+            return false;
         }
         printf("Client accepted\n");
 
@@ -275,7 +275,7 @@ boolean platform_server_routine(IN uint16_t port_number)
     WSACleanup();
 #endif
     closesocket(listen_socket);
-    return TRUE;
+    return true;
 }
 
 int main(int argc, char *argv[])
