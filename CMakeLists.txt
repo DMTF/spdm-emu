@@ -524,6 +524,7 @@ endif()
     ADD_SUBDIRECTORY(${LIBSPDM_DIR}/os_stub/rnglib out/rnglib.out)
     ADD_SUBDIRECTORY(${LIBSPDM_DIR}/os_stub/malloclib out/malloclib.out)
     ADD_SUBDIRECTORY(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample out/spdm_device_secret_lib_sample.out)
+    ADD_SUBDIRECTORY(${LIBSPDM_DIR}/os_stub/platform_lib out/platform_lib.out)
 
     ADD_SUBDIRECTORY(library/spdm_transport_none_lib)
     ADD_SUBDIRECTORY(library/mctp_requester_lib)

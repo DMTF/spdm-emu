@@ -40,6 +40,7 @@ SET(spdm_responder_emu_LIBRARY
     spdm_device_secret_lib_sample
     mctp_responder_lib
     pci_doe_responder_lib
+    platform_lib
 )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
@@ -58,6 +59,7 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:spdm_transport_mctp_lib>
                    $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>
                    $<TARGET_OBJECTS:spdm_device_secret_lib_sample>
+                   $<TARGET_OBJECTS:platform_lib>
     )
 else()
     ADD_EXECUTABLE(spdm_responder_emu ${src_spdm_responder_emu})
