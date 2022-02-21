@@ -48,9 +48,9 @@ pci_doe_data_object_protocol_t m_data_object_protocol[] = {
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status pci_doe_get_response_discovery (IN void *pci_doe_context,
-    IN void *request, IN uintn request_size,
-    IN OUT void *response, IN OUT uintn *response_size)
+return_status pci_doe_get_response_discovery (const void *pci_doe_context,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size)
 {
     doe_discovery_request_mine_t *doe_request;
     doe_discovery_response_mine_t doe_response;

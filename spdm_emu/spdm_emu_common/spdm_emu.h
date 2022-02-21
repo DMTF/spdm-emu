@@ -79,31 +79,31 @@ extern uint32_t m_exe_connection;
 #define EXE_SESSION_MEAS 0x20
 extern uint32_t m_exe_session;
 
-void dump_hex_str(IN uint8_t *buffer, IN uintn buffer_size);
+void dump_hex_str(const uint8_t *buffer, uintn buffer_size);
 
-void dump_data(IN uint8_t *buffer, IN uintn buffer_size);
+void dump_data(const uint8_t *buffer, uintn buffer_size);
 
-void dump_hex(IN uint8_t *buffer, IN uintn buffer_size);
+void dump_hex(const uint8_t *buffer, uintn buffer_size);
 
-bool send_platform_data(IN SOCKET socket, IN uint32_t command,
-               IN uint8_t *send_buffer, IN uintn bytes_to_send);
+bool send_platform_data(SOCKET socket, uint32_t command,
+               const uint8_t *send_buffer, uintn bytes_to_send);
 
-bool receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
-                  OUT uint8_t *receive_buffer,
-                  IN OUT uintn *bytes_to_receive);
+bool receive_platform_data(SOCKET socket, uint32_t *command,
+                  uint8_t *receive_buffer,
+                  uintn *bytes_to_receive);
 
-bool read_input_file(IN char *file_name, OUT void **file_data,
-            OUT uintn *file_size);
+bool read_input_file(const char *file_name, void **file_data,
+            uintn *file_size);
 
-bool write_output_file(IN char *file_name, IN void *file_data,
-              IN uintn file_size);
+bool write_output_file(const char *file_name, const void *file_data,
+              uintn file_size);
 
-bool open_pcap_packet_file(IN char *pcap_file_name);
+bool open_pcap_packet_file(const char *pcap_file_name);
 
 void close_pcap_packet_file(void);
 
-void append_pcap_packet_data(IN void *header, OPTIONAL IN uintn header_size,
-                 OPTIONAL IN void *data, IN uintn size);
+void append_pcap_packet_data(const void *header, uintn header_size,
+                 const void *data, uintn size);
 
 void process_args(char *program_name, int argc, char *argv[]);
 

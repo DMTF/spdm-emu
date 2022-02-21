@@ -25,9 +25,9 @@
   @retval RETURN_SUCCESS               The IDM_KM request is sent and response is received.
   @return ERROR                        The IDM_KM response is not received correctly.
 **/
-return_status ide_km_send_receive_data (IN void *spdm_context, IN uint32_t *session_id,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size)
+return_status ide_km_send_receive_data (void *spdm_context, const uint32_t *session_id,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size)
 {
     return_status status;
     pci_protocol_header_t pci_protocol;

@@ -28,13 +28,13 @@ extern void *m_mctp_context;
   @retval RETURN_NOT_FOUND                The data_type cannot be found.
   @retval RETURN_NOT_READY                The data_type is not ready to return.
   @retval RETURN_BUFFER_TOO_SMALL         The buffer is too small to hold the data.
-  @retval RETURN_TIMEOUT                  A timeout occurred while waiting for the SPDM request
+  @retval RETURN_TIME                 A timeout occurred while waiting for the SPDM request
                                           to execute.
 **/
 return_status spdm_get_response_vendor_defined_request(
-    IN void *spdm_context, IN uint32_t *session_id, IN bool is_app_message,
-    IN uintn request_size, IN void *request, IN OUT uintn *response_size,
-    OUT void *response)
+    void *spdm_context, const uint32_t *session_id, bool is_app_message,
+    uintn request_size, const void *request, uintn *response_size,
+    void *response)
 {
     return_status status;
 

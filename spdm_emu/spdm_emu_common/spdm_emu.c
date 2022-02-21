@@ -22,7 +22,7 @@ uint32_t m_exe_session =
      /* EXE_SESSION_NO_END |*/
      EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS | 0);
 
-void print_usage(IN char *name)
+void print_usage(const char *name)
 {
     printf("\n%s [--trans MCTP|PCI_DOE|NONE]\n", name);
     printf("   [--ver 1.0|1.1|1.2]\n");
@@ -318,9 +318,9 @@ value_string_entry_t m_exe_session_string_table[] = {
     { EXE_SESSION_MEAS, "MEAS" },
 };
 
-bool get_value_from_name(IN value_string_entry_t *table,
-                IN uintn entry_count, IN char *name,
-                OUT uint32_t *value)
+bool get_value_from_name(const value_string_entry_t *table,
+                uintn entry_count, const char *name,
+                uint32_t *value)
 {
     uintn index;
 
@@ -333,9 +333,9 @@ bool get_value_from_name(IN value_string_entry_t *table,
     return false;
 }
 
-bool get_flags_from_name(IN value_string_entry_t *table,
-                IN uintn entry_count, IN char *name,
-                OUT uint32_t *flags)
+bool get_flags_from_name(const value_string_entry_t *table,
+                uintn entry_count, const char *name,
+                uint32_t *flags)
 {
     uint32_t value;
     char *flag_name;

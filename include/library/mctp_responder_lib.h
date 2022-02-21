@@ -20,10 +20,10 @@
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status mctp_get_response_secured_app_request(IN void *mctp_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    OUT void *response, IN OUT uintn *response_size);
+return_status mctp_get_response_secured_app_request(const void *mctp_context,
+    void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size);
 
 /* internal function only*/
 
@@ -40,10 +40,10 @@ return_status mctp_get_response_secured_app_request(IN void *mctp_context,
 **/
 typedef
 return_status
-(* mctp_get_secured_app_request_func_t) (IN void *mctp_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    OUT void *response, IN OUT uintn *response_size);
+(* mctp_get_secured_app_request_func_t) (const void *mctp_context,
+    const void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size);
 
 /**
     Process the PLDM request and return the response.
@@ -56,10 +56,10 @@ return_status
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status pldm_get_response_secured_app_request (IN void *mctp_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    OUT void *response, IN OUT uintn *response_size);
+return_status pldm_get_response_secured_app_request (const void *mctp_context,
+    const void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size);
 
 /**
     Process the PLDM request and return the response.
@@ -74,10 +74,10 @@ return_status pldm_get_response_secured_app_request (IN void *mctp_context,
 **/
 typedef
 return_status
-(* pldm_get_secured_app_request_func_t) (IN void *mctp_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    OUT void *response, IN OUT uintn *response_size);
+(* pldm_get_secured_app_request_func_t) (const void *mctp_context,
+    const void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size);
 
 /**
     Process the PLDM request and return the response.
@@ -90,9 +90,9 @@ return_status
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status pldm_get_response_control_get_tid (IN void *mctp_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    OUT void *response, IN OUT uintn *response_size);
+return_status pldm_get_response_control_get_tid (const void *mctp_context,
+    const void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size);
 
 #endif

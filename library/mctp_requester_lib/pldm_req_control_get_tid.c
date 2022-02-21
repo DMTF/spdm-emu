@@ -10,8 +10,8 @@
 #include "library/spdm_transport_mctp_lib.h"
 #include "library/mctp_requester_lib.h"
 
-return_status pldm_control_get_tid(IN void *mctp_context,
-                    IN void *spdm_context, IN uint32_t *session_id, OUT uint8_t *tid)
+return_status pldm_control_get_tid(const void *mctp_context,
+                    void *spdm_context, const uint32_t *session_id, uint8_t *tid)
 {
     return_status status;
     pldm_get_tid_request_t app_request;

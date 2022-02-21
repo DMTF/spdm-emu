@@ -25,10 +25,10 @@
   @retval RETURN_SUCCESS               The SPDM vendor defined request is sent and response is received.
   @return ERROR                        The SPDM vendor defined response is not received correctly.
 **/
-return_status pci_doe_spdm_vendor_send_receive_data (IN void *spdm_context, IN uint32_t *session_id,
-                    IN pci_protocol_header_t pci_protocol,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size)
+return_status pci_doe_spdm_vendor_send_receive_data (void *spdm_context, const uint32_t *session_id,
+                    pci_protocol_header_t pci_protocol,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size)
 {
     libspdm_data_parameter_t parameter;
     spdm_version_number_t spdm_version;

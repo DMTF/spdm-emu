@@ -12,8 +12,8 @@ char *m_save_state_file_name;
 /**
   Load the negotiated_state from NV storage to an SPDM context.
 */
-return_status spdm_load_negotiated_state(IN void *spdm_context,
-                     IN bool is_requester)
+return_status spdm_load_negotiated_state(void *spdm_context,
+                     bool is_requester)
 {
     bool ret;
     void *file_data;
@@ -155,8 +155,8 @@ return_status spdm_load_negotiated_state(IN void *spdm_context,
 /**
   Save the negotiated_state to NV storage from an SPDM context.
 */
-return_status spdm_save_negotiated_state(IN void *spdm_context,
-                     IN bool is_requester)
+return_status spdm_save_negotiated_state(void *spdm_context,
+                     bool is_requester)
 {
     bool ret;
     spdm_negotiated_state_struct_t negotiated_state;
@@ -301,7 +301,7 @@ return_status spdm_save_negotiated_state(IN void *spdm_context,
 /**
   Clear the negotiated_state in the NV storage.
 */
-return_status spdm_clear_negotiated_state(IN void *spdm_context)
+return_status spdm_clear_negotiated_state(void *spdm_context)
 {
     bool ret;
 

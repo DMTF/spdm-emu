@@ -31,10 +31,10 @@ extern void *m_spdm_context;
   @retval RETURN_SECURITY_VIOLATION    Any verification fails.
 **/
 return_status
-spdm_authentication(IN void *context, OUT uint8_t *slot_mask,
-            OUT void *total_digest_buffer, IN uint8_t slot_id,
-            IN OUT uintn *cert_chain_size, OUT void *cert_chain,
-            IN uint8_t measurement_hash_type, OUT void *measurement_hash)
+spdm_authentication(void *context, uint8_t *slot_mask,
+            void *total_digest_buffer, uint8_t slot_id,
+            uintn *cert_chain_size, void *cert_chain,
+            uint8_t measurement_hash_type, void *measurement_hash)
 {
     return_status status;
 

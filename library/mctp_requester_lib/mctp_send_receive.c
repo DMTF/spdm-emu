@@ -25,11 +25,11 @@
   @retval RETURN_SUCCESS               The MCTP request is sent and response is received.
   @return ERROR                        The MCTP response is not received correctly.
 **/
-return_status mctp_send_receive_data (IN void *mctp_context,
-                    IN void *spdm_context, IN uint32_t *session_id,
-                    IN mctp_message_header_t mctp_header,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size)
+return_status mctp_send_receive_data (const void *mctp_context,
+                    void *spdm_context, const uint32_t *session_id,
+                    mctp_message_header_t mctp_header,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size)
 {
     libspdm_data_parameter_t parameter;
     spdm_version_number_t spdm_version;

@@ -30,7 +30,7 @@ return_status pci_doe_init_request()
     return RETURN_SUCCESS;
 }
 
-return_status pci_doe_process_session_message(IN void *spdm_context, IN uint32_t session_id)
+return_status pci_doe_process_session_message(void *spdm_context, uint32_t session_id)
 {
     uint8_t max_port_index;
     return_status  status;

@@ -25,10 +25,10 @@
   @retval RETURN_SUCCESS               The PLDM request is sent and response is received.
   @return ERROR                        The PLDM response is not received correctly.
 **/
-return_status pldm_send_receive_data (IN void *mctp_context,
-                    IN void *spdm_context, IN uint32_t *session_id,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size)
+return_status pldm_send_receive_data (const void *mctp_context,
+                    void *spdm_context, const uint32_t *session_id,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size)
 {
     return_status status;
     mctp_message_header_t mctp_header;

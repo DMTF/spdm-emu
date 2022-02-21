@@ -30,12 +30,12 @@ pci_doe_spdm_dispatch_struct_t m_pci_doe_spdm_dispatch[] = {
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status pci_doe_get_response_spdm_vendor_defined_request(IN void *pci_doe_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    IN OUT void *response, IN OUT uintn *response_size)
+return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_doe_context,
+    void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size)
 {
-    pci_doe_spdm_vendor_defined_request_t *spdm_request;
+    const pci_doe_spdm_vendor_defined_request_t *spdm_request;
     pci_doe_spdm_vendor_defined_response_t *spdm_response;
     uintn index;
     uintn vendor_response_size;

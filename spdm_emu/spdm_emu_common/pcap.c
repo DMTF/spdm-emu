@@ -12,7 +12,7 @@
 
 FILE *m_pcap_file;
 
-bool open_pcap_packet_file(IN char *pcap_file_name)
+bool open_pcap_packet_file(const char *pcap_file_name)
 {
     pcap_global_header_t pcap_global_header;
 
@@ -57,8 +57,8 @@ void close_pcap_packet_file(void)
     }
 }
 
-void append_pcap_packet_data(IN void *header, OPTIONAL IN uintn header_size,
-                 OPTIONAL IN void *data, IN uintn size)
+void append_pcap_packet_data(const void *header, uintn header_size,
+                 const void *data, uintn size)
 {
     pcap_packet_header_t pcap_packet_header;
     uintn total_size;

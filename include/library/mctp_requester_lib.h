@@ -9,8 +9,8 @@
 
 #include "library/mctp_common_lib.h"
 
-return_status pldm_control_get_tid(IN void *mctp_context,
-                    IN void *spdm_context, IN uint32_t *session_id, OUT uint8_t *tid);
+return_status pldm_control_get_tid(const void *mctp_context,
+                    void *spdm_context, const uint32_t *session_id, uint8_t *tid);
 
 /* internal function only*/
 
@@ -29,11 +29,11 @@ return_status pldm_control_get_tid(IN void *mctp_context,
   @retval RETURN_SUCCESS               The MCTP request is sent and response is received.
   @return ERROR                        The MCTP response is not received correctly.
 **/
-return_status mctp_send_receive_data (IN void *mctp_context,
-                    IN void *spdm_context, IN uint32_t *session_id,
-                    IN mctp_message_header_t mctp_header,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size);
+return_status mctp_send_receive_data (const void *mctp_context,
+                    void *spdm_context, const uint32_t *session_id,
+                    mctp_message_header_t mctp_header,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size);
 
 /**
   Send and receive an PLDM message
@@ -50,9 +50,9 @@ return_status mctp_send_receive_data (IN void *mctp_context,
   @retval RETURN_SUCCESS               The PLDM request is sent and response is received.
   @return ERROR                        The PLDM response is not received correctly.
 **/
-return_status pldm_send_receive_data (IN void *mctp_context,
-                    IN void *spdm_context, IN uint32_t *session_id,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size);
+return_status pldm_send_receive_data (const void *mctp_context,
+                    void *spdm_context, const uint32_t *session_id,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size);
 
 #endif

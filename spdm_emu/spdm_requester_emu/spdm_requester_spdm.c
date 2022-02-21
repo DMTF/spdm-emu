@@ -9,11 +9,11 @@
 void *m_spdm_context;
 SOCKET m_socket;
 
-bool communicate_platform_data(IN SOCKET socket, IN uint32_t command,
-                  IN uint8_t *send_buffer, IN uintn bytes_to_send,
-                  OUT uint32_t *response,
-                  IN OUT uintn *bytes_to_receive,
-                  OUT uint8_t *receive_buffer)
+bool communicate_platform_data(SOCKET socket, uint32_t command,
+                  const uint8_t *send_buffer, uintn bytes_to_send,
+                  uint32_t *response,
+                  uintn *bytes_to_receive,
+                  uint8_t *receive_buffer)
 {
     bool result;
 
@@ -45,9 +45,9 @@ bool communicate_platform_data(IN SOCKET socket, IN uint32_t command,
     return result;
 }
 
-return_status spdm_device_send_message(IN void *spdm_context,
-                       IN uintn request_size, IN void *request,
-                       IN uint64_t timeout)
+return_status spdm_device_send_message(void *spdm_context,
+                       uintn request_size, const void *request,
+                       uint64_t timeout)
 {
     bool result;
 
@@ -66,10 +66,10 @@ return_status spdm_device_send_message(IN void *spdm_context,
     return RETURN_SUCCESS;
 }
 
-return_status spdm_device_receive_message(IN void *spdm_context,
-                      IN OUT uintn *response_size,
-                      IN OUT void *response,
-                      IN uint64_t timeout)
+return_status spdm_device_receive_message(void *spdm_context,
+                      uintn *response_size,
+                      void *response,
+                      uint64_t timeout)
 {
     bool result;
     uint32_t command;
@@ -100,9 +100,9 @@ return_status spdm_device_receive_message(IN void *spdm_context,
   @retval RETURN_SUCCESS               The request is sent and response is received.
   @return ERROR                        The response is not received correctly.
 **/
-return_status pci_doe_send_receive_data(IN void *pci_doe_context,
-                      IN uintn request_size, IN void *request,
-                      IN OUT uintn *response_size, IN OUT void *response)
+return_status pci_doe_send_receive_data(const void *pci_doe_context,
+                      uintn request_size, const void *request,
+                      uintn *response_size, void *response)
 {
     bool result;
     uint32_t response_code;

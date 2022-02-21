@@ -17,7 +17,7 @@ extern void *m_pci_doe_context;
 
 void *spdm_server_init(void);
 
-bool create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
+bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 {
     struct sockaddr_in my_address;
     int32_t res;
@@ -94,7 +94,7 @@ bool create_socket(IN uint16_t port_number, IN SOCKET *listen_socket)
     return true;
 }
 
-bool platform_server(IN SOCKET socket)
+bool platform_server(const SOCKET socket)
 {
     bool result;
     return_status status;
@@ -230,7 +230,7 @@ bool platform_server(IN SOCKET socket)
     }
 }
 
-bool platform_server_routine(IN uint16_t port_number)
+bool platform_server_routine(uint16_t port_number)
 {
     SOCKET listen_socket;
     struct sockaddr_in peer_address;

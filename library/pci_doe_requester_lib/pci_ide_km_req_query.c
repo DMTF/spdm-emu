@@ -10,9 +10,9 @@
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/pci_doe_requester_lib.h"
 
-return_status pci_ide_km_query(IN void *pci_doe_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN uint8_t port_index, OUT uint8_t *max_port_index)
+return_status pci_ide_km_query(const void *pci_doe_context,
+    void *spdm_context, const uint32_t *session_id,
+    uint8_t port_index, uint8_t *max_port_index)
 {
     return_status status;
     pci_ide_km_query_t request;

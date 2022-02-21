@@ -8,7 +8,7 @@
 
 void *m_mctp_context;
 
-return_status mctp_process_session_message(IN void *spdm_context, IN uint32_t session_id)
+return_status mctp_process_session_message(void *spdm_context, uint32_t session_id)
 {
     uint8_t tid;
     return_status  status;

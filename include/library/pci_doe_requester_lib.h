@@ -9,13 +9,13 @@
 
 #include "library/pci_doe_common_lib.h"
 
-return_status pci_doe_discovery (IN void *pci_doe_context,
-    IN OUT pci_doe_data_object_protocol_t *data_object_protocol,
-    IN OUT uintn *data_object_protocol_size);
+return_status pci_doe_discovery (const void *pci_doe_context,
+    pci_doe_data_object_protocol_t *data_object_protocol,
+    uintn *data_object_protocol_size);
 
-return_status pci_ide_km_query(IN void *pci_doe_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN uint8_t port_index, OUT uint8_t *max_port_index);
+return_status pci_ide_km_query(const void *pci_doe_context,
+    void *spdm_context, const uint32_t *session_id,
+    uint8_t port_index, uint8_t *max_port_index);
 
 /* external provided function */
 
@@ -30,9 +30,9 @@ return_status pci_ide_km_query(IN void *pci_doe_context,
   @retval RETURN_SUCCESS               The request is sent and response is received.
   @return ERROR                        The response is not received correctly.
 **/
-return_status pci_doe_send_receive_data(IN void *pci_doe_context,
-                      IN uintn request_size, IN void *request,
-                      IN OUT uintn *response_size, IN OUT void *response);
+return_status pci_doe_send_receive_data(const void *pci_doe_context,
+                      uintn request_size, const void *request,
+                      uintn *response_size, void *response);
 
 
 /* internal function only*/
@@ -53,10 +53,10 @@ return_status pci_doe_send_receive_data(IN void *pci_doe_context,
   @return ERROR                        The SPDM vendor defined response is not received correctly.
 **/
 return_status pci_doe_spdm_vendor_send_receive_data (
-                    IN void *spdm_context, IN uint32_t *session_id,
-                    IN pci_protocol_header_t pci_protocol,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size);
+                    void *spdm_context, const uint32_t *session_id,
+                    pci_protocol_header_t pci_protocol,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size);
 
 /**
   Send and receive an IDE_KM message
@@ -74,8 +74,8 @@ return_status pci_doe_spdm_vendor_send_receive_data (
   @return ERROR                        The IDM_KM response is not received correctly.
 **/
 return_status ide_km_send_receive_data (
-                    IN void *spdm_context, IN uint32_t *session_id,
-                    IN void *request, IN uintn request_size,
-                    OUT void *response, IN OUT uintn *response_size);
+                    void *spdm_context, const uint32_t *session_id,
+                    const void *request, uintn request_size,
+                    void *response, uintn *response_size);
 
 #endif
