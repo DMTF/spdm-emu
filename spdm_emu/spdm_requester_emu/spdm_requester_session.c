@@ -12,20 +12,20 @@ extern SOCKET m_socket;
 
 extern void *m_spdm_context;
 
-bool communicate_platform_data(IN SOCKET socket, IN uint32_t command,
-                  IN uint8_t *send_buffer, IN uintn bytes_to_send,
-                  OUT uint32_t *response,
-                  IN OUT uintn *bytes_to_receive,
-                  OUT uint8_t *receive_buffer);
+bool communicate_platform_data(SOCKET socket, uint32_t command,
+                  const uint8_t *send_buffer, uintn bytes_to_send,
+                  uint32_t *response,
+                  uintn *bytes_to_receive,
+                  uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
-return_status do_measurement_via_spdm(IN uint32_t *session_id);
+return_status do_measurement_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
-return_status pci_doe_process_session_message(IN void *spdm_context, IN uint32_t session_id);
-return_status mctp_process_session_message(IN void *spdm_context, IN uint32_t session_id);
+return_status pci_doe_process_session_message(void *spdm_context, uint32_t session_id);
+return_status mctp_process_session_message(void *spdm_context, uint32_t session_id);
 
-return_status do_app_session_via_spdm(IN uint32_t session_id)
+return_status do_app_session_via_spdm(uint32_t session_id)
 {
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         pci_doe_process_session_message (m_spdm_context, session_id);
@@ -38,7 +38,7 @@ return_status do_app_session_via_spdm(IN uint32_t session_id)
     return RETURN_SUCCESS;
 }
 
-return_status do_session_via_spdm(IN bool use_psk)
+return_status do_session_via_spdm(bool use_psk)
 {
     void *spdm_context;
     return_status status;

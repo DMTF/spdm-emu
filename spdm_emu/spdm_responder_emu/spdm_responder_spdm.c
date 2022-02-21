@@ -21,9 +21,9 @@ extern SOCKET m_server_socket;
   @param  session_id                    The session_id of a session.
   @param  session_state                 The state of a session.
 **/
-void spdm_server_session_state_callback(IN void *spdm_context,
-                    IN uint32_t session_id,
-                    IN libspdm_session_state_t session_state);
+void spdm_server_session_state_callback(void *spdm_context,
+                    uint32_t session_id,
+                    libspdm_session_state_t session_state);
 
 /**
   Notify the connection state to an SPDM context register.
@@ -32,16 +32,16 @@ void spdm_server_session_state_callback(IN void *spdm_context,
   @param  connection_state              Indicate the SPDM connection state.
 **/
 void spdm_server_connection_state_callback(
-    IN void *spdm_context, IN libspdm_connection_state_t connection_state);
+    void *spdm_context, libspdm_connection_state_t connection_state);
 
 return_status spdm_get_response_vendor_defined_request(
-    IN void *spdm_context, IN uint32_t *session_id, IN bool is_app_message,
-    IN uintn request_size, IN void *request, IN OUT uintn *response_size,
-    OUT void *response);
+    void *spdm_context, const uint32_t *session_id, bool is_app_message,
+    uintn request_size, const void *request, uintn *response_size,
+    void *response);
 
-return_status spdm_device_send_message(IN void *spdm_context,
-                       IN uintn request_size, IN void *request,
-                       IN uint64_t timeout)
+return_status spdm_device_send_message(void *spdm_context,
+                       uintn request_size, const void *request,
+                       uint64_t timeout)
 {
     bool result;
 
@@ -60,10 +60,10 @@ return_status spdm_device_send_message(IN void *spdm_context,
     return RETURN_SUCCESS;
 }
 
-return_status spdm_device_receive_message(IN void *spdm_context,
-                      IN OUT uintn *response_size,
-                      IN OUT void *response,
-                      IN uint64_t timeout)
+return_status spdm_device_receive_message(void *spdm_context,
+                      uintn *response_size,
+                      void *response,
+                      uint64_t timeout)
 {
     bool result;
 
@@ -222,7 +222,7 @@ void *spdm_server_init(void)
   @param  connection_state              Indicate the SPDM connection state.
 **/
 void spdm_server_connection_state_callback(
-    IN void *spdm_context, IN libspdm_connection_state_t connection_state)
+    void *spdm_context, libspdm_connection_state_t connection_state)
 {
     bool res;
     void *data;
@@ -380,9 +380,9 @@ void spdm_server_connection_state_callback(
   @param  session_id                    The session_id of a session.
   @param  session_state                 The state of a session.
 **/
-void spdm_server_session_state_callback(IN void *spdm_context,
-                    IN uint32_t session_id,
-                    IN libspdm_session_state_t session_state)
+void spdm_server_session_state_callback(void *spdm_context,
+                    uint32_t session_id,
+                    libspdm_session_state_t session_state)
 {
     uintn data_size;
     libspdm_data_parameter_t parameter;

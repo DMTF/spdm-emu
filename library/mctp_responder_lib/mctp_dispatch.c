@@ -30,12 +30,12 @@ mctp_secured_app_dispatch_struct_t m_mctp_secured_app_dispatch[] = {
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status mctp_get_response_secured_app_request(IN void *mctp_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    OUT void *response, IN OUT uintn *response_size)
+return_status mctp_get_response_secured_app_request(const void *mctp_context,
+    void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size)
 {
-    mctp_message_header_t *app_request;
+    const mctp_message_header_t *app_request;
     mctp_message_header_t *app_response;
     uintn index;
     uintn app_response_size;

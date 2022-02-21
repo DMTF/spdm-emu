@@ -23,24 +23,24 @@ void *spdm_client_init(void);
 
 return_status pci_doe_init_request(void);
 
-bool communicate_platform_data(IN SOCKET socket, IN uint32_t command,
-                  IN uint8_t *send_buffer, IN uintn bytes_to_send,
-                  OUT uint32_t *response,
-                  IN OUT uintn *bytes_to_receive,
-                  OUT uint8_t *receive_buffer);
+bool communicate_platform_data(SOCKET socket, uint32_t command,
+                  const uint8_t *send_buffer, uintn bytes_to_send,
+                  uint32_t *response,
+                  uintn *bytes_to_receive,
+                  uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
-return_status do_measurement_via_spdm(IN uint32_t *session_id);
+return_status do_measurement_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
 #if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
 return_status do_authentication_via_spdm(void);
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
-return_status do_session_via_spdm(IN bool use_psk);
+return_status do_session_via_spdm(bool use_psk);
 
 
-bool init_client(OUT SOCKET *sock, IN uint16_t port)
+bool init_client(SOCKET *sock, uint16_t port)
 {
     SOCKET client_socket;
     struct sockaddr_in server_addr;
@@ -84,7 +84,7 @@ bool init_client(OUT SOCKET *sock, IN uint16_t port)
     return true;
 }
 
-bool platform_client_routine(IN uint16_t port_number)
+bool platform_client_routine(uint16_t port_number)
 {
     SOCKET platform_socket;
     bool result;

@@ -15,8 +15,8 @@ extern void *m_spdm_context;
 
   @param[in]  spdm_context            The SPDM context for the device.
 **/
-return_status spdm_send_receive_get_measurement(IN void *spdm_context,
-                        IN uint32_t *session_id)
+return_status spdm_send_receive_get_measurement(void *spdm_context,
+                        const uint32_t *session_id)
 {
     return_status status;
     uint8_t number_of_blocks;
@@ -94,7 +94,7 @@ return_status spdm_send_receive_get_measurement(IN void *spdm_context,
 
   @param[in]  spdm_context            The SPDM context for the device.
 **/
-return_status do_measurement_via_spdm(IN uint32_t *session_id)
+return_status do_measurement_via_spdm(const uint32_t *session_id)
 {
     return_status status;
     void *spdm_context;

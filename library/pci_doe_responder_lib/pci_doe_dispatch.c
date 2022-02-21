@@ -30,9 +30,9 @@ pci_doe_dispatch_struct_t m_pci_doe_dispatch[] = {
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status pci_doe_get_response_doe_request(IN void *pci_doe_context,
-    IN void *request, IN uintn request_size,
-    IN OUT void *response, IN OUT uintn *response_size)
+return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size)
 {
     pci_doe_data_object_header_t *doe_request;
     uintn index;

@@ -17,8 +17,8 @@ uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
   If there is no enough data in socket, this function will wait.
   This function will return if enough data is read, or socket error.
 **/
-bool read_bytes(IN SOCKET socket, OUT uint8_t *buffer,
-           IN uint32_t number_of_bytes)
+bool read_bytes(const SOCKET socket, uint8_t *buffer,
+           uint32_t number_of_bytes)
 {
     int32_t result;
     uint32_t number_received;
@@ -45,7 +45,7 @@ bool read_bytes(IN SOCKET socket, OUT uint8_t *buffer,
     return true;
 }
 
-bool read_data32(IN SOCKET socket, OUT uint32_t *data)
+bool read_data32(const SOCKET socket, uint32_t *data)
 {
     bool result;
 
@@ -66,9 +66,9 @@ bool read_data32(IN SOCKET socket, OUT uint32_t *data)
   If there is no enough data in socket, this function will wait.
   This function will return if enough data is read, or socket error.
 **/
-bool read_multiple_bytes(IN SOCKET socket, OUT uint8_t *buffer,
-                OUT uint32_t *bytes_received,
-                IN uint32_t max_buffer_length)
+bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
+                uint32_t *bytes_received,
+                uint32_t max_buffer_length)
 {
     uint32_t length;
     bool result;
@@ -103,9 +103,9 @@ bool read_multiple_bytes(IN SOCKET socket, OUT uint8_t *buffer,
     return true;
 }
 
-bool receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
-                  OUT uint8_t *receive_buffer,
-                  IN OUT uintn *bytes_to_receive)
+bool receive_platform_data(const SOCKET socket, uint32_t *command,
+                  uint8_t *receive_buffer,
+                  uintn *bytes_to_receive)
 {
     bool result;
     uint32_t response;
@@ -176,8 +176,8 @@ bool receive_platform_data(IN SOCKET socket, OUT uint32_t *command,
 
   This function will return if data is written, or socket error.
 **/
-bool write_bytes(IN SOCKET socket, IN uint8_t *buffer,
-            IN uint32_t number_of_bytes)
+bool write_bytes(const SOCKET socket, const uint8_t *buffer,
+            uint32_t number_of_bytes)
 {
     int32_t result;
     uint32_t number_sent;
@@ -209,7 +209,7 @@ bool write_bytes(IN SOCKET socket, IN uint8_t *buffer,
     return true;
 }
 
-bool write_data32(IN SOCKET socket, IN uint32_t data)
+bool write_data32(const SOCKET socket, uint32_t data)
 {
     data = htonl(data);
     return write_bytes(socket, (uint8_t *)&data, sizeof(uint32_t));
@@ -221,8 +221,8 @@ bool write_data32(IN SOCKET socket, IN uint32_t data)
   The length is presented as first 4 bytes in big endian.
   The data follows the length.
 **/
-bool write_multiple_bytes(IN SOCKET socket, IN uint8_t *buffer,
-                 IN uint32_t bytes_to_send)
+bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
+                 uint32_t bytes_to_send)
 {
     bool result;
 
@@ -246,8 +246,8 @@ bool write_multiple_bytes(IN SOCKET socket, IN uint8_t *buffer,
     return true;
 }
 
-bool send_platform_data(IN SOCKET socket, IN uint32_t command,
-               IN uint8_t *send_buffer, IN uintn bytes_to_send)
+bool send_platform_data(const SOCKET socket, uint32_t command,
+               const uint8_t *send_buffer, uintn bytes_to_send)
 {
     bool result;
     uint32_t request;

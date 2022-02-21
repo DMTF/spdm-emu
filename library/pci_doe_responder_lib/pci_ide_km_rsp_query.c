@@ -21,12 +21,12 @@
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status pci_ide_km_get_response_query (IN void *pci_doe_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    IN OUT void *response, IN OUT uintn *response_size)
+return_status pci_ide_km_get_response_query (const void *pci_doe_context,
+    const void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size)
 {
-    pci_ide_km_query_t *ide_km_request;
+    const pci_ide_km_query_t *ide_km_request;
     pci_ide_km_query_resp_t *ide_km_response;
 
     ide_km_request = request;

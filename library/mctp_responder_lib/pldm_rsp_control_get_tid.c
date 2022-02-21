@@ -21,12 +21,12 @@
     @retval RETURN_SUCCESS The request is processed and the response is returned.
     @return ERROR          The request is not processed.
 **/
-return_status pldm_get_response_control_get_tid (IN void *mctp_context,
-    IN void *spdm_context, IN uint32_t *session_id,
-    IN void *request, IN uintn request_size,
-    OUT void *response, IN OUT uintn *response_size)
+return_status pldm_get_response_control_get_tid (const void *mctp_context,
+    const void *spdm_context, const uint32_t *session_id,
+    const void *request, uintn request_size,
+    void *response, uintn *response_size)
 {
-    pldm_get_tid_request_t *app_request;
+    const pldm_get_tid_request_t *app_request;
     pldm_get_tid_response_t *app_response;
 
     app_request = request;
