@@ -20,7 +20,7 @@ return_status pci_ide_km_query(const void *pci_doe_context,
     pci_ide_km_query_resp_t response;
     uintn response_size;
 
-    zero_mem (&request, sizeof(request));
+    libspdm_zero_mem (&request, sizeof(request));
     request.header.object_id = PCI_IDE_KM_OBJECT_ID_QUERY;
     request.port_index = port_index;
 

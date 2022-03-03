@@ -28,7 +28,7 @@ return_status spdm_load_negotiated_state(void *spdm_context,
     if (m_load_state_file_name == NULL) {
         return RETURN_UNSUPPORTED;
     }
-    ret = read_input_file(m_load_state_file_name, &file_data, &file_size);
+    ret = libspdm_read_input_file(m_load_state_file_name, &file_data, &file_size);
     if (!ret) {
         printf("LoadState fail - read file error\n");
         return RETURN_DEVICE_ERROR;
@@ -40,7 +40,7 @@ return_status spdm_load_negotiated_state(void *spdm_context,
         return RETURN_UNSUPPORTED;
     }
 
-    copy_mem(&negotiated_state, file_data, file_size);
+    libspdm_copy_mem(&negotiated_state, file_size, file_data, file_size);
     free(file_data);
 
     if (negotiated_state.signature !=
@@ -79,7 +79,7 @@ return_status spdm_load_negotiated_state(void *spdm_context,
 
     /* Set connection info*/
     
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
     spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
@@ -176,14 +176,14 @@ return_status spdm_save_negotiated_state(void *spdm_context,
 
     printf("SaveState to %s\n", m_save_state_file_name);
 
-    zero_mem(&negotiated_state, sizeof(negotiated_state));
+    libspdm_zero_mem(&negotiated_state, sizeof(negotiated_state));
     negotiated_state.signature = SPDM_NEGOTIATED_STATE_STRUCT_SIGNATURE;
     negotiated_state.version = SPDM_NEGOTIATED_STATE_STRUCT_VERSION;
 
     
     /* get setting fron local*/
     
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
     if (is_requester) {
@@ -209,19 +209,19 @@ return_status spdm_save_negotiated_state(void *spdm_context,
     
     /* get setting fron connection*/
     
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
               &data32, &data_size);
-    ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
+    LIBSPDM_ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
 
     data_size = sizeof(spdm_version);
-    zero_mem(spdm_version, sizeof(spdm_version));
+    libspdm_zero_mem(spdm_version, sizeof(spdm_version));
     libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
               &spdm_version, &data_size);
-    ASSERT(data_size / sizeof(spdm_version_number_t) > 0);
+    LIBSPDM_ASSERT(data_size / sizeof(spdm_version_number_t) > 0);
     index = data_size / sizeof(spdm_version_number_t) - 1;
     negotiated_state.spdm_version =
         (uint8_t)(spdm_version[index] >> SPDM_VERSION_NUMBER_SHIFT_BIT);

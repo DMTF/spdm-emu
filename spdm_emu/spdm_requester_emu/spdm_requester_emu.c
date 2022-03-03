@@ -59,10 +59,10 @@ bool init_client(SOCKET *sock, uint16_t port)
     }
 
     server_addr.sin_family = AF_INET;
-    copy_mem(&server_addr.sin_addr.s_addr, &m_ip_address,
+    libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
          sizeof(struct in_addr));
     server_addr.sin_port = htons(port);
-    zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
+    libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
 
     ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
               sizeof(server_addr));

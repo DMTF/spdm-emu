@@ -6,7 +6,7 @@
 
 #include "spdm_emu.h"
 
-void dump_hex_str(const uint8_t *buffer, uintn buffer_size)
+void libspdm_dump_hex_str(const uint8_t *buffer, uintn buffer_size)
 {
     uintn index;
 
@@ -47,7 +47,7 @@ void dump_hex(const uint8_t *data, uintn size)
     }
 }
 
-bool read_input_file(const char *file_name, void **file_data,
+bool libspdm_read_input_file(const char *file_name, void **file_data,
             uintn *file_size)
 {
     FILE *fp_in;

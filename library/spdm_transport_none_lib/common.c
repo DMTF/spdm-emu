@@ -150,7 +150,7 @@ return_status spdm_transport_none_encode_message(
                               &app_message_size,
                               app_message_buffer);
             if (RETURN_ERROR(status)) {
-                DEBUG((DEBUG_ERROR,
+                LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                        "transport_encode_message - %p\n",
                        status));
                 return RETURN_UNSUPPORTED;
@@ -166,7 +166,7 @@ return_status spdm_transport_none_encode_message(
             app_message_size, app_message, &secured_message_size,
             secured_message, &spdm_secured_message_callbacks);
         if (RETURN_ERROR(status)) {
-            DEBUG((DEBUG_ERROR,
+            LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                    "libspdm_encode_secured_message - %p\n", status));
             return status;
         }
@@ -176,7 +176,7 @@ return_status spdm_transport_none_encode_message(
             session_id, secured_message_size, secured_message,
             transport_message_size, transport_message);
         if (RETURN_ERROR(status)) {
-            DEBUG((DEBUG_ERROR, "transport_encode_message - %p\n",
+            LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
                    status));
             return RETURN_UNSUPPORTED;
         }
@@ -186,7 +186,7 @@ return_status spdm_transport_none_encode_message(
                           transport_message_size,
                           transport_message);
         if (RETURN_ERROR(status)) {
-            DEBUG((DEBUG_ERROR, "transport_encode_message - %p\n",
+            LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
                    status));
             return RETURN_UNSUPPORTED;
         }
@@ -237,6 +237,9 @@ return_status spdm_transport_none_decode_message(
     libspdm_secured_message_callbacks_t spdm_secured_message_callbacks;
     void *secured_message_context;
     libspdm_error_struct_t spdm_error;
+    uintn init_message_size;
+
+    init_message_size = *message_size;
 
     spdm_error.error_code = 0;
     spdm_error.session_id = 0;
@@ -262,7 +265,7 @@ return_status spdm_transport_none_decode_message(
         &secured_message_session_id, transport_message_size,
         transport_message, &secured_message_size, secured_message);
     if (RETURN_ERROR(status)) {
-        DEBUG((DEBUG_ERROR, "transport_decode_message - %p\n", status));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n", status));
         return RETURN_UNSUPPORTED;
     }
 
@@ -288,7 +291,7 @@ return_status spdm_transport_none_decode_message(
             &app_message_size, app_message,
             &spdm_secured_message_callbacks);
         if (RETURN_ERROR(status)) {
-            DEBUG((DEBUG_ERROR,
+            LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                    "libspdm_decode_secured_message - %p\n", status));
             libspdm_secured_message_get_last_spdm_error_struct(
                 secured_message_context, &spdm_error);
@@ -309,7 +312,7 @@ return_status spdm_transport_none_decode_message(
                 return RETURN_BUFFER_TOO_SMALL;
             }
             *message_size = app_message_size;
-            copy_mem(message, app_message, *message_size);
+            libspdm_copy_mem(message, init_message_size, app_message, *message_size);
             return RETURN_SUCCESS;
         } else {
             *is_app_message = false;
@@ -317,7 +320,7 @@ return_status spdm_transport_none_decode_message(
                 return RETURN_SUCCESS;
             } else {
                 /* get encapsulated secured message - cannot handle it.*/
-                DEBUG((DEBUG_ERROR,
+                LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                        "transport_decode_message - expect encapsulated normal but got session (%08x)\n",
                        *secured_message_session_id));
                 return RETURN_UNSUPPORTED;
@@ -330,11 +333,11 @@ return_status spdm_transport_none_decode_message(
                           transport_message,
                           message_size, message);
         if (RETURN_ERROR(status)) {
-            DEBUG((DEBUG_ERROR, "transport_decode_message - %p\n",
+            LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n",
                    status));
             return RETURN_UNSUPPORTED;
         }
-        ASSERT(secured_message_session_id == NULL);
+        LIBSPDM_ASSERT(secured_message_session_id == NULL);
         *session_id = NULL;
         *is_app_message = false;
         return RETURN_SUCCESS;

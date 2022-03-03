@@ -34,10 +34,10 @@ return_status pci_ide_km_get_response_query (const void *pci_doe_context,
     if (request_size != sizeof(pci_ide_km_query_t)) {
         return RETURN_INVALID_PARAMETER;
     }
-    ASSERT (*response_size >= sizeof(pci_ide_km_query_resp_t));
+    LIBSPDM_ASSERT (*response_size >= sizeof(pci_ide_km_query_resp_t));
     *response_size = sizeof(pci_ide_km_query_resp_t);
 
-    zero_mem (response, *response_size);
+    libspdm_zero_mem (response, *response_size);
     ide_km_response->header.object_id = PCI_IDE_KM_OBJECT_ID_QUERY_RESP;
 
     /* TBD - need PCI context to get the info*/

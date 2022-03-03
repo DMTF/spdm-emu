@@ -19,7 +19,7 @@ return_status pldm_control_get_tid(const void *mctp_context,
     uintn app_response_size;
     uint8_t instance_id = 0;
 
-    zero_mem (&app_request, sizeof(app_request));
+    libspdm_zero_mem (&app_request, sizeof(app_request));
     app_request.pldm_header.instance_id = instance_id | PLDM_HEADER_REQUEST_MASK;
     app_request.pldm_header.pldm_type = PLDM_MESSAGE_TYPE_CONTROL_DISCOVERY;
     app_request.pldm_header.pldm_command_code = PLDM_CONTROL_DISCOVERY_COMMAND_GET_TID;

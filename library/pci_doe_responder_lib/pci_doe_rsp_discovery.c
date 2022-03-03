@@ -68,7 +68,7 @@ return_status pci_doe_get_response_discovery (const void *pci_doe_context,
         return RETURN_INVALID_PARAMETER;
     }
 
-    zero_mem (&doe_response, sizeof(doe_response));
+    libspdm_zero_mem (&doe_response, sizeof(doe_response));
     doe_response.doe_header.vendor_id = PCI_DOE_VENDOR_ID_PCISIG;
     doe_response.doe_header.data_object_type = PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY;
     doe_response.doe_header.length = sizeof(doe_discovery_response_mine_t) / sizeof(uint32_t);
@@ -85,7 +85,7 @@ return_status pci_doe_get_response_discovery (const void *pci_doe_context,
         return RETURN_BUFFER_TOO_SMALL;
     }
     *response_size = sizeof(doe_response);
-    copy_mem (response, (uint8_t *)&doe_response, sizeof(doe_response));
+    libspdm_copy_mem (response, *response_size, (uint8_t *)&doe_response, sizeof(doe_response));
 
     return RETURN_SUCCESS;
 }

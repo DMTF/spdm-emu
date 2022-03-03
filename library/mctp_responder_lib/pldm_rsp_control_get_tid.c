@@ -33,10 +33,10 @@ return_status pldm_get_response_control_get_tid (const void *mctp_context,
     if (request_size != sizeof(pldm_get_tid_request_t)) {
         return RETURN_INVALID_PARAMETER;
     }
-    ASSERT (*response_size >= sizeof(pldm_get_tid_response_t));
+    LIBSPDM_ASSERT (*response_size >= sizeof(pldm_get_tid_response_t));
     *response_size = sizeof(pldm_get_tid_response_t);
 
-    zero_mem (response, *response_size);
+    libspdm_zero_mem (response, *response_size);
 
     app_response = response;
     app_response->pldm_header.instance_id = app_request->pldm_header.instance_id & PLDM_HEADER_INSTANCE_ID_MASK;

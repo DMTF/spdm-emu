@@ -96,7 +96,7 @@ return_status spdm_device_receive_message(void *spdm_context,
         return RETURN_BUFFER_TOO_SMALL;
     }
     *response_size = m_receive_buffer_size;
-    copy_mem(response, m_receive_buffer, m_receive_buffer_size);
+    libspdm_copy_mem(response, *response_size, m_receive_buffer, m_receive_buffer_size);
     return RETURN_SUCCESS;
 }
 
@@ -140,7 +140,7 @@ void *spdm_server_init(void)
     }
 
     if (m_use_version != 0) {
-        zero_mem(&parameter, sizeof(parameter));
+        libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
@@ -148,7 +148,7 @@ void *spdm_server_init(void)
     }
 
     if (m_use_secured_message_version != 0) {
-        zero_mem(&parameter, sizeof(parameter));
+        libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version = m_use_secured_message_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context,
@@ -157,7 +157,7 @@ void *spdm_server_init(void)
                       sizeof(spdm_version));
     }
 
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
     data8 = 0;
@@ -252,7 +252,7 @@ void spdm_server_connection_state_callback(
     case LIBSPDM_CONNECTION_STATE_NEGOTIATED:
 
         if (m_use_version == 0) {
-            zero_mem(&parameter, sizeof(parameter));
+            libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
             data_size = sizeof(spdm_version);
             libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
@@ -262,7 +262,7 @@ void spdm_server_connection_state_callback(
 
         /* Provision new content*/
         
-        zero_mem(&parameter, sizeof(parameter));
+        libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
         data_size = sizeof(data32);
@@ -282,12 +282,12 @@ void spdm_server_connection_state_callback(
                   &parameter, &data16, &data_size);
         m_use_req_asym_algo = data16;
 
-        res = read_responder_public_certificate_chain(m_use_hash_algo,
+        res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
                                   m_use_asym_algo,
                                   &data, &data_size,
                                   NULL, NULL);
         if (res) {
-            zero_mem(&parameter, sizeof(parameter));
+            libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             data8 = m_use_slot_count;
             libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SLOT_COUNT,
@@ -307,11 +307,11 @@ void spdm_server_connection_state_callback(
                 ((m_use_responder_capability_flags &
                 SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) !=
                 0)) {
-                res = read_requester_public_certificate_chain(
+                res = libspdm_read_requester_public_certificate_chain(
                     m_use_hash_algo, m_use_req_asym_algo, &data,
                     &data_size, NULL, NULL);
                 if (res) {
-                    zero_mem(&parameter, sizeof(parameter));
+                    libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
                     libspdm_set_data(spdm_context,
                             LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
@@ -319,14 +319,14 @@ void spdm_server_connection_state_callback(
                     /* Do not free it.*/
                 }
             } else {
-                res = read_requester_root_public_certificate(
+                res = libspdm_read_requester_root_public_certificate(
                     m_use_hash_algo, m_use_req_asym_algo, &data,
                     &data_size, &hash, &hash_size);
-                x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
+                libspdm_x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
                     data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
                     &root_cert, &root_cert_size);
                 if (res) {
-                    zero_mem(&parameter, sizeof(parameter));
+                    libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
                     libspdm_set_data(
                         spdm_context,
@@ -354,8 +354,8 @@ void spdm_server_connection_state_callback(
         }
 
         status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
-                       TEST_PSK_HINT_STRING,
-                       sizeof(TEST_PSK_HINT_STRING));
+                       LIBSPDM_TEST_PSK_HINT_STRING,
+                       sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
         if (RETURN_ERROR(status)) {
             printf("libspdm_set_data - %x\n", (uint32_t)status);
         }
@@ -393,7 +393,7 @@ void spdm_server_session_state_callback(void *spdm_context,
         /* Session end*/
 
         if (m_save_state_file_name != NULL) {
-            zero_mem(&parameter, sizeof(parameter));
+            libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_SESSION;
             *(uint32_t *)parameter.additional_data = session_id;
 
@@ -416,7 +416,7 @@ void spdm_server_session_state_callback(void *spdm_context,
     case LIBSPDM_SESSION_STATE_HANDSHAKING:
         /* collect session policy*/
         if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
-            zero_mem(&parameter, sizeof(parameter));
+            libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_SESSION;
             *(uint32_t *)parameter.additional_data = session_id;
 
@@ -434,7 +434,7 @@ void spdm_server_session_state_callback(void *spdm_context,
         break;
 
     default:
-        ASSERT(false);
+        LIBSPDM_ASSERT(false);
         break;
     }
 }
