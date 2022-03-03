@@ -46,7 +46,7 @@ return_status mctp_get_response_secured_app_request(const void *mctp_context,
     if (request_size < sizeof(mctp_message_header_t)) {
         return RETURN_INVALID_PARAMETER;
     }
-    ASSERT (*response_size > sizeof(mctp_message_header_t));
+    LIBSPDM_ASSERT (*response_size > sizeof(mctp_message_header_t));
     app_response_size = *response_size - sizeof(mctp_message_header_t);
 
     for (index = 0; index < ARRAY_SIZE(m_mctp_secured_app_dispatch); index++) {
@@ -62,7 +62,7 @@ return_status mctp_get_response_secured_app_request(const void *mctp_context,
                 return status;
             }
 
-            zero_mem (app_response, sizeof(mctp_message_header_t));
+            libspdm_zero_mem (app_response, sizeof(mctp_message_header_t));
             app_response->message_type = app_request->message_type;
 
             *response_size = app_response_size + sizeof(mctp_message_header_t);

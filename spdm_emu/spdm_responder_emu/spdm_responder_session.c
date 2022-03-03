@@ -39,14 +39,14 @@ return_status spdm_get_response_vendor_defined_request(
     return_status status;
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
-        ASSERT(!is_app_message);
+        LIBSPDM_ASSERT(!is_app_message);
         status = pci_doe_get_response_spdm_vendor_defined_request (
             m_pci_doe_context, spdm_context, session_id,
             request, request_size, response, response_size);
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
-        ASSERT(is_app_message);
+        LIBSPDM_ASSERT(is_app_message);
         status = mctp_get_response_secured_app_request (
             m_mctp_context, spdm_context, session_id,
             request, request_size, response, response_size);

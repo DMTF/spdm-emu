@@ -46,7 +46,7 @@ return_status pci_doe_discovery (const void *pci_doe_context,
     total_index = *data_object_protocol_size /
                         sizeof(pci_doe_data_object_protocol_t);
 
-    zero_mem(&doe_request, sizeof(doe_request));
+    libspdm_zero_mem(&doe_request, sizeof(doe_request));
     doe_request.doe_header.vendor_id = PCI_DOE_VENDOR_ID_PCISIG;
     doe_request.doe_header.data_object_type = PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY;
     doe_request.doe_header.length = sizeof(doe_discovery_request_mine_t) / sizeof(uint32_t);
@@ -98,7 +98,7 @@ return_status pci_doe_discovery (const void *pci_doe_context,
                 doe_response.doe_discovery_response.next_index;
     } while (doe_response.doe_discovery_response.next_index != 0);
 
-    ASSERT ((current_index + 1) <= total_index);
+    LIBSPDM_ASSERT ((current_index + 1) <= total_index);
 
     *data_object_protocol_size = (current_index + 1) *
                         sizeof(pci_doe_data_object_protocol_t);

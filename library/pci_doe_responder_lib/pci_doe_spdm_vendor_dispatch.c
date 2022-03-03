@@ -46,7 +46,7 @@ return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_d
     if (request_size < sizeof(pci_doe_spdm_vendor_defined_request_t)) {
         return RETURN_INVALID_PARAMETER;
     }
-    ASSERT (*response_size > sizeof(pci_doe_spdm_vendor_defined_response_t));
+    LIBSPDM_ASSERT (*response_size > sizeof(pci_doe_spdm_vendor_defined_response_t));
     vendor_response_size = *response_size - sizeof(pci_doe_spdm_vendor_defined_response_t);
 
     if (spdm_request->spdm_header.request_response_code != SPDM_VENDOR_DEFINED_REQUEST) {
@@ -82,7 +82,7 @@ return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_d
                 return status;
             }
 
-            zero_mem (spdm_response, sizeof(pci_doe_spdm_vendor_defined_response_t));
+            libspdm_zero_mem (spdm_response, sizeof(pci_doe_spdm_vendor_defined_response_t));
             spdm_response->spdm_header.spdm_version = spdm_request->spdm_header.spdm_version;
             spdm_response->spdm_header.request_response_code = SPDM_VENDOR_DEFINED_RESPONSE;
             spdm_response->pci_doe_vendor_header.standard_id = SPDM_REGISTRY_ID_PCISIG;

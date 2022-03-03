@@ -43,17 +43,17 @@ return_status pci_doe_spdm_vendor_send_receive_data (void *spdm_context, const u
 
     spdm_request = (void *)request_buffer;
     spdm_response = (void *)response_buffer;
-    ASSERT (request_size <= PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
-    ASSERT (*response_size < PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
+    LIBSPDM_ASSERT (request_size <= PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
+    LIBSPDM_ASSERT (*response_size < PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
 
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
     data_size = sizeof(spdm_version);
-    zero_mem(&spdm_version, sizeof(spdm_version));
+    libspdm_zero_mem(&spdm_version, sizeof(spdm_version));
     libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
               &spdm_version, &data_size);
 
-    zero_mem(spdm_request, sizeof(pci_doe_spdm_vendor_defined_request_t));
+    libspdm_zero_mem(spdm_request, sizeof(pci_doe_spdm_vendor_defined_request_t));
     spdm_request->spdm_header.spdm_version = (uint8_t)(spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT);
     spdm_request->spdm_header.request_response_code = SPDM_VENDOR_DEFINED_REQUEST;
     spdm_request->pci_doe_vendor_header.standard_id = SPDM_STANDARD_ID_PCISIG;
@@ -61,7 +61,7 @@ return_status pci_doe_spdm_vendor_send_receive_data (void *spdm_context, const u
     spdm_request->pci_doe_vendor_header.vendor_id = SPDM_VENDOR_ID_PCISIG;
     spdm_request->pci_doe_vendor_header.payload_length = (uint16_t)(sizeof(pci_protocol_header_t) + request_size);
     spdm_request->pci_doe_vendor_header.pci_protocol = pci_protocol;
-    copy_mem(spdm_request + 1 , request, request_size);
+    libspdm_copy_mem(spdm_request + 1, request_size, request, request_size);
 
     spdm_request_size = sizeof(pci_doe_spdm_vendor_defined_request_t) + request_size;
     spdm_response_size = sizeof(pci_doe_spdm_vendor_defined_request_t) + (*response_size);
@@ -102,7 +102,7 @@ return_status pci_doe_spdm_vendor_send_receive_data (void *spdm_context, const u
     }
 
     *response_size = spdm_response->pci_doe_vendor_header.payload_length - sizeof(pci_protocol_header_t);
-    copy_mem (response, spdm_response + 1, *response_size);
+    libspdm_copy_mem (response, *response_size, spdm_response + 1, *response_size);
 
     return RETURN_SUCCESS;
 }

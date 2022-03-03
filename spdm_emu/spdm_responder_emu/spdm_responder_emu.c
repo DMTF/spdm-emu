@@ -61,7 +61,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
         return false;
     }
 
-    zero_mem(&my_address, sizeof(my_address));
+    libspdm_zero_mem(&my_address, sizeof(my_address));
     my_address.sin_port = htons((short)port_number);
     my_address.sin_family = AF_INET;
 

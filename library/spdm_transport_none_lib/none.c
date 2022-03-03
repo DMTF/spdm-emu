@@ -26,8 +26,8 @@ return_status none_encode_message(const uint32_t *session_id, uintn message_size
                   void *transport_message)
 {
     *transport_message_size = message_size;
-    copy_mem((uint8_t *)transport_message, message, message_size);
-    zero_mem((uint8_t *)transport_message + message_size,
+    libspdm_copy_mem((uint8_t *)transport_message, *transport_message_size, message, message_size);
+    libspdm_zero_mem((uint8_t *)transport_message + message_size,
              *transport_message_size - message_size);
     return RETURN_SUCCESS;
 }
@@ -51,7 +51,7 @@ return_status none_decode_message(uint32_t **session_id,
                   uintn *message_size, void *message)
 {
     *message_size = transport_message_size;
-    copy_mem(message, transport_message, transport_message_size);
+    libspdm_copy_mem(message, *message_size, transport_message, transport_message_size);
     return RETURN_SUCCESS;
 }
 

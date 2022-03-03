@@ -167,7 +167,7 @@ void *spdm_client_init(void)
     }
 
     if (m_use_version != 0) {
-        zero_mem(&parameter, sizeof(parameter));
+        libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
@@ -175,7 +175,7 @@ void *spdm_client_init(void)
     }
 
     if (m_use_secured_message_version != 0) {
-        zero_mem(&parameter, sizeof(parameter));
+        libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version = m_use_secured_message_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context,
@@ -184,7 +184,7 @@ void *spdm_client_init(void)
                       sizeof(spdm_version));
     }
 
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
     data8 = 0;
@@ -236,7 +236,7 @@ void *spdm_client_init(void)
     }
 
     if (m_use_version == 0) {
-        zero_mem(&parameter, sizeof(parameter));
+        libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
         data_size = sizeof(spdm_version);
         libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
@@ -244,13 +244,13 @@ void *spdm_client_init(void)
         m_use_version = spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT;
     }
 
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
               &data32, &data_size);
-    ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
+    LIBSPDM_ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
@@ -272,12 +272,12 @@ void *spdm_client_init(void)
     if ((m_use_slot_id == 0xFF) ||
         ((m_use_requester_capability_flags &
           SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0)) {
-        res = read_responder_public_certificate_chain(m_use_hash_algo,
+        res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
                                   m_use_asym_algo,
                                   &data, &data_size,
                                   NULL, NULL);
         if (res) {
-            zero_mem(&parameter, sizeof(parameter));
+            libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
@@ -290,15 +290,15 @@ void *spdm_client_init(void)
             return NULL;
         }
     } else {
-        res = read_responder_root_public_certificate(m_use_hash_algo,
+        res = libspdm_read_responder_root_public_certificate(m_use_hash_algo,
                                  m_use_asym_algo,
                                  &data, &data_size,
                                  &hash, &hash_size);
-        x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
+        libspdm_x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
             data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
             &root_cert, &root_cert_size);
         if (res) {
-            zero_mem(&parameter, sizeof(parameter));
+            libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
                       LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
@@ -313,12 +313,12 @@ void *spdm_client_init(void)
     }
 
     if (m_use_req_asym_algo != 0) {
-        res = read_requester_public_certificate_chain(m_use_hash_algo,
+        res = libspdm_read_requester_public_certificate_chain(m_use_hash_algo,
                                 m_use_req_asym_algo,
                                 &data, &data_size, NULL,
                                 NULL);
         if (res) {
-            zero_mem(&parameter, sizeof(parameter));
+            libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             data8 = m_use_slot_count;
             libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SLOT_COUNT,
@@ -340,8 +340,8 @@ void *spdm_client_init(void)
     }
 
     status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
-                   TEST_PSK_HINT_STRING,
-                   sizeof(TEST_PSK_HINT_STRING));
+                   LIBSPDM_TEST_PSK_HINT_STRING,
+                   sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
     if (RETURN_ERROR(status)) {
         printf("libspdm_set_data - %x\n", (uint32_t)status);
     }

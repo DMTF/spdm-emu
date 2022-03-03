@@ -55,14 +55,14 @@ return_status spdm_send_receive_get_measurement(void *spdm_context,
         if (RETURN_ERROR(status)) {
             return status;
         }
-        DEBUG((DEBUG_INFO, "number_of_blocks - 0x%x\n",
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "number_of_blocks - 0x%x\n",
                number_of_blocks));
         received_number_of_block = 0;
         for (index = 1; index <= 0xFE; index++) {
             if (received_number_of_block == number_of_blocks) {
                 break;
             }
-            DEBUG((DEBUG_INFO, "index - 0x%x\n", index));
+            LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "index - 0x%x\n", index));
 
             /* 2. query measurement one by one*/
             /* get signature in last message only.*/

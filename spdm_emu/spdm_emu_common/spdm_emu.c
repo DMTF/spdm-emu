@@ -481,7 +481,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     count = ARRAY_SIZE(
                         m_spdm_responder_capabilities_string_table);
                 } else {
-                    ASSERT(false);
+                    LIBSPDM_ASSERT(false);
                     printf("unsupported --cap\n");
                     print_usage(program_name);
                     exit(0);

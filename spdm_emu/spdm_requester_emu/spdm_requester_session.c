@@ -52,7 +52,7 @@ return_status do_session_via_spdm(bool use_psk)
     spdm_context = m_spdm_context;
 
     heartbeat_period = 0;
-    zero_mem(measurement_hash, sizeof(measurement_hash));
+    libspdm_zero_mem(measurement_hash, sizeof(measurement_hash));
     status = libspdm_start_session(spdm_context, use_psk,
                     m_use_measurement_summary_hash_type,
                     m_use_slot_id, m_session_policy, &session_id,
@@ -110,7 +110,7 @@ return_status do_session_via_spdm(bool use_psk)
             break;
 
         default:
-            ASSERT(false);
+            LIBSPDM_ASSERT(false);
             break;
         }
     }

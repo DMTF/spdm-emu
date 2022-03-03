@@ -44,19 +44,19 @@ return_status mctp_send_receive_data (const void *mctp_context,
 
     mctp_request = (void *)request_buffer;
     mctp_response = (void *)response_buffer;
-    ASSERT (request_size <= MCTP_MAX_MESSAGE_SIZE);
-    ASSERT (*response_size < MCTP_MAX_MESSAGE_SIZE);
+    LIBSPDM_ASSERT (request_size <= MCTP_MAX_MESSAGE_SIZE);
+    LIBSPDM_ASSERT (*response_size < MCTP_MAX_MESSAGE_SIZE);
 
-    zero_mem(&parameter, sizeof(parameter));
+    libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
     data_size = sizeof(spdm_version);
-    zero_mem(&spdm_version, sizeof(spdm_version));
+    libspdm_zero_mem(&spdm_version, sizeof(spdm_version));
     libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
               &spdm_version, &data_size);
 
-    zero_mem(mctp_request, sizeof(mctp_message_header_t));
+    libspdm_zero_mem(mctp_request, sizeof(mctp_message_header_t));
     mctp_request->message_type = mctp_header.message_type;
-    copy_mem(mctp_request + 1 , request, request_size);
+    libspdm_copy_mem(mctp_request + 1 , request_size, request, request_size);
 
     mctp_request_size = sizeof(mctp_message_header_t) + request_size;
     mctp_response_size = sizeof(mctp_message_header_t) + (*response_size);
@@ -75,7 +75,7 @@ return_status mctp_send_receive_data (const void *mctp_context,
     }
 
     *response_size = mctp_response_size - sizeof(mctp_message_header_t);
-    copy_mem (response, mctp_response + 1, *response_size);
+    libspdm_copy_mem (response, *response_size, mctp_response + 1, *response_size);
 
     return RETURN_SUCCESS;
 }
