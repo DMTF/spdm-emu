@@ -7,12 +7,11 @@
 #include "spdm_responder_emu.h"
 
 uint32_t m_command;
-uintn m_receive_buffer_size;
-uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 
 SOCKET m_server_socket;
 
 extern void *m_spdm_context;
+extern void *m_scratch_buffer;
 extern void *m_pci_doe_context;
 
 void *spdm_server_init(void);
@@ -186,7 +185,7 @@ bool platform_server(const SOCKET socket)
                 SOCKET_TRANSPORT_TYPE_PCI_DOE) {
                 response_size = sizeof(response);
                 status = pci_doe_get_response_doe_request (m_pci_doe_context,
-                            m_receive_buffer, m_receive_buffer_size, response, &response_size);
+                            m_send_receive_buffer, m_send_receive_buffer_size, response, &response_size);
                 if (RETURN_ERROR(status)) {
                     /* unknown message*/
                     return true;

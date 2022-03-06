@@ -15,8 +15,11 @@
                                        If session_id is NOT NULL, it is a secured message.
   @param  message_size                  size in bytes of the message data buffer.
   @param  message                      A pointer to a source buffer to store the message.
+                                       For normal message, it will point to the acquired sender buffer.
+                                       For secured message, it will point to the scratch buffer in spdm_context.
   @param  transport_message_size         size in bytes of the transport message data buffer.
   @param  transport_message             A pointer to a destination buffer to store the transport message.
+                                       For normal message or secured message, it will point to acquired sender buffer.
 
   @retval RETURN_SUCCESS               The message is encoded successfully.
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
@@ -24,7 +27,7 @@
 return_status none_encode_message(const uint32_t *session_id, uintn message_size,
                   const void *message,
                   uintn *transport_message_size,
-                  void *transport_message);
+                  void **transport_message);
 
 /**
   Decode a transport message to a normal message or secured message.
@@ -34,8 +37,11 @@ return_status none_encode_message(const uint32_t *session_id, uintn message_size
                                        If *session_id is NOT NULL, it is a secured message.
   @param  transport_message_size         size in bytes of the transport message data buffer.
   @param  transport_message             A pointer to a source buffer to store the transport message.
+                                       For normal message or secured message, it will point to acquired receiver buffer.
   @param  message_size                  size in bytes of the message data buffer.
   @param  message                      A pointer to a destination buffer to store the message.
+                                       For normal message, it will point to the original receiver buffer.
+                                       For secured message, it will point to the scratch buffer in spdm_context.
   @retval RETURN_SUCCESS               The message is encoded successfully.
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
 **/
@@ -43,43 +49,7 @@ return_status none_decode_message(uint32_t **session_id,
                   uintn transport_message_size,
                   const void *transport_message,
                   uintn *message_size,
-                  void *message);
-
-/**
-  Encode a normal message or secured message to a transport message.
-
-  @param  session_id                    Indicates if it is a secured message protected via SPDM session.
-                                       If session_id is NULL, it is a normal message.
-                                       If session_id is NOT NULL, it is a secured message.
-  @param  message_size                  size in bytes of the message data buffer.
-  @param  message                      A pointer to a source buffer to store the message.
-  @param  transport_message_size         size in bytes of the transport message data buffer.
-  @param  transport_message             A pointer to a destination buffer to store the transport message.
-
-  @retval RETURN_SUCCESS               The message is encoded successfully.
-  @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
-**/
-typedef return_status (*transport_encode_message_func)(
-    const uint32_t *session_id, uintn message_size, const void *message,
-    uintn *transport_message_size, void *transport_message);
-
-/**
-  Decode a transport message to a normal message or secured message.
-
-  @param  session_id                    Indicates if it is a secured message protected via SPDM session.
-                                       If *session_id is NULL, it is a normal message.
-                                       If *session_id is NOT NULL, it is a secured message.
-  @param  transport_message_size         size in bytes of the transport message data buffer.
-  @param  transport_message             A pointer to a source buffer to store the transport message.
-  @param  message_size                  size in bytes of the message data buffer.
-  @param  message                      A pointer to a destination buffer to store the message.
-  @retval RETURN_SUCCESS               The message is encoded successfully.
-  @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
-**/
-typedef return_status (*transport_decode_message_func)(
-    uint32_t **session_id, uintn transport_message_size,
-    const void *transport_message, uintn *message_size,
-    void *message);
+                  void **message);
 
 /**
   Encode an SPDM or APP message to a transport layer message.
@@ -100,8 +70,12 @@ typedef return_status (*transport_decode_message_func)(
   @param  is_requester                  Indicates if it is a requester message.
   @param  message_size                  size in bytes of the message data buffer.
   @param  message                      A pointer to a source buffer to store the message.
+                                       For normal message, it shall point to the acquired sender buffer.
+                                       For secured message, it shall point to the scratch buffer in spdm_context.
   @param  transport_message_size         size in bytes of the transport message data buffer.
   @param  transport_message             A pointer to a destination buffer to store the transport message.
+                                       On input, it shall be msg_buf_ptr from sender buffer.
+                                       On output, it will point to acquired sender buffer.
 
   @retval RETURN_SUCCESS               The message is encoded successfully.
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
@@ -109,17 +83,16 @@ typedef return_status (*transport_decode_message_func)(
 return_status spdm_transport_none_encode_message(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     bool is_requester, uintn message_size, const void *message,
-    uintn *transport_message_size, void *transport_message)
+    uintn *transport_message_size, void **transport_message)
 {
     return_status status;
-    transport_encode_message_func transport_encode_message;
-    uint8_t app_message_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
     void *app_message;
     uintn app_message_size;
-    uint8_t secured_message[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
+    uint8_t *secured_message;
     uintn secured_message_size;
     libspdm_secured_message_callbacks_t spdm_secured_message_callbacks;
     void *secured_message_context;
+    uintn transport_header_size;
 
     spdm_secured_message_callbacks.version =
         SPDM_SECURED_MESSAGE_CALLBACKS_VERSION;
@@ -132,7 +105,6 @@ return_status spdm_transport_none_encode_message(
         return RETURN_UNSUPPORTED;
     }
 
-    transport_encode_message = none_encode_message;
     if (session_id != NULL) {
         secured_message_context =
             libspdm_get_secured_message_context_via_session_id(
@@ -143,12 +115,10 @@ return_status spdm_transport_none_encode_message(
 
         if (!is_app_message) {
             /* SPDM message to APP message*/
-            app_message = app_message_buffer;
-            app_message_size = sizeof(app_message_buffer);
-            status = transport_encode_message(NULL, message_size,
+            status = none_encode_message(NULL, message_size,
                               message,
                               &app_message_size,
-                              app_message_buffer);
+                              &app_message);
             if (RETURN_ERROR(status)) {
                 LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                        "transport_encode_message - %p\n",
@@ -160,7 +130,9 @@ return_status spdm_transport_none_encode_message(
             app_message_size = message_size;
         }
         /* APP message to secured message*/
-        secured_message_size = sizeof(secured_message);
+        transport_header_size = spdm_transport_none_get_header_size(spdm_context);
+        secured_message = (uint8_t *)*transport_message + transport_header_size;
+        secured_message_size = *transport_message_size - transport_header_size;
         status = libspdm_encode_secured_message(
             secured_message_context, *session_id, is_requester,
             app_message_size, app_message, &secured_message_size,
@@ -172,7 +144,7 @@ return_status spdm_transport_none_encode_message(
         }
 
         /* secured message to secured MCTP message*/
-        status = transport_encode_message(
+        status = none_encode_message(
             session_id, secured_message_size, secured_message,
             transport_message_size, transport_message);
         if (RETURN_ERROR(status)) {
@@ -182,7 +154,7 @@ return_status spdm_transport_none_encode_message(
         }
     } else {
         /* SPDM message to normal MCTP message*/
-        status = transport_encode_message(NULL, message_size, message,
+        status = none_encode_message(NULL, message_size, message,
                           transport_message_size,
                           transport_message);
         if (RETURN_ERROR(status)) {
@@ -214,8 +186,12 @@ return_status spdm_transport_none_encode_message(
   @param  is_requester                  Indicates if it is a requester message.
   @param  transport_message_size         size in bytes of the transport message data buffer.
   @param  transport_message             A pointer to a source buffer to store the transport message.
+                                       For normal message or secured message, it shall point to acquired receiver buffer.
   @param  message_size                  size in bytes of the message data buffer.
   @param  message                      A pointer to a destination buffer to store the message.
+                                       On input, it shall be msg_buf_ptr from receiver buffer.
+                                       On output, for normal message, it will point to the original receiver buffer.
+                                       On output, for secured message, it will point to the scratch buffer in spdm_context.
 
   @retval RETURN_SUCCESS               The message is decoded successfully.
   @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
@@ -225,21 +201,17 @@ return_status spdm_transport_none_decode_message(
     void *spdm_context, uint32_t **session_id,
     bool *is_app_message, bool is_requester,
     uintn transport_message_size, const void *transport_message,
-    uintn *message_size, void *message)
+    uintn *message_size, void **message)
 {
     return_status status;
-    transport_decode_message_func transport_decode_message;
     uint32_t *secured_message_session_id;
-    uint8_t secured_message[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
+    uint8_t *secured_message;
     uintn secured_message_size;
-    uint8_t app_message[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
+    uint8_t *app_message;
     uintn app_message_size;
     libspdm_secured_message_callbacks_t spdm_secured_message_callbacks;
     void *secured_message_context;
     libspdm_error_struct_t spdm_error;
-    uintn init_message_size;
-
-    init_message_size = *message_size;
 
     spdm_error.error_code = 0;
     spdm_error.session_id = 0;
@@ -256,14 +228,11 @@ return_status spdm_transport_none_decode_message(
         return RETURN_UNSUPPORTED;
     }
 
-    transport_decode_message = none_decode_message;
-
     secured_message_session_id = NULL;
     /* Detect received message*/
-    secured_message_size = sizeof(secured_message);
-    status = transport_decode_message(
+    status = none_decode_message(
         &secured_message_session_id, transport_message_size,
-        transport_message, &secured_message_size, secured_message);
+        transport_message, &secured_message_size, (void **)&secured_message);
     if (RETURN_ERROR(status)) {
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n", status));
         return RETURN_UNSUPPORTED;
@@ -284,11 +253,11 @@ return_status spdm_transport_none_decode_message(
         }
 
         /* Secured message to APP message*/
-        app_message_size = sizeof(app_message);
+        libspdm_get_scratch_buffer (spdm_context, (void **)&app_message, &app_message_size);
         status = libspdm_decode_secured_message(
             secured_message_context, *secured_message_session_id,
             is_requester, secured_message_size, secured_message,
-            &app_message_size, app_message,
+            &app_message_size, (void **)&app_message,
             &spdm_secured_message_callbacks);
         if (RETURN_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
@@ -301,18 +270,14 @@ return_status spdm_transport_none_decode_message(
         }
 
         /* APP message to SPDM message.*/
-        status = transport_decode_message(&secured_message_session_id,
+        status = none_decode_message(&secured_message_session_id,
                           app_message_size, app_message,
                           message_size, message);
         if (RETURN_ERROR(status)) {
             *is_app_message = true;
             /* just return APP message.*/
-            if (*message_size < app_message_size) {
-                *message_size = app_message_size;
-                return RETURN_BUFFER_TOO_SMALL;
-            }
+            *message = app_message;
             *message_size = app_message_size;
-            libspdm_copy_mem(message, init_message_size, app_message, *message_size);
             return RETURN_SUCCESS;
         } else {
             *is_app_message = false;
@@ -328,7 +293,7 @@ return_status spdm_transport_none_decode_message(
         }
     } else {
         /* get non-secured message*/
-        status = transport_decode_message(&secured_message_session_id,
+        status = none_decode_message(&secured_message_session_id,
                           transport_message_size,
                           transport_message,
                           message_size, message);
