@@ -18,6 +18,7 @@ uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 extern SOCKET m_socket;
 
 extern void *m_spdm_context;
+extern void *m_scratch_buffer;
 
 void *spdm_client_init(void);
 
@@ -184,6 +185,7 @@ done:
 
     if (m_spdm_context != NULL) {
         free(m_spdm_context);
+        free(m_scratch_buffer);
     }
 
     closesocket(platform_socket);

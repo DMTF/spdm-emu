@@ -92,6 +92,19 @@ bool receive_platform_data(SOCKET socket, uint32_t *command,
                   uint8_t *receive_buffer,
                   uintn *bytes_to_receive);
 
+
+return_status spdm_device_acquire_sender_buffer (
+    void *context, uintn *max_msg_size, void **msg_buf_ptr);
+
+void spdm_device_release_sender_buffer (
+    void *context, const void *msg_buf_ptr);
+
+return_status spdm_device_acquire_receiver_buffer (
+    void *context, uintn *max_msg_size, void **msg_buf_ptr);
+
+void spdm_device_release_receiver_buffer (
+    void *context, const void *msg_buf_ptr);
+
 bool libspdm_read_input_file(const char *file_name, void **file_data,
             uintn *file_size);
 
@@ -106,5 +119,9 @@ void append_pcap_packet_data(const void *header, uintn header_size,
                  const void *data, uintn size);
 
 void process_args(char *program_name, int argc, char *argv[]);
+
+/* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
+extern uint8_t m_send_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
+extern uintn m_send_receive_buffer_size;
 
 #endif

@@ -7,10 +7,9 @@
 #include "spdm_responder_emu.h"
 
 void *m_spdm_context;
+void *m_scratch_buffer;
 
 extern uint32_t m_command;
-extern uintn m_receive_buffer_size;
-extern uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 
 extern SOCKET m_server_socket;
 
@@ -62,15 +61,16 @@ return_status spdm_device_send_message(void *spdm_context,
 
 return_status spdm_device_receive_message(void *spdm_context,
                       uintn *response_size,
-                      void *response,
+                      void **response,
                       uint64_t timeout)
 {
     bool result;
 
-    m_receive_buffer_size = sizeof(m_receive_buffer);
+    assert (*response == m_send_receive_buffer);
+    m_send_receive_buffer_size = sizeof(m_send_receive_buffer);
     result =
         receive_platform_data(m_server_socket, &m_command,
-                      m_receive_buffer, &m_receive_buffer_size);
+                      m_send_receive_buffer, &m_send_receive_buffer_size);
     if (!result) {
         printf("receive_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -91,12 +91,9 @@ return_status spdm_device_receive_message(void *spdm_context,
         
         return RETURN_UNSUPPORTED;
     }
-    if (*response_size < m_receive_buffer_size) {
-        *response_size = m_receive_buffer_size;
-        return RETURN_BUFFER_TOO_SMALL;
-    }
-    *response_size = m_receive_buffer_size;
-    libspdm_copy_mem(response, *response_size, m_receive_buffer, m_receive_buffer_size);
+    *response = m_send_receive_buffer;
+    *response_size = m_send_receive_buffer_size;
+
     return RETURN_SUCCESS;
 }
 
@@ -108,6 +105,7 @@ void *spdm_server_init(void)
     uint16_t data16;
     uint32_t data32;
     spdm_version_number_t spdm_version;
+    uintn scratch_buffer_size;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -117,23 +115,41 @@ void *spdm_server_init(void)
     }
     spdm_context = m_spdm_context;
     libspdm_init_context(spdm_context);
+    scratch_buffer_size = libspdm_get_sizeof_required_scratch_buffer(m_spdm_context);
+    m_scratch_buffer = (void *)malloc(scratch_buffer_size);
+    if (m_scratch_buffer == NULL) {
+        free(m_spdm_context);
+        m_spdm_context = NULL;
+        return NULL;
+    }
+
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
                      spdm_device_receive_message);
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
             spdm_context, libspdm_transport_mctp_encode_message,
-            libspdm_transport_mctp_decode_message);
+            libspdm_transport_mctp_decode_message,
+            libspdm_transport_mctp_get_header_size);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         libspdm_register_transport_layer_func(
             spdm_context, libspdm_transport_pci_doe_encode_message,
-            libspdm_transport_pci_doe_decode_message);
+            libspdm_transport_pci_doe_decode_message,
+            libspdm_transport_pci_doe_get_header_size);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context, spdm_transport_none_encode_message,
-            spdm_transport_none_decode_message);
+            spdm_transport_none_decode_message,
+            spdm_transport_none_get_header_size);
     } else {
         return NULL;
     }
+    libspdm_register_device_buffer_func(spdm_context,
+        spdm_device_acquire_sender_buffer,
+        spdm_device_release_sender_buffer,
+        spdm_device_acquire_receiver_buffer,
+        spdm_device_release_receiver_buffer);
+
+    libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
     if (m_load_state_file_name != NULL) {
         spdm_load_negotiated_state(spdm_context, false);
