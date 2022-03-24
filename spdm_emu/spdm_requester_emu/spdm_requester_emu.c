@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_requester_emu.h"
 
@@ -25,10 +25,10 @@ void *spdm_client_init(void);
 return_status pci_doe_init_request(void);
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
-                  const uint8_t *send_buffer, size_t bytes_to_send,
-                  uint32_t *response,
-                  size_t *bytes_to_receive,
-                  uint8_t *receive_buffer);
+                               const uint8_t *send_buffer, size_t bytes_to_send,
+                               uint32_t *response,
+                               size_t *bytes_to_receive,
+                               uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
 return_status do_measurement_via_spdm(const uint32_t *session_id);
@@ -55,18 +55,18 @@ bool init_client(SOCKET *sock, uint16_t port)
 #else
                errno
 #endif
-        );
+               );
         return false;
     }
 
     server_addr.sin_family = AF_INET;
     libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
-         sizeof(struct in_addr));
+                     sizeof(struct in_addr));
     server_addr.sin_port = htons(port);
     libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
 
     ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
-              sizeof(server_addr));
+                      sizeof(server_addr));
     if (ret_val == SOCKET_ERROR) {
         printf("Connect Error - %x\n",
 #ifdef _MSC_VER
@@ -74,7 +74,7 @@ bool init_client(SOCKET *sock, uint16_t port)
 #else
                errno
 #endif
-        );
+               );
         closesocket(client_socket);
         return false;
     }

@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #ifndef __SPDM_TEST_H__
 #define __SPDM_TEST_H__
@@ -86,11 +86,11 @@ void dump_data(const uint8_t *buffer, size_t buffer_size);
 void dump_hex(const uint8_t *buffer, size_t buffer_size);
 
 bool send_platform_data(SOCKET socket, uint32_t command,
-               const uint8_t *send_buffer, size_t bytes_to_send);
+                        const uint8_t *send_buffer, size_t bytes_to_send);
 
 bool receive_platform_data(SOCKET socket, uint32_t *command,
-                  uint8_t *receive_buffer,
-                  size_t *bytes_to_receive);
+                           uint8_t *receive_buffer,
+                           size_t *bytes_to_receive);
 
 
 return_status spdm_device_acquire_sender_buffer (
@@ -106,17 +106,17 @@ void spdm_device_release_receiver_buffer (
     void *context, const void *msg_buf_ptr);
 
 bool libspdm_read_input_file(const char *file_name, void **file_data,
-            size_t *file_size);
+                             size_t *file_size);
 
 bool write_output_file(const char *file_name, const void *file_data,
-              size_t file_size);
+                       size_t file_size);
 
 bool open_pcap_packet_file(const char *pcap_file_name);
 
 void close_pcap_packet_file(void);
 
 void append_pcap_packet_data(const void *header, size_t header_size,
-                 const void *data, size_t size);
+                             const void *data, size_t size);
 
 void process_args(char *program_name, int argc, char *argv[]);
 

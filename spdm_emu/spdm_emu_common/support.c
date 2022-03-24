@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_emu.h"
 
@@ -48,7 +48,7 @@ void dump_hex(const uint8_t *data, size_t size)
 }
 
 bool libspdm_read_input_file(const char *file_name, void **file_data,
-            size_t *file_size)
+                             size_t *file_size)
 {
     FILE *fp_in;
     size_t temp_result;
@@ -84,7 +84,7 @@ bool libspdm_read_input_file(const char *file_name, void **file_data,
 }
 
 bool write_output_file(const char *file_name, const void *file_data,
-              size_t file_size)
+                       size_t file_size)
 {
     FILE *fp_out;
 

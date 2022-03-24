@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #ifndef __SPDM_EMU_NV_STORAGE_LIB_H__
 #define __SPDM_EMU_NV_STORAGE_LIB_H__
@@ -35,20 +35,20 @@ typedef struct {
 #pragma pack()
 
 /**
-  Load the negotiated_state from NV storage to an SPDM context.
-*/
+ * Load the negotiated_state from NV storage to an SPDM context.
+ */
 return_status spdm_load_negotiated_state(void *spdm_context,
-                     bool is_requester);
+                                         bool is_requester);
 
 /**
-  Save the negotiated_state to NV storage from an SPDM context.
-*/
+ * Save the negotiated_state to NV storage from an SPDM context.
+ */
 return_status spdm_save_negotiated_state(void *spdm_context,
-                     bool is_requester);
+                                         bool is_requester);
 
 /**
-  Clear the negotiated_state in the NV storage.
-*/
+ * Clear the negotiated_state in the NV storage.
+ */
 return_status spdm_clear_negotiated_state(void *spdm_context);
 
 #endif

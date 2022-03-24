@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_emu.h"
 
@@ -16,13 +16,13 @@ uint8_t m_send_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 size_t m_send_receive_buffer_size;
 
 /**
-  Read number of bytes data in blocking mode.
-
-  If there is no enough data in socket, this function will wait.
-  This function will return if enough data is read, or socket error.
-**/
+ * Read number of bytes data in blocking mode.
+ *
+ * If there is no enough data in socket, this function will wait.
+ * This function will return if enough data is read, or socket error.
+ **/
 bool read_bytes(const SOCKET socket, uint8_t *buffer,
-           uint32_t number_of_bytes)
+                uint32_t number_of_bytes)
 {
     int32_t result;
     uint32_t number_received;
@@ -30,7 +30,7 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
     number_received = 0;
     while (number_received < number_of_bytes) {
         result = recv(socket, (char *)(buffer + number_received),
-                  number_of_bytes - number_received, 0);
+                      number_of_bytes - number_received, 0);
         if (result == -1) {
             printf("Receive error - 0x%x\n",
 #ifdef _MSC_VER
@@ -38,7 +38,7 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
 #else
                    errno
 #endif
-            );
+                   );
             return false;
         }
         if (result == 0) {
@@ -62,17 +62,17 @@ bool read_data32(const SOCKET socket, uint32_t *data)
 }
 
 /**
-  Read multiple bytes in blocking mode.
-
-  The length is presented as first 4 bytes in big endian.
-  The data follows the length.
-
-  If there is no enough data in socket, this function will wait.
-  This function will return if enough data is read, or socket error.
-**/
+ * Read multiple bytes in blocking mode.
+ *
+ * The length is presented as first 4 bytes in big endian.
+ * The data follows the length.
+ *
+ * If there is no enough data in socket, this function will wait.
+ * This function will return if enough data is read, or socket error.
+ **/
 bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
-                uint32_t *bytes_received,
-                uint32_t max_buffer_length)
+                         uint32_t *bytes_received,
+                         uint32_t max_buffer_length)
 {
     uint32_t length;
     bool result;
@@ -108,8 +108,8 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
 }
 
 bool receive_platform_data(const SOCKET socket, uint32_t *command,
-                  uint8_t *receive_buffer,
-                  size_t *bytes_to_receive)
+                           uint8_t *receive_buffer,
+                           size_t *bytes_to_receive)
 {
     bool result;
     uint32_t response;
@@ -142,7 +142,7 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
 
     bytes_received = 0;
     result = read_multiple_bytes(socket, receive_buffer, &bytes_received,
-                     (uint32_t)*bytes_to_receive);
+                                 (uint32_t)*bytes_to_receive);
     if (!result) {
         return result;
     }
@@ -154,20 +154,20 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
         break;
     case SOCKET_SPDM_COMMAND_NORMAL:
         if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
-            
+
             /* Append mctp_header_t for PCAP*/
-            
+
             mctp_header_t mctp_header;
             mctp_header.header_version = 0;
             mctp_header.destination_id = 0;
             mctp_header.source_id = 0;
             mctp_header.message_tag = 0xC0;
             append_pcap_packet_data(&mctp_header,
-                        sizeof(mctp_header),
-                        receive_buffer, bytes_received);
+                                    sizeof(mctp_header),
+                                    receive_buffer, bytes_received);
         } else {
             append_pcap_packet_data(NULL, 0, receive_buffer,
-                        bytes_received);
+                                    bytes_received);
         }
         break;
     }
@@ -176,12 +176,12 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
 }
 
 /**
-  Write number of bytes data in blocking mode.
-
-  This function will return if data is written, or socket error.
-**/
+ * Write number of bytes data in blocking mode.
+ *
+ * This function will return if data is written, or socket error.
+ **/
 bool write_bytes(const SOCKET socket, const uint8_t *buffer,
-            uint32_t number_of_bytes)
+                 uint32_t number_of_bytes)
 {
     int32_t result;
     uint32_t number_sent;
@@ -189,22 +189,22 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
     number_sent = 0;
     while (number_sent < number_of_bytes) {
         result = send(socket, (char *)(buffer + number_sent),
-                  number_of_bytes - number_sent, 0);
+                      number_of_bytes - number_sent, 0);
         if (result == -1) {
 #ifdef _MSC_VER
             if (WSAGetLastError() == 0x2745) {
                 printf("Client disconnected\n");
             } else {
 #endif
-                printf("Send error - 0x%x\n",
+            printf("Send error - 0x%x\n",
 #ifdef _MSC_VER
-                       WSAGetLastError()
+                   WSAGetLastError()
 #else
                    errno
 #endif
-                );
+                   );
 #ifdef _MSC_VER
-            }
+        }
 #endif
             return false;
         }
@@ -220,13 +220,13 @@ bool write_data32(const SOCKET socket, uint32_t data)
 }
 
 /**
-  Write multiple bytes.
-
-  The length is presented as first 4 bytes in big endian.
-  The data follows the length.
-**/
+ * Write multiple bytes.
+ *
+ * The length is presented as first 4 bytes in big endian.
+ * The data follows the length.
+ **/
 bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
-                 uint32_t bytes_to_send)
+                          uint32_t bytes_to_send)
 {
     bool result;
 
@@ -251,7 +251,7 @@ bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
 }
 
 bool send_platform_data(const SOCKET socket, uint32_t command,
-               const uint8_t *send_buffer, size_t bytes_to_send)
+                        const uint8_t *send_buffer, size_t bytes_to_send)
 {
     bool result;
     uint32_t request;
@@ -277,7 +277,7 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
     printf("\n");
 
     result = write_multiple_bytes(socket, send_buffer,
-                      (uint32_t)bytes_to_send);
+                                  (uint32_t)bytes_to_send);
     if (!result) {
         return result;
     }
@@ -288,20 +288,20 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
         break;
     case SOCKET_SPDM_COMMAND_NORMAL:
         if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
-            
+
             /* Append mctp_header_t for PCAP*/
-            
+
             mctp_header_t mctp_header;
             mctp_header.header_version = 0;
             mctp_header.destination_id = 0;
             mctp_header.source_id = 0;
             mctp_header.message_tag = 0xC0;
             append_pcap_packet_data(&mctp_header,
-                        sizeof(mctp_header),
-                        send_buffer, bytes_to_send);
+                                    sizeof(mctp_header),
+                                    send_buffer, bytes_to_send);
         } else {
             append_pcap_packet_data(NULL, 0, send_buffer,
-                        bytes_to_send);
+                                    bytes_to_send);
         }
         break;
     }
@@ -326,7 +326,7 @@ void spdm_device_release_sender_buffer (
     LIBSPDM_ASSERT (m_send_receive_buffer_acquired);
     LIBSPDM_ASSERT (msg_buf_ptr == m_send_receive_buffer);
     m_send_receive_buffer_acquired = false;
-    return ;
+    return;
 }
 
 return_status spdm_device_acquire_receiver_buffer (
@@ -346,5 +346,5 @@ void spdm_device_release_receiver_buffer (
     LIBSPDM_ASSERT (m_send_receive_buffer_acquired);
     LIBSPDM_ASSERT (msg_buf_ptr == m_send_receive_buffer);
     m_send_receive_buffer_acquired = false;
-    return ;
+    return;
 }

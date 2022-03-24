@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_requester_emu.h"
 
@@ -11,10 +11,10 @@ void *m_scratch_buffer;
 SOCKET m_socket;
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
-                  const uint8_t *send_buffer, size_t bytes_to_send,
-                  uint32_t *response,
-                  size_t *bytes_to_receive,
-                  uint8_t *receive_buffer)
+                               const uint8_t *send_buffer, size_t bytes_to_send,
+                               uint32_t *response,
+                               size_t *bytes_to_receive,
+                               uint8_t *receive_buffer)
 {
     bool result;
 
@@ -27,12 +27,12 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
 #else
                errno
 #endif
-        );
+               );
         return result;
     }
 
     result = receive_platform_data(socket, response, receive_buffer,
-                       bytes_to_receive);
+                                   bytes_to_receive);
     if (!result) {
         printf("receive_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -40,20 +40,20 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
 #else
                errno
 #endif
-        );
+               );
         return result;
     }
     return result;
 }
 
 return_status spdm_device_send_message(void *spdm_context,
-                       size_t request_size, const void *request,
-                       uint64_t timeout)
+                                       size_t request_size, const void *request,
+                                       uint64_t timeout)
 {
     bool result;
 
     result = send_platform_data(m_socket, SOCKET_SPDM_COMMAND_NORMAL,
-                    request, (uint32_t)request_size);
+                                request, (uint32_t)request_size);
     if (!result) {
         printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -61,22 +61,22 @@ return_status spdm_device_send_message(void *spdm_context,
 #else
                errno
 #endif
-        );
+               );
         return RETURN_DEVICE_ERROR;
     }
     return RETURN_SUCCESS;
 }
 
 return_status spdm_device_receive_message(void *spdm_context,
-                      size_t *response_size,
-                      void **response,
-                      uint64_t timeout)
+                                          size_t *response_size,
+                                          void **response,
+                                          uint64_t timeout)
 {
     bool result;
     uint32_t command;
 
     result = receive_platform_data(m_socket, &command, *response,
-                       response_size);
+                                   response_size);
     if (!result) {
         printf("receive_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -84,35 +84,35 @@ return_status spdm_device_receive_message(void *spdm_context,
 #else
                errno
 #endif
-        );
+               );
         return RETURN_DEVICE_ERROR;
     }
     return RETURN_SUCCESS;
 }
 
 /**
-  Send and receive an DOE message
-
-  @param request                       the PCI DOE request message, start from pci_doe_data_object_header_t.
-  @param request_size                  size in bytes of request.
-  @param response                      the PCI DOE response message, start from pci_doe_data_object_header_t.
-  @param response_size                 size in bytes of response.
-
-  @retval RETURN_SUCCESS               The request is sent and response is received.
-  @return ERROR                        The response is not received correctly.
-**/
+ * Send and receive an DOE message
+ *
+ * @param request                       the PCI DOE request message, start from pci_doe_data_object_header_t.
+ * @param request_size                  size in bytes of request.
+ * @param response                      the PCI DOE response message, start from pci_doe_data_object_header_t.
+ * @param response_size                 size in bytes of response.
+ *
+ * @retval RETURN_SUCCESS               The request is sent and response is received.
+ * @return ERROR                        The response is not received correctly.
+ **/
 return_status pci_doe_send_receive_data(const void *pci_doe_context,
-                      size_t request_size, const void *request,
-                      size_t *response_size, void *response)
+                                        size_t request_size, const void *request,
+                                        size_t *response_size, void *response)
 {
     bool result;
     uint32_t response_code;
 
     result = communicate_platform_data(
-                m_socket, SOCKET_SPDM_COMMAND_NORMAL,
-                request, request_size,
-                &response_code, response_size,
-                response);
+        m_socket, SOCKET_SPDM_COMMAND_NORMAL,
+        request, request_size,
+        &response_code, response_size,
+        response);
     if (!result) {
         return RETURN_DEVICE_ERROR;
     }
@@ -155,7 +155,7 @@ void *spdm_client_init(void)
     }
 
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
-                     spdm_device_receive_message);
+                                    spdm_device_receive_message);
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
             spdm_context, libspdm_transport_mctp_encode_message,
@@ -175,10 +175,10 @@ void *spdm_client_init(void)
         return NULL;
     }
     libspdm_register_device_buffer_func(spdm_context,
-        spdm_device_acquire_sender_buffer,
-        spdm_device_release_sender_buffer,
-        spdm_device_acquire_receiver_buffer,
-        spdm_device_release_receiver_buffer);
+                                        spdm_device_acquire_sender_buffer,
+                                        spdm_device_release_sender_buffer,
+                                        spdm_device_acquire_receiver_buffer,
+                                        spdm_device_release_receiver_buffer);
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
     if (m_load_state_file_name != NULL) {
@@ -190,7 +190,7 @@ void *spdm_client_init(void)
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
-                  &spdm_version, sizeof(spdm_version));
+                         &spdm_version, sizeof(spdm_version));
     }
 
     if (m_use_secured_message_version != 0) {
@@ -198,9 +198,9 @@ void *spdm_client_init(void)
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
         spdm_version = m_use_secured_message_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context,
-                      LIBSPDM_DATA_SECURED_MESSAGE_VERSION,
-                      &parameter, &spdm_version,
-                      sizeof(spdm_version));
+                         LIBSPDM_DATA_SECURED_MESSAGE_VERSION,
+                         &parameter, &spdm_version,
+                         sizeof(spdm_version));
     }
 
     libspdm_zero_mem(&parameter, sizeof(parameter));
@@ -208,38 +208,38 @@ void *spdm_client_init(void)
 
     data8 = 0;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
-              &parameter, &data8, sizeof(data8));
+                     &parameter, &data8, sizeof(data8));
     data32 = m_use_requester_capability_flags;
     if (m_use_capability_flags != 0) {
         data32 = m_use_capability_flags;
     }
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
-              &data32, sizeof(data32));
+                     &data32, sizeof(data32));
 
     data8 = m_support_measurement_spec;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
-              &data8, sizeof(data8));
+                     &data8, sizeof(data8));
     data32 = m_support_asym_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_ASYM_ALGO, &parameter,
-              &data32, sizeof(data32));
+                     &data32, sizeof(data32));
     data32 = m_support_hash_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
-              &data32, sizeof(data32));
+                     &data32, sizeof(data32));
     data16 = m_support_dhe_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP, &parameter,
-              &data16, sizeof(data16));
+                     &data16, sizeof(data16));
     data16 = m_support_aead_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_AEAD_CIPHER_SUITE, &parameter,
-              &data16, sizeof(data16));
+                     &data16, sizeof(data16));
     data16 = m_support_req_asym_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
-              &data16, sizeof(data16));
+                     &data16, sizeof(data16));
     data16 = m_support_key_schedule_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter, &data16,
-              sizeof(data16));
+                     sizeof(data16));
     data8 = m_support_other_params_support;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
-              &data8, sizeof(data8));
+                     &data8, sizeof(data8));
 
     if (m_load_state_file_name == NULL) {
         /* Skip if state is loaded*/
@@ -259,7 +259,7 @@ void *spdm_client_init(void)
         parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
         data_size = sizeof(spdm_version);
         libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
-                  &spdm_version, &data_size);
+                         &spdm_version, &data_size);
         m_use_version = spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT;
     }
 
@@ -268,39 +268,39 @@ void *spdm_client_init(void)
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
-              &data32, &data_size);
+                     &data32, &data_size);
     LIBSPDM_ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
-              &data32, &data_size);
+                     &data32, &data_size);
     m_use_measurement_hash_algo = data32;
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_BASE_ASYM_ALGO, &parameter,
-              &data32, &data_size);
+                     &data32, &data_size);
     m_use_asym_algo = data32;
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
-              &data32, &data_size);
+                     &data32, &data_size);
     m_use_hash_algo = data32;
     data_size = sizeof(data16);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
-              &data16, &data_size);
+                     &data16, &data_size);
     m_use_req_asym_algo = data16;
 
     if ((m_use_slot_id == 0xFF) ||
         ((m_use_requester_capability_flags &
           SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0)) {
         res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
-                                  m_use_asym_algo,
-                                  &data, &data_size,
-                                  NULL, NULL);
+                                                              m_use_asym_algo,
+                                                              &data, &data_size,
+                                                              NULL, NULL);
         if (res) {
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
-                      LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
-                      &parameter, data, data_size);
+                             LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
+                             &parameter, data, data_size);
             /* Do not free it.*/
         } else {
             printf("read_responder_public_certificate_chain fail!\n");
@@ -310,18 +310,19 @@ void *spdm_client_init(void)
         }
     } else {
         res = libspdm_read_responder_root_public_certificate(m_use_hash_algo,
-                                 m_use_asym_algo,
-                                 &data, &data_size,
-                                 &hash, &hash_size);
-        libspdm_x509_get_cert_from_cert_chain((uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
+                                                             m_use_asym_algo,
+                                                             &data, &data_size,
+                                                             &hash, &hash_size);
+        libspdm_x509_get_cert_from_cert_chain(
+            (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
             data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
             &root_cert, &root_cert_size);
         if (res) {
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
-                      LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
-                      &parameter, root_cert, root_cert_size);
+                             LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+                             &parameter, root_cert, root_cert_size);
             /* Do not free it.*/
         } else {
             printf("read_responder_root_public_certificate fail!\n");
@@ -333,21 +334,21 @@ void *spdm_client_init(void)
 
     if (m_use_req_asym_algo != 0) {
         res = libspdm_read_requester_public_certificate_chain(m_use_hash_algo,
-                                m_use_req_asym_algo,
-                                &data, &data_size, NULL,
-                                NULL);
+                                                              m_use_req_asym_algo,
+                                                              &data, &data_size, NULL,
+                                                              NULL);
         if (res) {
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             data8 = m_use_slot_count;
             libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SLOT_COUNT,
-                    &parameter, &data8, sizeof(data8));
+                             &parameter, &data8, sizeof(data8));
 
             for (index = 0; index < m_use_slot_count; index++) {
                 parameter.additional_data[0] = index;
                 libspdm_set_data(spdm_context,
-                        LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                        &parameter, data, data_size);
+                                 LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                 &parameter, data, data_size);
             }
             /* do not free it*/
         } else {
@@ -359,8 +360,8 @@ void *spdm_client_init(void)
     }
 
     status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
-                   LIBSPDM_TEST_PSK_HINT_STRING,
-                   sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
+                              LIBSPDM_TEST_PSK_HINT_STRING,
+                              sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
     if (RETURN_ERROR(status)) {
         printf("libspdm_set_data - %x\n", (uint32_t)status);
     }

@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_emu.h"
 #include "industry_standard/pcap.h"
@@ -40,7 +40,7 @@ bool open_pcap_packet_file(const char *pcap_file_name)
     }
 
     if ((fwrite(&pcap_global_header, 1, sizeof(pcap_global_header),
-            m_pcap_file)) != sizeof(pcap_global_header)) {
+                m_pcap_file)) != sizeof(pcap_global_header)) {
         printf("!!!Write pcap file error!!!\n");
         close_pcap_packet_file();
         return false;
@@ -58,7 +58,7 @@ void close_pcap_packet_file(void)
 }
 
 void append_pcap_packet_data(const void *header, size_t header_size,
-                 const void *data, size_t size)
+                             const void *data, size_t size)
 {
     pcap_packet_header_t pcap_packet_header;
     size_t total_size;
@@ -74,12 +74,12 @@ void append_pcap_packet_data(const void *header, size_t header_size,
 
         pcap_packet_header.incl_len =
             (uint32_t)((total_size > PCAP_PACKET_MAX_SIZE) ?
-                     PCAP_PACKET_MAX_SIZE :
-                     total_size);
+                       PCAP_PACKET_MAX_SIZE :
+                       total_size);
         pcap_packet_header.orig_len = (uint32_t)total_size;
 
         if ((fwrite(&pcap_packet_header, 1, sizeof(pcap_packet_header),
-                m_pcap_file)) != sizeof(pcap_packet_header)) {
+                    m_pcap_file)) != sizeof(pcap_packet_header)) {
             printf("!!!Write pcap file error!!!\n");
             close_pcap_packet_file();
             return;
