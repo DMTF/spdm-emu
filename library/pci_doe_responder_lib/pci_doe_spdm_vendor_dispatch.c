@@ -32,13 +32,13 @@ pci_doe_spdm_dispatch_struct_t m_pci_doe_spdm_dispatch[] = {
 **/
 return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_doe_context,
     void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size)
+    const void *request, size_t request_size,
+    void *response, size_t *response_size)
 {
     const pci_doe_spdm_vendor_defined_request_t *spdm_request;
     pci_doe_spdm_vendor_defined_response_t *spdm_response;
-    uintn index;
-    uintn vendor_response_size;
+    size_t index;
+    size_t vendor_response_size;
     return_status status;
 
     spdm_request = request;

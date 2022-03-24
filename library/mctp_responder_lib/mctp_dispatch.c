@@ -32,13 +32,13 @@ mctp_secured_app_dispatch_struct_t m_mctp_secured_app_dispatch[] = {
 **/
 return_status mctp_get_response_secured_app_request(const void *mctp_context,
     void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size)
+    const void *request, size_t request_size,
+    void *response, size_t *response_size)
 {
     const mctp_message_header_t *app_request;
     mctp_message_header_t *app_response;
-    uintn index;
-    uintn app_response_size;
+    size_t index;
+    size_t app_response_size;
     return_status status;
 
     app_request = request;

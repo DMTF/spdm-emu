@@ -21,8 +21,8 @@
     @return ERROR          The request is not processed.
 **/
 return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the SPDM vendor defined request and return the response.
@@ -37,8 +37,8 @@ return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
 **/
 return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_doe_context,
     void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 
 /* internal function only*/
@@ -57,8 +57,8 @@ return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_d
 typedef
 return_status
 (* pci_doe_get_response_func_t) (const void *pci_doe_context,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the DOE request and return the response.
@@ -72,8 +72,8 @@ return_status
     @return ERROR          The request is not processed.
 **/
 return_status pci_doe_get_response_discovery (const void *pci_doe_context,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the SPDM vendor defined request and return the response.
@@ -90,8 +90,8 @@ typedef
 return_status
 (* pci_doe_get_spdm_vendor_response_func_t) (const void *pci_doe_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the IDE_KM request and return the response.
@@ -106,8 +106,8 @@ return_status
 **/
 return_status pci_ide_km_get_response (const void *pci_doe_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the IDE_KM request and return the response.
@@ -124,8 +124,8 @@ typedef
 return_status
 (* pci_ide_km_get_response_func_t) (const void *pci_doe_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the IDE_KM request and return the response.
@@ -140,7 +140,7 @@ return_status
 **/
 return_status pci_ide_km_get_response_query (const void *pci_doe_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 #endif

@@ -35,11 +35,11 @@ void spdm_server_connection_state_callback(
 
 return_status spdm_get_response_vendor_defined_request(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
-    uintn request_size, const void *request, uintn *response_size,
+    size_t request_size, const void *request, size_t *response_size,
     void *response);
 
 return_status spdm_device_send_message(void *spdm_context,
-                       uintn request_size, const void *request,
+                       size_t request_size, const void *request,
                        uint64_t timeout)
 {
     bool result;
@@ -60,7 +60,7 @@ return_status spdm_device_send_message(void *spdm_context,
 }
 
 return_status spdm_device_receive_message(void *spdm_context,
-                      uintn *response_size,
+                      size_t *response_size,
                       void **response,
                       uint64_t timeout)
 {
@@ -105,7 +105,7 @@ void *spdm_server_init(void)
     uint16_t data16;
     uint32_t data32;
     spdm_version_number_t spdm_version;
-    uintn scratch_buffer_size;
+    size_t scratch_buffer_size;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -242,16 +242,16 @@ void spdm_server_connection_state_callback(
 {
     bool res;
     void *data;
-    uintn data_size;
+    size_t data_size;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
     uint16_t data16;
     uint32_t data32;
     return_status status;
     void *hash;
-    uintn hash_size;
+    size_t hash_size;
     uint8_t *root_cert;
-    uintn root_cert_size;
+    size_t root_cert_size;
     uint8_t index;
     spdm_version_number_t spdm_version;
 
@@ -400,7 +400,7 @@ void spdm_server_session_state_callback(void *spdm_context,
                     uint32_t session_id,
                     libspdm_session_state_t session_state)
 {
-    uintn data_size;
+    size_t data_size;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
 

@@ -11,7 +11,7 @@ void *m_pci_doe_context;
 return_status pci_doe_init_request()
 {
     pci_doe_data_object_protocol_t data_object_protocol[6];
-    uintn data_object_protocol_size;
+    size_t data_object_protocol_size;
     return_status  status;
     uint32_t index;
 

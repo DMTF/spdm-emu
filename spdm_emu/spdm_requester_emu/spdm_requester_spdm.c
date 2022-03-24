@@ -11,9 +11,9 @@ void *m_scratch_buffer;
 SOCKET m_socket;
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
-                  const uint8_t *send_buffer, uintn bytes_to_send,
+                  const uint8_t *send_buffer, size_t bytes_to_send,
                   uint32_t *response,
-                  uintn *bytes_to_receive,
+                  size_t *bytes_to_receive,
                   uint8_t *receive_buffer)
 {
     bool result;
@@ -47,7 +47,7 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
 }
 
 return_status spdm_device_send_message(void *spdm_context,
-                       uintn request_size, const void *request,
+                       size_t request_size, const void *request,
                        uint64_t timeout)
 {
     bool result;
@@ -68,7 +68,7 @@ return_status spdm_device_send_message(void *spdm_context,
 }
 
 return_status spdm_device_receive_message(void *spdm_context,
-                      uintn *response_size,
+                      size_t *response_size,
                       void **response,
                       uint64_t timeout)
 {
@@ -102,8 +102,8 @@ return_status spdm_device_receive_message(void *spdm_context,
   @return ERROR                        The response is not received correctly.
 **/
 return_status pci_doe_send_receive_data(const void *pci_doe_context,
-                      uintn request_size, const void *request,
-                      uintn *response_size, void *response)
+                      size_t request_size, const void *request,
+                      size_t *response_size, void *response)
 {
     bool result;
     uint32_t response_code;
@@ -126,17 +126,17 @@ void *spdm_client_init(void)
     return_status status;
     bool res;
     void *data;
-    uintn data_size;
+    size_t data_size;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
     uint16_t data16;
     uint32_t data32;
     void *hash;
-    uintn hash_size;
+    size_t hash_size;
     uint8_t *root_cert;
-    uintn root_cert_size;
+    size_t root_cert_size;
     spdm_version_number_t spdm_version;
-    uintn scratch_buffer_size;
+    size_t scratch_buffer_size;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 

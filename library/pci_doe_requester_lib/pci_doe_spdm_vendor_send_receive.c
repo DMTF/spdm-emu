@@ -27,19 +27,19 @@
 **/
 return_status pci_doe_spdm_vendor_send_receive_data (void *spdm_context, const uint32_t *session_id,
                     pci_protocol_header_t pci_protocol,
-                    const void *request, uintn request_size,
-                    void *response, uintn *response_size)
+                    const void *request, size_t request_size,
+                    void *response, size_t *response_size)
 {
     libspdm_data_parameter_t parameter;
     spdm_version_number_t spdm_version;
-    uintn data_size;
+    size_t data_size;
     return_status status;
     uint8_t request_buffer[sizeof(pci_doe_spdm_vendor_defined_request_t) + PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE];
     pci_doe_spdm_vendor_defined_request_t *spdm_request;
-    uintn spdm_request_size;
+    size_t spdm_request_size;
     uint8_t response_buffer[sizeof(pci_doe_spdm_vendor_defined_response_t) + PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE];
     pci_doe_spdm_vendor_defined_response_t *spdm_response;
-    uintn spdm_response_size;
+    size_t spdm_response_size;
 
     spdm_request = (void *)request_buffer;
     spdm_response = (void *)response_buffer;

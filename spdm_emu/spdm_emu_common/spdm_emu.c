@@ -319,10 +319,10 @@ value_string_entry_t m_exe_session_string_table[] = {
 };
 
 bool get_value_from_name(const value_string_entry_t *table,
-                uintn entry_count, const char *name,
+                size_t entry_count, const char *name,
                 uint32_t *value)
 {
-    uintn index;
+    size_t index;
 
     for (index = 0; index < entry_count; index++) {
         if (strcmp(name, table[index].name) == 0) {
@@ -334,7 +334,7 @@ bool get_value_from_name(const value_string_entry_t *table,
 }
 
 bool get_flags_from_name(const value_string_entry_t *table,
-                uintn entry_count, const char *name,
+                size_t entry_count, const char *name,
                 uint32_t *flags)
 {
     uint32_t value;
@@ -466,7 +466,7 @@ void process_args(char *program_name, int argc, char *argv[])
         if (strcmp(argv[0], "--cap") == 0) {
             if (argc >= 2) {
                 value_string_entry_t *CapabilitiesStringTable;
-                uintn count;
+                size_t count;
 
                 if (strcmp(program_name,
                        "spdm_requester_emu") == 0) {

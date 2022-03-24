@@ -22,8 +22,8 @@
 **/
 return_status mctp_get_response_secured_app_request(const void *mctp_context,
     void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /* internal function only*/
 
@@ -42,8 +42,8 @@ typedef
 return_status
 (* mctp_get_secured_app_request_func_t) (const void *mctp_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the PLDM request and return the response.
@@ -58,8 +58,8 @@ return_status
 **/
 return_status pldm_get_response_secured_app_request (const void *mctp_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the PLDM request and return the response.
@@ -76,8 +76,8 @@ typedef
 return_status
 (* pldm_get_secured_app_request_func_t) (const void *mctp_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 /**
     Process the PLDM request and return the response.
@@ -92,7 +92,7 @@ return_status
 **/
 return_status pldm_get_response_control_get_tid (const void *mctp_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size);
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
 
 #endif

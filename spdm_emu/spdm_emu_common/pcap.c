@@ -57,11 +57,11 @@ void close_pcap_packet_file(void)
     }
 }
 
-void append_pcap_packet_data(const void *header, uintn header_size,
-                 const void *data, uintn size)
+void append_pcap_packet_data(const void *header, size_t header_size,
+                 const void *data, size_t size)
 {
     pcap_packet_header_t pcap_packet_header;
-    uintn total_size;
+    size_t total_size;
 
     total_size = header_size + size;
 

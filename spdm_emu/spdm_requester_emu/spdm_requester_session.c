@@ -13,9 +13,9 @@ extern SOCKET m_socket;
 extern void *m_spdm_context;
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
-                  const uint8_t *send_buffer, uintn bytes_to_send,
+                  const uint8_t *send_buffer, size_t bytes_to_send,
                   uint32_t *response,
-                  uintn *bytes_to_receive,
+                  size_t *bytes_to_receive,
                   uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
@@ -45,7 +45,7 @@ return_status do_session_via_spdm(bool use_psk)
     uint32_t session_id;
     uint8_t heartbeat_period;
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
-    uintn response_size;
+    size_t response_size;
     bool result;
     uint32_t response;
 

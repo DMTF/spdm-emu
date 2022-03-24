@@ -13,7 +13,7 @@ uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
 
 bool m_send_receive_buffer_acquired = false;
 uint8_t m_send_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
-uintn m_send_receive_buffer_size;
+size_t m_send_receive_buffer_size;
 
 /**
   Read number of bytes data in blocking mode.
@@ -109,7 +109,7 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
 
 bool receive_platform_data(const SOCKET socket, uint32_t *command,
                   uint8_t *receive_buffer,
-                  uintn *bytes_to_receive)
+                  size_t *bytes_to_receive)
 {
     bool result;
     uint32_t response;
@@ -251,7 +251,7 @@ bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
 }
 
 bool send_platform_data(const SOCKET socket, uint32_t command,
-               const uint8_t *send_buffer, uintn bytes_to_send)
+               const uint8_t *send_buffer, size_t bytes_to_send)
 {
     bool result;
     uint32_t request;
@@ -310,7 +310,7 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
 }
 
 return_status spdm_device_acquire_sender_buffer (
-    void *context, uintn *max_msg_size, void **msg_buf_ptr)
+    void *context, size_t *max_msg_size, void **msg_buf_ptr)
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
     *max_msg_size = sizeof(m_send_receive_buffer);
@@ -330,7 +330,7 @@ void spdm_device_release_sender_buffer (
 }
 
 return_status spdm_device_acquire_receiver_buffer (
-    void *context, uintn *max_msg_size, void **msg_buf_ptr)
+    void *context, size_t *max_msg_size, void **msg_buf_ptr)
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
     *max_msg_size = sizeof(m_send_receive_buffer);

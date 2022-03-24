@@ -33,14 +33,14 @@ typedef struct {
 
 return_status pci_doe_discovery (const void *pci_doe_context,
     pci_doe_data_object_protocol_t *data_object_protocol,
-    uintn *data_object_protocol_size)
+    size_t *data_object_protocol_size)
 {
     doe_discovery_request_mine_t doe_request;
     doe_discovery_response_mine_t doe_response;
-    uintn response_size;
+    size_t response_size;
     return_status status;
-    uintn total_index;
-    uintn current_index;
+    size_t total_index;
+    size_t current_index;
 
     current_index = 0;
     total_index = *data_object_protocol_size /
@@ -54,7 +54,7 @@ return_status pci_doe_discovery (const void *pci_doe_context,
 
     do {
         if (total_index < 
-                (uintn)doe_request.doe_discovery_request.index + 1) {
+                (size_t)doe_request.doe_discovery_request.index + 1) {
             return RETURN_BUFFER_TOO_SMALL;
         }
 
