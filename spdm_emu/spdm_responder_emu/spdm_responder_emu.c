@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_responder_emu.h"
 
@@ -39,24 +39,24 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 #else
                errno
 #endif
-        );
+               );
         return false;
     }
 
-        /* When the program stops unexpectedly the used port will stay in the TIME_WAIT*/
-        /* state which prevents other programs from binding to this port until a timeout*/
-        /* triggers. This timeout may be 30s to 120s. In this state the responder cannot*/
-        /* be restarted since it cannot bind to its port.*/
-        /* To prevent this SO_REUSEADDR is applied to the socket which allows the*/
-        /* responder to bind to this port even if it is still in the TIME_WAIT state.*/
-    if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0){
+    /* When the program stops unexpectedly the used port will stay in the TIME_WAIT
+     * state which prevents other programs from binding to this port until a timeout
+     * triggers. This timeout may be 30s to 120s. In this state the responder cannot
+     * be restarted since it cannot bind to its port.
+     * To prevent this SO_REUSEADDR is applied to the socket which allows the
+     * responder to bind to this port even if it is still in the TIME_WAIT state.*/
+    if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
         printf("Cannot configure server listen socket.  Error is 0x%x\n",
 #ifdef _MSC_VER
                WSAGetLastError()
 #else
                errno
 #endif
-        );
+               );
         return false;
     }
 
@@ -65,7 +65,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     my_address.sin_family = AF_INET;
 
     res = bind(*listen_socket, (struct sockaddr *)&my_address,
-           sizeof(my_address));
+               sizeof(my_address));
     if (res == SOCKET_ERROR) {
         printf("Bind error.  Error is 0x%x\n",
 #ifdef _MSC_VER
@@ -73,7 +73,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 #else
                errno
 #endif
-        );
+               );
         closesocket(*listen_socket);
         return false;
     }
@@ -86,7 +86,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 #else
                errno
 #endif
-        );
+               );
         closesocket(*listen_socket);
         return false;
     }
@@ -115,9 +115,9 @@ bool platform_server(const SOCKET socket)
         switch (m_command) {
         case SOCKET_SPDM_COMMAND_TEST:
             result = send_platform_data(socket,
-                            SOCKET_SPDM_COMMAND_TEST,
-                            (uint8_t *)"Server Hello!",
-                            sizeof("Server Hello!"));
+                                        SOCKET_SPDM_COMMAND_TEST,
+                                        (uint8_t *)"Server Hello!",
+                                        sizeof("Server Hello!"));
             if (!result) {
                 printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -125,7 +125,7 @@ bool platform_server(const SOCKET socket)
 #else
                        errno
 #endif
-                );
+                       );
                 return true;
             }
             break;
@@ -143,7 +143,7 @@ bool platform_server(const SOCKET socket)
 #else
                        errno
 #endif
-                );
+                       );
                 return true;
             }
             break;
@@ -158,7 +158,7 @@ bool platform_server(const SOCKET socket)
 #else
                        errno
 #endif
-                );
+                       );
                 return true;
             }
             return false;
@@ -174,7 +174,7 @@ bool platform_server(const SOCKET socket)
 #else
                        errno
 #endif
-                );
+                       );
                 return true;
             }
             return true;
@@ -185,7 +185,9 @@ bool platform_server(const SOCKET socket)
                 SOCKET_TRANSPORT_TYPE_PCI_DOE) {
                 response_size = sizeof(response);
                 status = pci_doe_get_response_doe_request (m_pci_doe_context,
-                            m_send_receive_buffer, m_send_receive_buffer_size, response, &response_size);
+                                                           m_send_receive_buffer,
+                                                           m_send_receive_buffer_size, response,
+                                                           &response_size);
                 if (RETURN_ERROR(status)) {
                     /* unknown message*/
                     return true;
@@ -200,7 +202,7 @@ bool platform_server(const SOCKET socket)
 #else
                            errno
 #endif
-                    );
+                           );
                     return true;
                 }
             } else {
@@ -221,7 +223,7 @@ bool platform_server(const SOCKET socket)
 #else
                        errno
 #endif
-                );
+                       );
                 return true;
             }
             return true;
@@ -257,7 +259,7 @@ bool platform_server_routine(uint16_t port_number)
 #else
                    errno
 #endif
-            );
+                   );
 #ifdef _MSC_VER
             WSACleanup();
 #endif

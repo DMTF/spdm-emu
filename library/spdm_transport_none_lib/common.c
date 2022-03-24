@@ -1,85 +1,85 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF, Componolit. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF, Componolit. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
+ **/
 
 #include "library/spdm_transport_none_lib.h"
 #include "library/spdm_secured_message_lib.h"
 
 /**
-  Encode a normal message or secured message to a transport message.
-
-  @param  session_id                    Indicates if it is a secured message protected via SPDM session.
-                                       If session_id is NULL, it is a normal message.
-                                       If session_id is NOT NULL, it is a secured message.
-  @param  message_size                  size in bytes of the message data buffer.
-  @param  message                      A pointer to a source buffer to store the message.
-                                       For normal message, it will point to the acquired sender buffer.
-                                       For secured message, it will point to the scratch buffer in spdm_context.
-  @param  transport_message_size         size in bytes of the transport message data buffer.
-  @param  transport_message             A pointer to a destination buffer to store the transport message.
-                                       For normal message or secured message, it will point to acquired sender buffer.
-
-  @retval RETURN_SUCCESS               The message is encoded successfully.
-  @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
-**/
+ * Encode a normal message or secured message to a transport message.
+ *
+ * @param  session_id                    Indicates if it is a secured message protected via SPDM session.
+ *                                     If session_id is NULL, it is a normal message.
+ *                                     If session_id is NOT NULL, it is a secured message.
+ * @param  message_size                  size in bytes of the message data buffer.
+ * @param  message                      A pointer to a source buffer to store the message.
+ *                                     For normal message, it will point to the acquired sender buffer.
+ *                                     For secured message, it will point to the scratch buffer in spdm_context.
+ * @param  transport_message_size         size in bytes of the transport message data buffer.
+ * @param  transport_message             A pointer to a destination buffer to store the transport message.
+ *                                     For normal message or secured message, it will point to acquired sender buffer.
+ *
+ * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
+ **/
 return_status none_encode_message(const uint32_t *session_id, size_t message_size,
-                  const void *message,
-                  size_t *transport_message_size,
-                  void **transport_message);
+                                  const void *message,
+                                  size_t *transport_message_size,
+                                  void **transport_message);
 
 /**
-  Decode a transport message to a normal message or secured message.
-
-  @param  session_id                    Indicates if it is a secured message protected via SPDM session.
-                                       If *session_id is NULL, it is a normal message.
-                                       If *session_id is NOT NULL, it is a secured message.
-  @param  transport_message_size         size in bytes of the transport message data buffer.
-  @param  transport_message             A pointer to a source buffer to store the transport message.
-                                       For normal message or secured message, it will point to acquired receiver buffer.
-  @param  message_size                  size in bytes of the message data buffer.
-  @param  message                      A pointer to a destination buffer to store the message.
-                                       For normal message, it will point to the original receiver buffer.
-                                       For secured message, it will point to the scratch buffer in spdm_context.
-  @retval RETURN_SUCCESS               The message is encoded successfully.
-  @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
-**/
+ * Decode a transport message to a normal message or secured message.
+ *
+ * @param  session_id                    Indicates if it is a secured message protected via SPDM session.
+ *                                     If *session_id is NULL, it is a normal message.
+ *                                     If *session_id is NOT NULL, it is a secured message.
+ * @param  transport_message_size         size in bytes of the transport message data buffer.
+ * @param  transport_message             A pointer to a source buffer to store the transport message.
+ *                                     For normal message or secured message, it will point to acquired receiver buffer.
+ * @param  message_size                  size in bytes of the message data buffer.
+ * @param  message                      A pointer to a destination buffer to store the message.
+ *                                     For normal message, it will point to the original receiver buffer.
+ *                                     For secured message, it will point to the scratch buffer in spdm_context.
+ * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
+ **/
 return_status none_decode_message(uint32_t **session_id,
-                  size_t transport_message_size,
-                  const void *transport_message,
-                  size_t *message_size,
-                  void **message);
+                                  size_t transport_message_size,
+                                  const void *transport_message,
+                                  size_t *message_size,
+                                  void **message);
 
 /**
-  Encode an SPDM or APP message to a transport layer message.
-
-  For normal SPDM message, it adds the transport layer wrapper.
-  For secured SPDM message, it encrypts a secured message then adds the transport layer wrapper.
-  For secured APP message, it encrypts a secured message then adds the transport layer wrapper.
-
-  The APP message is encoded to a secured message directly in SPDM session.
-  The APP message format is defined by the transport layer.
-  Take MCTP as example: APP message == MCTP header (MCTP_MESSAGE_TYPE_SPDM) + SPDM message
-
-  @param  spdm_context                  A pointer to the SPDM context.
-  @param  session_id                    Indicates if it is a secured message protected via SPDM session.
-                                       If session_id is NULL, it is a normal message.
-                                       If session_id is NOT NULL, it is a secured message.
-  @param  is_app_message                 Indicates if it is an APP message or SPDM message.
-  @param  is_requester                  Indicates if it is a requester message.
-  @param  message_size                  size in bytes of the message data buffer.
-  @param  message                      A pointer to a source buffer to store the message.
-                                       For normal message, it shall point to the acquired sender buffer.
-                                       For secured message, it shall point to the scratch buffer in spdm_context.
-  @param  transport_message_size         size in bytes of the transport message data buffer.
-  @param  transport_message             A pointer to a destination buffer to store the transport message.
-                                       On input, it shall be msg_buf_ptr from sender buffer.
-                                       On output, it will point to acquired sender buffer.
-
-  @retval RETURN_SUCCESS               The message is encoded successfully.
-  @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
-**/
+ * Encode an SPDM or APP message to a transport layer message.
+ *
+ * For normal SPDM message, it adds the transport layer wrapper.
+ * For secured SPDM message, it encrypts a secured message then adds the transport layer wrapper.
+ * For secured APP message, it encrypts a secured message then adds the transport layer wrapper.
+ *
+ * The APP message is encoded to a secured message directly in SPDM session.
+ * The APP message format is defined by the transport layer.
+ * Take MCTP as example: APP message == MCTP header (MCTP_MESSAGE_TYPE_SPDM) + SPDM message
+ *
+ * @param  spdm_context                  A pointer to the SPDM context.
+ * @param  session_id                    Indicates if it is a secured message protected via SPDM session.
+ *                                     If session_id is NULL, it is a normal message.
+ *                                     If session_id is NOT NULL, it is a secured message.
+ * @param  is_app_message                 Indicates if it is an APP message or SPDM message.
+ * @param  is_requester                  Indicates if it is a requester message.
+ * @param  message_size                  size in bytes of the message data buffer.
+ * @param  message                      A pointer to a source buffer to store the message.
+ *                                     For normal message, it shall point to the acquired sender buffer.
+ *                                     For secured message, it shall point to the scratch buffer in spdm_context.
+ * @param  transport_message_size         size in bytes of the transport message data buffer.
+ * @param  transport_message             A pointer to a destination buffer to store the transport message.
+ *                                     On input, it shall be msg_buf_ptr from sender buffer.
+ *                                     On output, it will point to acquired sender buffer.
+ *
+ * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
+ **/
 return_status spdm_transport_none_encode_message(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     bool is_requester, size_t message_size, const void *message,
@@ -116,13 +116,13 @@ return_status spdm_transport_none_encode_message(
         if (!is_app_message) {
             /* SPDM message to APP message*/
             status = none_encode_message(NULL, message_size,
-                              message,
-                              &app_message_size,
-                              &app_message);
+                                         message,
+                                         &app_message_size,
+                                         &app_message);
             if (RETURN_ERROR(status)) {
                 LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
-                       "transport_encode_message - %p\n",
-                       status));
+                               "transport_encode_message - %p\n",
+                               status));
                 return RETURN_UNSUPPORTED;
             }
         } else {
@@ -139,7 +139,7 @@ return_status spdm_transport_none_encode_message(
             secured_message, &spdm_secured_message_callbacks);
         if (RETURN_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
-                   "libspdm_encode_secured_message - %p\n", status));
+                           "libspdm_encode_secured_message - %p\n", status));
             return status;
         }
 
@@ -149,17 +149,17 @@ return_status spdm_transport_none_encode_message(
             transport_message_size, transport_message);
         if (RETURN_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
-                   status));
+                           status));
             return RETURN_UNSUPPORTED;
         }
     } else {
         /* SPDM message to normal MCTP message*/
         status = none_encode_message(NULL, message_size, message,
-                          transport_message_size,
-                          transport_message);
+                                     transport_message_size,
+                                     transport_message);
         if (RETURN_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
-                   status));
+                           status));
             return RETURN_UNSUPPORTED;
         }
     }
@@ -168,35 +168,35 @@ return_status spdm_transport_none_encode_message(
 }
 
 /**
-  Decode an SPDM or APP message from a transport layer message.
-
-  For normal SPDM message, it removes the transport layer wrapper,
-  For secured SPDM message, it removes the transport layer wrapper, then decrypts and verifies a secured message.
-  For secured APP message, it removes the transport layer wrapper, then decrypts and verifies a secured message.
-
-  The APP message is decoded from a secured message directly in SPDM session.
-  The APP message format is defined by the transport layer.
-  Take MCTP as example: APP message == MCTP header (MCTP_MESSAGE_TYPE_SPDM) + SPDM message
-
-  @param  spdm_context                  A pointer to the SPDM context.
-  @param  session_id                    Indicates if it is a secured message protected via SPDM session.
-                                       If *session_id is NULL, it is a normal message.
-                                       If *session_id is NOT NULL, it is a secured message.
-  @param  is_app_message                 Indicates if it is an APP message or SPDM message.
-  @param  is_requester                  Indicates if it is a requester message.
-  @param  transport_message_size         size in bytes of the transport message data buffer.
-  @param  transport_message             A pointer to a source buffer to store the transport message.
-                                       For normal message or secured message, it shall point to acquired receiver buffer.
-  @param  message_size                  size in bytes of the message data buffer.
-  @param  message                      A pointer to a destination buffer to store the message.
-                                       On input, it shall be msg_buf_ptr from receiver buffer.
-                                       On output, for normal message, it will point to the original receiver buffer.
-                                       On output, for secured message, it will point to the scratch buffer in spdm_context.
-
-  @retval RETURN_SUCCESS               The message is decoded successfully.
-  @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
-  @retval RETURN_UNSUPPORTED           The transport_message is unsupported.
-**/
+ * Decode an SPDM or APP message from a transport layer message.
+ *
+ * For normal SPDM message, it removes the transport layer wrapper,
+ * For secured SPDM message, it removes the transport layer wrapper, then decrypts and verifies a secured message.
+ * For secured APP message, it removes the transport layer wrapper, then decrypts and verifies a secured message.
+ *
+ * The APP message is decoded from a secured message directly in SPDM session.
+ * The APP message format is defined by the transport layer.
+ * Take MCTP as example: APP message == MCTP header (MCTP_MESSAGE_TYPE_SPDM) + SPDM message
+ *
+ * @param  spdm_context                  A pointer to the SPDM context.
+ * @param  session_id                    Indicates if it is a secured message protected via SPDM session.
+ *                                     If *session_id is NULL, it is a normal message.
+ *                                     If *session_id is NOT NULL, it is a secured message.
+ * @param  is_app_message                 Indicates if it is an APP message or SPDM message.
+ * @param  is_requester                  Indicates if it is a requester message.
+ * @param  transport_message_size         size in bytes of the transport message data buffer.
+ * @param  transport_message             A pointer to a source buffer to store the transport message.
+ *                                     For normal message or secured message, it shall point to acquired receiver buffer.
+ * @param  message_size                  size in bytes of the message data buffer.
+ * @param  message                      A pointer to a destination buffer to store the message.
+ *                                     On input, it shall be msg_buf_ptr from receiver buffer.
+ *                                     On output, for normal message, it will point to the original receiver buffer.
+ *                                     On output, for secured message, it will point to the scratch buffer in spdm_context.
+ *
+ * @retval RETURN_SUCCESS               The message is decoded successfully.
+ * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
+ * @retval RETURN_UNSUPPORTED           The transport_message is unsupported.
+ **/
 return_status spdm_transport_none_decode_message(
     void *spdm_context, uint32_t **session_id,
     bool *is_app_message, bool is_requester,
@@ -248,7 +248,7 @@ return_status spdm_transport_none_decode_message(
             spdm_error.error_code = SPDM_ERROR_CODE_INVALID_SESSION;
             spdm_error.session_id = *secured_message_session_id;
             libspdm_set_last_spdm_error_struct(spdm_context,
-                            &spdm_error);
+                                               &spdm_error);
             return RETURN_UNSUPPORTED;
         }
 
@@ -261,18 +261,18 @@ return_status spdm_transport_none_decode_message(
             &spdm_secured_message_callbacks);
         if (RETURN_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
-                   "libspdm_decode_secured_message - %p\n", status));
+                           "libspdm_decode_secured_message - %p\n", status));
             libspdm_secured_message_get_last_spdm_error_struct(
                 secured_message_context, &spdm_error);
             libspdm_set_last_spdm_error_struct(spdm_context,
-                            &spdm_error);
+                                               &spdm_error);
             return RETURN_UNSUPPORTED;
         }
 
         /* APP message to SPDM message.*/
         status = none_decode_message(&secured_message_session_id,
-                          app_message_size, app_message,
-                          message_size, message);
+                                     app_message_size, app_message,
+                                     message_size, message);
         if (RETURN_ERROR(status)) {
             *is_app_message = true;
             /* just return APP message.*/
@@ -286,20 +286,20 @@ return_status spdm_transport_none_decode_message(
             } else {
                 /* get encapsulated secured message - cannot handle it.*/
                 LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
-                       "transport_decode_message - expect encapsulated normal but got session (%08x)\n",
-                       *secured_message_session_id));
+                               "transport_decode_message - expect encapsulated normal but got session (%08x)\n",
+                               *secured_message_session_id));
                 return RETURN_UNSUPPORTED;
             }
         }
     } else {
         /* get non-secured message*/
         status = none_decode_message(&secured_message_session_id,
-                          transport_message_size,
-                          transport_message,
-                          message_size, message);
+                                     transport_message_size,
+                                     transport_message,
+                                     message_size, message);
         if (RETURN_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n",
-                   status));
+                           status));
             return RETURN_UNSUPPORTED;
         }
         LIBSPDM_ASSERT(secured_message_session_id == NULL);

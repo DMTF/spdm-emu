@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF, Componolit. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF, Componolit. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
+ **/
 
 #include "hal/base.h"
 #include "hal/library/memlib.h"
@@ -11,7 +11,7 @@
 #include "library/mctp_requester_lib.h"
 
 return_status pldm_control_get_tid(const void *mctp_context,
-                    void *spdm_context, const uint32_t *session_id, uint8_t *tid)
+                                   void *spdm_context, const uint32_t *session_id, uint8_t *tid)
 {
     return_status status;
     pldm_get_tid_request_t app_request;
@@ -26,11 +26,11 @@ return_status pldm_control_get_tid(const void *mctp_context,
 
     app_response_size = sizeof(app_response);
     status = pldm_send_receive_data(mctp_context,
-                        spdm_context, session_id,
-                        &app_request,
-                        sizeof(app_request),
-                        &app_response,
-                        &app_response_size);
+                                    spdm_context, session_id,
+                                    &app_request,
+                                    sizeof(app_request),
+                                    &app_response,
+                                    &app_response_size);
     if (RETURN_ERROR(status)) {
         return status;
     }
@@ -51,15 +51,15 @@ return_status pldm_control_get_tid(const void *mctp_context,
         return RETURN_DEVICE_ERROR;
     }
     if ((app_response.pldm_header.pldm_type & PLDM_HEADER_TYPE_MASK) !=
-               PLDM_MESSAGE_TYPE_CONTROL_DISCOVERY) {
+        PLDM_MESSAGE_TYPE_CONTROL_DISCOVERY) {
         return RETURN_DEVICE_ERROR;
     }
     if (app_response.pldm_header.pldm_command_code !=
-               PLDM_CONTROL_DISCOVERY_COMMAND_GET_TID) {
+        PLDM_CONTROL_DISCOVERY_COMMAND_GET_TID) {
         return RETURN_DEVICE_ERROR;
     }
     if (app_response.pldm_response_header.pldm_completion_code !=
-               PLDM_BASE_CODE_SUCCESS) {
+        PLDM_BASE_CODE_SUCCESS) {
         return RETURN_DEVICE_ERROR;
     }
 

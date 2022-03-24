@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF, Componolit. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF, Componolit. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
+ **/
 
 #include "hal/base.h"
 #include "hal/library/memlib.h"
@@ -38,19 +38,19 @@ pci_doe_data_object_protocol_t m_data_object_protocol[] = {
 };
 
 /**
-    Process the DOE request and return the response.
-
-    @param request       the PCI_DOE request message, start from pci_doe_data_object_header_t.
-    @param request_size  size in bytes of request.
-    @param response      the PCI_DOE response message, start from pci_doe_data_object_header_t.
-    @param response_size size in bytes of response.
-
-    @retval RETURN_SUCCESS The request is processed and the response is returned.
-    @return ERROR          The request is not processed.
-**/
+ *  Process the DOE request and return the response.
+ *
+ *  @param request       the PCI_DOE request message, start from pci_doe_data_object_header_t.
+ *  @param request_size  size in bytes of request.
+ *  @param response      the PCI_DOE response message, start from pci_doe_data_object_header_t.
+ *  @param response_size size in bytes of response.
+ *
+ *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @return ERROR          The request is not processed.
+ **/
 return_status pci_doe_get_response_discovery (const void *pci_doe_context,
-    const void *request, size_t request_size,
-    void *response, size_t *response_size)
+                                              const void *request, size_t request_size,
+                                              void *response, size_t *response_size)
 {
     doe_discovery_request_mine_t *doe_request;
     doe_discovery_response_mine_t doe_response;
@@ -73,7 +73,8 @@ return_status pci_doe_get_response_discovery (const void *pci_doe_context,
     doe_response.doe_header.data_object_type = PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY;
     doe_response.doe_header.length = sizeof(doe_discovery_response_mine_t) / sizeof(uint32_t);
     doe_response.doe_discovery_response.vendor_id = m_data_object_protocol[index].vendor_id;
-    doe_response.doe_discovery_response.data_object_type = m_data_object_protocol[index].data_object_type;
+    doe_response.doe_discovery_response.data_object_type =
+        m_data_object_protocol[index].data_object_type;
     if (index + 1 == ARRAY_SIZE(m_data_object_protocol)) {
         doe_response.doe_discovery_response.next_index = 0;
     } else {

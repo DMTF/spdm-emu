@@ -1,21 +1,21 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_emu.h"
 
 /*
-  EXE_MODE_SHUTDOWN
-  EXE_MODE_CONTINUE
-*/
+ * EXE_MODE_SHUTDOWN
+ * EXE_MODE_CONTINUE
+ */
 uint32_t m_exe_mode = EXE_MODE_SHUTDOWN;
 
 uint32_t m_exe_connection = (0 |
-               /* EXE_CONNECTION_VERSION_ONLY |*/
-               EXE_CONNECTION_DIGEST | EXE_CONNECTION_CERT |
-               EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS | 0);
+                             /* EXE_CONNECTION_VERSION_ONLY |*/
+                             EXE_CONNECTION_DIGEST | EXE_CONNECTION_CERT |
+                             EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS | 0);
 
 uint32_t m_exe_session =
     (0 | EXE_SESSION_KEY_EX | EXE_SESSION_PSK |
@@ -27,13 +27,17 @@ void print_usage(const char *name)
     printf("\n%s [--trans MCTP|PCI_DOE|NONE]\n", name);
     printf("   [--ver 1.0|1.1|1.2]\n");
     printf("   [--sec_ver 0|1.0|1.1]\n");
-    printf("   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT]\n");
+    printf(
+        "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT]\n");
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--meas_spec DMTF]\n");
     printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
-    printf("   [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
-    printf("   [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
-    printf("   [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
+    printf(
+        "   [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
+    printf(
+        "   [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
+    printf(
+        "   [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
     printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
     printf("   [--key_schedule HMAC_HASH]\n");
     printf("   [--other_param OPAQUE_FMT_1]\n");
@@ -55,53 +59,82 @@ void print_usage(const char *name)
     printf("NOTE:\n");
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
     printf("   [--ver] is version. By default, 1.2 is used.\n");
-    printf("   [--sec_ver] is secured message version. By default, 1.0 is used. 0 means no secured message version negotiation.\n");
-    printf("   [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.\n");
-    printf("           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Requester.\n");
-    printf("           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Responder.\n");
+    printf(
+        "   [--sec_ver] is secured message version. By default, 1.0 is used. 0 means no secured message version negotiation.\n");
+    printf(
+        "   [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.\n");
+    printf(
+        "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Requester.\n");
+    printf(
+        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Responder.\n");
     printf("   [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.\n");
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
-    printf("   [--meas_hash] is measurement hash algorithm. By default, SHA_512,SHA_384,SHA_256 is used.\n");
+    printf(
+        "   [--meas_hash] is measurement hash algorithm. By default, SHA_512,SHA_384,SHA_256 is used.\n");
     printf("   [--asym] is asym algorithm. By default, ECDSA_P384,ECDSA_P256 is used.\n");
-    printf("   [--req_asym] is requester asym algorithm. By default, RSAPSS_3072,RSAPSS_2048,RSASSA_3072,RSASSA_2048 is used.\n");
-    printf("   [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.\n");
+    printf(
+        "   [--req_asym] is requester asym algorithm. By default, RSAPSS_3072,RSAPSS_2048,RSASSA_3072,RSASSA_2048 is used.\n");
+    printf(
+        "   [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.\n");
     printf("   [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.\n");
     printf("   [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.\n");
     printf("   [--other_param] is other parameter support. By default, OPAQUE_FMT_1 is used.\n");
     printf("           Above algorithms also support multiple flags. Please use ',' for them.\n");
     printf("           Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.\n");
     printf("           Please don't mix NIST algo with SMx algo.\n");
-    printf("   [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.\n");
-    printf("   [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.\n");
-    printf("   [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.\n");
-    printf("   [--meas_op] is the measurement operation in GET_MEASUREMEMT. By default, ONE_BY_ONE is used.\n");
-    printf("   [--meas_att] is the measurement attribute in GET_MEASUREMEMT. By default, HASH is used.\n");
-    printf("   [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.\n");
-    printf("   [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.\n");
-    printf("           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
-    printf("           0xFF must be used to if PUB_KEY_ID is set. No GET_DIGEST/GET_CERTIFICATE is sent.\n");
+    printf(
+        "   [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.\n");
+    printf(
+        "   [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.\n");
+    printf(
+        "   [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.\n");
+    printf(
+        "   [--meas_op] is the measurement operation in GET_MEASUREMEMT. By default, ONE_BY_ONE is used.\n");
+    printf(
+        "   [--meas_att] is the measurement attribute in GET_MEASUREMEMT. By default, HASH is used.\n");
+    printf(
+        "   [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.\n");
+    printf(
+        "   [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.\n");
+    printf(
+        "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
+    printf(
+        "           0xFF must be used to if PUB_KEY_ID is set. No GET_DIGEST/GET_CERTIFICATE is sent.\n");
     printf("   [--slot_count] is to select the local slot count. By default, 3 is used.\n");
     printf("   [--save_state] is to save the current negotiated state to a write-only file.\n");
-    printf("           The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
-    printf("           (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param)\n");
-    printf("           The responder should set CACHE capabilities, otherwise the state will not be saved.\n");
-    printf("           The requester will clear PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION to preserve, otherwise this bit is set.\n");
-    printf("           The responder will save empty state, if the requester sets PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION.\n");
-    printf("   [--load_state] is to load the negotiated state to current session from a read-only file.\n");
-    printf("           The requester and responder will provision the state just after SPDM context is created.\n");
+    printf(
+        "           The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
+    printf(
+        "           (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param)\n");
+    printf(
+        "           The responder should set CACHE capabilities, otherwise the state will not be saved.\n");
+    printf(
+        "           The requester will clear PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION to preserve, otherwise this bit is set.\n");
+    printf(
+        "           The responder will save empty state, if the requester sets PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION.\n");
+    printf(
+        "   [--load_state] is to load the negotiated state to current session from a read-only file.\n");
+    printf(
+        "           The requester and responder will provision the state just after SPDM context is created.\n");
     printf("           The user need guarantee the state file is generated correctly.\n");
-    printf("           The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param are ignored.\n");
-    printf("           The requester will skip GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
+    printf(
+        "           The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param are ignored.\n");
+    printf(
+        "           The requester will skip GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
     printf("   [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.\n");
     printf("           SHUTDOWN means the requester asks the responder to stop.\n");
-    printf("           CONTINUE means the requester asks the responder to preserve the current SPDM context.\n");
-    printf("   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS.\n");
-    printf("           VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.\n");
+    printf(
+        "           CONTINUE means the requester asks the responder to preserve the current SPDM context.\n");
+    printf(
+        "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS.\n");
+    printf(
+        "           VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.\n");
     printf("           DIGEST means send GET_DIGESTS command.\n");
     printf("           CERT means send GET_CERTIFICATE command.\n");
     printf("           CHAL means send CHALLENGE command.\n");
     printf("           MEAS means send GET_MEASUREMENT command.\n");
-    printf("   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS.\n");
+    printf(
+        "   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS.\n");
     printf("           KEY_EX means to setup KEY_EXCHANGE session.\n");
     printf("           PSK means to setup PSK_EXCHANGE session.\n");
     printf("           NO_END means to not send END_SESSION.\n");
@@ -319,8 +352,8 @@ value_string_entry_t m_exe_session_string_table[] = {
 };
 
 bool get_value_from_name(const value_string_entry_t *table,
-                size_t entry_count, const char *name,
-                uint32_t *value)
+                         size_t entry_count, const char *name,
+                         uint32_t *value)
 {
     size_t index;
 
@@ -334,8 +367,8 @@ bool get_value_from_name(const value_string_entry_t *table,
 }
 
 bool get_flags_from_name(const value_string_entry_t *table,
-                size_t entry_count, const char *name,
-                uint32_t *flags)
+                         size_t entry_count, const char *name,
+                         uint32_t *flags)
 {
     uint32_t value;
     char *flag_name;
@@ -348,14 +381,14 @@ bool get_flags_from_name(const value_string_entry_t *table,
     }
     strcpy(local_name, name);
 
-    
+
     /* name = Flag1,Flag2,...,FlagN*/
-    
+
     *flags = 0;
     flag_name = strtok(local_name, ",");
     while (flag_name != NULL) {
         if (!get_value_from_name(table, entry_count, flag_name,
-                     &value)) {
+                                 &value)) {
             printf("unsupported flag - %s\n", flag_name);
             ret = false;
             goto done;
@@ -469,13 +502,13 @@ void process_args(char *program_name, int argc, char *argv[])
                 size_t count;
 
                 if (strcmp(program_name,
-                       "spdm_requester_emu") == 0) {
+                           "spdm_requester_emu") == 0) {
                     CapabilitiesStringTable =
                         m_spdm_requester_capabilities_string_table;
                     count = ARRAY_SIZE(
                         m_spdm_requester_capabilities_string_table);
                 } else if (strcmp(program_name,
-                          "spdm_responder_emu") == 0) {
+                                  "spdm_responder_emu") == 0) {
                     CapabilitiesStringTable =
                         m_spdm_responder_capabilities_string_table;
                     count = ARRAY_SIZE(
@@ -1029,9 +1062,9 @@ void process_args(char *program_name, int argc, char *argv[])
         exit(0);
     }
 
-    
+
     /* Open PCAP file as last option, after the user indicates transport type.*/
-    
+
     if (pcap_file_name != NULL) {
         if (!open_pcap_packet_file(pcap_file_name)) {
             print_usage(program_name);

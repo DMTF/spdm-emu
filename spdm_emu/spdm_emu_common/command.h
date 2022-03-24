@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #ifndef __SPDM_TEST_COMMAND_H__
 #define __SPDM_TEST_COMMAND_H__
@@ -10,11 +10,11 @@
 #define DEFAULT_SPDM_PLATFORM_PORT 2323
 
 
-/* Client->Server/Server->Client*/
-/*   command/response: 4 bytes (big endian)*/
-/*   transport_type: 4 bytes (big endian)*/
-/*   PayloadSize (excluding command and PayloadSize): 4 bytes (big endian)*/
-/*   payload (SPDM message, starting from SPDM_HEADER): PayloadSize (little endian)*/
+/* Client->Server/Server->Client
+ *   command/response: 4 bytes (big endian)
+ *   transport_type: 4 bytes (big endian)
+ *   PayloadSize (excluding command and PayloadSize): 4 bytes (big endian)
+ *   payload (SPDM message, starting from SPDM_HEADER): PayloadSize (little endian)*/
 
 
 #define SOCKET_TRANSPORT_TYPE_NONE 0x00

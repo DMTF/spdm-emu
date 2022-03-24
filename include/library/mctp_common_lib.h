@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF, Componolit. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF, Componolit. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
+ **/
 
 #ifndef __MCTP_COMMON_LIB_H__
 #define __MCTP_COMMON_LIB_H__
@@ -11,8 +11,8 @@
 #include "industry_standard/pldm.h"
 
 
-/* MCTP app message - check below configuration*/
-/* only PLDM*/
+/* MCTP app message - check below configuration
+ * only PLDM*/
 #define MCTP_MAX_MESSAGE_SIZE 0x100
 
 /* defintion for library*/

@@ -1,8 +1,8 @@
 /**
-    Copyright Notice:
-    Copyright 2021 DMTF. All rights reserved.
-    License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
-**/
+ *  Copyright Notice:
+ *  Copyright 2021 DMTF. All rights reserved.
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
+ **/
 
 #include "spdm_requester_emu.h"
 
@@ -13,10 +13,10 @@ extern SOCKET m_socket;
 extern void *m_spdm_context;
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
-                  const uint8_t *send_buffer, size_t bytes_to_send,
-                  uint32_t *response,
-                  size_t *bytes_to_receive,
-                  uint8_t *receive_buffer);
+                               const uint8_t *send_buffer, size_t bytes_to_send,
+                               uint32_t *response,
+                               size_t *bytes_to_receive,
+                               uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
 return_status do_measurement_via_spdm(const uint32_t *session_id);
@@ -54,9 +54,9 @@ return_status do_session_via_spdm(bool use_psk)
     heartbeat_period = 0;
     libspdm_zero_mem(measurement_hash, sizeof(measurement_hash));
     status = libspdm_start_session(spdm_context, use_psk,
-                    m_use_measurement_summary_hash_type,
-                    m_use_slot_id, m_session_policy, &session_id,
-                    &heartbeat_period, measurement_hash);
+                                   m_use_measurement_summary_hash_type,
+                                   m_use_slot_id, m_session_policy, &session_id,
+                                   &heartbeat_period, measurement_hash);
     if (RETURN_ERROR(status)) {
         printf("libspdm_start_session - %x\n", (uint32_t)status);
         return status;
@@ -84,7 +84,7 @@ return_status do_session_via_spdm(bool use_psk)
 
         case LIBSPDM_KEY_UPDATE_ACTION_MAX:
             status = libspdm_key_update(spdm_context, session_id,
-                         false);
+                                        false);
             if (RETURN_ERROR(status)) {
                 printf("libspdm_key_update - %x\n",
                        (uint32_t)status);
@@ -127,7 +127,7 @@ return_status do_session_via_spdm(bool use_psk)
 
     if ((m_exe_session & EXE_SESSION_NO_END) == 0) {
         status = libspdm_stop_session(spdm_context, session_id,
-                       m_end_session_attributes);
+                                      m_end_session_attributes);
         if (RETURN_ERROR(status)) {
             printf("libspdm_stop_session - %x\n", (uint32_t)status);
             return status;
