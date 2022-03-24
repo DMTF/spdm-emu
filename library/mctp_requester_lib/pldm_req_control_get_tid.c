@@ -16,7 +16,7 @@ return_status pldm_control_get_tid(const void *mctp_context,
     return_status status;
     pldm_get_tid_request_t app_request;
     pldm_get_tid_response_t app_response;
-    uintn app_response_size;
+    size_t app_response_size;
     uint8_t instance_id = 0;
 
     libspdm_zero_mem (&app_request, sizeof(app_request));

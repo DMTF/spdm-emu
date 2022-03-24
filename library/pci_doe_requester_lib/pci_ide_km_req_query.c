@@ -16,9 +16,9 @@ return_status pci_ide_km_query(const void *pci_doe_context,
 {
     return_status status;
     pci_ide_km_query_t request;
-    uintn request_size;
+    size_t request_size;
     pci_ide_km_query_resp_t response;
-    uintn response_size;
+    size_t response_size;
 
     libspdm_zero_mem (&request, sizeof(request));
     request.header.object_id = PCI_IDE_KM_OBJECT_ID_QUERY;

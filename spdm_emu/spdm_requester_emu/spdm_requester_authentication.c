@@ -33,7 +33,7 @@ extern void *m_spdm_context;
 return_status
 spdm_authentication(void *context, uint8_t *slot_mask,
             void *total_digest_buffer, uint8_t slot_id,
-            uintn *cert_chain_size, void *cert_chain,
+            size_t *cert_chain_size, void *cert_chain,
             uint8_t measurement_hash_type, void *measurement_hash)
 {
     return_status status;
@@ -78,7 +78,7 @@ return_status do_authentication_via_spdm(void)
     uint8_t slot_mask;
     uint8_t total_digest_buffer[LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
-    uintn cert_chain_size;
+    size_t cert_chain_size;
     uint8_t cert_chain[LIBSPDM_MAX_CERT_CHAIN_SIZE];
 
     spdm_context = m_spdm_context;

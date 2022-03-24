@@ -32,11 +32,11 @@ pldm_secured_app_dispatch_struct_t m_pldm_secured_app_dispatch[] = {
 **/
 return_status pldm_get_response_secured_app_request(const void *mctp_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size)
+    const void *request, size_t request_size,
+    void *response, size_t *response_size)
 {
     const pldm_message_header_t *app_request;
-    uintn index;
+    size_t index;
 
     app_request = request;
     if (request_size < sizeof(pldm_message_header_t)) {

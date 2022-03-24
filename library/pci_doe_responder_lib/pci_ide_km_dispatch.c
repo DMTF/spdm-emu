@@ -32,11 +32,11 @@ pci_doe_spdm_dispatch_struct_t m_pci_idm_km_dispatch[] = {
 **/
 return_status pci_ide_km_get_response (const void *pci_doe_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size)
+    const void *request, size_t request_size,
+    void *response, size_t *response_size)
 {
     const pci_ide_km_header_t *ide_km_request;
-    uintn index;
+    size_t index;
 
     ide_km_request = request;
     if (request_size < sizeof(pci_ide_km_header_t)) {

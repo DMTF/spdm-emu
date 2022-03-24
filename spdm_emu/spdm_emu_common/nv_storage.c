@@ -17,7 +17,7 @@ return_status spdm_load_negotiated_state(void *spdm_context,
 {
     bool ret;
     void *file_data;
-    uintn file_size;
+    size_t file_size;
     spdm_negotiated_state_struct_t negotiated_state;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
@@ -160,13 +160,13 @@ return_status spdm_save_negotiated_state(void *spdm_context,
 {
     bool ret;
     spdm_negotiated_state_struct_t negotiated_state;
-    uintn data_size;
+    size_t data_size;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
     uint16_t data16;
     uint32_t data32;
     spdm_version_number_t spdm_version[SPDM_MAX_VERSION_COUNT];
-    uintn index;
+    size_t index;
 
     if (m_save_state_file_name == NULL) {
         return RETURN_UNSUPPORTED;

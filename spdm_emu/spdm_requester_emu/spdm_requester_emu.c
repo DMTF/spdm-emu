@@ -25,9 +25,9 @@ void *spdm_client_init(void);
 return_status pci_doe_init_request(void);
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
-                  const uint8_t *send_buffer, uintn bytes_to_send,
+                  const uint8_t *send_buffer, size_t bytes_to_send,
                   uint32_t *response,
-                  uintn *bytes_to_receive,
+                  size_t *bytes_to_receive,
                   uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
@@ -90,7 +90,7 @@ bool platform_client_routine(uint16_t port_number)
     SOCKET platform_socket;
     bool result;
     uint32_t response;
-    uintn response_size;
+    size_t response_size;
     return_status status;
 
 #ifdef _MSC_VER

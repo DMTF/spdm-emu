@@ -23,8 +23,8 @@
 **/
 return_status pci_ide_km_get_response_query (const void *pci_doe_context,
     const void *spdm_context, const uint32_t *session_id,
-    const void *request, uintn request_size,
-    void *response, uintn *response_size)
+    const void *request, size_t request_size,
+    void *response, size_t *response_size)
 {
     const pci_ide_km_query_t *ide_km_request;
     pci_ide_km_query_resp_t *ide_km_response;

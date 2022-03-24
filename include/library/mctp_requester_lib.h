@@ -32,8 +32,8 @@ return_status pldm_control_get_tid(const void *mctp_context,
 return_status mctp_send_receive_data (const void *mctp_context,
                     void *spdm_context, const uint32_t *session_id,
                     mctp_message_header_t mctp_header,
-                    const void *request, uintn request_size,
-                    void *response, uintn *response_size);
+                    const void *request, size_t request_size,
+                    void *response, size_t *response_size);
 
 /**
   Send and receive an PLDM message
@@ -52,7 +52,7 @@ return_status mctp_send_receive_data (const void *mctp_context,
 **/
 return_status pldm_send_receive_data (const void *mctp_context,
                     void *spdm_context, const uint32_t *session_id,
-                    const void *request, uintn request_size,
-                    void *response, uintn *response_size);
+                    const void *request, size_t request_size,
+                    void *response, size_t *response_size);
 
 #endif

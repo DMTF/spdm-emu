@@ -33,7 +33,7 @@ extern void *m_mctp_context;
 **/
 return_status spdm_get_response_vendor_defined_request(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
-    uintn request_size, const void *request, uintn *response_size,
+    size_t request_size, const void *request, size_t *response_size,
     void *response)
 {
     return_status status;

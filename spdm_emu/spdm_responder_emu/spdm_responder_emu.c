@@ -98,7 +98,7 @@ bool platform_server(const SOCKET socket)
     bool result;
     return_status status;
     uint8_t response[PCI_DOE_MAX_NON_SPDM_MESSAGE_SIZE];
-    uintn response_size;
+    size_t response_size;
 
     while (true) {
         status = libspdm_responder_dispatch_message(m_spdm_context);

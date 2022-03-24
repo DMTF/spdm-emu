@@ -11,7 +11,7 @@
 
 return_status pci_doe_discovery (const void *pci_doe_context,
     pci_doe_data_object_protocol_t *data_object_protocol,
-    uintn *data_object_protocol_size);
+    size_t *data_object_protocol_size);
 
 return_status pci_ide_km_query(const void *pci_doe_context,
     void *spdm_context, const uint32_t *session_id,
@@ -31,8 +31,8 @@ return_status pci_ide_km_query(const void *pci_doe_context,
   @return ERROR                        The response is not received correctly.
 **/
 return_status pci_doe_send_receive_data(const void *pci_doe_context,
-                      uintn request_size, const void *request,
-                      uintn *response_size, void *response);
+                      size_t request_size, const void *request,
+                      size_t *response_size, void *response);
 
 
 /* internal function only*/
@@ -55,8 +55,8 @@ return_status pci_doe_send_receive_data(const void *pci_doe_context,
 return_status pci_doe_spdm_vendor_send_receive_data (
                     void *spdm_context, const uint32_t *session_id,
                     pci_protocol_header_t pci_protocol,
-                    const void *request, uintn request_size,
-                    void *response, uintn *response_size);
+                    const void *request, size_t request_size,
+                    void *response, size_t *response_size);
 
 /**
   Send and receive an IDE_KM message
@@ -75,7 +75,7 @@ return_status pci_doe_spdm_vendor_send_receive_data (
 **/
 return_status ide_km_send_receive_data (
                     void *spdm_context, const uint32_t *session_id,
-                    const void *request, uintn request_size,
-                    void *response, uintn *response_size);
+                    const void *request, size_t request_size,
+                    void *response, size_t *response_size);
 
 #endif
