@@ -17,10 +17,10 @@
  *  @param response      the PCI_DOE response message, start from pci_doe_data_object_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
+libspdm_return_t pci_doe_get_response_doe_request(const void *pci_doe_context,
                                                const void *request, size_t request_size,
                                                void *response, size_t *response_size);
 
@@ -32,10 +32,10 @@ return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
  *  @param response      the SPDM vendor defined message, start from spdm_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_doe_context,
+libspdm_return_t pci_doe_get_response_spdm_vendor_defined_request(const void *pci_doe_context,
                                                                void *spdm_context,
                                                                const uint32_t *session_id,
                                                                const void *request,
@@ -54,11 +54,11 @@ return_status pci_doe_get_response_spdm_vendor_defined_request(const void *pci_d
  *  @param response      the PCI_DOE response message, start from pci_doe_data_object_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
 typedef
-    return_status
+    libspdm_return_t
 (* pci_doe_get_response_func_t) (const void *pci_doe_context,
                                  const void *request, size_t request_size,
                                  void *response, size_t *response_size);
@@ -71,10 +71,10 @@ typedef
  *  @param response      the PCI_DOE response message, start from pci_doe_data_object_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_doe_get_response_discovery (const void *pci_doe_context,
+libspdm_return_t pci_doe_get_response_discovery (const void *pci_doe_context,
                                               const void *request, size_t request_size,
                                               void *response, size_t *response_size);
 
@@ -86,11 +86,11 @@ return_status pci_doe_get_response_discovery (const void *pci_doe_context,
  *  @param response      the SPDM vendor defined response message, start after pci_protocol_header_t, e.g. pci_ide_km_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
 typedef
-    return_status
+    libspdm_return_t
 (* pci_doe_get_spdm_vendor_response_func_t) (const void *pci_doe_context,
                                              const void *spdm_context, const uint32_t *session_id,
                                              const void *request, size_t request_size,
@@ -104,10 +104,10 @@ typedef
  *  @param response      the IDE_KM response message, start from pci_ide_km_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_ide_km_get_response (const void *pci_doe_context,
+libspdm_return_t pci_ide_km_get_response (const void *pci_doe_context,
                                        const void *spdm_context, const uint32_t *session_id,
                                        const void *request, size_t request_size,
                                        void *response, size_t *response_size);
@@ -120,11 +120,11 @@ return_status pci_ide_km_get_response (const void *pci_doe_context,
  *  @param response      the IDE_KM response message, start from pci_ide_km_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
 typedef
-    return_status
+    libspdm_return_t
 (* pci_ide_km_get_response_func_t) (const void *pci_doe_context,
                                     const void *spdm_context, const uint32_t *session_id,
                                     const void *request, size_t request_size,
@@ -138,10 +138,10 @@ typedef
  *  @param response      the IDE_KM response message, start from pci_ide_km_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_ide_km_get_response_query (const void *pci_doe_context,
+libspdm_return_t pci_ide_km_get_response_query (const void *pci_doe_context,
                                              const void *spdm_context, const uint32_t *session_id,
                                              const void *request, size_t request_size,
                                              void *response, size_t *response_size);

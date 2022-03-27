@@ -10,11 +10,11 @@
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/pci_doe_requester_lib.h"
 
-return_status pci_ide_km_query(const void *pci_doe_context,
+libspdm_return_t pci_ide_km_query(const void *pci_doe_context,
                                void *spdm_context, const uint32_t *session_id,
                                uint8_t port_index, uint8_t *max_port_index)
 {
-    return_status status;
+    libspdm_return_t status;
     pci_ide_km_query_t request;
     size_t request_size;
     pci_ide_km_query_resp_t response;
@@ -29,20 +29,20 @@ return_status pci_ide_km_query(const void *pci_doe_context,
     status = ide_km_send_receive_data(spdm_context, session_id,
                                       &request, request_size,
                                       &response, &response_size);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
 
     if (response_size != sizeof(pci_ide_km_query_resp_t)) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     if (response.header.object_id != PCI_IDE_KM_OBJECT_ID_QUERY_RESP) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if (response.port_index != request.port_index) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     *max_port_index= response.max_port_index;
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

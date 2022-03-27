@@ -46,7 +46,7 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
     return result;
 }
 
-return_status spdm_device_send_message(void *spdm_context,
+libspdm_return_t spdm_device_send_message(void *spdm_context,
                                        size_t request_size, const void *request,
                                        uint64_t timeout)
 {
@@ -62,12 +62,12 @@ return_status spdm_device_send_message(void *spdm_context,
                errno
 #endif
                );
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_SEND_FAIL;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
-return_status spdm_device_receive_message(void *spdm_context,
+libspdm_return_t spdm_device_receive_message(void *spdm_context,
                                           size_t *response_size,
                                           void **response,
                                           uint64_t timeout)
@@ -85,9 +85,9 @@ return_status spdm_device_receive_message(void *spdm_context,
                errno
 #endif
                );
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**
@@ -98,10 +98,10 @@ return_status spdm_device_receive_message(void *spdm_context,
  * @param response                      the PCI DOE response message, start from pci_doe_data_object_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The request is sent and response is received.
  * @return ERROR                        The response is not received correctly.
  **/
-return_status pci_doe_send_receive_data(const void *pci_doe_context,
+libspdm_return_t pci_doe_send_receive_data(const void *pci_doe_context,
                                         size_t request_size, const void *request,
                                         size_t *response_size, void *response)
 {
@@ -114,16 +114,16 @@ return_status pci_doe_send_receive_data(const void *pci_doe_context,
         &response_code, response_size,
         response);
     if (!result) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 void *spdm_client_init(void)
 {
     void *spdm_context;
     uint8_t index;
-    return_status status;
+    libspdm_return_t status;
     bool res;
     void *data;
     size_t data_size;
@@ -246,7 +246,7 @@ void *spdm_client_init(void)
         status = libspdm_init_connection(
             spdm_context,
             (m_exe_connection & EXE_CONNECTION_VERSION_ONLY) != 0);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("libspdm_init_connection - 0x%x\n", (uint32_t)status);
             free(m_spdm_context);
             m_spdm_context = NULL;
@@ -362,7 +362,7 @@ void *spdm_client_init(void)
     status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
                               LIBSPDM_TEST_PSK_HINT_STRING,
                               sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         printf("libspdm_set_data - %x\n", (uint32_t)status);
     }
 

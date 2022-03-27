@@ -12,7 +12,7 @@ char *m_save_state_file_name;
 /**
  * Load the negotiated_state from NV storage to an SPDM context.
  */
-return_status spdm_load_negotiated_state(void *spdm_context,
+libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
                                          bool is_requester)
 {
     bool ret;
@@ -26,18 +26,18 @@ return_status spdm_load_negotiated_state(void *spdm_context,
     spdm_version_number_t spdm_version;
 
     if (m_load_state_file_name == NULL) {
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
     ret = libspdm_read_input_file(m_load_state_file_name, &file_data, &file_size);
     if (!ret) {
         printf("LoadState fail - read file error\n");
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
 
     if (file_size != sizeof(negotiated_state)) {
         printf("LoadState fail - size mismatch\n");
         free(file_data);
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
 
     libspdm_copy_mem(&negotiated_state, file_size, file_data, file_size);
@@ -46,11 +46,11 @@ return_status spdm_load_negotiated_state(void *spdm_context,
     if (negotiated_state.signature !=
         SPDM_NEGOTIATED_STATE_STRUCT_SIGNATURE) {
         printf("LoadState fail - signature mismatch\n");
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
     if (negotiated_state.version != SPDM_NEGOTIATED_STATE_STRUCT_VERSION) {
         printf("LoadState fail - version mismatch\n");
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
 
     printf("LoadState from %s\n", m_load_state_file_name);
@@ -149,13 +149,13 @@ return_status spdm_load_negotiated_state(void *spdm_context,
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
                      &data32, sizeof(data32));
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**
  * Save the negotiated_state to NV storage from an SPDM context.
  */
-return_status spdm_save_negotiated_state(void *spdm_context,
+libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
                                          bool is_requester)
 {
     bool ret;
@@ -169,7 +169,7 @@ return_status spdm_save_negotiated_state(void *spdm_context,
     size_t index;
 
     if (m_save_state_file_name == NULL) {
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
 
     m_end_session_attributes = 0;
@@ -293,20 +293,20 @@ return_status spdm_save_negotiated_state(void *spdm_context,
                             sizeof(negotiated_state));
     if (!ret) {
         printf("SaveState fail - write file error\n");
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**
  * Clear the negotiated_state in the NV storage.
  */
-return_status spdm_clear_negotiated_state(void *spdm_context)
+libspdm_return_t spdm_clear_negotiated_state(void *spdm_context)
 {
     bool ret;
 
     if (m_save_state_file_name == NULL) {
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
 
     printf("ClearState in %s\n", m_save_state_file_name);
@@ -314,7 +314,7 @@ return_status spdm_clear_negotiated_state(void *spdm_context)
     ret = write_output_file(m_save_state_file_name, NULL, 0);
     if (!ret) {
         printf("ClearState fail - write file error\n");
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

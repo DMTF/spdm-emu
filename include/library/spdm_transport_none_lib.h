@@ -36,10 +36,10 @@
  *                                     On input, it shall be msg_buf_ptr from sender buffer.
  *                                     On output, it will point to acquired sender buffer.
  *
- * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is encoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
-return_status spdm_transport_none_encode_message(
+libspdm_return_t spdm_transport_none_encode_message(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     bool is_requester, size_t message_size, const void *message,
     size_t *transport_message_size, void **transport_message);
@@ -70,11 +70,11 @@ return_status spdm_transport_none_encode_message(
  *                                     On output, for normal message, it will point to the original receiver buffer.
  *                                     On output, for secured message, it will point to the scratch buffer in spdm_context.
  *
- * @retval RETURN_SUCCESS               The message is decoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is decoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  * @retval RETURN_UNSUPPORTED           The transport_message is unsupported.
  **/
-return_status spdm_transport_none_decode_message(
+libspdm_return_t spdm_transport_none_decode_message(
     void *spdm_context, uint32_t **session_id,
     bool *is_app_message, bool is_requester,
     size_t transport_message_size, const void *transport_message,

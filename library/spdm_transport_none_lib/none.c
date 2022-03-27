@@ -52,17 +52,17 @@ uint32_t spdm_none_get_max_random_number_count(void)
  * @param  transport_message             A pointer to a destination buffer to store the transport message.
  *                                     For normal message or secured message, it will point to acquired sender buffer.
  *
- * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is encoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
-return_status none_encode_message(const uint32_t *session_id, size_t message_size,
+libspdm_return_t none_encode_message(const uint32_t *session_id, size_t message_size,
                                   const void *message,
                                   size_t *transport_message_size,
                                   void **transport_message)
 {
     *transport_message_size = message_size;
     *transport_message = (void *)message;
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**
@@ -78,17 +78,17 @@ return_status none_encode_message(const uint32_t *session_id, size_t message_siz
  * @param  message                      A pointer to a destination buffer to store the message.
  *                                     For normal message, it will point to the original receiver buffer.
  *                                     For secured message, it will point to the scratch buffer in spdm_context.
- * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is encoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
-return_status none_decode_message(uint32_t **session_id,
+libspdm_return_t none_decode_message(uint32_t **session_id,
                                   size_t transport_message_size,
                                   const void *transport_message,
                                   size_t *message_size, void **message)
 {
     *message_size = transport_message_size;
     *message = (void *)transport_message;
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**

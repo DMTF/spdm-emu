@@ -21,10 +21,10 @@
  * @param  transport_message             A pointer to a destination buffer to store the transport message.
  *                                     For normal message or secured message, it will point to acquired sender buffer.
  *
- * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is encoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
-return_status none_encode_message(const uint32_t *session_id, size_t message_size,
+libspdm_return_t none_encode_message(const uint32_t *session_id, size_t message_size,
                                   const void *message,
                                   size_t *transport_message_size,
                                   void **transport_message);
@@ -42,10 +42,10 @@ return_status none_encode_message(const uint32_t *session_id, size_t message_siz
  * @param  message                      A pointer to a destination buffer to store the message.
  *                                     For normal message, it will point to the original receiver buffer.
  *                                     For secured message, it will point to the scratch buffer in spdm_context.
- * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is encoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
-return_status none_decode_message(uint32_t **session_id,
+libspdm_return_t none_decode_message(uint32_t **session_id,
                                   size_t transport_message_size,
                                   const void *transport_message,
                                   size_t *message_size,
@@ -77,15 +77,15 @@ return_status none_decode_message(uint32_t **session_id,
  *                                     On input, it shall be msg_buf_ptr from sender buffer.
  *                                     On output, it will point to acquired sender buffer.
  *
- * @retval RETURN_SUCCESS               The message is encoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is encoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
-return_status spdm_transport_none_encode_message(
+libspdm_return_t spdm_transport_none_encode_message(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     bool is_requester, size_t message_size, const void *message,
     size_t *transport_message_size, void **transport_message)
 {
-    return_status status;
+    libspdm_return_t status;
     void *app_message;
     size_t app_message_size;
     uint8_t *secured_message;
@@ -102,7 +102,7 @@ return_status spdm_transport_none_encode_message(
         spdm_none_get_max_random_number_count;
 
     if (is_app_message && (session_id == NULL)) {
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
 
     if (session_id != NULL) {
@@ -110,7 +110,7 @@ return_status spdm_transport_none_encode_message(
             libspdm_get_secured_message_context_via_session_id(
                 spdm_context, *session_id);
         if (secured_message_context == NULL) {
-            return RETURN_UNSUPPORTED;
+            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
         }
 
         if (!is_app_message) {
@@ -119,11 +119,11 @@ return_status spdm_transport_none_encode_message(
                                          message,
                                          &app_message_size,
                                          &app_message);
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                                "transport_encode_message - %p\n",
                                status));
-                return RETURN_UNSUPPORTED;
+                return status;
             }
         } else {
             app_message = (void *)message;
@@ -137,7 +137,7 @@ return_status spdm_transport_none_encode_message(
             secured_message_context, *session_id, is_requester,
             app_message_size, app_message, &secured_message_size,
             secured_message, &spdm_secured_message_callbacks);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                            "libspdm_encode_secured_message - %p\n", status));
             return status;
@@ -147,24 +147,24 @@ return_status spdm_transport_none_encode_message(
         status = none_encode_message(
             session_id, secured_message_size, secured_message,
             transport_message_size, transport_message);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
                            status));
-            return RETURN_UNSUPPORTED;
+            return status;
         }
     } else {
         /* SPDM message to normal MCTP message*/
         status = none_encode_message(NULL, message_size, message,
                                      transport_message_size,
                                      transport_message);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
                            status));
-            return RETURN_UNSUPPORTED;
+            return status;
         }
     }
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**
@@ -193,17 +193,17 @@ return_status spdm_transport_none_encode_message(
  *                                     On output, for normal message, it will point to the original receiver buffer.
  *                                     On output, for secured message, it will point to the scratch buffer in spdm_context.
  *
- * @retval RETURN_SUCCESS               The message is decoded successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The message is decoded successfully.
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  * @retval RETURN_UNSUPPORTED           The transport_message is unsupported.
  **/
-return_status spdm_transport_none_decode_message(
+libspdm_return_t spdm_transport_none_decode_message(
     void *spdm_context, uint32_t **session_id,
     bool *is_app_message, bool is_requester,
     size_t transport_message_size, const void *transport_message,
     size_t *message_size, void **message)
 {
-    return_status status;
+    libspdm_return_t status;
     uint32_t *secured_message_session_id;
     uint8_t *secured_message;
     size_t secured_message_size;
@@ -225,7 +225,7 @@ return_status spdm_transport_none_decode_message(
         spdm_none_get_max_random_number_count;
 
     if ((session_id == NULL) || (is_app_message == NULL)) {
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
 
     secured_message_session_id = NULL;
@@ -233,9 +233,9 @@ return_status spdm_transport_none_decode_message(
     status = none_decode_message(
         &secured_message_session_id, transport_message_size,
         transport_message, &secured_message_size, (void **)&secured_message);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n", status));
-        return RETURN_UNSUPPORTED;
+        return status;
     }
 
     if (secured_message_session_id != NULL) {
@@ -249,7 +249,7 @@ return_status spdm_transport_none_decode_message(
             spdm_error.session_id = *secured_message_session_id;
             libspdm_set_last_spdm_error_struct(spdm_context,
                                                &spdm_error);
-            return RETURN_UNSUPPORTED;
+            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
         }
 
         /* Secured message to APP message*/
@@ -259,36 +259,36 @@ return_status spdm_transport_none_decode_message(
             is_requester, secured_message_size, secured_message,
             &app_message_size, (void **)&app_message,
             &spdm_secured_message_callbacks);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                            "libspdm_decode_secured_message - %p\n", status));
             libspdm_secured_message_get_last_spdm_error_struct(
                 secured_message_context, &spdm_error);
             libspdm_set_last_spdm_error_struct(spdm_context,
                                                &spdm_error);
-            return RETURN_UNSUPPORTED;
+            return status;
         }
 
         /* APP message to SPDM message.*/
         status = none_decode_message(&secured_message_session_id,
                                      app_message_size, app_message,
                                      message_size, message);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             *is_app_message = true;
             /* just return APP message.*/
             *message = app_message;
             *message_size = app_message_size;
-            return RETURN_SUCCESS;
+            return LIBSPDM_STATUS_SUCCESS;
         } else {
             *is_app_message = false;
             if (secured_message_session_id == NULL) {
-                return RETURN_SUCCESS;
+                return LIBSPDM_STATUS_SUCCESS;
             } else {
                 /* get encapsulated secured message - cannot handle it.*/
                 LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                                "transport_decode_message - expect encapsulated normal but got session (%08x)\n",
                                *secured_message_session_id));
-                return RETURN_UNSUPPORTED;
+                return LIBSPDM_STATUS_UNSUPPORTED_CAP;
             }
         }
     } else {
@@ -297,14 +297,14 @@ return_status spdm_transport_none_decode_message(
                                      transport_message_size,
                                      transport_message,
                                      message_size, message);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n",
                            status));
-            return RETURN_UNSUPPORTED;
+            return status;
         }
         LIBSPDM_ASSERT(secured_message_session_id == NULL);
         *session_id = NULL;
         *is_app_message = false;
-        return RETURN_SUCCESS;
+        return LIBSPDM_STATUS_SUCCESS;
     }
 }

@@ -28,10 +28,10 @@ pldm_secured_app_dispatch_struct_t m_pldm_secured_app_dispatch[] = {
  *  @param response      the PLDM response message, start from pldm_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pldm_get_response_secured_app_request(const void *mctp_context,
+libspdm_return_t pldm_get_response_secured_app_request(const void *mctp_context,
                                                     const void *spdm_context,
                                                     const uint32_t *session_id,
                                                     const void *request, size_t request_size,
@@ -42,13 +42,13 @@ return_status pldm_get_response_secured_app_request(const void *mctp_context,
 
     app_request = request;
     if (request_size < sizeof(pldm_message_header_t)) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     if ((app_request->instance_id & PLDM_HEADER_REQUEST_MASK) == 0) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if ((app_request->pldm_type & PLDM_HEADER_VERSION_MASK) != PLDM_HEADER_VERSION) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
     for (index = 0; index < ARRAY_SIZE(m_pldm_secured_app_dispatch); index++) {
@@ -62,5 +62,5 @@ return_status pldm_get_response_secured_app_request(const void *mctp_context,
         }
     }
 
-    return RETURN_INVALID_PARAMETER;
+    return LIBSPDM_STATUS_UNSUPPORTED_CAP;
 }

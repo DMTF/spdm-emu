@@ -33,12 +33,12 @@ void spdm_server_session_state_callback(void *spdm_context,
 void spdm_server_connection_state_callback(
     void *spdm_context, libspdm_connection_state_t connection_state);
 
-return_status spdm_get_response_vendor_defined_request(
+libspdm_return_t spdm_get_response_vendor_defined_request(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     size_t request_size, const void *request, size_t *response_size,
     void *response);
 
-return_status spdm_device_send_message(void *spdm_context,
+libspdm_return_t spdm_device_send_message(void *spdm_context,
                                        size_t request_size, const void *request,
                                        uint64_t timeout)
 {
@@ -54,12 +54,12 @@ return_status spdm_device_send_message(void *spdm_context,
                errno
 #endif
                );
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_SEND_FAIL;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
-return_status spdm_device_receive_message(void *spdm_context,
+libspdm_return_t spdm_device_receive_message(void *spdm_context,
                                           size_t *response_size,
                                           void **response,
                                           uint64_t timeout)
@@ -79,7 +79,7 @@ return_status spdm_device_receive_message(void *spdm_context,
                errno
 #endif
                );
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
     if (m_command == SOCKET_SPDM_COMMAND_NORMAL) {
 
@@ -89,12 +89,12 @@ return_status spdm_device_receive_message(void *spdm_context,
 
         /* Cache the message*/
 
-        return RETURN_UNSUPPORTED;
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
     *response = m_send_receive_buffer;
     *response_size = m_send_receive_buffer_size;
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 void *spdm_server_init(void)
@@ -247,7 +247,7 @@ void spdm_server_connection_state_callback(
     uint8_t data8;
     uint16_t data16;
     uint32_t data32;
-    return_status status;
+    libspdm_return_t status;
     void *hash;
     size_t hash_size;
     uint8_t *root_cert;
@@ -373,7 +373,7 @@ void spdm_server_connection_state_callback(
         status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
                                   LIBSPDM_TEST_PSK_HINT_STRING,
                                   sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("libspdm_set_data - %x\n", (uint32_t)status);
         }
 

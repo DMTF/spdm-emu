@@ -22,10 +22,10 @@
  * @param response                      the MCTP response message, start after mctp_message_header_t, e.g. pldm_message_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The MCTP request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The MCTP request is sent and response is received.
  * @return ERROR                        The MCTP response is not received correctly.
  **/
-return_status mctp_send_receive_data (const void *mctp_context,
+libspdm_return_t mctp_send_receive_data (const void *mctp_context,
                                       void *spdm_context, const uint32_t *session_id,
                                       mctp_message_header_t mctp_header,
                                       const void *request, size_t request_size,
@@ -34,7 +34,7 @@ return_status mctp_send_receive_data (const void *mctp_context,
     libspdm_data_parameter_t parameter;
     spdm_version_number_t spdm_version;
     size_t data_size;
-    return_status status;
+    libspdm_return_t status;
     uint8_t request_buffer[sizeof(mctp_message_header_t) + MCTP_MAX_MESSAGE_SIZE];
     mctp_message_header_t *mctp_request;
     size_t mctp_request_size;
@@ -63,19 +63,19 @@ return_status mctp_send_receive_data (const void *mctp_context,
     status = libspdm_send_receive_data(spdm_context, session_id,
                                        true, mctp_request, mctp_request_size,
                                        mctp_response, &mctp_response_size);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
 
     if (mctp_response_size < sizeof(mctp_message_header_t)) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     if (mctp_response->message_type != mctp_request->message_type) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
     *response_size = mctp_response_size - sizeof(mctp_message_header_t);
     libspdm_copy_mem (response, *response_size, mctp_response + 1, *response_size);
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

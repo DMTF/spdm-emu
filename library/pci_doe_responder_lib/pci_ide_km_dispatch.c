@@ -27,10 +27,10 @@ pci_doe_spdm_dispatch_struct_t m_pci_idm_km_dispatch[] = {
  *  @param response      the IDE_KM response message, start from pci_ide_km_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_ide_km_get_response (const void *pci_doe_context,
+libspdm_return_t pci_ide_km_get_response (const void *pci_doe_context,
                                        const void *spdm_context, const uint32_t *session_id,
                                        const void *request, size_t request_size,
                                        void *response, size_t *response_size)
@@ -40,7 +40,7 @@ return_status pci_ide_km_get_response (const void *pci_doe_context,
 
     ide_km_request = request;
     if (request_size < sizeof(pci_ide_km_header_t)) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
 
     for (index = 0; index < ARRAY_SIZE(m_pci_idm_km_dispatch); index++) {
@@ -51,5 +51,5 @@ return_status pci_ide_km_get_response (const void *pci_doe_context,
         }
     }
 
-    return RETURN_INVALID_PARAMETER;
+    return LIBSPDM_STATUS_UNSUPPORTED_CAP;
 }

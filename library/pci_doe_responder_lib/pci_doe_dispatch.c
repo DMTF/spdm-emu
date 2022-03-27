@@ -28,10 +28,10 @@ pci_doe_dispatch_struct_t m_pci_doe_dispatch[] = {
  *  @param response      the PCI_DOE response message, start from pci_doe_data_object_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
+libspdm_return_t pci_doe_get_response_doe_request(const void *pci_doe_context,
                                                const void *request, size_t request_size,
                                                void *response, size_t *response_size)
 {
@@ -40,7 +40,7 @@ return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
 
     doe_request = (void *)request;
     if (request_size < sizeof(doe_request)) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
 
     for (index = 0; index < ARRAY_SIZE(m_pci_doe_dispatch); index++) {
@@ -52,5 +52,5 @@ return_status pci_doe_get_response_doe_request(const void *pci_doe_context,
         }
     }
 
-    return RETURN_INVALID_PARAMETER;
+    return LIBSPDM_STATUS_UNSUPPORTED_CAP;
 }
