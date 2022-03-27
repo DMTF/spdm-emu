@@ -19,13 +19,13 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
                                uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
-return_status do_measurement_via_spdm(const uint32_t *session_id);
+libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
-return_status pci_doe_process_session_message(void *spdm_context, uint32_t session_id);
-return_status mctp_process_session_message(void *spdm_context, uint32_t session_id);
+libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t session_id);
+libspdm_return_t mctp_process_session_message(void *spdm_context, uint32_t session_id);
 
-return_status do_app_session_via_spdm(uint32_t session_id)
+libspdm_return_t do_app_session_via_spdm(uint32_t session_id)
 {
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         pci_doe_process_session_message (m_spdm_context, session_id);
@@ -35,13 +35,13 @@ return_status do_app_session_via_spdm(uint32_t session_id)
         mctp_process_session_message (m_spdm_context, session_id);
     }
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
-return_status do_session_via_spdm(bool use_psk)
+libspdm_return_t do_session_via_spdm(bool use_psk)
 {
     void *spdm_context;
-    return_status status;
+    libspdm_return_t status;
     uint32_t session_id;
     uint8_t heartbeat_period;
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
@@ -57,7 +57,7 @@ return_status do_session_via_spdm(bool use_psk)
                                    m_use_measurement_summary_hash_type,
                                    m_use_slot_id, m_session_policy, &session_id,
                                    &heartbeat_period, measurement_hash);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         printf("libspdm_start_session - %x\n", (uint32_t)status);
         return status;
     }
@@ -66,7 +66,7 @@ return_status do_session_via_spdm(bool use_psk)
 
     if ((m_exe_session & EXE_SESSION_HEARTBEAT) != 0) {
         status = libspdm_heartbeat(spdm_context, session_id);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("libspdm_heartbeat - %x\n", (uint32_t)status);
         }
     }
@@ -76,7 +76,7 @@ return_status do_session_via_spdm(bool use_psk)
         case LIBSPDM_KEY_UPDATE_ACTION_REQUESTER:
             status =
                 libspdm_key_update(spdm_context, session_id, true);
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 printf("libspdm_key_update - %x\n",
                        (uint32_t)status);
             }
@@ -85,7 +85,7 @@ return_status do_session_via_spdm(bool use_psk)
         case LIBSPDM_KEY_UPDATE_ACTION_MAX:
             status = libspdm_key_update(spdm_context, session_id,
                                         false);
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 printf("libspdm_key_update - %x\n",
                        (uint32_t)status);
             }
@@ -102,7 +102,7 @@ return_status do_session_via_spdm(bool use_psk)
             } else {
                 status = libspdm_send_receive_encap_request(
                     spdm_context, &session_id);
-                if (RETURN_ERROR(status)) {
+                if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     printf("libspdm_send_receive_encap_request - libspdm_key_update - %x\n",
                            (uint32_t)status);
                 }
@@ -118,7 +118,7 @@ return_status do_session_via_spdm(bool use_psk)
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
     if ((m_exe_session & EXE_SESSION_MEAS) != 0) {
         status = do_measurement_via_spdm(&session_id);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("do_measurement_via_spdm - %x\n",
                    (uint32_t)status);
         }
@@ -128,7 +128,7 @@ return_status do_session_via_spdm(bool use_psk)
     if ((m_exe_session & EXE_SESSION_NO_END) == 0) {
         status = libspdm_stop_session(spdm_context, session_id,
                                       m_end_session_attributes);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("libspdm_stop_session - %x\n", (uint32_t)status);
             return status;
         }

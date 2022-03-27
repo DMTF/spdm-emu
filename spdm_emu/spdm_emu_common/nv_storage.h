@@ -37,18 +37,18 @@ typedef struct {
 /**
  * Load the negotiated_state from NV storage to an SPDM context.
  */
-return_status spdm_load_negotiated_state(void *spdm_context,
+libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
                                          bool is_requester);
 
 /**
  * Save the negotiated_state to NV storage from an SPDM context.
  */
-return_status spdm_save_negotiated_state(void *spdm_context,
+libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
                                          bool is_requester);
 
 /**
  * Clear the negotiated_state in the NV storage.
  */
-return_status spdm_clear_negotiated_state(void *spdm_context);
+libspdm_return_t spdm_clear_negotiated_state(void *spdm_context);
 
 #endif

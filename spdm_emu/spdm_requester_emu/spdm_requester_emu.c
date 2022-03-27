@@ -22,7 +22,7 @@ extern void *m_scratch_buffer;
 
 void *spdm_client_init(void);
 
-return_status pci_doe_init_request(void);
+libspdm_return_t pci_doe_init_request(void);
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
                                const uint8_t *send_buffer, size_t bytes_to_send,
@@ -31,14 +31,14 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
                                uint8_t *receive_buffer);
 
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
-return_status do_measurement_via_spdm(const uint32_t *session_id);
+libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
 #if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
-return_status do_authentication_via_spdm(void);
+libspdm_return_t do_authentication_via_spdm(void);
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
-return_status do_session_via_spdm(bool use_psk);
+libspdm_return_t do_session_via_spdm(bool use_psk);
 
 
 bool init_client(SOCKET *sock, uint16_t port)
@@ -91,7 +91,7 @@ bool platform_client_routine(uint16_t port_number)
     bool result;
     uint32_t response;
     size_t response_size;
-    return_status status;
+    libspdm_return_t status;
 
 #ifdef _MSC_VER
     WSADATA ws;
@@ -122,7 +122,7 @@ bool platform_client_routine(uint16_t port_number)
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         status = pci_doe_init_request ();
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("pci_doe_init_request - %x\n", (uint32_t)status);
             goto done;
         }
@@ -136,7 +136,7 @@ bool platform_client_routine(uint16_t port_number)
     /* Do test - begin*/
 #if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
     status = do_authentication_via_spdm();
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         printf("do_authentication_via_spdm - %x\n", (uint32_t)status);
         goto done;
     }
@@ -145,7 +145,7 @@ bool platform_client_routine(uint16_t port_number)
 #if LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP
     if ((m_exe_connection & EXE_CONNECTION_MEAS) != 0) {
         status = do_measurement_via_spdm(NULL);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("do_measurement_via_spdm - %x\n",
                    (uint32_t)status);
             goto done;
@@ -157,7 +157,7 @@ bool platform_client_routine(uint16_t port_number)
     if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
         if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
             status = do_session_via_spdm(false);
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 printf("do_session_via_spdm - %x\n",
                        (uint32_t)status);
                 goto done;
@@ -166,7 +166,7 @@ bool platform_client_routine(uint16_t port_number)
 
         if ((m_exe_session & EXE_SESSION_PSK) != 0) {
             status = do_session_via_spdm(true);
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 printf("do_session_via_spdm - %x\n",
                        (uint32_t)status);
                 goto done;

@@ -18,10 +18,10 @@
  *  @param response      the PLDM response message, start from pldm_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pldm_get_response_control_get_tid (const void *mctp_context,
+libspdm_return_t pldm_get_response_control_get_tid (const void *mctp_context,
                                                  const void *spdm_context,
                                                  const uint32_t *session_id,
                                                  const void *request, size_t request_size,
@@ -32,7 +32,7 @@ return_status pldm_get_response_control_get_tid (const void *mctp_context,
 
     app_request = request;
     if (request_size != sizeof(pldm_get_tid_request_t)) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     LIBSPDM_ASSERT (*response_size >= sizeof(pldm_get_tid_response_t));
     *response_size = sizeof(pldm_get_tid_response_t);
@@ -49,5 +49,5 @@ return_status pldm_get_response_control_get_tid (const void *mctp_context,
     /* TBD - need PLDM context to get the info*/
     app_response->tid = 1;
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

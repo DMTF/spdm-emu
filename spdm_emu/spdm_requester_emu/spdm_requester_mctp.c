@@ -8,15 +8,15 @@
 
 void *m_mctp_context;
 
-return_status mctp_process_session_message(void *spdm_context, uint32_t session_id)
+libspdm_return_t mctp_process_session_message(void *spdm_context, uint32_t session_id)
 {
     uint8_t tid;
-    return_status status;
+    libspdm_return_t status;
 
     status = pldm_control_get_tid (m_mctp_context, spdm_context, &session_id, &tid);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

@@ -9,11 +9,11 @@
 
 #include "library/pci_doe_common_lib.h"
 
-return_status pci_doe_discovery (const void *pci_doe_context,
+libspdm_return_t pci_doe_discovery (const void *pci_doe_context,
                                  pci_doe_data_object_protocol_t *data_object_protocol,
                                  size_t *data_object_protocol_size);
 
-return_status pci_ide_km_query(const void *pci_doe_context,
+libspdm_return_t pci_ide_km_query(const void *pci_doe_context,
                                void *spdm_context, const uint32_t *session_id,
                                uint8_t port_index, uint8_t *max_port_index);
 
@@ -27,10 +27,10 @@ return_status pci_ide_km_query(const void *pci_doe_context,
  * @param response                      the PCI DOE response message, start from pci_doe_data_object_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The request is sent and response is received.
  * @return ERROR                        The response is not received correctly.
  **/
-return_status pci_doe_send_receive_data(const void *pci_doe_context,
+libspdm_return_t pci_doe_send_receive_data(const void *pci_doe_context,
                                         size_t request_size, const void *request,
                                         size_t *response_size, void *response);
 
@@ -49,10 +49,10 @@ return_status pci_doe_send_receive_data(const void *pci_doe_context,
  * @param response                      the SPDM vendor defined response message, start after pci_protocol_header_t, e.g. pci_ide_km_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The SPDM vendor defined request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The SPDM vendor defined request is sent and response is received.
  * @return ERROR                        The SPDM vendor defined response is not received correctly.
  **/
-return_status pci_doe_spdm_vendor_send_receive_data (
+libspdm_return_t pci_doe_spdm_vendor_send_receive_data (
     void *spdm_context, const uint32_t *session_id,
     pci_protocol_header_t pci_protocol,
     const void *request, size_t request_size,
@@ -70,10 +70,10 @@ return_status pci_doe_spdm_vendor_send_receive_data (
  * @param response                      the IDE_KM response message, start from pci_ide_km_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The IDM_KM request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The IDM_KM request is sent and response is received.
  * @return ERROR                        The IDM_KM response is not received correctly.
  **/
-return_status ide_km_send_receive_data (
+libspdm_return_t ide_km_send_receive_data (
     void *spdm_context, const uint32_t *session_id,
     const void *request, size_t request_size,
     void *response, size_t *response_size);

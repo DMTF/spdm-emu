@@ -22,24 +22,24 @@
  * @param response                      the PLDM response message, start from pldm_message_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The PLDM request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The PLDM request is sent and response is received.
  * @return ERROR                        The PLDM response is not received correctly.
  **/
-return_status pldm_send_receive_data (const void *mctp_context,
+libspdm_return_t pldm_send_receive_data (const void *mctp_context,
                                       void *spdm_context, const uint32_t *session_id,
                                       const void *request, size_t request_size,
                                       void *response, size_t *response_size)
 {
-    return_status status;
+    libspdm_return_t status;
     mctp_message_header_t mctp_header;
 
     mctp_header.message_type = MCTP_MESSAGE_TYPE_PLDM;
     status = mctp_send_receive_data (mctp_context, spdm_context, session_id,
                                      mctp_header,
                                      request, request_size, response, response_size);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

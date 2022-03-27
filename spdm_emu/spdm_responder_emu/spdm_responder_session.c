@@ -19,10 +19,10 @@ extern void *m_mctp_context;
  * @param  response                     A pointer to the response data.
  * @param  response_size                 size of the response data. On input, it means the size of data
  *                                     buffer. On output, it means the size of copied data buffer if
- *                                     RETURN_SUCCESS, and means the size of desired data buffer if
+ *                                     LIBSPDM_STATUS_SUCCESS, and means the size of desired data buffer if
  *                                     RETURN_BUFFER_TOO_SMALL.
  *
- * @retval RETURN_SUCCESS                  The SPDM request is set successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS                  The SPDM request is set successfully.
  * @retval RETURN_INVALID_PARAMETER        The data_size is NULL or the data is NULL and *data_size is not zero.
  * @retval RETURN_UNSUPPORTED              The data_type is unsupported.
  * @retval RETURN_NOT_FOUND                The data_type cannot be found.
@@ -31,12 +31,12 @@ extern void *m_mctp_context;
  * @retval RETURN_TIME                 A timeout occurred while waiting for the SPDM request
  *                                        to execute.
  **/
-return_status spdm_get_response_vendor_defined_request(
+libspdm_return_t spdm_get_response_vendor_defined_request(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     size_t request_size, const void *request, size_t *response_size,
     void *response)
 {
-    return_status status;
+    libspdm_return_t status;
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         LIBSPDM_ASSERT(!is_app_message);
@@ -52,10 +52,10 @@ return_status spdm_get_response_vendor_defined_request(
             request, request_size, response, response_size);
     }
 
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         libspdm_generate_error_response(spdm_context,
                                         SPDM_ERROR_CODE_INVALID_REQUEST, 0,
                                         response_size, response);
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

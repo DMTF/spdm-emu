@@ -96,20 +96,21 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 bool platform_server(const SOCKET socket)
 {
     bool result;
-    return_status status;
+    libspdm_return_t status;
     uint8_t response[PCI_DOE_MAX_NON_SPDM_MESSAGE_SIZE];
     size_t response_size;
 
     while (true) {
         status = libspdm_responder_dispatch_message(m_spdm_context);
-        if (status == RETURN_SUCCESS) {
+        if (status == LIBSPDM_STATUS_SUCCESS) {
             /* success dispatch SPDM message*/
         }
-        if (status == RETURN_DEVICE_ERROR) {
+        if ((status == LIBSPDM_STATUS_SEND_FAIL) ||
+            (status == LIBSPDM_STATUS_RECEIVE_FAIL)) {
             printf("Server Critical Error - STOP\n");
             return false;
         }
-        if (status != RETURN_UNSUPPORTED) {
+        if (status != LIBSPDM_STATUS_UNSUPPORTED_CAP) {
             continue;
         }
         switch (m_command) {
@@ -188,7 +189,7 @@ bool platform_server(const SOCKET socket)
                                                            m_send_receive_buffer,
                                                            m_send_receive_buffer_size, response,
                                                            &response_size);
-                if (RETURN_ERROR(status)) {
+                if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     /* unknown message*/
                     return true;
                 }

@@ -93,13 +93,13 @@ bool receive_platform_data(SOCKET socket, uint32_t *command,
                            size_t *bytes_to_receive);
 
 
-return_status spdm_device_acquire_sender_buffer (
+libspdm_return_t spdm_device_acquire_sender_buffer (
     void *context, size_t *max_msg_size, void **msg_buf_ptr);
 
 void spdm_device_release_sender_buffer (
     void *context, const void *msg_buf_ptr);
 
-return_status spdm_device_acquire_receiver_buffer (
+libspdm_return_t spdm_device_acquire_receiver_buffer (
     void *context, size_t *max_msg_size, void **msg_buf_ptr);
 
 void spdm_device_release_receiver_buffer (

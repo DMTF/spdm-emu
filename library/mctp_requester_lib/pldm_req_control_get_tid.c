@@ -10,10 +10,10 @@
 #include "library/spdm_transport_mctp_lib.h"
 #include "library/mctp_requester_lib.h"
 
-return_status pldm_control_get_tid(const void *mctp_context,
+libspdm_return_t pldm_control_get_tid(const void *mctp_context,
                                    void *spdm_context, const uint32_t *session_id, uint8_t *tid)
 {
-    return_status status;
+    libspdm_return_t status;
     pldm_get_tid_request_t app_request;
     pldm_get_tid_response_t app_response;
     size_t app_response_size;
@@ -31,37 +31,37 @@ return_status pldm_control_get_tid(const void *mctp_context,
                                     sizeof(app_request),
                                     &app_response,
                                     &app_response_size);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
 
     if (app_response_size != sizeof(app_response)) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     if ((app_response.pldm_header.instance_id & PLDM_HEADER_REQUEST_MASK) != 0) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if ((app_response.pldm_header.instance_id & PLDM_HEADER_DATAGRAM_MASK) != 0) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if ((app_response.pldm_header.instance_id & PLDM_HEADER_INSTANCE_ID_MASK) != instance_id) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if ((app_response.pldm_header.pldm_type & PLDM_HEADER_VERSION_MASK) != PLDM_HEADER_VERSION) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if ((app_response.pldm_header.pldm_type & PLDM_HEADER_TYPE_MASK) !=
         PLDM_MESSAGE_TYPE_CONTROL_DISCOVERY) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if (app_response.pldm_header.pldm_command_code !=
         PLDM_CONTROL_DISCOVERY_COMMAND_GET_TID) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if (app_response.pldm_response_header.pldm_completion_code !=
         PLDM_BASE_CODE_SUCCESS) {
-        return RETURN_DEVICE_ERROR;
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

@@ -17,10 +17,10 @@
  *  @param response      the MCTP response message, start from mctp_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status mctp_get_response_secured_app_request(const void *mctp_context,
+libspdm_return_t mctp_get_response_secured_app_request(const void *mctp_context,
                                                     void *spdm_context, const uint32_t *session_id,
                                                     const void *request, size_t request_size,
                                                     void *response, size_t *response_size);
@@ -35,11 +35,11 @@ return_status mctp_get_response_secured_app_request(const void *mctp_context,
  *  @param response      the MCTP response message, start after mctp_message_header_t, e.g. pldm_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
 typedef
-    return_status
+    libspdm_return_t
 (* mctp_get_secured_app_request_func_t) (const void *mctp_context,
                                          const void *spdm_context, const uint32_t *session_id,
                                          const void *request, size_t request_size,
@@ -53,10 +53,10 @@ typedef
  *  @param response      the PLDM response message, start from pldm_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pldm_get_response_secured_app_request (const void *mctp_context,
+libspdm_return_t pldm_get_response_secured_app_request (const void *mctp_context,
                                                      const void *spdm_context,
                                                      const uint32_t *session_id,
                                                      const void *request, size_t request_size,
@@ -70,11 +70,11 @@ return_status pldm_get_response_secured_app_request (const void *mctp_context,
  *  @param response      the PLDM response message, start from pldm_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
 typedef
-    return_status
+    libspdm_return_t
 (* pldm_get_secured_app_request_func_t) (const void *mctp_context,
                                          const void *spdm_context, const uint32_t *session_id,
                                          const void *request, size_t request_size,
@@ -88,10 +88,10 @@ typedef
  *  @param response      the PLDM response message, start from pldm_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pldm_get_response_control_get_tid (const void *mctp_context,
+libspdm_return_t pldm_get_response_control_get_tid (const void *mctp_context,
                                                  const void *spdm_context,
                                                  const uint32_t *session_id,
                                                  const void *request, size_t request_size,

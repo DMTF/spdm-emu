@@ -18,10 +18,10 @@
  *  @param response      the IDE_KM response message, start from pci_ide_km_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status pci_ide_km_get_response_query (const void *pci_doe_context,
+libspdm_return_t pci_ide_km_get_response_query (const void *pci_doe_context,
                                              const void *spdm_context, const uint32_t *session_id,
                                              const void *request, size_t request_size,
                                              void *response, size_t *response_size)
@@ -32,7 +32,7 @@ return_status pci_ide_km_get_response_query (const void *pci_doe_context,
     ide_km_request = request;
     ide_km_response = response;
     if (request_size != sizeof(pci_ide_km_query_t)) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     LIBSPDM_ASSERT (*response_size >= sizeof(pci_ide_km_query_resp_t));
     *response_size = sizeof(pci_ide_km_query_resp_t);
@@ -47,5 +47,5 @@ return_status pci_ide_km_get_response_query (const void *pci_doe_context,
     ide_km_response->segment = 0;
     ide_km_response->max_port_index = 7;
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }

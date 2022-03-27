@@ -9,7 +9,7 @@
 
 #include "library/mctp_common_lib.h"
 
-return_status pldm_control_get_tid(const void *mctp_context,
+libspdm_return_t pldm_control_get_tid(const void *mctp_context,
                                    void *spdm_context, const uint32_t *session_id, uint8_t *tid);
 
 /* internal function only*/
@@ -26,10 +26,10 @@ return_status pldm_control_get_tid(const void *mctp_context,
  * @param response                      the MCTP response message, start after mctp_message_header_t, e.g. pldm_message_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The MCTP request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The MCTP request is sent and response is received.
  * @return ERROR                        The MCTP response is not received correctly.
  **/
-return_status mctp_send_receive_data (const void *mctp_context,
+libspdm_return_t mctp_send_receive_data (const void *mctp_context,
                                       void *spdm_context, const uint32_t *session_id,
                                       mctp_message_header_t mctp_header,
                                       const void *request, size_t request_size,
@@ -47,10 +47,10 @@ return_status mctp_send_receive_data (const void *mctp_context,
  * @param response                      the PLDM response message, start from pldm_message_header_t.
  * @param response_size                 size in bytes of response.
  *
- * @retval RETURN_SUCCESS               The PLDM request is sent and response is received.
+ * @retval LIBSPDM_STATUS_SUCCESS               The PLDM request is sent and response is received.
  * @return ERROR                        The PLDM response is not received correctly.
  **/
-return_status pldm_send_receive_data (const void *mctp_context,
+libspdm_return_t pldm_send_receive_data (const void *mctp_context,
                                       void *spdm_context, const uint32_t *session_id,
                                       const void *request, size_t request_size,
                                       void *response, size_t *response_size);

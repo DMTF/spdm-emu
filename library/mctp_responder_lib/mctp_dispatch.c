@@ -27,10 +27,10 @@ mctp_secured_app_dispatch_struct_t m_mctp_secured_app_dispatch[] = {
  *  @param response      the MCTP response message, start from mctp_message_header_t.
  *  @param response_size size in bytes of response.
  *
- *  @retval RETURN_SUCCESS The request is processed and the response is returned.
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
  *  @return ERROR          The request is not processed.
  **/
-return_status mctp_get_response_secured_app_request(const void *mctp_context,
+libspdm_return_t mctp_get_response_secured_app_request(const void *mctp_context,
                                                     void *spdm_context, const uint32_t *session_id,
                                                     const void *request, size_t request_size,
                                                     void *response, size_t *response_size)
@@ -39,12 +39,12 @@ return_status mctp_get_response_secured_app_request(const void *mctp_context,
     mctp_message_header_t *app_response;
     size_t index;
     size_t app_response_size;
-    return_status status;
+    libspdm_return_t status;
 
     app_request = request;
     app_response = response;
     if (request_size < sizeof(mctp_message_header_t)) {
-        return RETURN_INVALID_PARAMETER;
+        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     LIBSPDM_ASSERT (*response_size > sizeof(mctp_message_header_t));
     app_response_size = *response_size - sizeof(mctp_message_header_t);
@@ -58,7 +58,7 @@ return_status mctp_get_response_secured_app_request(const void *mctp_context,
                 (uint8_t *)response + sizeof(mctp_message_header_t),
                 &app_response_size
                 );
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 return status;
             }
 
@@ -67,9 +67,9 @@ return_status mctp_get_response_secured_app_request(const void *mctp_context,
 
             *response_size = app_response_size + sizeof(mctp_message_header_t);
 
-            return RETURN_SUCCESS;
+            return LIBSPDM_STATUS_SUCCESS;
         }
     }
 
-    return RETURN_INVALID_PARAMETER;
+    return LIBSPDM_STATUS_UNSUPPORTED_CAP;
 }

@@ -26,22 +26,22 @@ extern void *m_spdm_context;
  * @param  measurement_hash_type          The type of the measurement hash.
  * @param  measurement_hash              A pointer to a destination buffer to store the measurement hash.
  *
- * @retval RETURN_SUCCESS               The authentication is got successfully.
+ * @retval LIBSPDM_STATUS_SUCCESS               The authentication is got successfully.
  * @retval RETURN_DEVICE_ERROR          A device error occurs when communicates with the device.
  * @retval RETURN_SECURITY_VIOLATION    Any verification fails.
  **/
-return_status
+libspdm_return_t
 spdm_authentication(void *context, uint8_t *slot_mask,
                     void *total_digest_buffer, uint8_t slot_id,
                     size_t *cert_chain_size, void *cert_chain,
                     uint8_t measurement_hash_type, void *measurement_hash)
 {
-    return_status status;
+    libspdm_return_t status;
 
     if ((m_exe_connection & EXE_CONNECTION_DIGEST) != 0) {
         status = libspdm_get_digest(context, slot_mask,
                                     total_digest_buffer);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
     }
@@ -50,7 +50,7 @@ spdm_authentication(void *context, uint8_t *slot_mask,
         if (slot_id != 0xFF) {
             status = libspdm_get_certificate(
                 context, slot_id, cert_chain_size, cert_chain);
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 return status;
             }
         }
@@ -59,11 +59,11 @@ spdm_authentication(void *context, uint8_t *slot_mask,
     if ((m_exe_connection & EXE_CONNECTION_CHAL) != 0) {
         status = libspdm_challenge(context, slot_id, measurement_hash_type,
                                    measurement_hash, NULL);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**
@@ -71,9 +71,9 @@ spdm_authentication(void *context, uint8_t *slot_mask,
  *
  * @param[in]  spdm_context            The SPDM context for the device.
  **/
-return_status do_authentication_via_spdm(void)
+libspdm_return_t do_authentication_via_spdm(void)
 {
-    return_status status;
+    libspdm_return_t status;
     void *spdm_context;
     uint8_t slot_mask;
     uint8_t total_digest_buffer[LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
@@ -92,10 +92,10 @@ return_status do_authentication_via_spdm(void)
                                  &cert_chain_size, cert_chain,
                                  m_use_measurement_summary_hash_type,
                                  measurement_hash);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/

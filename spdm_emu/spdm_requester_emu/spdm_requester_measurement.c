@@ -15,10 +15,10 @@ extern void *m_spdm_context;
  *
  * @param[in]  spdm_context            The SPDM context for the device.
  **/
-return_status spdm_send_receive_get_measurement(void *spdm_context,
+libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
                                                 const uint32_t *session_id)
 {
-    return_status status;
+    libspdm_return_t status;
     uint8_t number_of_blocks;
     uint8_t number_of_block;
     uint8_t received_number_of_block;
@@ -40,7 +40,7 @@ return_status spdm_send_receive_get_measurement(void *spdm_context,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
             m_use_slot_id & 0xF, NULL, &number_of_block,
             &measurement_record_length, measurement_record);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
     } else {
@@ -52,7 +52,7 @@ return_status spdm_send_receive_get_measurement(void *spdm_context,
             spdm_context, session_id, request_attribute,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS,
             m_use_slot_id & 0xF, NULL, &number_of_blocks, NULL, NULL);
-        if (RETURN_ERROR(status)) {
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "number_of_blocks - 0x%x\n",
@@ -76,17 +76,17 @@ return_status spdm_send_receive_get_measurement(void *spdm_context,
                 spdm_context, session_id, request_attribute,
                 index, m_use_slot_id & 0xF, NULL, &number_of_block,
                 &measurement_record_length, measurement_record);
-            if (RETURN_ERROR(status)) {
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 continue;
             }
             received_number_of_block += 1;
         }
         if (received_number_of_block != number_of_blocks) {
-            return RETURN_DEVICE_ERROR;
+            return LIBSPDM_STATUS_INVALID_STATE_PEER;
         }
     }
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 /**
@@ -94,18 +94,18 @@ return_status spdm_send_receive_get_measurement(void *spdm_context,
  *
  * @param[in]  spdm_context            The SPDM context for the device.
  **/
-return_status do_measurement_via_spdm(const uint32_t *session_id)
+libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id)
 {
-    return_status status;
+    libspdm_return_t status;
     void *spdm_context;
 
     spdm_context = m_spdm_context;
 
     status = spdm_send_receive_get_measurement(spdm_context, session_id);
-    if (RETURN_ERROR(status)) {
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/

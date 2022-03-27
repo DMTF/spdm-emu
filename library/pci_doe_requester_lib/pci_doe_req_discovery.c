@@ -31,14 +31,14 @@ typedef struct {
 
 #pragma pack()
 
-return_status pci_doe_discovery (const void *pci_doe_context,
+libspdm_return_t pci_doe_discovery (const void *pci_doe_context,
                                  pci_doe_data_object_protocol_t *data_object_protocol,
                                  size_t *data_object_protocol_size)
 {
     doe_discovery_request_mine_t doe_request;
     doe_discovery_response_mine_t doe_response;
     size_t response_size;
-    return_status status;
+    libspdm_return_t status;
     size_t total_index;
     size_t current_index;
 
@@ -55,7 +55,7 @@ return_status pci_doe_discovery (const void *pci_doe_context,
     do {
         if (total_index <
             (size_t)doe_request.doe_discovery_request.index + 1) {
-            return RETURN_BUFFER_TOO_SMALL;
+            return LIBSPDM_STATUS_INVALID_MSG_SIZE;
         }
 
         response_size = sizeof(doe_response);
@@ -63,29 +63,29 @@ return_status pci_doe_discovery (const void *pci_doe_context,
             pci_doe_context,
             sizeof(doe_request), (uint8_t *)&doe_request,
             &response_size, (uint8_t *)&doe_response);
-        if (RETURN_ERROR(status)) {
-            return RETURN_DEVICE_ERROR;
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return status;
         }
         if (response_size != sizeof(doe_response)) {
-            return RETURN_DEVICE_ERROR;
+            return LIBSPDM_STATUS_INVALID_MSG_SIZE;
         }
         if (doe_response.doe_header.vendor_id !=
             PCI_DOE_VENDOR_ID_PCISIG) {
-            return RETURN_DEVICE_ERROR;
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
         }
         if (doe_response.doe_header.data_object_type !=
             PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY) {
-            return RETURN_DEVICE_ERROR;
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
         }
         if (doe_response.doe_header.length !=
             sizeof(doe_response) / sizeof(uint32_t)) {
-            return RETURN_DEVICE_ERROR;
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
         }
 
         if ((doe_response.doe_discovery_response.next_index != 0) &&
             (doe_response.doe_discovery_response.next_index !=
              doe_request.doe_discovery_request.index + 1)) {
-            return RETURN_DEVICE_ERROR;
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
         }
 
         current_index = doe_request.doe_discovery_request.index;
@@ -103,5 +103,5 @@ return_status pci_doe_discovery (const void *pci_doe_context,
     *data_object_protocol_size = (current_index + 1) *
                                  sizeof(pci_doe_data_object_protocol_t);
 
-    return RETURN_SUCCESS;
+    return LIBSPDM_STATUS_SUCCESS;
 }
