@@ -121,7 +121,7 @@ void append_pcap_packet_data(const void *header, size_t header_size,
 void process_args(char *program_name, int argc, char *argv[]);
 
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
-extern uint8_t m_send_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
+extern uint8_t m_send_receive_buffer[LIBSPDM_SENDER_RECEIVE_BUFFER_SIZE];
 extern size_t m_send_receive_buffer_size;
 
 #endif
