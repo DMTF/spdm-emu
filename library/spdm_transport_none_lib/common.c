@@ -253,7 +253,8 @@ libspdm_return_t spdm_transport_none_decode_message(
         }
 
         /* Secured message to APP message*/
-        libspdm_get_scratch_buffer (spdm_context, (void **)&app_message, &app_message_size);
+        app_message = *message;
+        app_message_size = *message_size;
         status = libspdm_decode_secured_message(
             secured_message_context, *secured_message_session_id,
             is_requester, secured_message_size, secured_message,
