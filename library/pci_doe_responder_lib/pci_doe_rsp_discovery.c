@@ -64,7 +64,7 @@ libspdm_return_t pci_doe_get_response_discovery (const void *pci_doe_context,
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     index = doe_request->doe_discovery_request.index;
-    if (index >= ARRAY_SIZE(m_data_object_protocol)) {
+    if (index >= LIBSPDM_ARRAY_SIZE(m_data_object_protocol)) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
@@ -75,7 +75,7 @@ libspdm_return_t pci_doe_get_response_discovery (const void *pci_doe_context,
     doe_response.doe_discovery_response.vendor_id = m_data_object_protocol[index].vendor_id;
     doe_response.doe_discovery_response.data_object_type =
         m_data_object_protocol[index].data_object_type;
-    if (index + 1 == ARRAY_SIZE(m_data_object_protocol)) {
+    if (index + 1 == LIBSPDM_ARRAY_SIZE(m_data_object_protocol)) {
         doe_response.doe_discovery_response.next_index = 0;
     } else {
         doe_response.doe_discovery_response.next_index = index + 1;

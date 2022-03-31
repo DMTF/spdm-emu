@@ -10,12 +10,10 @@
 #include "hal/base.h"
 #include "industry_standard/spdm.h"
 
-#define SPDM_NEGOTIATED_STATE_STRUCT_SIGNATURE SIGNATURE_32('S', 'P', 'D', 'M')
 #define SPDM_NEGOTIATED_STATE_STRUCT_VERSION 1
 
 #pragma pack(1)
 typedef struct {
-    uint32_t signature;
     uint32_t version;
     uint8_t spdm_version;
     uint8_t requester_cap_ct_exponent;

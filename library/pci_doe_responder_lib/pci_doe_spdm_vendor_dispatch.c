@@ -73,7 +73,7 @@ libspdm_return_t pci_doe_get_response_spdm_vendor_defined_request(const void *pc
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
-    for (index = 0; index < ARRAY_SIZE(m_pci_doe_spdm_dispatch); index++) {
+    for (index = 0; index < LIBSPDM_ARRAY_SIZE(m_pci_doe_spdm_dispatch); index++) {
         if (spdm_request->pci_doe_vendor_header.pci_protocol.protocol_id ==
             m_pci_doe_spdm_dispatch[index].header.protocol_id) {
             status = m_pci_doe_spdm_dispatch[index].func (

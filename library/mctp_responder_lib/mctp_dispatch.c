@@ -49,7 +49,7 @@ libspdm_return_t mctp_get_response_secured_app_request(const void *mctp_context,
     LIBSPDM_ASSERT (*response_size > sizeof(mctp_message_header_t));
     app_response_size = *response_size - sizeof(mctp_message_header_t);
 
-    for (index = 0; index < ARRAY_SIZE(m_mctp_secured_app_dispatch); index++) {
+    for (index = 0; index < LIBSPDM_ARRAY_SIZE(m_mctp_secured_app_dispatch); index++) {
         if (app_request->message_type == m_mctp_secured_app_dispatch[index].header.message_type) {
             status = m_mctp_secured_app_dispatch[index].func (
                 mctp_context, spdm_context, session_id,

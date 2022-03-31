@@ -43,7 +43,7 @@ libspdm_return_t pci_doe_get_response_doe_request(const void *pci_doe_context,
         return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
 
-    for (index = 0; index < ARRAY_SIZE(m_pci_doe_dispatch); index++) {
+    for (index = 0; index < LIBSPDM_ARRAY_SIZE(m_pci_doe_dispatch); index++) {
         if ((doe_request->vendor_id == m_pci_doe_dispatch[index].protocol.vendor_id) &&
             (doe_request->data_object_type ==
              m_pci_doe_dispatch[index].protocol.data_object_type)) {
