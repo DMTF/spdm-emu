@@ -43,7 +43,7 @@ libspdm_return_t pci_ide_km_get_response (const void *pci_doe_context,
         return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
 
-    for (index = 0; index < ARRAY_SIZE(m_pci_idm_km_dispatch); index++) {
+    for (index = 0; index < LIBSPDM_ARRAY_SIZE(m_pci_idm_km_dispatch); index++) {
         if (ide_km_request->object_id == m_pci_idm_km_dispatch[index].header.object_id) {
             return m_pci_idm_km_dispatch[index].func (
                 pci_doe_context, spdm_context, session_id,

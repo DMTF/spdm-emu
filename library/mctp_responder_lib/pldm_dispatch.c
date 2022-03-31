@@ -51,7 +51,7 @@ libspdm_return_t pldm_get_response_secured_app_request(const void *mctp_context,
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
-    for (index = 0; index < ARRAY_SIZE(m_pldm_secured_app_dispatch); index++) {
+    for (index = 0; index < LIBSPDM_ARRAY_SIZE(m_pldm_secured_app_dispatch); index++) {
         if (((app_request->pldm_type & PLDM_HEADER_TYPE_MASK) ==
              m_pldm_secured_app_dispatch[index].dispatch_type.pldm_type) &&
             (app_request->pldm_command_code ==

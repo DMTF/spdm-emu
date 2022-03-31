@@ -430,7 +430,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_transport_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_transport_value_string_table),
                         argv[1], &m_use_transport_layer)) {
                     printf("invalid --trans %s\n", argv[1]);
@@ -452,7 +452,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_version_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_version_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --ver %s\n", argv[1]);
@@ -475,7 +475,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_secured_message_version_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_secured_message_version_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --sec_ver %s\n",
@@ -505,13 +505,13 @@ void process_args(char *program_name, int argc, char *argv[])
                            "spdm_requester_emu") == 0) {
                     CapabilitiesStringTable =
                         m_spdm_requester_capabilities_string_table;
-                    count = ARRAY_SIZE(
+                    count = LIBSPDM_ARRAY_SIZE(
                         m_spdm_requester_capabilities_string_table);
                 } else if (strcmp(program_name,
                                   "spdm_responder_emu") == 0) {
                     CapabilitiesStringTable =
                         m_spdm_responder_capabilities_string_table;
-                    count = ARRAY_SIZE(
+                    count = LIBSPDM_ARRAY_SIZE(
                         m_spdm_responder_capabilities_string_table);
                 } else {
                     LIBSPDM_ASSERT(false);
@@ -542,7 +542,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_hash_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_hash_value_string_table),
                         argv[1], &m_support_hash_algo)) {
                     printf("invalid --hash %s\n", argv[1]);
@@ -564,7 +564,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_measurement_spec_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_measurement_spec_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --meas_spec %s\n",
@@ -589,7 +589,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_measurement_hash_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_measurement_hash_value_string_table),
                         argv[1],
                         &m_support_measurement_hash_algo)) {
@@ -614,7 +614,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_asym_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_asym_value_string_table),
                         argv[1], &m_support_asym_algo)) {
                     printf("invalid --asym %s\n", argv[1]);
@@ -636,7 +636,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_asym_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_asym_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --req_asym %s\n",
@@ -661,7 +661,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_dhe_value_string_table,
-                        ARRAY_SIZE(m_dhe_value_string_table),
+                        LIBSPDM_ARRAY_SIZE(m_dhe_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --dhe %s\n", argv[1]);
                     print_usage(program_name);
@@ -683,7 +683,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_aead_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_aead_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --aead %s\n", argv[1]);
@@ -706,7 +706,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_key_schedule_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_key_schedule_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --key_schedule %s\n",
@@ -731,7 +731,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_other_param_value_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_other_param_value_string_table),
                         argv[1], &data32)) {
                     printf("invalid --other_param %s\n",
@@ -756,7 +756,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_basic_mut_auth_policy_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_basic_mut_auth_policy_string_table),
                         argv[1], &data32)) {
                     printf("invalid --basic_mut_auth %s\n",
@@ -781,7 +781,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_mut_auth_policy_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_mut_auth_policy_string_table),
                         argv[1], &data32)) {
                     printf("invalid --mut_auth %s\n",
@@ -805,7 +805,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_measurement_summary_hash_type_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_measurement_summary_hash_type_string_table),
                         argv[1], &data32)) {
                     printf("invalid --meas_sum %s\n",
@@ -831,7 +831,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_measurement_operation_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_measurement_operation_string_table),
                         argv[1], &data32)) {
                     printf("invalid --meas_op %s\n",
@@ -856,7 +856,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_measurement_attribute_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_measurement_attribute_string_table),
                         argv[1], &data32)) {
                     printf("invalid --meas_att %s\n",
@@ -881,7 +881,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_key_update_action_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_key_update_action_string_table),
                         argv[1], &data32)) {
                     printf("invalid --key_upd %s\n",
@@ -906,7 +906,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_slot_id_string_table,
-                        ARRAY_SIZE(m_slot_id_string_table),
+                        LIBSPDM_ARRAY_SIZE(m_slot_id_string_table),
                         argv[1], &data32)) {
                     printf("invalid --slot_id %s\n",
                            argv[1]);
@@ -929,7 +929,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_slot_count_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_slot_count_string_table),
                         argv[1], &data32)) {
                     printf("invalid --slot_count %s\n",
@@ -980,7 +980,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_value_from_name(
                         m_exe_mode_string_table,
-                        ARRAY_SIZE(m_exe_mode_string_table),
+                        LIBSPDM_ARRAY_SIZE(m_exe_mode_string_table),
                         argv[1], &m_exe_mode)) {
                     printf("invalid --exe_mode %s\n",
                            argv[1]);
@@ -1002,7 +1002,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_exe_connection_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_exe_connection_string_table),
                         argv[1], &m_exe_connection)) {
                     printf("invalid --exe_conn %s\n",
@@ -1025,7 +1025,7 @@ void process_args(char *program_name, int argc, char *argv[])
             if (argc >= 2) {
                 if (!get_flags_from_name(
                         m_exe_session_string_table,
-                        ARRAY_SIZE(
+                        LIBSPDM_ARRAY_SIZE(
                             m_exe_session_string_table),
                         argv[1], &m_exe_session)) {
                     printf("invalid --exe_session %s\n",

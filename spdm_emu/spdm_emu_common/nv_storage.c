@@ -43,11 +43,6 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
     libspdm_copy_mem(&negotiated_state, file_size, file_data, file_size);
     free(file_data);
 
-    if (negotiated_state.signature !=
-        SPDM_NEGOTIATED_STATE_STRUCT_SIGNATURE) {
-        printf("LoadState fail - signature mismatch\n");
-        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
-    }
     if (negotiated_state.version != SPDM_NEGOTIATED_STATE_STRUCT_VERSION) {
         printf("LoadState fail - version mismatch\n");
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;
@@ -177,7 +172,6 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
     printf("SaveState to %s\n", m_save_state_file_name);
 
     libspdm_zero_mem(&negotiated_state, sizeof(negotiated_state));
-    negotiated_state.signature = SPDM_NEGOTIATED_STATE_STRUCT_SIGNATURE;
     negotiated_state.version = SPDM_NEGOTIATED_STATE_STRUCT_VERSION;
 
 
