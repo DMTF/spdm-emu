@@ -20,7 +20,7 @@ uint32_t m_exe_connection = (0 |
 uint32_t m_exe_session =
     (0 | EXE_SESSION_KEY_EX | EXE_SESSION_PSK |
      /* EXE_SESSION_NO_END |*/
-     EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS | 0);
+     EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS | EXE_SESSION_SET_CERT | 0);
 
 void print_usage(const char *name)
 {
