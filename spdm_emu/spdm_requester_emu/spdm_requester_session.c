@@ -49,6 +49,16 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     bool result;
     uint32_t response;
 
+#if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
+    void *cert_chain_to_set;
+    size_t cert_chain_size_to_set;
+    uint8_t slot_id;
+    bool res;
+
+    cert_chain_to_set = NULL;
+    cert_chain_size_to_set = 0;
+#endif
+
     spdm_context = m_spdm_context;
 
     heartbeat_period = 0;
@@ -124,6 +134,52 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         }
     }
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
+
+
+
+#if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
+
+    res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
+                                                          m_use_asym_algo,
+                                                          &cert_chain_to_set,
+                                                          &cert_chain_size_to_set,
+                                                          NULL, NULL);
+    if (!res) {
+        printf("set certificate :read_responder_public_certificate_chain fail!\n");
+        free(cert_chain_to_set);
+        return LIBSPDM_STATUS_SEND_FAIL;
+    }
+
+    /*set_certificate for slot_id:0 in secure environment*/
+    if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
+        slot_id = 0;
+        status = libspdm_set_certificate(spdm_context, slot_id,
+                                         cert_chain_to_set, cert_chain_size_to_set, NULL);
+
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("libspdm_set_certificate - %x\n",
+                    (uint32_t)status);
+        }
+
+    }
+
+    /*set_certificate for slot_id:1 in secure session*/
+    if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
+        slot_id = 1;
+        status = libspdm_set_certificate(spdm_context, slot_id,
+                                         cert_chain_to_set, cert_chain_size_to_set, &session_id);
+
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("libspdm_set_certificate - %x\n",
+                    (uint32_t)status);
+        }
+
+    }
+
+    free(cert_chain_to_set);
+
+#endif /*LIBSPDM_ENABLE_SET_CERTIFICATE_CAP*/
+
 
     if ((m_exe_session & EXE_SESSION_NO_END) == 0) {
         status = libspdm_stop_session(spdm_context, session_id,
