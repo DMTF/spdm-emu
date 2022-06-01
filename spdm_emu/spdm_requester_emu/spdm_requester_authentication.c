@@ -63,6 +63,33 @@ spdm_authentication(void *context, uint8_t *slot_mask,
             return status;
         }
     }
+
+    if ((m_exe_connection & EXE_CONNECTION_DIGEST) != 0) {
+        status = libspdm_get_digest(context, slot_mask,
+                                    total_digest_buffer);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return status;
+        }
+    }
+
+    if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
+        if (slot_id != 0xFF) {
+            status = libspdm_get_certificate(
+                context, slot_id, cert_chain_size, cert_chain);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                return status;
+            }
+        }
+    }
+
+    if ((m_exe_connection & EXE_CONNECTION_DIGEST) != 0) {
+        status = libspdm_get_digest(context, slot_mask,
+                                    total_digest_buffer);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return status;
+        }
+    }
+
     return LIBSPDM_STATUS_SUCCESS;
 }
 
