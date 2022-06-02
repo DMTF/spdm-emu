@@ -126,15 +126,21 @@ void *spdm_client_init(void)
     libspdm_return_t status;
     bool res;
     void *data;
+    void *data1;
     size_t data_size;
+    size_t data1_size;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
     uint16_t data16;
     uint32_t data32;
     void *hash;
+    void *hash1;
     size_t hash_size;
+    size_t hash1_size;
     const uint8_t *root_cert;
+    const uint8_t *root_cert1;
     size_t root_cert_size;
+    size_t root_cert1_size;
     spdm_version_number_t spdm_version;
     size_t scratch_buffer_size;
 
@@ -323,6 +329,28 @@ void *spdm_client_init(void)
             libspdm_set_data(spdm_context,
                              LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
                              &parameter, (void *)root_cert, root_cert_size);
+            /* Do not free it.*/
+        } else {
+            printf("read_responder_root_public_certificate fail!\n");
+            free(m_spdm_context);
+            m_spdm_context = NULL;
+            return NULL;
+        }
+        res = libspdm_read_responder_root_public_certificate_slot(1,
+                                                                  m_use_hash_algo,
+                                                                  m_use_asym_algo,
+                                                                  &data1, &data1_size,
+                                                                  &hash1, &hash1_size);
+        libspdm_x509_get_cert_from_cert_chain(
+            (uint8_t *)data1 + sizeof(spdm_cert_chain_t) + hash1_size,
+            data1_size - sizeof(spdm_cert_chain_t) - hash1_size, 0,
+            &root_cert1, &root_cert1_size);
+        if (res) {
+            libspdm_zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+            libspdm_set_data(spdm_context,
+                             LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+                             &parameter, (void *)root_cert1, root_cert1_size);
             /* Do not free it.*/
         } else {
             printf("read_responder_root_public_certificate fail!\n");
