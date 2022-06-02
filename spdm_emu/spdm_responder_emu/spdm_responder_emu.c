@@ -15,6 +15,7 @@ extern void *m_scratch_buffer;
 extern void *m_pci_doe_context;
 
 void *spdm_server_init(void);
+libspdm_return_t pci_doe_init_responder ();
 
 bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 {
@@ -97,7 +98,7 @@ bool platform_server(const SOCKET socket)
 {
     bool result;
     libspdm_return_t status;
-    uint8_t response[PCI_DOE_MAX_NON_SPDM_MESSAGE_SIZE];
+    uint8_t response[LIBPCIDOE_MAX_NON_SPDM_MESSAGE_SIZE];
     size_t response_size;
 
     while (true) {
@@ -282,6 +283,8 @@ bool platform_server_routine(uint16_t port_number)
 
 int main(int argc, char *argv[])
 {
+    libspdm_return_t status;
+
     printf("%s version 0.1\n", "spdm_responder_emu");
     srand((unsigned int)time(NULL));
 
@@ -290,6 +293,14 @@ int main(int argc, char *argv[])
     m_spdm_context = spdm_server_init();
     if (m_spdm_context == NULL) {
         return 0;
+    }
+
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
+        status = pci_doe_init_responder ();
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("pci_doe_init_responder - %x\n", (uint32_t)status);
+            return 0;
+        }
     }
 
     platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);

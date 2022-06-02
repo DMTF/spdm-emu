@@ -22,7 +22,7 @@ extern void *m_scratch_buffer;
 
 void *spdm_client_init(void);
 
-libspdm_return_t pci_doe_init_request(void);
+libspdm_return_t pci_doe_init_requester(void);
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
                                const uint8_t *send_buffer, size_t bytes_to_send,
@@ -121,9 +121,9 @@ bool platform_client_routine(uint16_t port_number)
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
-        status = pci_doe_init_request ();
+        status = pci_doe_init_requester ();
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("pci_doe_init_request - %x\n", (uint32_t)status);
+            printf("pci_doe_init_requester - %x\n", (uint32_t)status);
             goto done;
         }
     }

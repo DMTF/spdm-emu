@@ -49,8 +49,8 @@ pci_doe_data_object_protocol_t m_data_object_protocol[] = {
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_doe_get_response_discovery (const void *pci_doe_context,
-                                              const void *request, size_t request_size,
-                                              void *response, size_t *response_size)
+                                                 const void *request, size_t request_size,
+                                                 void *response, size_t *response_size)
 {
     doe_discovery_request_mine_t *doe_request;
     doe_discovery_response_mine_t doe_response;

@@ -32,8 +32,8 @@ pci_doe_dispatch_struct_t m_pci_doe_dispatch[] = {
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_doe_get_response_doe_request(const void *pci_doe_context,
-                                               const void *request, size_t request_size,
-                                               void *response, size_t *response_size)
+                                                  const void *request, size_t request_size,
+                                                  void *response, size_t *response_size)
 {
     pci_doe_data_object_header_t *doe_request;
     size_t index;

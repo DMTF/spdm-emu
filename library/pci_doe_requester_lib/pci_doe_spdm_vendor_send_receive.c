@@ -35,18 +35,18 @@ libspdm_return_t pci_doe_spdm_vendor_send_receive_data (void *spdm_context, cons
     size_t data_size;
     libspdm_return_t status;
     uint8_t request_buffer[sizeof(pci_doe_spdm_vendor_defined_request_t) +
-                           PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE];
+                           LIBPCIDOE_SPDM_VENDOR_MAX_MESSAGE_SIZE];
     pci_doe_spdm_vendor_defined_request_t *spdm_request;
     size_t spdm_request_size;
     uint8_t response_buffer[sizeof(pci_doe_spdm_vendor_defined_response_t) +
-                            PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE];
+                            LIBPCIDOE_SPDM_VENDOR_MAX_MESSAGE_SIZE];
     pci_doe_spdm_vendor_defined_response_t *spdm_response;
     size_t spdm_response_size;
 
     spdm_request = (void *)request_buffer;
     spdm_response = (void *)response_buffer;
-    LIBSPDM_ASSERT (request_size <= PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
-    LIBSPDM_ASSERT (*response_size < PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
+    LIBSPDM_ASSERT (request_size <= LIBPCIDOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
+    LIBSPDM_ASSERT (*response_size < LIBPCIDOE_SPDM_VENDOR_MAX_MESSAGE_SIZE);
 
     libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
