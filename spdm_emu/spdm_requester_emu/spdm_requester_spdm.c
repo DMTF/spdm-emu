@@ -133,7 +133,7 @@ void *spdm_client_init(void)
     uint32_t data32;
     void *hash;
     size_t hash_size;
-    uint8_t *root_cert;
+    const uint8_t *root_cert;
     size_t root_cert_size;
     spdm_version_number_t spdm_version;
     size_t scratch_buffer_size;
@@ -322,7 +322,7 @@ void *spdm_client_init(void)
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
                              LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
-                             &parameter, root_cert, root_cert_size);
+                             &parameter, (void *)root_cert, root_cert_size);
             /* Do not free it.*/
         } else {
             printf("read_responder_root_public_certificate fail!\n");

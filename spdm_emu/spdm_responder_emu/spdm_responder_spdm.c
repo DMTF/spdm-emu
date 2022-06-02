@@ -250,7 +250,7 @@ void spdm_server_connection_state_callback(
     libspdm_return_t status;
     void *hash;
     size_t hash_size;
-    uint8_t *root_cert;
+    const uint8_t *root_cert;
     size_t root_cert_size;
     uint8_t index;
     spdm_version_number_t spdm_version;
@@ -348,7 +348,7 @@ void spdm_server_connection_state_callback(
                     libspdm_set_data(
                         spdm_context,
                         LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
-                        &parameter, root_cert, root_cert_size);
+                        &parameter, (void *)root_cert, root_cert_size);
                     /* Do not free it.*/
                 }
             }
