@@ -8,15 +8,13 @@
 #define __PCI_DOE_COMMON_LIB_H__
 
 #include "industry_standard/pcidoe.h"
-#include "industry_standard/pci_idekm.h"
-
 
 /* PCI DOE - check below configuration
  * only Discovery*/
-#define PCI_DOE_MAX_NON_SPDM_MESSAGE_SIZE 12
+#define LIBPCIDOE_MAX_NON_SPDM_MESSAGE_SIZE 12
 /* PCI DOE SPDM Vendor Defined - check below configuration
  * only IDE_KM*/
-#define PCI_DOE_SPDM_VENDOR_MAX_MESSAGE_SIZE 0x100
+#define LIBPCIDOE_SPDM_VENDOR_MAX_MESSAGE_SIZE 0x400
 
 /* defintion for library*/
 typedef struct {

@@ -8,7 +8,7 @@
 #include "hal/library/memlib.h"
 #include "library/spdm_requester_lib.h"
 #include "library/spdm_transport_pcidoe_lib.h"
-#include "library/pci_doe_requester_lib.h"
+#include "library/pci_ide_km_requester_lib.h"
 
 /**
  * Send and receive an IDE_KM message
@@ -25,9 +25,9 @@
  * @retval LIBSPDM_STATUS_SUCCESS               The IDM_KM request is sent and response is received.
  * @return ERROR                        The IDM_KM response is not received correctly.
  **/
-libspdm_return_t ide_km_send_receive_data (void *spdm_context, const uint32_t *session_id,
-                                        const void *request, size_t request_size,
-                                        void *response, size_t *response_size)
+libspdm_return_t pci_ide_km_send_receive_data (void *spdm_context, const uint32_t *session_id,
+                                               const void *request, size_t request_size,
+                                               void *response, size_t *response_size)
 {
     libspdm_return_t status;
     pci_protocol_header_t pci_protocol;

@@ -27,15 +27,16 @@ libspdm_return_t mctp_process_session_message(void *spdm_context, uint32_t sessi
 
 libspdm_return_t do_app_session_via_spdm(uint32_t session_id)
 {
+    libspdm_return_t status = LIBSPDM_STATUS_SUCCESS;
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
-        pci_doe_process_session_message (m_spdm_context, session_id);
+        status = pci_doe_process_session_message (m_spdm_context, session_id);
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
-        mctp_process_session_message (m_spdm_context, session_id);
+        status = mctp_process_session_message (m_spdm_context, session_id);
     }
 
-    return LIBSPDM_STATUS_SUCCESS;
+    return status;
 }
 
 libspdm_return_t get_digest_cert_in_session(const uint32_t *session_id)
@@ -107,7 +108,11 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         return status;
     }
 
-    do_app_session_via_spdm(session_id);
+    status = do_app_session_via_spdm(session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        printf("do_app_session_via_spdm - %x\n", (uint32_t)status);
+        return status;
+    }
 
     if ((m_exe_session & EXE_SESSION_HEARTBEAT) != 0) {
         status = libspdm_heartbeat(spdm_context, session_id);
