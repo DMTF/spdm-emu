@@ -242,7 +242,9 @@ void spdm_server_connection_state_callback(
 {
     bool res;
     void *data;
+    void *data1;
     size_t data_size;
+    size_t data1_size;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
     uint16_t data16;
@@ -302,6 +304,11 @@ void spdm_server_connection_state_callback(
                                                               m_use_asym_algo,
                                                               &data, &data_size,
                                                               NULL, NULL);
+        res = libspdm_read_responder_public_certificate_chain_per_slot(1,
+                                                                       m_use_hash_algo,
+                                                                       m_use_asym_algo,
+                                                                       &data1, &data1_size,
+                                                                       NULL, NULL);
         if (res) {
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
@@ -311,9 +318,15 @@ void spdm_server_connection_state_callback(
 
             for (index = 0; index < m_use_slot_count; index++) {
                 parameter.additional_data[0] = index;
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                                 &parameter, data, data_size);
+                if (index == 1) {
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                     &parameter, data1, data1_size);
+                } else {
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                     &parameter, data, data_size);
+                }
             }
             /* do not free it*/
         }
