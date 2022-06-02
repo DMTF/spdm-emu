@@ -38,6 +38,39 @@ libspdm_return_t do_app_session_via_spdm(uint32_t session_id)
     return LIBSPDM_STATUS_SUCCESS;
 }
 
+libspdm_return_t get_digest_cert_in_session(const uint32_t *session_id)
+{
+    libspdm_return_t status;
+    void *spdm_context;
+    uint8_t slot_mask;
+    uint8_t total_digest_buffer[LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
+    uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
+    size_t cert_chain_size;
+    uint8_t cert_chain[LIBSPDM_MAX_CERT_CHAIN_SIZE];
+
+
+    spdm_context = m_spdm_context;
+    libspdm_zero_mem(total_digest_buffer, sizeof(total_digest_buffer));
+    cert_chain_size = sizeof(cert_chain);
+    libspdm_zero_mem(cert_chain, sizeof(cert_chain));
+    libspdm_zero_mem(measurement_hash, sizeof(measurement_hash));
+
+    status = libspdm_get_digest_in_session(spdm_context, session_id, &slot_mask,
+                                           total_digest_buffer);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    if (m_use_slot_id != 0xFF) {
+        status = libspdm_get_certificate_in_session(
+            spdm_context, session_id, m_use_slot_id, &cert_chain_size, cert_chain, NULL, 0);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return status;
+        }
+    }
+
+    return status;
+}
+
 libspdm_return_t do_session_via_spdm(bool use_psk)
 {
     void *spdm_context;
@@ -135,7 +168,13 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     }
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
-
+#if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
+    status = get_digest_cert_in_session(&session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        printf("get_digest_cert_in_session - %x\n",
+               (uint32_t)status);
+    }
+#endif
 
 #if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
 
