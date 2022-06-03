@@ -109,7 +109,7 @@ void spdm_device_release_receiver_buffer (
 bool libspdm_read_input_file(const char *file_name, void **file_data,
                              size_t *file_size);
 
-bool write_output_file(const char *file_name, const void *file_data,
+bool libspdm_write_output_file(const char *file_name, const void *file_data,
                        size_t file_size);
 
 bool open_pcap_packet_file(const char *pcap_file_name);
