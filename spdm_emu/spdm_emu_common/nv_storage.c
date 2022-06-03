@@ -284,7 +284,7 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
     negotiated_state.other_params_support = data8;
 
     ret = libspdm_write_output_file(m_save_state_file_name, &negotiated_state,
-                                    sizeof(negotiated_state));
+                            sizeof(negotiated_state));
     if (!ret) {
         printf("SaveState fail - write file error\n");
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;
