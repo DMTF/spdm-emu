@@ -81,6 +81,8 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     size_t response_size;
     bool result;
     uint32_t response;
+    uint8_t *csr_form_get = NULL;
+    size_t csr_len;
 
 #if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
     void *cert_chain_to_set;
@@ -219,6 +221,15 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
 
 #endif /*LIBSPDM_ENABLE_SET_CERTIFICATE_CAP*/
 
+    if ((m_exe_session & EXE_SESSION_GET_CSR) != 0) {
+        slot_id = 0;
+        status = libspdm_get_csr(spdm_context, NULL, 0, NULL, 0, NULL, &csr_form_get,
+                                 &csr_len);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("libspdm_get_csr - %x\n",
+                    (uint32_t)status);
+        }
+    }
 
     if ((m_exe_session & EXE_SESSION_NO_END) == 0) {
         status = libspdm_stop_session(spdm_context, session_id,

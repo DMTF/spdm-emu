@@ -78,6 +78,7 @@ extern uint32_t m_exe_connection;
 #define EXE_SESSION_HEARTBEAT 0x10
 #define EXE_SESSION_MEAS 0x20
 #define EXE_SESSION_SET_CERT 0x40
+#define EXE_SESSION_GET_CSR 0x80
 extern uint32_t m_exe_session;
 
 void libspdm_dump_hex_str(const uint8_t *buffer, size_t buffer_size);
@@ -109,8 +110,8 @@ void spdm_device_release_receiver_buffer (
 bool libspdm_read_input_file(const char *file_name, void **file_data,
                              size_t *file_size);
 
-bool write_output_file(const char *file_name, const void *file_data,
-                       size_t file_size);
+bool libspdm_write_output_file(const char *file_name, const void *file_data,
+                               size_t file_size);
 
 bool open_pcap_packet_file(const char *pcap_file_name);
 
