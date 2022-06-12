@@ -11,11 +11,11 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
                     ${COMMON_TEST_FRAMEWORK_DIR}/include
 )
 
-SET(src_spdm_responder_validator_emu
-    spdm_responder_validator_emu.c
-    spdm_responder_validator_config.c
-    spdm_requester_spdm.c
-    spdm_requester_pci_doe.c
+SET(src_spdm_device_validator_sample
+    spdm_device_validator_sample.c
+    spdm_device_validator_config.c
+    spdm_device_validator_spdm.c
+    spdm_device_validator_pci_doe.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/spdm_emu.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/command.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/key.c
@@ -24,7 +24,7 @@ SET(src_spdm_responder_validator_emu
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
-SET(spdm_responder_validator_emu_LIBRARY
+SET(spdm_device_validator_sample_LIBRARY
     memlib
     debuglib_null
     spdm_requester_lib
@@ -47,7 +47,7 @@ SET(spdm_responder_validator_emu_LIBRARY
 )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
-    ADD_EXECUTABLE(spdm_responder_validator_emu
+    ADD_EXECUTABLE(spdm_device_validator_sample
                    ${src_spdm_responder_test_client}
                    $<TARGET_OBJECTS:memlib>
                    $<TARGET_OBJECTS:debuglib_null>
@@ -67,6 +67,6 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:common_test_utility_lib>
     )
 else()
-    ADD_EXECUTABLE(spdm_responder_validator_emu ${src_spdm_responder_validator_emu})
-    TARGET_LINK_LIBRARIES(spdm_responder_validator_emu ${spdm_responder_validator_emu_LIBRARY})
+    ADD_EXECUTABLE(spdm_device_validator_sample ${src_spdm_device_validator_sample})
+    TARGET_LINK_LIBRARIES(spdm_device_validator_sample ${spdm_device_validator_sample_LIBRARY})
 endif()

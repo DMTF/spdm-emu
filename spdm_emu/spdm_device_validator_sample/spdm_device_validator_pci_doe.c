@@ -4,7 +4,7 @@
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
-#include "spdm_responder_validator_emu.h"
+#include "spdm_device_validator_sample.h"
 
 void *m_pci_doe_context;
 

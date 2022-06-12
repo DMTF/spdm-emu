@@ -4,7 +4,7 @@
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
-#include "spdm_responder_validator_emu.h"
+#include "spdm_device_validator_sample.h"
 
 #define IP_ADDRESS "127.0.0.1"
 
@@ -145,10 +145,10 @@ done:
 
 int main(int argc, char *argv[])
 {
-    printf("%s version 0.1\n", "spdm_responder_validator_emu");
+    printf("%s version 0.1\n", "spdm_device_validator_sample");
     srand((unsigned int)time(NULL));
 
-    process_args("spdm_responder_validator_emu", argc, argv);
+    process_args("spdm_device_validator_sample", argc, argv);
 
     platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
     printf("Client stopped\n");

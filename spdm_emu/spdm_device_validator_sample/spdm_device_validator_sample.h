@@ -4,8 +4,8 @@
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
-#ifndef __SPDM_RESPONDER_VALIDATOR_EMU_H__
-#define __SPDM_RESPONDER_VALIDATOR_EMU_H__
+#ifndef __SPDM_DEVICE_VALIDATOR_SAMPLE_H__
+#define __SPDM_DEVICE_VALIDATOR_SAMPLE_H__
 
 #include "hal/base.h"
 #include "hal/library/memlib.h"
