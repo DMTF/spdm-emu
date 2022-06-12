@@ -4,7 +4,7 @@
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
-#include "spdm_responder_validator_emu.h"
+#include "spdm_device_validator_sample.h"
 
 common_test_case_config_t m_spdm_test_group_version_configs[] = {
     {SPDM_RESPONDER_TEST_CASE_VERSION_SUCCESS_10, COMMON_TEST_ACTION_RUN},
