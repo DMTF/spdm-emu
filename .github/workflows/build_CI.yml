@@ -41,6 +41,8 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_requester_emu
+          ./spdm_responder_emu &
+          ./spdm_responder_validator_emu
 
   gcc_openssl_build:
     runs-on: ubuntu-latest
@@ -61,6 +63,8 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_requester_emu
+          ./spdm_responder_emu &
+          ./spdm_responder_validator_emu
 
   VS2019_mbedtls_build:
     runs-on: windows-latest
@@ -87,6 +91,8 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_requester_emu
+          ./spdm_responder_emu &
+          ./spdm_responder_validator_emu
 
   VS2019_openssl_build:
     runs-on: windows-latest
@@ -114,3 +120,5 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_requester_emu
+          ./spdm_responder_emu &
+          ./spdm_responder_validator_emu
