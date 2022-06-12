@@ -546,3 +546,5 @@ endif()
     ADD_SUBDIRECTORY(${COMMON_TEST_FRAMEWORK_DIR}/library/common_test_utility_lib out/common_test_utility_lib.out)
     ADD_SUBDIRECTORY(${SPDM_RESPONDER_VALIDATOR_DIR}/library/spdm_responder_conformance_test_lib out/spdm_responder_conformance_test_lib.out)
     ADD_SUBDIRECTORY(spdm_emu/spdm_device_validator_sample)
+
+    ADD_SUBDIRECTORY(spdm_emu/spdm_device_attester_sample)
