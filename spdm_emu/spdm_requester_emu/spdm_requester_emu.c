@@ -172,6 +172,17 @@ bool platform_client_routine(uint16_t port_number)
                 goto done;
             }
         }
+        if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
+            if (m_use_slot_id == 0) {
+                m_use_slot_id =  1;
+                status = do_session_via_spdm(false);
+                if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                    printf("do_session_via_spdm - %x\n",
+                           (uint32_t)status);
+                    goto done;
+                }
+            }
+        }
     }
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)*/
 
