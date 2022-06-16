@@ -122,6 +122,8 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
             libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
                              &data8, sizeof(data8));
         }
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_VCA_CACHE, &parameter,
+                         negotiated_state.vca_buffer, negotiated_state.vca_buffer_size);
     } else {
         data16 = 0;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP,
@@ -162,6 +164,7 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
     uint32_t data32;
     spdm_version_number_t spdm_version[SPDM_MAX_VERSION_COUNT];
     size_t index;
+    uint8_t vca_buffer[LIBSPDM_MAX_MESSAGE_SMALL_BUFFER_SIZE];
 
     if (m_save_state_file_name == NULL) {
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;
@@ -239,6 +242,14 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
                          &parameter, &data8, &data_size);
         negotiated_state.requester_cap_ct_exponent = data8;
     }
+
+    data_size = sizeof(vca_buffer);
+    libspdm_zero_mem(vca_buffer, data_size);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_VCA_CACHE, &parameter, vca_buffer,
+                     &data_size);
+    negotiated_state.vca_buffer_size = data_size;
+    libspdm_copy_mem(negotiated_state.vca_buffer, sizeof(negotiated_state.vca_buffer),
+                     vca_buffer, data_size);
 
     if ((negotiated_state.responder_cap_flags &
          SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CACHE_CAP) == 0) {
