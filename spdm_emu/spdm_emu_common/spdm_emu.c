@@ -29,7 +29,7 @@ void print_usage(const char *name)
     printf("   [--ver 1.0|1.1|1.2]\n");
     printf("   [--sec_ver 0|1.0|1.1]\n");
     printf(
-        "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT]\n");
+        "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET]\n");
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--meas_spec DMTF]\n");
     printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
@@ -67,7 +67,7 @@ void print_usage(const char *name)
     printf(
         "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Requester.\n");
     printf(
-        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Responder.\n");
+        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR is used for Responder.\n");
     printf("   [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.\n");
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
     printf(
@@ -207,6 +207,9 @@ value_string_entry_t m_spdm_responder_capabilities_string_table[] = {
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP, "PUB_KEY_ID" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHUNK_CAP, "CHUNK" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP, "ALIAS_CERT" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_CERT_CAP, "SET_CERT" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CSR_CAP, "CSR" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_INSTALL_RESET_CAP, "CERT_INSTALL_RESET" },
 };
 
 value_string_entry_t m_hash_value_string_table[] = {
