@@ -1,0 +1,6 @@
+cbor>=1.0.0
+pycose>=0.1.2
+cose>=0.9.dev8
+jose>=1.0.0
+python_jose>=3.1.0
+cryptography>=2.3
