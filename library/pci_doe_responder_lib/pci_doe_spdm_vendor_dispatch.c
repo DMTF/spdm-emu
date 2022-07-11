@@ -6,6 +6,7 @@
 
 #include "hal/base.h"
 #include "hal/library/memlib.h"
+#include "hal/library/debuglib.h"
 #include "library/spdm_requester_lib.h"
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/pci_doe_responder_lib.h"
@@ -92,7 +93,7 @@ libspdm_return_t pci_doe_get_response_spdm_vendor_defined_request(const void *pc
             libspdm_zero_mem (spdm_response, sizeof(pci_doe_spdm_vendor_defined_response_t));
             spdm_response->spdm_header.spdm_version = spdm_request->spdm_header.spdm_version;
             spdm_response->spdm_header.request_response_code = SPDM_VENDOR_DEFINED_RESPONSE;
-            spdm_response->pci_doe_vendor_header.standard_id = 
+            spdm_response->pci_doe_vendor_header.standard_id =
                 spdm_request->pci_doe_vendor_header.standard_id;
             spdm_response->pci_doe_vendor_header.len =
                 sizeof(spdm_response->pci_doe_vendor_header.vendor_id);

@@ -6,6 +6,7 @@
 
 #include "hal/base.h"
 #include "hal/library/memlib.h"
+#include "hal/library/debuglib.h"
 #include "library/spdm_requester_lib.h"
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/pci_ide_km_device_lib.h"
