@@ -79,11 +79,14 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     uint32_t session_id;
     uint8_t heartbeat_period;
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
-    uint8_t csr_form_get[LIBSPDM_MAX_CSR_SIZE];
-    size_t csr_len;
     size_t response_size;
     bool result;
     uint32_t response;
+
+#if LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP
+    uint8_t csr_form_get[LIBSPDM_MAX_CSR_SIZE];
+    size_t csr_len;
+#endif /*LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP*/
 
 #if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
     void *cert_chain_to_set;
@@ -93,7 +96,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
 
     cert_chain_to_set = NULL;
     cert_chain_size_to_set = 0;
-#endif
+#endif /*LIBSPDM_ENABLE_SET_CERTIFICATE_CAP*/
 
     spdm_context = m_spdm_context;
 
@@ -183,7 +186,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     }
 #endif
 
-
+#if LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP
     /*get csr*/
     csr_len = LIBSPDM_MAX_CSR_SIZE;
     libspdm_zero_mem(csr_form_get, sizeof(csr_form_get));
@@ -195,6 +198,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
                     (uint32_t)status);
         }
     }
+#endif /*LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP*/
 
 #if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
 
