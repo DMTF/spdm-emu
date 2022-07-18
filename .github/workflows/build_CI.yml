@@ -127,8 +127,17 @@ jobs:
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_requester_emu
+          ./spdm_responder_emu >respnder.log &
+          ./spdm_requester_emu >requester.log
+          filename=respnder.log
+          filesize=`ls -l $filename | awk '{ print $5 }'`
+          minsize=$((1000))
+          if test [ $filesize -lt $minsize ]
+          then
+              echo "$filesize < $minsize"
+              exit 1
+          fi
+
       - name: Responder_validator_Test
         run: |
           cd build/bin
