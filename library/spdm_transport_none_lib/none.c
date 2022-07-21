@@ -86,6 +86,24 @@ libspdm_return_t none_decode_message(uint32_t **session_id,
                                   const void *transport_message,
                                   size_t *message_size, void **message)
 {
+    static uint32_t session_id_temp = 0x0;
+    uint8_t first_byte = *(uint8_t *)transport_message;
+
+    if (*session_id == NULL) {
+        if (first_byte != SPDM_MESSAGE_VERSION_12 
+                && first_byte != SPDM_MESSAGE_VERSION_11
+                && first_byte != SPDM_MESSAGE_VERSION_10) {
+           *session_id = (uint32_t *)(uint8_t *)transport_message;
+           session_id_temp = *(uint32_t *)(uint8_t *)transport_message;
+        }
+    }
+    else {
+        if (session_id_temp == **session_id) {
+            session_id_temp = 0x0;
+            *session_id = NULL;
+        }
+    }
+
     *message_size = transport_message_size;
     *message = (void *)transport_message;
     return LIBSPDM_STATUS_SUCCESS;
