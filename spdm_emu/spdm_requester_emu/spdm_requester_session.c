@@ -188,59 +188,61 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
 
 #if LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP
     /*get csr*/
-    csr_len = LIBSPDM_MAX_CSR_SIZE;
-    libspdm_zero_mem(csr_form_get, sizeof(csr_form_get));
-    if ((m_exe_session & EXE_SESSION_GET_CSR) != 0) {
-        status = libspdm_get_csr(spdm_context, NULL, 0, NULL, 0, NULL, csr_form_get,
-                                 &csr_len);
-        if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_get_csr - %x\n",
-                    (uint32_t)status);
+    if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
+        csr_len = LIBSPDM_MAX_CSR_SIZE;
+        libspdm_zero_mem(csr_form_get, sizeof(csr_form_get));
+        if ((m_exe_session & EXE_SESSION_GET_CSR) != 0) {
+            status = libspdm_get_csr(spdm_context, NULL, 0, NULL, 0, NULL, csr_form_get,
+                                    &csr_len);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                printf("libspdm_get_csr - %x\n",
+                        (uint32_t)status);
+            }
         }
-    }
+    }    
 #endif /*LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP*/
 
 #if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
+    if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
+        res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
+                                                            m_use_asym_algo,
+                                                            &cert_chain_to_set,
+                                                            &cert_chain_size_to_set,
+                                                            NULL, NULL);
+        if (!res) {
+            printf("set certificate :read_responder_public_certificate_chain fail!\n");
+            free(cert_chain_to_set);
+            return LIBSPDM_STATUS_SEND_FAIL;
+        }
 
-    res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
-                                                          m_use_asym_algo,
-                                                          &cert_chain_to_set,
-                                                          &cert_chain_size_to_set,
-                                                          NULL, NULL);
-    if (!res) {
-        printf("set certificate :read_responder_public_certificate_chain fail!\n");
+        /*set_certificate for slot_id:0 in secure environment*/
+        if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
+            slot_id = 0;
+            status = libspdm_set_certificate(spdm_context, slot_id,
+                                            cert_chain_to_set, cert_chain_size_to_set, NULL);
+
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                printf("libspdm_set_certificate - %x\n",
+                        (uint32_t)status);
+            }
+
+        }
+
+        /*set_certificate for slot_id:1 in secure session*/
+        if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
+            slot_id = 1;
+            status = libspdm_set_certificate(spdm_context, slot_id,
+                                            cert_chain_to_set, cert_chain_size_to_set, &session_id);
+
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                printf("libspdm_set_certificate - %x\n",
+                        (uint32_t)status);
+            }
+
+        }
+
         free(cert_chain_to_set);
-        return LIBSPDM_STATUS_SEND_FAIL;
     }
-
-    /*set_certificate for slot_id:0 in secure environment*/
-    if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
-        slot_id = 0;
-        status = libspdm_set_certificate(spdm_context, slot_id,
-                                         cert_chain_to_set, cert_chain_size_to_set, NULL);
-
-        if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_set_certificate - %x\n",
-                    (uint32_t)status);
-        }
-
-    }
-
-    /*set_certificate for slot_id:1 in secure session*/
-    if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
-        slot_id = 1;
-        status = libspdm_set_certificate(spdm_context, slot_id,
-                                         cert_chain_to_set, cert_chain_size_to_set, &session_id);
-
-        if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_set_certificate - %x\n",
-                    (uint32_t)status);
-        }
-
-    }
-
-    free(cert_chain_to_set);
-
 #endif /*LIBSPDM_ENABLE_SET_CERTIFICATE_CAP*/
 
 
