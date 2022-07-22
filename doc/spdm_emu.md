@@ -91,7 +91,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--pcap] is used to generate PCAP dump file for offline analysis.
    </pre>
 
-   Take spdm_requester_emu or spdm_responder_emu as an example, a user may usespdm_requester_emu_emu --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
+   Take spdm_requester_emu or spdm_responder_emu as an example, a user may use `spdm_requester_emu --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
 
    To test PCI_DOE, a user may use `spdm_requester_emu --trans PCI_DOE --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu  --trans PCI_DOE --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
 
