@@ -39,8 +39,46 @@ jobs:
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_requester_emu
+
+          test_port=2323
+          TCPListeningnum=`netstat -an | grep ":$test_port " | awk '/^tcp.*/ && $NF == "LISTEN" {print $0}' | wc -l`
+          UDPListeningnum=`netstat -an | grep ":$test_port " | awk '/^udp.*/ && $NF == "0.0.0.0:*" {print $0}' | wc -l`
+          Listeningnum=$((TCPListeningnum + UDPListeningnum))
+          if [ $Listeningnum -eq 0 ]; then
+              echo "port is not used"
+          else
+              echo "port is used"
+          fi
+          ./spdm_responder_emu  &
+          ./spdm_requester_emu >requester.log
+
+          filename=./requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1070000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
       - name: Responder_validator_Test
         run: |
           cd build/bin
@@ -64,8 +102,46 @@ jobs:
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_requester_emu
+
+          test_port=2323
+          TCPListeningnum=`netstat -an | grep ":$test_port " | awk '/^tcp.*/ && $NF == "LISTEN" {print $0}' | wc -l`
+          UDPListeningnum=`netstat -an | grep ":$test_port " | awk '/^udp.*/ && $NF == "0.0.0.0:*" {print $0}' | wc -l`
+          Listeningnum=$((TCPListeningnum + UDPListeningnum))
+          if [ $Listeningnum -eq 0 ]; then
+              echo "port is not used"
+          else
+              echo "port is used"
+          fi
+          ./spdm_responder_emu  &
+          ./spdm_requester_emu >requester.log
+
+          filename=./requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1070000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
       - name: Responder_validator_Test
         run: |
           cd build/bin
