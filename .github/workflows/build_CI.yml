@@ -39,8 +39,35 @@ jobs:
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_requester_emu
+          ./spdm_responder_emu >responder.log &
+          ./spdm_requester_emu >requester.log
+          filename=responder.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen responder.log fail"
+              exit 1
+          fi
+          minsize=1100000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "responder run fail"
+              echo "`stat -c%s "$filename"`"
+              exit 1
+          fi
+
+          filename=requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          minsize=1080000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              echo "`stat -c%s "$filename"`"
+              exit 1
+          fi
       - name: Responder_validator_Test
         run: |
           cd build/bin
@@ -64,8 +91,35 @@ jobs:
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_requester_emu
+          ./spdm_responder_emu >responder.log &
+          ./spdm_requester_emu >requester.log
+          filename=responder.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen responder.log fail"
+              exit 1
+          fi
+          minsize=1100000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "responder run fail"
+              echo "`stat -c%s "$filename"`"
+              exit 1
+          fi
+
+          filename=requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          minsize=1080000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              echo "`stat -c%s "$filename"`"
+              exit 1
+          fi
       - name: Responder_validator_Test
         run: |
           cd build/bin
