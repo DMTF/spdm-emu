@@ -75,7 +75,7 @@ The tools can also verify the CoRIM(CoSWID/CoMID) based upon SPDM measurement ru
 
 #### Prepare SPDM measurement evidence
 
-   `SpdmMeasurement.py meas_to_json --meas <measurement binary file> -o <evidence file>` 
+   `SpdmMeasurement.py meas_to_json --meas <measurement binary file> --alg <hash algo - sha256|sha384|sha512> -o <evidence file>` 
 
    Evidence file is JSON format.
 
@@ -135,9 +135,9 @@ The tools can also verify the CoRIM(CoSWID/CoMID) based upon SPDM measurement ru
 
    ```
    CoRimTool.py verify -f SampleManifests/SpdmSampleCoMid.corim --key SampleTestKey/ecc-public-key.pem --alg ES256 -o SampleManifests/SpdmSampleCoMid.corim.cbor
-   CoRimTool.py cbor_to_json -i SampleManifests/SpdmSampleCoMid.corim.cbor -o SampleManifests/SpdmSampleCoMid.corim.jason
+   CoRimTool.py cbor_to_json -i SampleManifests/SpdmSampleCoMid.corim.cbor -o SampleManifests/SpdmSampleCoMid.corim.json
    // Collect Measurment Binary, e.g. run spdm_device_attester_sample, and get device_measurement.bin.
-   SpdmMeasurement.py meas_to_json --meas SampleEvidence/device_measurement.bin -o SampleEvidence/SpdmSampleMeasurement.json
-   OpaTool.py -e SampleEvidence/SpdmSampleMeasurement.json -r SampleManifests/SpdmSampleCoMid.corim.jason -o opa.input
+   SpdmMeasurement.py meas_to_json --meas SampleEvidence/device_measurement.bin --alg sha512 -o SampleEvidence/SpdmSampleMeasurement.json
+   OpaTool.py -e SampleEvidence/SpdmSampleMeasurement.json -r SampleManifests/SpdmSampleCoMid.corim.json -o opa.input
    opa -i opa.input -d SpdmSamplePolicy.rego "data.spdm"
    ```
