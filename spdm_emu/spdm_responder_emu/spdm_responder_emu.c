@@ -305,7 +305,10 @@ int main(int argc, char *argv[])
 
     platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
 
-    free(m_spdm_context);
+    if (m_spdm_context != NULL) {
+        free(m_spdm_context);
+        free(m_scratch_buffer);
+    }
 
     printf("Server stopped\n");
 
