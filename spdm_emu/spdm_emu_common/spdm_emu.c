@@ -101,7 +101,7 @@ void print_usage(const char *name)
         "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
     printf(
         "           0xFF must be used to if PUB_KEY_ID is set. No GET_DIGEST/GET_CERTIFICATE is sent.\n");
-    printf("   [--slot_count] is to select the local slot count. By default, 3 is used.\n");
+    printf("   [--slot_count] is to select the local slot count. By default, 3 is used.  And the slot store cert chain continuously in emu.\n");
     printf("   [--save_state] is to save the current negotiated state to a write-only file.\n");
     printf(
         "           The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
