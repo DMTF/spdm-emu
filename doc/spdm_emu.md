@@ -60,7 +60,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.
          [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.
                  0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.
-         [--slot_count] is to select the local slot count. By default, 3 is used.
+         [--slot_count] is to select the local slot count. By default, 3 is used. And the slot store cert chain continuously in emu.
          [--save_state] is to save the current negotiated state to a write-only file.
                  The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.
                  (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param)

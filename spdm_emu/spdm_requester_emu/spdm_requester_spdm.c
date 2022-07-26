@@ -368,9 +368,6 @@ void *spdm_client_init(void)
         if (res) {
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-            data8 = m_use_slot_count;
-            libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SLOT_COUNT,
-                             &parameter, &data8, sizeof(data8));
 
             for (index = 0; index < m_use_slot_count; index++) {
                 parameter.additional_data[0] = index;
