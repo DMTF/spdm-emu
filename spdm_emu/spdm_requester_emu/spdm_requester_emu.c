@@ -39,7 +39,8 @@ libspdm_return_t do_authentication_via_spdm(void);
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
 
 libspdm_return_t do_session_via_spdm(bool use_psk);
-
+libspdm_return_t do_handshake_via_spdm(void);
+libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id);
 
 bool init_client(SOCKET *sock, uint16_t port)
 {
@@ -154,38 +155,73 @@ bool platform_client_routine(uint16_t port_number)
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
 #if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
-    if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
-        if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
-            status = do_session_via_spdm(false);
-            if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                printf("do_session_via_spdm - %x\n",
-                       (uint32_t)status);
-                goto done;
-            }
-        }
-
-        if ((m_exe_session & EXE_SESSION_PSK) != 0) {
-            status = do_session_via_spdm(true);
-            if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                printf("do_session_via_spdm - %x\n",
-                       (uint32_t)status);
-                goto done;
-            }
-        }
-        if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
-            if (m_use_slot_id == 0) {
-                m_use_slot_id =  1;
-                status = do_session_via_spdm(false);
+/* when use --trans NONE, skip secure session  */
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
+        if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
+            if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
+                status = do_handshake_via_spdm();
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                    printf("do_session_via_spdm - %x\n",
-                           (uint32_t)status);
+                    printf("do_handshake_via_spdm - %x\n",
+                        (uint32_t)status);
                     goto done;
                 }
             }
+
+            if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
+                if (m_use_slot_id == 0) {
+                    m_use_slot_id =  1;
+                    status = do_handshake_via_spdm();
+                    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                        printf("do_handshake_via_spdm - %x\n",
+                            (uint32_t)status);
+                        goto done;
+                    }
+                }
+            }
+        }
+
+        if (m_use_version >= SPDM_MESSAGE_VERSION_12) {      
+            status = do_certificate_provising_via_spdm(NULL);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                    printf("do_certificate_provising_via_spdm - %x\n",
+                        (uint32_t)status);
+                goto done;
+            }
         }
     }
-#endif /*(LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)*/
+    else {
+        if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
+            if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
+                status = do_session_via_spdm(false);
+                if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                    printf("do_session_via_spdm - %x\n",
+                        (uint32_t)status);
+                    goto done;
+                }
+            }
 
+            if ((m_exe_session & EXE_SESSION_PSK) != 0) {
+                status = do_session_via_spdm(true);
+                if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                    printf("do_session_via_spdm - %x\n",
+                        (uint32_t)status);
+                    goto done;
+                }
+            }
+            if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
+                if (m_use_slot_id == 0) {
+                    m_use_slot_id =  1;
+                    status = do_session_via_spdm(false);
+                    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                        printf("do_session_via_spdm - %x\n",
+                            (uint32_t)status);
+                        goto done;
+                    }
+                }
+            }
+        }
+    }    
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)*/
     /* Do test - end*/
 
 done:
