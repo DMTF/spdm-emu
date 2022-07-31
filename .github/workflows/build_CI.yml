@@ -35,7 +35,7 @@ jobs:
           cd build
           cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
           make copy_sample_key
-          make -j2
+          make -j`nproc`
       - name: Emu_Test
         run: |
           cd build/bin
@@ -84,6 +84,84 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_device_validator_sample
+      - name: Test_RECORD_TRANSCRIPT_DATA_consistent
+        # open LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT flag
+        # mkdir build1 folder, gen spdm_requester_emu.exe and spdm_responder_emu.exe
+        # check the log size to ensure that hashes/signatures over transcripts are consistent
+        run: |
+          sed -i '17a add_definitions(-DLIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT=1)' CMakeLists.txt
+
+          mkdir build1
+          cd build1
+          cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
+          make copy_sample_key
+          make -j`nproc`
+
+          cd bin
+          echo "requester (DATA_SUPPORT = 0) <=> responder (DATA_SUPPORT = 1)"
+          ./spdm_responder_emu &
+          ./../../build/bin/spdm_requester_emu >requester.log
+
+          filename=./../../build/bin/requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1070000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
+
+          sleep 10s
+          echo "requester (DATA_SUPPORT = 1) <=> responder (DATA_SUPPORT = 0)"
+          ./../../build/bin/spdm_responder_emu &
+          ./spdm_requester_emu >requester.log
+
+          filename=./requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1070000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
 
   gcc_openssl_build:
     runs-on: ubuntu-latest
@@ -98,7 +176,7 @@ jobs:
           cd build
           cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
           make copy_sample_key
-          make -j2
+          make -j`nproc`
       - name: Emu_Test
         run: |
           cd build/bin
@@ -147,6 +225,84 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_device_validator_sample
+      - name: Test_RECORD_TRANSCRIPT_DATA_consistent
+        # open LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT flag
+        # mkdir build1 folder, gen spdm_requester_emu.exe and spdm_responder_emu.exe
+        # check the log size to ensure that hashes/signatures over transcripts are consistent
+        run: |
+          sed -i '17a add_definitions(-DLIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT=1)' CMakeLists.txt
+
+          mkdir build1
+          cd build1
+          cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
+          make copy_sample_key
+          make -j`nproc`
+
+          cd bin
+          echo "requester (DATA_SUPPORT = 0) <=> responder (DATA_SUPPORT = 1)"
+          ./spdm_responder_emu &
+          ./../../build/bin/spdm_requester_emu >requester.log
+
+          filename=./../../build/bin/requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1070000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
+
+          sleep 10s
+          echo "requester (DATA_SUPPORT = 1) <=> responder (DATA_SUPPORT = 0)"
+          ./../../build/bin/spdm_responder_emu &
+          ./spdm_requester_emu >requester.log
+
+          filename=./requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1070000
+          if [ `stat -c%s "$filename"` -lt $minsize ];
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
 
   VS2019_mbedtls_build:
     runs-on: windows-latest
