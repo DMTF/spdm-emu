@@ -113,9 +113,9 @@ The tools can also verify the CoRIM(CoSWID/CoMID) based upon SPDM measurement ru
    
    Evaluate Policy - https://www.openpolicyagent.org/docs/latest/#2-try-opa-eval.
 
-   Run: `opa -i <OPA input file> -d <policy> "<query>"`
+   Run: `opa eval -i <OPA input file> -d <policy> "<query>"`
 
-   For example: `opa -i <OPA input file> -d <spdm policy rego file> "data.spdm"`
+   For example: `opa eval -i <OPA input file> -d <spdm policy rego file> "data.spdm"`
 
 ## Example Flow with FSP CoRIM
 
@@ -139,5 +139,5 @@ The tools can also verify the CoRIM(CoSWID/CoMID) based upon SPDM measurement ru
    // Collect Measurment Binary, e.g. run spdm_device_attester_sample, and get device_measurement.bin.
    SpdmMeasurement.py meas_to_json --meas SampleEvidence/device_measurement.bin --alg sha512 -o SampleEvidence/SpdmSampleMeasurement.json
    OpaTool.py -e SampleEvidence/SpdmSampleMeasurement.json -r SampleManifests/SpdmSampleCoMid.corim.json -o opa.input
-   opa -i opa.input -d SpdmSamplePolicy.rego "data.spdm"
+   opa eval -i opa.input -d SpdmSamplePolicy.rego "data.spdm"
    ```
