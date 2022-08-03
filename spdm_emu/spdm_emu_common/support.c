@@ -61,6 +61,12 @@ bool libspdm_read_input_file(const char *file_name, void **file_data,
 
     fseek(fp_in, 0, SEEK_END);
     *file_size = ftell(fp_in);
+    if (*file_size == -1) {
+        printf("Unable to get the file size %s\n", file_name);
+        *file_data = NULL;
+        fclose(fp_in);
+        return false;
+    }
 
     *file_data = (void *)malloc(*file_size);
     if (NULL == *file_data) {
