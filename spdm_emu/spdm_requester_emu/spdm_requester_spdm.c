@@ -319,11 +319,11 @@ void *spdm_client_init(void)
                                                              m_use_asym_algo,
                                                              &data, &data_size,
                                                              &hash, &hash_size);
-        libspdm_x509_get_cert_from_cert_chain(
-            (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
-            data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
-            &root_cert, &root_cert_size);
         if (res) {
+            libspdm_x509_get_cert_from_cert_chain(
+                (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
+                data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
+                &root_cert, &root_cert_size);
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
@@ -341,11 +341,11 @@ void *spdm_client_init(void)
                                                                   m_use_asym_algo,
                                                                   &data1, &data1_size,
                                                                   &hash1, &hash1_size);
-        libspdm_x509_get_cert_from_cert_chain(
-            (uint8_t *)data1 + sizeof(spdm_cert_chain_t) + hash1_size,
-            data1_size - sizeof(spdm_cert_chain_t) - hash1_size, 0,
-            &root_cert1, &root_cert1_size);
         if (res) {
+            libspdm_x509_get_cert_from_cert_chain(
+                (uint8_t *)data1 + sizeof(spdm_cert_chain_t) + hash1_size,
+                data1_size - sizeof(spdm_cert_chain_t) - hash1_size, 0,
+                &root_cert1, &root_cert1_size);
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
