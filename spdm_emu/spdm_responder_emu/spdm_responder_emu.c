@@ -58,6 +58,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
                errno
 #endif
                );
+        closesocket(*listen_socket);
         return false;
     }
 
