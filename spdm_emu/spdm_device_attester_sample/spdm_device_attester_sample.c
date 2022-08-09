@@ -121,8 +121,8 @@ bool platform_client_routine(uint16_t port_number)
     /* Do test - begin*/
 
     m_spdm_context = spdm_client_init ();
-    spdm_device_evidence_collection (m_spdm_context);
     if (m_spdm_context != NULL) {
+        spdm_device_evidence_collection (m_spdm_context);
         free(m_spdm_context);
     }
 
