@@ -14,7 +14,7 @@
 
 ### Build Tool
 
-1) [Visual Studio](https://visualstudio.microsoft.com/) (VS2015 or VS2019)
+1) [Visual Studio](https://visualstudio.microsoft.com/) (VS2015 or VS2019 or VS2022)
 
 2) [GCC](https://gcc.gnu.org/) (above GCC5)
 
@@ -33,7 +33,7 @@
 
 ### Windows Build with CMake
 
-   Use x86 command prompt for ARCH=ia32 and x64 command prompt for ARCH=x64. (TOOLCHAIN=VS2019|VS2015|CLANG)
+   Use x86 command prompt for ARCH=ia32 and x64 command prompt for ARCH=x64. (TOOLCHAIN=VS2022|VS2019|VS2015|CLANG)
    ```
    cd spdm_emu
    mkdir build
