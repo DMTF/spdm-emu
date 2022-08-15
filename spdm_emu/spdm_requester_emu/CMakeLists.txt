@@ -43,6 +43,7 @@ SET(spdm_requester_emu_LIBRARY
     mctp_requester_lib
     pci_doe_requester_lib
     pci_ide_km_requester_lib
+    pci_tdisp_requester_lib
     platform_lib
 )
 
@@ -65,6 +66,7 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:mctp_requester_lib>
                    $<TARGET_OBJECTS:pci_doe_requester_lib>
                    $<TARGET_OBJECTS:pci_ide_km_requester_lib>
+                   $<TARGET_OBJECTS:pci_tdisp_requester_lib>
                    $<TARGET_OBJECTS:platform_lib>
     )
 else()

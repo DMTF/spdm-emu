@@ -120,11 +120,156 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
     return LIBSPDM_STATUS_SUCCESS;
 }
 
+libspdm_return_t pci_tdisp_process_session_message(void *spdm_context, uint32_t session_id)
+{
+    pci_tdisp_interface_id_t interface_id;
+    libspdm_return_t status;
+    size_t index;
+    pci_tdisp_requester_capabilities_t req_caps;
+    pci_tdisp_responder_capabilities_t rsp_caps;
+    pci_tdisp_lock_interface_param_t lock_interface_param;
+    uint8_t start_interface_nonce[PCI_TDISP_START_INTERFACE_NONCE_SIZE];
+    uint8_t tdi_state;
+    uint8_t interface_report_buffer[LIBTDISP_INTERFACE_REPORT_MAX_SIZE];
+    uint32_t interface_report_size;
+    pci_tdisp_device_interface_report_struct_t *interface_report;
+    pci_tdisp_mmio_range_t *mmio_range;
+    uint32_t *device_specific_info_len;
+    uint8_t *device_specific_info;
+
+    interface_id.function_id = 0;
+    interface_id.reserved = 0;
+    status = pci_tdisp_get_version (m_pci_doe_context, spdm_context, &session_id, &interface_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "get_version done\n"));
+
+    req_caps.tsm_caps = 0;
+    libspdm_zero_mem (&rsp_caps, sizeof(rsp_caps));
+    status = pci_tdisp_get_capabilities (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                         &req_caps, &rsp_caps);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "rsp_caps:\n"));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  dsm_caps - 0x%08x\n", rsp_caps.dsm_caps));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  req_msg_supported - %02x %02x\n",
+                   rsp_caps.req_msg_supported[0], rsp_caps.req_msg_supported[1]));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  lock_interface_flags_supported - 0x%04x\n", rsp_caps.lock_interface_flags_supported));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  dev_addr_width - 0x%02x\n", rsp_caps.dev_addr_width));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  num_req_this - 0x%02x\n", rsp_caps.num_req_this));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  num_req_all - 0x%02x\n", rsp_caps.num_req_all));
+
+    status = pci_tdisp_get_interface_state (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                            &tdi_state);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "tdi_state: 0x%02x\n", tdi_state));
+    LIBSPDM_ASSERT (tdi_state == PCI_TDISP_INTERFACE_STATE_CONFIG_UNLOCKED);
+
+    libspdm_zero_mem (&lock_interface_param, sizeof(lock_interface_param));
+    lock_interface_param.flags = rsp_caps.lock_interface_flags_supported;
+    lock_interface_param.default_stream_id = 0;
+    lock_interface_param.mmio_reporting_offset = 0xD0000000;
+    lock_interface_param.bind_p2p_address_mask = 0;
+    libspdm_zero_mem (&start_interface_nonce, sizeof(start_interface_nonce));
+    status = pci_tdisp_lock_interface (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                       &lock_interface_param, start_interface_nonce);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "start_interface_nonce: "));
+    for (index = 0; index < sizeof(start_interface_nonce); index++) {
+      LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "%02x ", start_interface_nonce[index]));
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "\n"));
+
+    status = pci_tdisp_get_interface_state (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                            &tdi_state);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "tdi_state: 0x%02x\n", tdi_state));
+    LIBSPDM_ASSERT (tdi_state == PCI_TDISP_INTERFACE_STATE_CONFIG_LOCKED);
+
+    interface_report_size = sizeof(interface_report_buffer);
+    status = pci_tdisp_get_interface_report (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                             interface_report_buffer, &interface_report_size);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    interface_report = (pci_tdisp_device_interface_report_struct_t *)interface_report_buffer;
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "interface_report:\n"));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  interface_info        - 0x%04x\n", interface_report->interface_info));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  msi_x_message_control - 0x%04x\n", interface_report->msi_x_message_control));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  lnr_control           - 0x%04x\n", interface_report->lnr_control));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  tph_control           - 0x%08x\n", interface_report->tph_control));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  mmio_range_count      - 0x%08x\n", interface_report->mmio_range_count));
+    mmio_range = (pci_tdisp_mmio_range_t *)(interface_report + 1);
+    for (index = 0; index < interface_report->mmio_range_count; index++) {
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  mmio_range(%d):\n", index));
+#ifdef _MSC_VER
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    first_page          - 0x%016I64x\n", mmio_range[index].first_page));
+#else
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    first_page          - 0x%016llx\n", mmio_range[index].first_page));
+#endif
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    number_of_pages     - 0x%08x\n", mmio_range[index].number_of_pages));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    range_attributes    - 0x%04x\n", mmio_range[index].range_attributes));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    range_id            - 0x%04x\n", mmio_range[index].range_id));
+    }
+    device_specific_info_len = (uint32_t *)&mmio_range[index];
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  device_info_len       - 0x%08x\n", *device_specific_info_len));
+    device_specific_info = (uint8_t *)(device_specific_info_len + 1);
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  device_info           - "));
+    for (index = 0; index < *device_specific_info_len; index++) {
+      LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "%02x ", device_specific_info[index]));
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "\n"));
+
+    status = pci_tdisp_start_interface (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                        start_interface_nonce);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "start_interface done\n"));
+
+    status = pci_tdisp_get_interface_state (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                            &tdi_state);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "tdi_state: 0x%02x\n", tdi_state));
+    LIBSPDM_ASSERT (tdi_state == PCI_TDISP_INTERFACE_STATE_RUN);
+
+    status = pci_tdisp_stop_interface (m_pci_doe_context, spdm_context, &session_id, &interface_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "stop_interface done\n"));
+
+    status = pci_tdisp_get_interface_state (m_pci_doe_context, spdm_context, &session_id, &interface_id,
+                                            &tdi_state);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "tdi_state: 0x%02x\n", tdi_state));
+    LIBSPDM_ASSERT (tdi_state == PCI_TDISP_INTERFACE_STATE_CONFIG_UNLOCKED);
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
 libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t session_id)
 {
     libspdm_return_t status;
 
     status = pci_ide_km_process_session_message (spdm_context, session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    status = pci_tdisp_process_session_message (spdm_context, session_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
