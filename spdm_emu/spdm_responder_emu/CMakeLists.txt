@@ -42,6 +42,8 @@ SET(spdm_responder_emu_LIBRARY
     pci_doe_responder_lib
     pci_ide_km_responder_lib
     pci_ide_km_device_lib_sample
+    pci_tdisp_responder_lib
+    pci_tdisp_device_lib_sample
     platform_lib
 )
 
@@ -65,6 +67,8 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:pci_doe_responder_lib>
                    $<TARGET_OBJECTS:pci_ide_km_responder_lib>
                    $<TARGET_OBJECTS:pci_ide_km_device_lib_sample>
+                   $<TARGET_OBJECTS:pci_tdisp_responder_lib>
+                   $<TARGET_OBJECTS:pci_tdisp_device_lib_sample>
                    $<TARGET_OBJECTS:platform_lib>
     )
 else()
