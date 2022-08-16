@@ -46,7 +46,7 @@ libspdm_return_t pci_ide_km_device_key_prog (const void *pci_doe_context,
                       );
     device_port_context->is_key_prog[index] = true;
 
-    kp_ack_status = PCI_IDE_KM_KP_ACK_STATUS_SUCCESS;
+    *kp_ack_status = PCI_IDE_KM_KP_ACK_STATUS_SUCCESS;
 
     return LIBSPDM_STATUS_SUCCESS;
 }
