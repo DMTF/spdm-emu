@@ -102,6 +102,9 @@ bool platform_client_routine(uint16_t port_number)
 #endif
     result = init_client(&platform_socket, port_number);
     if (!result) {
+#ifdef _MSC_VER
+        WSACleanup();
+#endif
         return false;
     }
 

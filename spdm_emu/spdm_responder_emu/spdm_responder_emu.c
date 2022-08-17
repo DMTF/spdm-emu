@@ -245,6 +245,9 @@ bool platform_server_routine(uint16_t port_number)
     result = create_socket(port_number, &listen_socket);
     if (!result) {
         printf("Create platform service socket fail\n");
+#ifdef _MSC_VER
+        WSACleanup();
+#endif
         return result;
     }
 
