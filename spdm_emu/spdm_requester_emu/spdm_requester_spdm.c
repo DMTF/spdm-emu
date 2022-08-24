@@ -143,6 +143,8 @@ void *spdm_client_init(void)
     size_t root_cert1_size;
     spdm_version_number_t spdm_version;
     size_t scratch_buffer_size;
+    uint32_t requester_capabilities_flag;
+    uint32_t responder_capabilities_flag;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -269,8 +271,57 @@ void *spdm_client_init(void)
         m_use_version = spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT;
     }
 
+    /*get requester_capabilities_flag*/
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+    data_size = sizeof(data32);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                     &data32, &data_size);
+    requester_capabilities_flag = data32;
+
+    /*get responder_capabilities_flag*/
     libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+    data_size = sizeof(data32);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                     &data32, &data_size);
+    responder_capabilities_flag = data32;
+
+    /*change m_exe_connection and m_exe_session base on responder/requester supported capabilities*/
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_DIGEST;
+        m_exe_connection &= ~EXE_CONNECTION_CERT;
+    }
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHAL_CAP & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_CHAL;
+    }
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MEAS_CAP & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_MEAS;
+        m_exe_session &= ~EXE_SESSION_MEAS;
+    }
+
+    if (((SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_EX_CAP & requester_capabilities_flag) == 0) ||
+        ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_KEY_EX_CAP & responder_capabilities_flag) == 0)) {
+        m_exe_session &= ~EXE_SESSION_KEY_EX;
+    }
+    if (((SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PSK_CAP & requester_capabilities_flag) == 0) ||
+        ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PSK_CAP & responder_capabilities_flag) == 0)) {
+        m_exe_session &= ~EXE_SESSION_PSK;
+    }
+    if (((SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_UPD_CAP & requester_capabilities_flag) == 0) ||
+        ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_KEY_UPD_CAP & responder_capabilities_flag) == 0)) {
+        m_exe_session &= ~EXE_SESSION_KEY_UPDATE;
+    }
+    if (((SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HBEAT_CAP & requester_capabilities_flag) == 0) ||
+        ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_HBEAT_CAP & responder_capabilities_flag) == 0)) {
+        m_exe_session &= ~EXE_SESSION_HEARTBEAT;
+    }
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_CERT_CAP & responder_capabilities_flag) == 0) {
+        m_exe_session &= ~EXE_SESSION_SET_CERT;
+    }
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CSR_CAP & responder_capabilities_flag) == 0) {
+        m_exe_session &= ~EXE_SESSION_GET_CSR;
+    }
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
