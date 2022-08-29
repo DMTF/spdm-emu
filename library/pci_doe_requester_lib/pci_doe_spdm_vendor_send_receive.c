@@ -26,7 +26,9 @@
  * @retval LIBSPDM_STATUS_SUCCESS               The SPDM vendor defined request is sent and response is received.
  * @return ERROR                        The SPDM vendor defined response is not received correctly.
  **/
-libspdm_return_t pci_doe_spdm_vendor_send_receive_data (void *spdm_context, const uint32_t *session_id,
+libspdm_return_t pci_doe_spdm_vendor_send_receive_data_ex (
+                                                     void *spdm_context, const uint32_t *session_id,
+                                                     uint16_t vendor_id,
                                                      pci_protocol_header_t pci_protocol,
                                                      const void *request, size_t request_size,
                                                      void *response, size_t *response_size)
@@ -62,7 +64,7 @@ libspdm_return_t pci_doe_spdm_vendor_send_receive_data (void *spdm_context, cons
     spdm_request->spdm_header.request_response_code = SPDM_VENDOR_DEFINED_REQUEST;
     spdm_request->pci_doe_vendor_header.standard_id = SPDM_STANDARD_ID_PCISIG;
     spdm_request->pci_doe_vendor_header.len = sizeof(spdm_request->pci_doe_vendor_header.vendor_id);
-    spdm_request->pci_doe_vendor_header.vendor_id = SPDM_VENDOR_ID_PCISIG;
+    spdm_request->pci_doe_vendor_header.vendor_id = vendor_id;
     spdm_request->pci_doe_vendor_header.payload_length =
         (uint16_t)(sizeof(pci_protocol_header_t) + request_size);
     spdm_request->pci_doe_vendor_header.pci_protocol = pci_protocol;
@@ -93,7 +95,7 @@ libspdm_return_t pci_doe_spdm_vendor_send_receive_data (void *spdm_context, cons
         sizeof(spdm_response->pci_doe_vendor_header.vendor_id)) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
-    if (spdm_response->pci_doe_vendor_header.vendor_id != SPDM_VENDOR_ID_PCISIG) {
+    if (spdm_response->pci_doe_vendor_header.vendor_id != vendor_id) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
     if (spdm_response->pci_doe_vendor_header.pci_protocol.protocol_id !=
@@ -113,4 +115,18 @@ libspdm_return_t pci_doe_spdm_vendor_send_receive_data (void *spdm_context, cons
     libspdm_copy_mem (response, *response_size, spdm_response + 1, *response_size);
 
     return LIBSPDM_STATUS_SUCCESS;
+}
+
+libspdm_return_t pci_doe_spdm_vendor_send_receive_data (
+    void *spdm_context, const uint32_t *session_id,
+    pci_protocol_header_t pci_protocol,
+    const void *request, size_t request_size,
+    void *response, size_t *response_size)
+{
+    return pci_doe_spdm_vendor_send_receive_data_ex (
+        spdm_context, session_id,
+        SPDM_VENDOR_ID_PCISIG, pci_protocol,
+        request, request_size,
+        response, response_size
+        );
 }

@@ -17,6 +17,7 @@
 #include "library/pci_doe_requester_lib.h"
 #include "library/pci_ide_km_requester_lib.h"
 #include "library/pci_tdisp_requester_lib.h"
+#include "library/cxl_ide_km_requester_lib.h"
 
 #include "os_include.h"
 #include "stdio.h"
