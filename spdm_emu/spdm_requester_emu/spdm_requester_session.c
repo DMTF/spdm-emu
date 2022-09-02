@@ -172,7 +172,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     }
 #endif
 
-    if (m_use_version >= SPDM_MESSAGE_VERSION_12) {      
+    if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
         status = do_certificate_provising_via_spdm(&session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("do_certificate_provising_via_spdm - %x\n",
@@ -206,7 +206,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     size_t csr_len;
 #endif /*LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP*/
 
-#if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
+#if LIBSPDM_ENABLE_CAPABILITY_SET_CERTIFICATE_CAP
     void *cert_chain_to_set;
     size_t cert_chain_size_to_set;
     uint8_t slot_id;
@@ -214,7 +214,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
 
     cert_chain_to_set = NULL;
     cert_chain_size_to_set = 0;
-#endif /*LIBSPDM_ENABLE_SET_CERTIFICATE_CAP*/
+#endif /*LIBSPDM_ENABLE_CAPABILITY_SET_CERTIFICATE_CAP*/
 
     libspdm_return_t status;
     spdm_context = m_spdm_context;
@@ -233,10 +233,10 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
             return status;
         }
     }
- 
+
 #endif /*LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP*/
 
-#if LIBSPDM_ENABLE_SET_CERTIFICATE_CAP
+#if LIBSPDM_ENABLE_CAPABILITY_SET_CERTIFICATE_CAP
     res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
                                                         m_use_asym_algo,
                                                         &cert_chain_to_set,
@@ -281,8 +281,8 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     }
 
     free(cert_chain_to_set);
-#endif /*LIBSPDM_ENABLE_SET_CERTIFICATE_CAP*/ 
-    return LIBSPDM_STATUS_SUCCESS;  
+#endif /*LIBSPDM_ENABLE_CAPABILITY_SET_CERTIFICATE_CAP*/
+    return LIBSPDM_STATUS_SUCCESS;
 }
 
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)*/
