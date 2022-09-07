@@ -1,0 +1,27 @@
+name: Update submodules
+
+# Controls when the action will run.
+on:
+  schedule:
+    - cron: "10 2 * * *"
+
+jobs:
+  # This workflow contains a single job called "update"
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Pull & update submodules recursively
+        run: |
+          git submodule update --init --recursive
+          git submodule update --recursive --remote
+
+      - name: Commit & push changes
+        run: |
+          git config --global user.name "Wenxing Hou"
+          git config --global user.email "wenxing.hou@intel.com"
+          git commit -am "Update submodules"
+          git push
