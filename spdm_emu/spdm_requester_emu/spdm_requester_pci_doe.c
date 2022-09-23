@@ -275,6 +275,7 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
     uint8_t kp_ack_status;
     bool result;
 
+    caps = 0;
     ide_reg_block_count = CXL_IDE_KM_IDE_CAP_REG_BLOCK_MAX_COUNT;
     status = cxl_ide_km_query (m_pci_doe_context, spdm_context, &session_id,
                                0, &dev_func_num, &bus_num, &segment, &max_port_index,
