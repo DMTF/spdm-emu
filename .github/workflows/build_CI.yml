@@ -73,7 +73,7 @@ jobs:
 
           minsize=1070000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             [ ! grep "libspdm_stop_session - 0000000000000000" requester.log ];
+             ! grep "libspdm_stop_session - (nil)" requester.log;
           then
               echo "requester run fail"
               cat -n "$filename"
@@ -114,7 +114,7 @@ jobs:
               sleep 100s
               echo -e "\n try connect again!!! \n"
               ./spdm_responder_emu  &
-              ./spdm_requester_emu >requester.log
+              ./../../build/bin/spdm_requester_emu >requester.log
               if [ ! -f "$filename" ];
               then
                   echo "Second Gen requester.log fail"
@@ -124,7 +124,7 @@ jobs:
 
           minsize=1070000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             [ ! grep "libspdm_stop_session - 0000000000000000" requester.log ];
+             ! grep "libspdm_stop_session - (nil)" requester.log;
           then
               echo "requester run fail"
               cat -n "$filename"
@@ -147,7 +147,7 @@ jobs:
           then
               sleep 100s
               echo -e "\n try connect again!!! \n"
-              ./spdm_responder_emu  &
+              ./../../build/bin/spdm_responder_emu &
               ./spdm_requester_emu >requester.log
               if [ ! -f "$filename" ];
               then
@@ -158,7 +158,7 @@ jobs:
 
           minsize=1070000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             [ ! grep "libspdm_stop_session - 0000000000000000" requester.log ];
+             ! grep "libspdm_stop_session - (nil)" requester.log;
           then
               echo "requester run fail"
               cat -n "$filename"
@@ -217,7 +217,7 @@ jobs:
 
           minsize=1070000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             [ ! grep "libspdm_stop_session - 0000000000000000" requester.log ];
+             ! grep "libspdm_stop_session - (nil)" requester.log;
           then
               echo "requester run fail"
               cat -n "$filename"
@@ -258,7 +258,7 @@ jobs:
               sleep 100s
               echo -e "\n try connect again!!! \n"
               ./spdm_responder_emu  &
-              ./spdm_requester_emu >requester.log
+              ./../../build/bin/spdm_requester_emu >requester.log
               if [ ! -f "$filename" ];
               then
                   echo "Second Gen requester.log fail"
@@ -268,7 +268,7 @@ jobs:
 
           minsize=1070000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             [ ! grep "libspdm_stop_session - 0000000000000000" requester.log ];
+             ! grep "libspdm_stop_session - (nil)" requester.log;
           then
               echo "requester run fail"
               cat -n "$filename"
@@ -291,7 +291,7 @@ jobs:
           then
               sleep 100s
               echo -e "\n try connect again!!! \n"
-              ./spdm_responder_emu  &
+              ./../../build/bin/spdm_responder_emu &
               ./spdm_requester_emu >requester.log
               if [ ! -f "$filename" ];
               then
@@ -302,7 +302,7 @@ jobs:
 
           minsize=1070000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             [ ! grep "libspdm_stop_session - 0000000000000000" requester.log ];
+             ! grep "libspdm_stop_session - (nil)" requester.log;
           then
               echo "requester run fail"
               cat -n "$filename"
