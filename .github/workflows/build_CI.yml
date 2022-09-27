@@ -80,11 +80,7 @@ jobs:
               echo "requester.log size is `stat -c%s "$filename"`"
               exit 1
           fi
-      - name: Responder_validator_Test
-        run: |
-          cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_device_validator_sample
+
       - name: Test_RECORD_TRANSCRIPT_DATA_consistent
         # open LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT flag
         # mkdir build1 folder, gen spdm_requester_emu.exe and spdm_responder_emu.exe
@@ -224,11 +220,7 @@ jobs:
               echo "requester.log size is `stat -c%s "$filename"`"
               exit 1
           fi
-      - name: Responder_validator_Test
-        run: |
-          cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_device_validator_sample
+
       - name: Test_RECORD_TRANSCRIPT_DATA_consistent
         # open LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT flag
         # mkdir build1 folder, gen spdm_requester_emu.exe and spdm_responder_emu.exe
@@ -335,11 +327,6 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_requester_emu
-      - name: Responder_validator_Test
-        run: |
-          cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_device_validator_sample
 
   VS2019_openssl_build:
     runs-on: windows-latest
@@ -367,8 +354,3 @@ jobs:
           cd build/bin
           ./spdm_responder_emu &
           ./spdm_requester_emu
-      - name: Responder_validator_Test
-        run: |
-          cd build/bin
-          ./spdm_responder_emu &
-          ./spdm_device_validator_sample
