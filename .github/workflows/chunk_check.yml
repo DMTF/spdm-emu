@@ -60,9 +60,85 @@ jobs:
               fi
           fi
 
-          minsize=1970000
+          minsize=1960000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
              ! grep "libspdm_stop_session - (nil)" "$filename";
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
+
+      - name: Enable_chunk(transfer size inconsistent)
+        run: |
+          mkdir build1
+          cd build1
+          cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
+          make copy_sample_key
+          make -j`nproc`
+
+          cd bin
+          echo "requester (transfer_size = 42) <=> responder (transfer_size = 0x1200)"
+          ./spdm_responder_emu &
+          ./../../build/bin/spdm_requester_emu >requester.log
+
+          filename=./../../build/bin/requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./../../build/bin/spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1500000
+          if [ `stat -c%s "$filename"` -lt $minsize ] ||
+            ! grep "libspdm_stop_session - (nil)" "$filename";
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
+
+          sleep 10s
+          echo "requester (transfer_size = 0x1200) <=> responder (transfer_size = 42)"
+          ./../../build/bin/spdm_responder_emu &
+          ./spdm_requester_emu >requester.log
+
+          filename=./requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./../../build/bin/spdm_responder_emu &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1500000
+          if [ `stat -c%s "$filename"` -lt $minsize ] ||
+            ! grep "libspdm_stop_session - (nil)" "$filename";
           then
               echo "requester run fail"
               cat -n "$filename"
@@ -119,9 +195,85 @@ jobs:
               fi
           fi
 
-          minsize=1970000
+          minsize=1960000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
              ! grep "libspdm_stop_session - (nil)" "$filename";
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
+
+      - name: Enable_chunk(transfer size inconsistent)
+        run: |
+          mkdir build1
+          cd build1
+          cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
+          make copy_sample_key
+          make -j`nproc`
+
+          cd bin
+          echo "requester (transfer_size = 42) <=> responder (transfer_size = 0x1200)"
+          ./spdm_responder_emu &
+          ./../../build/bin/spdm_requester_emu >requester.log
+
+          filename=./../../build/bin/requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./spdm_responder_emu  &
+              ./../../build/bin/spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1500000
+          if [ `stat -c%s "$filename"` -lt $minsize ] ||
+            ! grep "libspdm_stop_session - (nil)" "$filename";
+          then
+              echo "requester run fail"
+              cat -n "$filename"
+              echo "requester.log size is `stat -c%s "$filename"`"
+              exit 1
+          fi
+
+          sleep 10s
+          echo "requester (transfer_size = 0x1200) <=> responder (transfer_size = 42)"
+          ./../../build/bin/spdm_responder_emu &
+          ./spdm_requester_emu >requester.log
+
+          filename=./requester.log
+          if [ ! -f "$filename" ];
+          then
+              echo "Gen requester.log fail"
+              exit 1
+          fi
+          if grep "Connect Error - 6f" requester.log
+          then
+              sleep 100s
+              echo -e "\n try connect again!!! \n"
+              ./../../build/bin/spdm_responder_emu &
+              ./spdm_requester_emu >requester.log
+              if [ ! -f "$filename" ];
+              then
+                  echo "Second Gen requester.log fail"
+                  exit 1
+              fi
+          fi
+
+          minsize=1500000
+          if [ `stat -c%s "$filename"` -lt $minsize ] ||
+            ! grep "libspdm_stop_session - (nil)" "$filename";
           then
               echo "requester run fail"
               cat -n "$filename"
