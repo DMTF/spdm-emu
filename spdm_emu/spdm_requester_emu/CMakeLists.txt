@@ -7,6 +7,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_requester_emu
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/include/hal/${ARCH}
                     ${LIBSPDM_DIR}/os_stub/include
+                    ${LIBSPDM_DIR}/os_stub
 )
 
 SET(src_spdm_requester_emu
@@ -35,6 +36,7 @@ SET(spdm_requester_emu_LIBRARY
     cryptlib_${CRYPTO}
     malloclib
     spdm_crypt_lib
+    spdm_crypt_ext_lib
     spdm_secured_message_lib
     spdm_transport_mctp_lib
     spdm_transport_pcidoe_lib
