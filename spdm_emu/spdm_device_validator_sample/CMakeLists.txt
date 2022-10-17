@@ -7,6 +7,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/include/hal/${ARCH}
                     ${LIBSPDM_DIR}/os_stub/include
+                    ${LIBSPDM_DIR}/os_stub
                     ${SPDM_RESPONDER_VALIDATOR_DIR}/include
                     ${COMMON_TEST_FRAMEWORK_DIR}/include
 )
@@ -34,6 +35,7 @@ SET(spdm_device_validator_sample_LIBRARY
     cryptlib_${CRYPTO}
     malloclib
     spdm_crypt_lib
+    spdm_crypt_ext_lib
     spdm_secured_message_lib
     spdm_transport_mctp_lib
     spdm_transport_pcidoe_lib
