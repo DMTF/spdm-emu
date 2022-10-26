@@ -98,7 +98,7 @@ The tools can also verify the CoRIM(CoSWID/CoMID) based upon SPDM measurement ru
 
    * Evaluate on "The Rego Playground" portal
 
-   Evaluate hash in TCG event log or FSP binary with hash in RIM on "The Rego Playground" portal:
+   Evaluate hash in SPDM measurement binary with hash in SPDM device RIM on "The Rego Playground" portal:
 
    ```
    Open https://play.openpolicyagent.org/
@@ -117,7 +117,7 @@ The tools can also verify the CoRIM(CoSWID/CoMID) based upon SPDM measurement ru
 
    For example: `opa eval -i <OPA input file> -d <spdm policy rego file> "data.spdm"`
 
-## Example Flow with FSP CoRIM
+## Example Flow with SPDM device CoRIM
 
 ## Publish
 
