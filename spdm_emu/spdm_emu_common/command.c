@@ -146,6 +146,9 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
     if (!result) {
         return result;
     }
+    if (bytes_received > (uint32_t)*bytes_to_receive) {
+        return false;
+    }
     *bytes_to_receive = bytes_received;
 
     switch (*command) {
