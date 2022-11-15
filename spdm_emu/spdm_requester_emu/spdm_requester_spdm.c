@@ -326,7 +326,9 @@ void *spdm_client_init(void)
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
                      &data32, &data_size);
-    LIBSPDM_ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
+    if(!(m_exe_connection & EXE_CONNECTION_VERSION_ONLY)){
+        LIBSPDM_ASSERT(data32 == LIBSPDM_CONNECTION_STATE_NEGOTIATED);
+    }
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
