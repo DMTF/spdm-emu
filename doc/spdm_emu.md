@@ -32,6 +32,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS]
          [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS]
          [--pcap <PcapFileName>]
+         [--priv_key_mode PEM|RAW]
 
       NOTE:
          [--trans] is used to select transport layer message. By default, MCTP is used.
@@ -89,6 +90,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  HEARTBEAT means to send HEARTBEAT in session.
                  MEAS means send GET_MEASUREMENT command in session.
          [--pcap] is used to generate PCAP dump file for offline analysis.
+         [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.
    </pre>
 
    Take spdm_requester_emu or spdm_responder_emu as an example, a user may use `spdm_requester_emu --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.

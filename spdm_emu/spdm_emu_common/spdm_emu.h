@@ -35,6 +35,7 @@ extern uint8_t m_use_measurement_operation;
 extern uint8_t m_use_measurement_attribute;
 extern uint8_t m_use_slot_id;
 extern uint8_t m_use_slot_count;
+extern bool g_private_key_mode;
 
 #define ENCAP_KEY_UPDATE 0x8000
 extern libspdm_key_update_action_t m_use_key_update_action;
