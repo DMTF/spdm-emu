@@ -56,6 +56,7 @@ void print_usage(const char *name)
     printf("   [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS]\n");
     printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS]\n");
     printf("   [--pcap <pcap_file_name>]\n");
+    printf("   [--priv_key_mode PEM|RAW]\n");
     printf("\n");
     printf("NOTE:\n");
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
@@ -143,6 +144,7 @@ void print_usage(const char *name)
     printf("           HEARTBEAT means to send HEARTBEAT in session.\n");
     printf("           MEAS means send GET_MEASUREMENT command in session.\n");
     printf("   [--pcap] is used to generate PCAP dump file for offline analysis.\n");
+    printf("   [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.\n");
 }
 
 typedef struct {
@@ -1056,6 +1058,32 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --pcap\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--priv_key_mode") == 0) {
+            if (argc >= 2) {
+                if ((strcmp(argv[1], "PEM") != 0) && (strcmp(argv[1], "RAW") != 0)) {
+                    printf("invalid --priv_key_mode %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                if (strcmp(argv[1], "PEM") == 0) {
+                    g_private_key_mode = 1;
+                }
+
+                if (strcmp(argv[1], "RAW") == 0) {
+                    g_private_key_mode = 0;
+                }
+
+                printf("priv_key_mode - %s\n", argv[1]);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --priv_key_mode\n");
                 print_usage(program_name);
                 exit(0);
             }
