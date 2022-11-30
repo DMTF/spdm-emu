@@ -5,7 +5,6 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
                     ${PROJECT_SOURCE_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
                     ${LIBSPDM_DIR}/include
-                    ${LIBSPDM_DIR}/include/hal/${ARCH}
                     ${LIBSPDM_DIR}/os_stub/include
                     ${LIBSPDM_DIR}/os_stub
                     ${SPDM_RESPONDER_VALIDATOR_DIR}/include
