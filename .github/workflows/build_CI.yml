@@ -1,4 +1,4 @@
-name: build_CI_test
+name: build_CI_VESRION12_test
 
 on:
   push:
