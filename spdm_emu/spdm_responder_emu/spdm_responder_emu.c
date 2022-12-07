@@ -310,6 +310,7 @@ int main(int argc, char *argv[])
     platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
 
     if (m_spdm_context != NULL) {
+        libspdm_deinit_context(m_spdm_context);
         free(m_spdm_context);
         free(m_scratch_buffer);
     }
