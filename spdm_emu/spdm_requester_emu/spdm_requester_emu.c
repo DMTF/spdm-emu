@@ -210,6 +210,7 @@ done:
         NULL, 0, &response, &response_size, NULL);
 
     if (m_spdm_context != NULL) {
+        libspdm_deinit_context(m_spdm_context);
         free(m_spdm_context);
         free(m_scratch_buffer);
     }
