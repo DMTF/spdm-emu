@@ -37,6 +37,7 @@ libspdm_return_t pci_tdisp_lock_interface(const void *pci_doe_context,
     request.header.version = PCI_TDISP_MESSAGE_VERSION_10;
     request.header.message_type = PCI_TDISP_LOCK_INTERFACE_REQ;
     request.header.interface_id.function_id = interface_id->function_id;
+    request.lock_interface_param = *lock_interface_param;
 
     request_size = sizeof(request);
     response_size = sizeof(response);
