@@ -39,13 +39,13 @@ libspdm_return_t spdm_get_response_vendor_defined_request(
     void *response);
 
 libspdm_return_t spdm_device_send_message(void *spdm_context,
-                                       size_t request_size, const void *request,
+                                       size_t response_size, const void *response,
                                        uint64_t timeout)
 {
     bool result;
 
     result = send_platform_data(m_server_socket, SOCKET_SPDM_COMMAND_NORMAL,
-                                request, (uint32_t)request_size);
+                                response, (uint32_t)response_size);
     if (!result) {
         printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
@@ -60,13 +60,13 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
 }
 
 libspdm_return_t spdm_device_receive_message(void *spdm_context,
-                                          size_t *response_size,
-                                          void **response,
+                                          size_t *request_size,
+                                          void **request,
                                           uint64_t timeout)
 {
     bool result;
 
-    assert (*response == m_send_receive_buffer);
+    assert (*request == m_send_receive_buffer);
     m_send_receive_buffer_size = sizeof(m_send_receive_buffer);
     result =
         receive_platform_data(m_server_socket, &m_command,
@@ -91,8 +91,8 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
 
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
-    *response = m_send_receive_buffer;
-    *response_size = m_send_receive_buffer_size;
+    *request = m_send_receive_buffer;
+    *request_size = m_send_receive_buffer_size;
 
     return LIBSPDM_STATUS_SUCCESS;
 }
