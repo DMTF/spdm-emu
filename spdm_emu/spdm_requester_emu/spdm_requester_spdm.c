@@ -413,6 +413,14 @@ void *spdm_client_init(void)
         }
     }
 
+    /*the responder provisioned cert_chain in which requester slot */
+    data8 = 0;
+    if (m_use_slot_id == 0xFF) {
+        libspdm_set_data(spdm_context,
+                         LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN_DEFAULT_SLOT_ID,
+                         NULL, &data8, sizeof(data8));
+    }
+
     if (m_use_req_asym_algo != 0) {
         res = libspdm_read_requester_public_certificate_chain(m_use_hash_algo,
                                                               m_use_req_asym_algo,
