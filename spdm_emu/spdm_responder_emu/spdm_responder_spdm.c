@@ -384,6 +384,14 @@ void spdm_server_connection_state_callback(
             }
         }
 
+        /*the requester provisioned cert_chain in which responder slot */
+        data8 = 0;
+        if (m_use_slot_id == 0xFF) {
+            libspdm_set_data(spdm_context,
+                             LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN_DEFAULT_SLOT_ID,
+                             NULL, &data8, sizeof(data8));
+        }
+
         status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
                                   LIBSPDM_TEST_PSK_HINT_STRING,
                                   sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
