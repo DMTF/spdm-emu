@@ -139,12 +139,14 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
             if (!result) {
                 printf("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE fail\n");
             } else {
+#if (LIBSPDM_ENABLE_CAPABILITY_MUT_AUTH_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)
                 status = libspdm_send_receive_encap_request(
                     spdm_context, &session_id);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     printf("libspdm_send_receive_encap_request - libspdm_key_update - %x\n",
                            (uint32_t)status);
                 }
+#endif
             }
             break;
 
