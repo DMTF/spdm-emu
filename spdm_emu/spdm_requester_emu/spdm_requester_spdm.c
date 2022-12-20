@@ -347,9 +347,11 @@ void *spdm_client_init(void)
                      &data16, &data_size);
     m_use_req_asym_algo = data16;
 
-    if ((m_use_slot_id == 0xFF) ||
-        ((m_use_requester_capability_flags &
-          SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0)) {
+    if ((m_use_requester_capability_flags &
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
+        m_use_slot_id = 0xFF;
+    }
+    if (m_use_slot_id == 0xFF) {
         res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
                                                               m_use_asym_algo,
                                                               &data, &data_size,
@@ -414,8 +416,8 @@ void *spdm_client_init(void)
     }
 
     /*the responder provisioned cert_chain in which requester slot */
-    data8 = 0;
     if (m_use_slot_id == 0xFF) {
+        data8 = 0;
         libspdm_set_data(spdm_context,
                          LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN_DEFAULT_SLOT_ID,
                          NULL, &data8, sizeof(data8));

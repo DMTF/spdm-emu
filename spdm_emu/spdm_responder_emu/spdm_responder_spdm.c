@@ -333,10 +333,11 @@ void spdm_server_connection_state_callback(
         }
 
         if (m_use_req_asym_algo != 0) {
-            if ((m_use_slot_id == 0xFF) ||
-                ((m_use_responder_capability_flags &
-                  SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) !=
-                 0)) {
+            if ((m_use_responder_capability_flags &
+                 SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) != 0) {
+                m_use_slot_id = 0xFF;
+            }
+            if (m_use_slot_id == 0xFF) {
                 res = libspdm_read_requester_public_certificate_chain(
                     m_use_hash_algo, m_use_req_asym_algo, &data,
                     &data_size, NULL, NULL);
@@ -368,6 +369,10 @@ void spdm_server_connection_state_callback(
             }
 
             if (res) {
+                if (m_use_slot_id == 0xFF) {
+                    /* 0xFF slot is only allowed in */
+                    m_use_mut_auth = SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED;
+                }
                 data8 = m_use_mut_auth;
                 parameter.additional_data[0] =
                     m_use_slot_id; /* req_slot_id;*/
@@ -385,8 +390,8 @@ void spdm_server_connection_state_callback(
         }
 
         /*the requester provisioned cert_chain in which responder slot */
-        data8 = 0;
         if (m_use_slot_id == 0xFF) {
+            data8 = 0;
             libspdm_set_data(spdm_context,
                              LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN_DEFAULT_SLOT_ID,
                              NULL, &data8, sizeof(data8));
