@@ -77,6 +77,9 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
     libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
 
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_IS_REQUESTER, &parameter,
+                     &is_requester, sizeof(is_requester));
+
     spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
                      &spdm_version, sizeof(spdm_version));
