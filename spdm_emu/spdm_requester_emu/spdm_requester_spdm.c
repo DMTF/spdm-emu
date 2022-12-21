@@ -220,6 +220,7 @@ void *spdm_client_init(void)
     data32 = m_use_requester_capability_flags;
     if (m_use_capability_flags != 0) {
         data32 = m_use_capability_flags;
+        m_use_requester_capability_flags = m_use_capability_flags;
     }
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));
