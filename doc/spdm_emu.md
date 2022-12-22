@@ -4,7 +4,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
 ## Spdm OS tool user guide
 
-   <pre>
+   ```
       spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE]
          [--ver 1.0|1.1|1.2]
          [--sec_ver 0|1.0|1.1]
@@ -91,7 +91,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  MEAS means send GET_MEASUREMENT command in session.
          [--pcap] is used to generate PCAP dump file for offline analysis.
          [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.
-   </pre>
+   ```
 
    Take spdm_requester_emu or spdm_responder_emu as an example, a user may use `spdm_requester_emu --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
 
