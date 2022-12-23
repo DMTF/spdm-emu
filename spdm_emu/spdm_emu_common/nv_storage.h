@@ -35,6 +35,12 @@ typedef struct {
 #pragma pack()
 
 /**
+ * privision the capability and algorithm for PKS version only case.
+ */
+libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
+                                                 bool is_requester);
+
+/**
  * Load the negotiated_state from NV storage to an SPDM context.
  */
 libspdm_return_t spdm_load_negotiated_state(void *spdm_context,

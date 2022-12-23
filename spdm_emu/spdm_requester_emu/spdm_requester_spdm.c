@@ -190,7 +190,10 @@ void *spdm_client_init(void)
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
     if (m_load_state_file_name != NULL) {
-        spdm_load_negotiated_state(spdm_context, true);
+        status = spdm_load_negotiated_state(spdm_context, true);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return NULL;
+        }
     }
 
     if (m_use_version != 0) {
@@ -260,6 +263,13 @@ void *spdm_client_init(void)
             free(m_spdm_context);
             m_spdm_context = NULL;
             return NULL;
+        }
+        if ((m_exe_connection & EXE_CONNECTION_VERSION_ONLY) != 0) {
+            /* GET_VERSION is done, handle special PSK use case*/
+            status = spdm_provision_psk_version_only (spdm_context, true);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                return NULL;
+            }
         }
     }
 

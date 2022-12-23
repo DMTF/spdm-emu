@@ -9,6 +9,163 @@
 char *m_load_state_file_name;
 char *m_save_state_file_name;
 
+libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
+                                                 bool is_requester)
+{
+    libspdm_data_parameter_t parameter;
+    uint8_t data8;
+    uint16_t data16;
+    uint32_t data32;
+    size_t data_size;
+    spdm_version_number_t spdm_version;
+
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+
+    /* make sure it is called after GET_VERSION */
+    data_size = sizeof(data32);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
+                     &data32, &data_size);
+    LIBSPDM_ASSERT(data32 == LIBSPDM_CONNECTION_STATE_AFTER_VERSION);
+
+    if (is_requester) {
+        /* get version from requester, because it is negotiated */
+        data_size = sizeof(spdm_version);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
+                         &spdm_version, &data_size);
+        m_use_version = spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT;
+    } else {
+        /* set version for responder, because it cannot be negotiated */
+        spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
+                        &spdm_version, sizeof(spdm_version));
+    }
+
+    if (m_use_version == 0) {
+        printf("spdm_version is unknown, please provision it as well.\n");
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+    }
+
+    /* Set connection info*/
+
+    data8 = 0;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
+                     &parameter, &data8, sizeof(data8));
+    if (is_requester) {
+        /* set responder's cap for requester */
+        data32 = m_use_responder_capability_flags;
+        if (m_use_peer_capability_flags != 0) {
+            data32 = m_use_peer_capability_flags;
+            m_use_responder_capability_flags = m_use_peer_capability_flags;
+        }
+    } else {
+        /* set requester's cap for responder */
+        data32 = m_use_requester_capability_flags;
+        if (m_use_peer_capability_flags != 0) {
+            data32 = m_use_peer_capability_flags;
+            m_use_requester_capability_flags = m_use_peer_capability_flags;
+        }
+    }
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                     &data32, sizeof(data32));
+
+    if (!libspdm_onehot0(m_support_measurement_spec)) {
+        printf("measurement_spec has more bit set - 0x%02x\n", m_support_measurement_spec);
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+    }
+    data8 = m_support_measurement_spec;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
+                     &data8, sizeof(data8));
+
+    if (!libspdm_onehot0(m_support_measurement_hash_algo)) {
+        printf("measurement_hash_algo has more bit set - 0x%08x\n", m_support_measurement_hash_algo);
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+    }
+    data32 = m_support_measurement_hash_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
+                     &data32, sizeof(data32));
+
+    if (!libspdm_onehot0(m_support_asym_algo)) {
+        printf("base_asym_algo has more bit set - 0x%08x\n", m_support_asym_algo);
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+    }
+    data32 = m_support_asym_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_ASYM_ALGO, &parameter,
+                     &data32, sizeof(data32));
+
+    if (!libspdm_onehot0(m_support_hash_algo)) {
+        printf("base_hash_algo has more bit set - 0x%08x\n", m_support_hash_algo);
+        return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+    }
+    data32 = m_support_hash_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
+                     &data32, sizeof(data32));
+
+    if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
+        if (!libspdm_onehot0(m_support_dhe_algo)) {
+            printf("dhe_algo has more bit set - 0x%04x\n", m_support_dhe_algo);
+            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+        }
+        data16 = m_support_dhe_algo;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP,
+                         &parameter, &data16, sizeof(data16));
+
+        if (!libspdm_onehot0(m_support_aead_algo)) {
+            printf("aead_algo has more bit set - 0x%04x\n", m_support_aead_algo);
+            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+        }
+        data16 = m_support_aead_algo;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_AEAD_CIPHER_SUITE,
+                         &parameter, &data16, sizeof(data16));
+
+        if (!libspdm_onehot0(m_support_req_asym_algo)) {
+            printf("req_asym_algo has more bit set - 0x%04x\n", m_support_req_asym_algo);
+            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+        }
+        data16 = m_support_req_asym_algo;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG,
+                         &parameter, &data16, sizeof(data16));
+
+        if (!libspdm_onehot0(m_support_key_schedule_algo)) {
+            printf("key_schedule_algo has more bit set - 0x%04x\n", m_support_key_schedule_algo);
+            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+        }
+        data16 = m_support_key_schedule_algo;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter,
+                         &data16, sizeof(data16));
+
+        if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
+            if (!libspdm_onehot0(m_support_other_params_support)) {
+                printf("other_params has more bit set - 0x%02x\n", m_support_other_params_support);
+                return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+            }
+            data8 = m_support_other_params_support;
+            libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
+                             &data8, sizeof(data8));
+        }
+    } else {
+        data16 = 0;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP,
+                         &parameter, &data16, sizeof(data16));
+        data16 = 0;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_AEAD_CIPHER_SUITE,
+                         &parameter, &data16, sizeof(data16));
+        data16 = 0;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG,
+                         &parameter, &data16, sizeof(data16));
+        data16 = 0;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_KEY_SCHEDULE, &parameter,
+                         &data16, sizeof(data16));
+    }
+
+    /* PSK version only - set to NEGOTIATED */
+    data32 = LIBSPDM_CONNECTION_STATE_NEGOTIATED;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
+                     &data32, sizeof(data32));
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
 /**
  * Load the negotiated_state from NV storage to an SPDM context.
  */

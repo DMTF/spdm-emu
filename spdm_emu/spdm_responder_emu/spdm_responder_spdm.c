@@ -105,6 +105,7 @@ void *spdm_server_init(void)
     uint16_t data16;
     uint32_t data32;
     spdm_version_number_t spdm_version;
+    libspdm_return_t status;
     size_t scratch_buffer_size;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
@@ -152,7 +153,10 @@ void *spdm_server_init(void)
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
     if (m_load_state_file_name != NULL) {
-        spdm_load_negotiated_state(spdm_context, false);
+        status = spdm_load_negotiated_state(spdm_context, false);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return NULL;
+        }
     }
 
     if (m_use_version != 0) {
@@ -271,6 +275,20 @@ void spdm_server_connection_state_callback(
             spdm_clear_negotiated_state(spdm_context);
         }
         break;
+
+    case LIBSPDM_CONNECTION_STATE_AFTER_VERSION:
+        if ((m_exe_connection & EXE_CONNECTION_VERSION_ONLY) != 0) {
+            /* GET_VERSION is done, handle special PSK use case*/
+            status = spdm_provision_psk_version_only (spdm_context, false);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                LIBSPDM_ASSERT (false);
+                return ;
+            }
+            /* pass through to NEGOTIATED */
+        } else {
+            /* normal action - do nothing */
+            break;
+        }
 
     case LIBSPDM_CONNECTION_STATE_NEGOTIATED:
 
