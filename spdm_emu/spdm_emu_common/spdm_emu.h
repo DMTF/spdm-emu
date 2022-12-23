@@ -27,6 +27,7 @@ extern uint8_t m_use_secured_message_version;
 extern uint32_t m_use_requester_capability_flags;
 extern uint32_t m_use_responder_capability_flags;
 extern uint32_t m_use_capability_flags;
+extern uint32_t m_use_peer_capability_flags;
 
 extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;
@@ -126,5 +127,10 @@ void process_args(char *program_name, int argc, char *argv[]);
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
 extern uint8_t m_send_receive_buffer[LIBSPDM_SENDER_RECEIVE_BUFFER_SIZE];
 extern size_t m_send_receive_buffer_size;
+
+static inline bool libspdm_onehot0(uint32_t mask)
+{
+    return !mask || !(mask & (mask - 1));
+}
 
 #endif

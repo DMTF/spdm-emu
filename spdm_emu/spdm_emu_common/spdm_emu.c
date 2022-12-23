@@ -42,6 +42,8 @@ void print_usage(const char *name)
     printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
     printf("   [--key_schedule HMAC_HASH]\n");
     printf("   [--other_param OPAQUE_FMT_1]\n");
+    printf(
+        "   [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET]\n");
     printf("   [--basic_mut_auth NO|BASIC]\n");
     printf("   [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]\n");
     printf("   [--meas_sum NO|TCB|ALL]\n");
@@ -84,6 +86,8 @@ void print_usage(const char *name)
     printf("           Above algorithms also support multiple flags. Please use ',' for them.\n");
     printf("           Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.\n");
     printf("           Please don't mix NIST algo with SMx algo.\n");
+    printf(
+        "   [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.\n");
     printf(
         "   [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.\n");
     printf(
@@ -131,6 +135,10 @@ void print_usage(const char *name)
         "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS.\n");
     printf(
         "           VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.\n");
+    printf("               The version for responder must be provisioned from ver.\n");
+    printf("               The capablities for local and peer are from cap|peer_cap.\n");
+    printf(
+        "               The negotiated algorithms are from hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param and they shall have at most 1 bit set.\n");
     printf("           DIGEST means send GET_DIGESTS command.\n");
     printf("           CERT means send GET_CERTIFICATE command.\n");
     printf("           CHAL means send CHALLENGE command.\n");
@@ -539,6 +547,48 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --cap\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--peer_cap") == 0) {
+            if (argc >= 2) {
+                value_string_entry_t *CapabilitiesStringTable;
+                size_t count;
+
+                if (strcmp(program_name,
+                           "spdm_responder_emu") == 0) {
+                    CapabilitiesStringTable =
+                        m_spdm_requester_capabilities_string_table;
+                    count = LIBSPDM_ARRAY_SIZE(
+                        m_spdm_requester_capabilities_string_table);
+                } else if (strcmp(program_name,
+                                  "spdm_requester_emu") == 0) {
+                    CapabilitiesStringTable =
+                        m_spdm_responder_capabilities_string_table;
+                    count = LIBSPDM_ARRAY_SIZE(
+                        m_spdm_responder_capabilities_string_table);
+                } else {
+                    LIBSPDM_ASSERT(false);
+                    printf("unsupported --peer_cap\n");
+                    print_usage(program_name);
+                    exit(0);
+                }
+                if (!get_flags_from_name(
+                        CapabilitiesStringTable, count,
+                        argv[1], &m_use_peer_capability_flags)) {
+                    printf("invalid --peer_cap %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                printf("peer_cap - 0x%08x\n",
+                       m_use_peer_capability_flags);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --peer_cap\n");
                 print_usage(program_name);
                 exit(0);
             }

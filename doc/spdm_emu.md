@@ -18,6 +18,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]
          [--key_schedule HMAC_HASH]
          [--other_param OPAQUE_FMT_1]
+         [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET]
          [--basic_mut_auth NO|BASIC]
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
          [--meas_sum NO|TCB|ALL]
@@ -53,6 +54,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  Above algorithms also support multiple flags. Please use ',' for them.
                  Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.
                  Please don't mix NIST algo with SMx algo.
+         [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.
          [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.
          [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.
          [--meas_sum] is the measurment summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.
@@ -78,6 +80,9 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  CONTINUE means the requester asks the responder to preserve the current SPDM context.
          [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS.
                  VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.
+                     The version for responder must be provisioned from ver.
+                     The capablities for local and peer are from cap|peer_cap.
+                     The negotiated algorithms are from hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param and they shall have at most 1 bit set.
                  DIGEST means send GET_DIGESTS command.
                  CERT means send GET_CERTIFICATE command.
                  CHAL means send CHALLENGE command.

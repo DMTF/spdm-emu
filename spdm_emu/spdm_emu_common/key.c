@@ -48,6 +48,7 @@ uint32_t m_use_responder_capability_flags =
      0);
 
 uint32_t m_use_capability_flags = 0;
+uint32_t m_use_peer_capability_flags = 0;
 /*
  * 0
  * 1
