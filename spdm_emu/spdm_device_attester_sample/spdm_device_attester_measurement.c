@@ -13,6 +13,7 @@
  **/
 libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
                                                    const uint32_t *session_id,
+                                                   uint8_t slot_id,
                                                    uint8_t *measurement_record,
                                                    uint32_t *measurement_record_length
                                                    )
@@ -34,7 +35,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
     status = libspdm_get_measurement(
             spdm_context, session_id, request_attribute,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
-            m_use_slot_id & 0xF, NULL, &number_of_block,
+            slot_id, NULL, &number_of_block,
             measurement_record_length, measurement_record);
     if (status == LIBSPDM_STATUS_SUCCESS) {
         return status;
@@ -49,7 +50,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
     status = libspdm_get_measurement(
             spdm_context, session_id, request_attribute,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS,
-            m_use_slot_id & 0xF, NULL, &number_of_blocks, NULL, NULL);
+            slot_id, NULL, &number_of_blocks, NULL, NULL);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
@@ -72,7 +73,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
         one_measurement_record_length = sizeof(one_measurement_record);
         status = libspdm_get_measurement(
                 spdm_context, session_id, request_attribute,
-                index, m_use_slot_id & 0xF, NULL, &number_of_block,
+                index, slot_id, NULL, &number_of_block,
                 &one_measurement_record_length, one_measurement_record);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             continue;

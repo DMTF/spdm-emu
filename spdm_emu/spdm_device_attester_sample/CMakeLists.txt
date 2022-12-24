@@ -13,7 +13,6 @@ SET(src_spdm_device_attester_sample
     spdm_device_attester_spdm.c
     spdm_device_attester_pci_doe.c
     spdm_device_attester_collection.c
-    spdm_device_attester_authentication.c
     spdm_device_attester_measurement.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/spdm_emu.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/command.c
@@ -25,7 +24,7 @@ SET(src_spdm_device_attester_sample
 
 SET(spdm_device_attester_sample_LIBRARY
     memlib
-    debuglib
+    debuglib_null
     spdm_requester_lib
     spdm_common_lib
     ${CRYPTO_LIB_PATHS}
@@ -50,7 +49,7 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
     ADD_EXECUTABLE(spdm_device_attester_sample
                    ${src_spdm_responder_test_client}
                    $<TARGET_OBJECTS:memlib>
-                   $<TARGET_OBJECTS:debuglib>
+                   $<TARGET_OBJECTS:debuglib_null>
                    $<TARGET_OBJECTS:spdm_requester_lib>
                    $<TARGET_OBJECTS:spdm_common_lib>
                    $<TARGET_OBJECTS:${CRYPTO_LIB_PATHS}>
