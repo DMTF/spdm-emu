@@ -25,12 +25,9 @@ typedef struct {
     uint8_t cert_chain[LIBSPDM_MAX_CERT_CHAIN_SIZE];
 } spdm_attester_cert_chain_struct_t;
 
-libspdm_return_t
-spdm_authentication(void *context, uint8_t *slot_mask,
-                    spdm_attester_cert_chain_struct_t cert_chain[SPDM_MAX_SLOT_COUNT]);
-
 libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
                                                    const uint32_t *session_id,
+                                                   uint8_t slot_id,
                                                    uint8_t *measurement_record,
                                                    uint32_t *measurement_record_length);
 
