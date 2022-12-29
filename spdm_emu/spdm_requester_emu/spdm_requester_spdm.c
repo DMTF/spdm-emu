@@ -361,19 +361,30 @@ void *spdm_client_init(void)
         m_use_slot_id = 0xFF;
     }
     if (m_use_slot_id == 0xFF) {
-        res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
-                                                              m_use_asym_algo,
-                                                              &data, &data_size,
-                                                              NULL, NULL);
+        res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
         if (res) {
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
             libspdm_set_data(spdm_context,
-                             LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
+                             LIBSPDM_DATA_PEER_PUBLIC_KEY,
                              &parameter, data, data_size);
             /* Do not free it.*/
         } else {
-            printf("read_responder_public_certificate_chain fail!\n");
+            printf("read_responder_public_key fail!\n");
+            free(m_spdm_context);
+            m_spdm_context = NULL;
+            return NULL;
+        }
+        res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
+        if (res) {
+            libspdm_zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+            libspdm_set_data(spdm_context,
+                             LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
+                             &parameter, data, data_size);
+            /* Do not free it.*/
+        } else {
+            printf("read_requester_public_key fail!\n");
             free(m_spdm_context);
             m_spdm_context = NULL;
             return NULL;
@@ -422,14 +433,6 @@ void *spdm_client_init(void)
             m_spdm_context = NULL;
             return NULL;
         }
-    }
-
-    /*the responder provisioned cert_chain in which requester slot */
-    if (m_use_slot_id == 0xFF) {
-        data8 = 0;
-        libspdm_set_data(spdm_context,
-                         LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN_DEFAULT_SLOT_ID,
-                         NULL, &data8, sizeof(data8));
     }
 
     if (m_use_req_asym_algo != 0) {

@@ -357,14 +357,21 @@ void spdm_server_connection_state_callback(
                 m_use_slot_id = 0xFF;
             }
             if (m_use_slot_id == 0xFF) {
-                res = libspdm_read_requester_public_certificate_chain(
-                    m_use_hash_algo, m_use_req_asym_algo, &data,
-                    &data_size, NULL, NULL);
+                res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
                 if (res) {
                     libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
                     libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_PEER_PUBLIC_CERT_CHAIN,
+                                     LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
+                                     &parameter, data, data_size);
+                    /* Do not free it.*/
+                }
+                res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
+                if (res) {
+                    libspdm_zero_mem(&parameter, sizeof(parameter));
+                    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_PEER_PUBLIC_KEY,
                                      &parameter, data, data_size);
                     /* Do not free it.*/
                 }
@@ -406,14 +413,6 @@ void spdm_server_connection_state_callback(
                                  LIBSPDM_DATA_BASIC_MUT_AUTH_REQUESTED,
                                  &parameter, &data8, sizeof(data8));
             }
-        }
-
-        /*the requester provisioned cert_chain in which responder slot */
-        if (m_use_slot_id == 0xFF) {
-            data8 = 0;
-            libspdm_set_data(spdm_context,
-                             LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN_DEFAULT_SLOT_ID,
-                             NULL, &data8, sizeof(data8));
         }
 
         status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
