@@ -158,6 +158,8 @@ void *spdm_client_init(void)
             spdm_transport_none_decode_message,
             spdm_transport_none_get_header_size);
     } else {
+        free(m_spdm_context);
+        m_spdm_context = NULL;
         return NULL;
     }
     libspdm_register_device_buffer_func(spdm_context,

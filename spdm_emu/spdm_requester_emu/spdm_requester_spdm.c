@@ -180,6 +180,8 @@ void *spdm_client_init(void)
             spdm_transport_none_decode_message,
             spdm_transport_none_get_header_size);
     } else {
+        free(m_spdm_context);
+        m_spdm_context = NULL;
         return NULL;
     }
     libspdm_register_device_buffer_func(spdm_context,
@@ -192,6 +194,8 @@ void *spdm_client_init(void)
     if (m_load_state_file_name != NULL) {
         status = spdm_load_negotiated_state(spdm_context, true);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            free(m_spdm_context);
+            m_spdm_context = NULL;
             return NULL;
         }
     }
@@ -268,6 +272,8 @@ void *spdm_client_init(void)
             /* GET_VERSION is done, handle special PSK use case*/
             status = spdm_provision_psk_version_only (spdm_context, true);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                free(m_spdm_context);
+                m_spdm_context = NULL;
                 return NULL;
             }
         }
