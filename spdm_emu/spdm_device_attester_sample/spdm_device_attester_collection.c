@@ -22,7 +22,7 @@ spdm_device_evidence_collection (void *spdm_context)
     slot_id = 0;
     cert_chain.cert_chain_size = sizeof(cert_chain.cert_chain);
     libspdm_zero_mem (cert_chain.cert_chain, sizeof(cert_chain.cert_chain));
-    status = libspdm_get_certificate (spdm_context, slot_id,
+    status = libspdm_get_certificate (spdm_context, NULL, slot_id,
                                       &cert_chain.cert_chain_size,
                                       cert_chain.cert_chain);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
@@ -66,7 +66,7 @@ spdm_device_evidence_collection (void *spdm_context)
     for (slot_id = 1; slot_id < SPDM_MAX_SLOT_COUNT; slot_id++) {
         cert_chain.cert_chain_size = sizeof(cert_chain.cert_chain);
         libspdm_zero_mem (cert_chain.cert_chain, sizeof(cert_chain.cert_chain));
-        status = libspdm_get_certificate_in_session(
+        status = libspdm_get_certificate_ex(
                     spdm_context, &session_id, slot_id,
                     &cert_chain.cert_chain_size,
                     cert_chain.cert_chain,
