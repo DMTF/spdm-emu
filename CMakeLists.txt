@@ -9,6 +9,7 @@ MESSAGE("#########################")
 MESSAGE("## Build Configuration ##")
 MESSAGE("#########################")
 
+SET(CMAKE_GENERATOR ${CMAKE_GENERATOR} CACHE STRING "Choose the generator of cmake")
 SET(ARCH ${ARCH} CACHE STRING "Choose the arch of build: ia32 x64 arm aarch64 riscv32 riscv64 arc" FORCE)
 SET(TOOLCHAIN ${TOOLCHAIN} CACHE STRING "Choose the toolchain of build: Windows: VS2015 VS2019 VS2022 CLANG ARM_DS2022 LIBFUZZER Linux: GCC ARM_GCC AARCH64_GCC RISCV32_GCC RISCV64_GCC ARC_GCC ARM_DS2022 CLANG CBMC AFL KLEE LIBFUZZER" FORCE)
 SET(CMAKE_BUILD_TYPE ${TARGET} CACHE STRING "Choose the target of build: Debug Release" FORCE)
@@ -29,6 +30,8 @@ SET(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/com
 #
 SET(COMPILED_LIBCRYPTO_PATH ${COMPILED_LIBCRYPTO_PATH} CACHE STRING "Optionally provide a path to libcrypto" FORCE)
 SET(COMPILED_LIBSSL_PATH ${COMPILED_LIBSSL_PATH} CACHE STRING "Optionally provide a path to libssl" FORCE)
+
+MESSAGE("CMAKE_GENERATOR = ${CMAKE_GENERATOR}")
 
 if(ARCH STREQUAL "x64")
     MESSAGE("ARCH = x64")
@@ -568,8 +571,15 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
                     COMMAND cp -r -f ${LIBSPDM_DIR}/unit_test/sample_key/* ${EXECUTABLE_OUTPUT_PATH})
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
     STRING(REPLACE "/" "\\" SRC ${LIBSPDM_DIR}/unit_test/sample_key/*)
-    STRING(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH})
-
+    if(CMAKE_GENERATOR MATCHES "^Visual Studio")
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            STRING(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH}/Debug)
+        else()
+            STRING(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH}/Release)
+        endif()
+    else()
+        STRING(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH})
+    endif()
     ADD_CUSTOM_COMMAND(TARGET copy_sample_key
                        PRE_BUILD
                        COMMAND xcopy /y /s ${SRC} ${DEST})
