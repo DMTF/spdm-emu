@@ -180,8 +180,8 @@
 #endif
 
 /* This can be set to 0 by the device if it does not need X509 parser.*/
-#ifndef LIBSPDM_X509_SUPPORT
-#define LIBSPDM_X509_SUPPORT 0
+#ifndef LIBSPDM_CERT_PARSE_SUPPORT
+#define LIBSPDM_CERT_PARSE_SUPPORT 0
 #endif
 
 /* Code space optimization for Optional request/response messages.*/
