@@ -39,6 +39,7 @@ SET(spdm_device_validator_sample_LIBRARY
     spdm_transport_mctp_lib
     spdm_transport_pcidoe_lib
     spdm_transport_none_lib
+    spdm_transport_tcp_lib
     spdm_device_secret_lib_sample
     mctp_requester_lib
     pci_doe_requester_lib

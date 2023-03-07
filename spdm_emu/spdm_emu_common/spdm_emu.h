@@ -22,6 +22,7 @@
 #include "nv_storage.h"
 
 extern uint32_t m_use_transport_layer;
+extern uint32_t m_use_tcp_handshake;
 extern uint8_t m_use_version;
 extern uint8_t m_use_secured_message_version;
 extern uint32_t m_use_requester_capability_flags;
@@ -123,6 +124,16 @@ void append_pcap_packet_data(const void *header, size_t header_size,
                              const void *data, size_t size);
 
 void process_args(char *program_name, int argc, char *argv[]);
+
+bool create_socket(uint16_t port_number, SOCKET *listen_socket);
+
+bool init_client(SOCKET *sock, uint16_t port);
+
+bool read_bytes(const SOCKET socket, uint8_t *buffer,
+                uint32_t number_of_bytes);
+
+bool write_bytes(const SOCKET socket, const uint8_t *buffer,
+                 uint32_t number_of_bytes);
 
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
 extern uint8_t m_send_receive_buffer[LIBSPDM_SENDER_RECEIVE_BUFFER_SIZE];
