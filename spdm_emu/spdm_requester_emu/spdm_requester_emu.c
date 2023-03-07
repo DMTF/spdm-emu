@@ -6,13 +6,6 @@
 
 #include "spdm_requester_emu.h"
 
-#define IP_ADDRESS "127.0.0.1"
-
-#ifdef _MSC_VER
-struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
-#else
-struct in_addr m_ip_address = { 0x0100007F };
-#endif
 uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 
 extern SOCKET m_socket;
@@ -23,6 +16,8 @@ extern void *m_scratch_buffer;
 void *spdm_client_init(void);
 
 libspdm_return_t pci_doe_init_requester(void);
+
+SOCKET CreateSocketAndHandShake(SOCKET *sock, uint16_t port_number);
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
                                const uint8_t *send_buffer, size_t bytes_to_send,
@@ -41,50 +36,6 @@ libspdm_return_t do_authentication_via_spdm(void);
 libspdm_return_t do_session_via_spdm(bool use_psk);
 libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id);
 
-bool init_client(SOCKET *sock, uint16_t port)
-{
-    SOCKET client_socket;
-    struct sockaddr_in server_addr;
-    int32_t ret_val;
-
-    client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (client_socket == INVALID_SOCKET) {
-        printf("Create socket Failed - %x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        return false;
-    }
-
-    server_addr.sin_family = AF_INET;
-    libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
-                     sizeof(struct in_addr));
-    server_addr.sin_port = htons(port);
-    libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
-
-    ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
-                      sizeof(server_addr));
-    if (ret_val == SOCKET_ERROR) {
-        printf("Connect Error - %x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        closesocket(client_socket);
-        return false;
-    }
-
-    printf("connect success!\n");
-
-    *sock = client_socket;
-    return true;
-}
-
 bool platform_client_routine(uint16_t port_number)
 {
     SOCKET platform_socket;
@@ -93,27 +44,34 @@ bool platform_client_routine(uint16_t port_number)
     size_t response_size;
     libspdm_return_t status;
 
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
+        m_socket = CreateSocketAndHandShake(&platform_socket, port_number);
+        if (m_socket == INVALID_SOCKET) {
+            printf("Create platform service socket fail\n");
 #ifdef _MSC_VER
-    WSADATA ws;
-    if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
-        printf("Init Windows socket Failed - %x\n", WSAGetLastError());
-        return false;
-    }
+            WSACleanup();
 #endif
-    result = init_client(&platform_socket, port_number);
-    if (!result) {
-#ifdef _MSC_VER
-        WSACleanup();
-#endif
-        return false;
-    }
+            return false;
+        }
 
-    m_socket = platform_socket;
+        printf("Continuing with SPDM flow...\n");
+    }
+    else {
+        result = init_client(&platform_socket, port_number);
+        if (!result) {
+#ifdef _MSC_VER
+            WSACleanup();
+#endif
+            return false;
+        }
+
+        m_socket = platform_socket;
+    }
 
     if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE) {
         response_size = sizeof(m_receive_buffer);
         result = communicate_platform_data(
-            platform_socket,
+            m_socket,
             SOCKET_SPDM_COMMAND_TEST,
             (uint8_t *)"Client Hello!",
             sizeof("Client Hello!"), &response,
@@ -206,7 +164,7 @@ bool platform_client_routine(uint16_t port_number)
 done:
     response_size = 0;
     result = communicate_platform_data(
-        platform_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
+        m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
         NULL, 0, &response, &response_size, NULL);
 
     if (m_spdm_context != NULL) {
@@ -216,6 +174,9 @@ done:
     }
 
     closesocket(platform_socket);
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
+        closesocket(m_socket);
+    }
 
 #ifdef _MSC_VER
     WSACleanup();
@@ -231,7 +192,14 @@ int main(int argc, char *argv[])
 
     process_args("spdm_requester_emu", argc, argv);
 
-    platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
+        /* Port number 4194 for SPDM */
+        platform_client_routine(TCP_SPDM_PLATFORM_PORT);
+    }
+    else {
+        platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
+    }
+    
     printf("Client stopped\n");
 
     close_pcap_packet_file();

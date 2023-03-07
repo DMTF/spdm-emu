@@ -11,6 +11,8 @@
 
 uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
 
+uint32_t m_use_tcp_handshake = SOCKET_TCP_NO_HANDSHAKE;
+
 bool m_send_receive_buffer_acquired = false;
 uint8_t m_send_receive_buffer[LIBSPDM_SENDER_RECEIVE_BUFFER_SIZE];
 size_t m_send_receive_buffer_size;

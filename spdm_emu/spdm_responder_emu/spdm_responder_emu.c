@@ -17,83 +17,7 @@ extern void *m_pci_doe_context;
 void *spdm_server_init(void);
 libspdm_return_t pci_doe_init_responder ();
 
-bool create_socket(uint16_t port_number, SOCKET *listen_socket)
-{
-    struct sockaddr_in my_address;
-    int32_t res;
-
-    /* Initialize Winsock*/
-#ifdef _MSC_VER
-    WSADATA ws;
-    res = WSAStartup(MAKEWORD(2, 2), &ws);
-    if (res != 0) {
-        printf("WSAStartup failed with error: %d\n", res);
-        return false;
-    }
-#endif
-
-    *listen_socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (INVALID_SOCKET == *listen_socket) {
-        printf("Cannot create server listen socket.  Error is 0x%x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        return false;
-    }
-
-    /* When the program stops unexpectedly the used port will stay in the TIME_WAIT
-     * state which prevents other programs from binding to this port until a timeout
-     * triggers. This timeout may be 30s to 120s. In this state the responder cannot
-     * be restarted since it cannot bind to its port.
-     * To prevent this SO_REUSEADDR is applied to the socket which allows the
-     * responder to bind to this port even if it is still in the TIME_WAIT state.*/
-    if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
-        printf("Cannot configure server listen socket.  Error is 0x%x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        closesocket(*listen_socket);
-        return false;
-    }
-
-    libspdm_zero_mem(&my_address, sizeof(my_address));
-    my_address.sin_port = htons((short)port_number);
-    my_address.sin_family = AF_INET;
-
-    res = bind(*listen_socket, (struct sockaddr *)&my_address,
-               sizeof(my_address));
-    if (res == SOCKET_ERROR) {
-        printf("Bind error.  Error is 0x%x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        closesocket(*listen_socket);
-        return false;
-    }
-
-    res = listen(*listen_socket, 3);
-    if (res == SOCKET_ERROR) {
-        printf("Listen error.  Error is 0x%x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        closesocket(*listen_socket);
-        return false;
-    }
-    return true;
-}
+bool InitConnectionAndHandShake(SOCKET *sock, uint16_t port_number);
 
 bool platform_server(const SOCKET socket)
 {
@@ -238,52 +162,62 @@ bool platform_server(const SOCKET socket)
 
 bool platform_server_routine(uint16_t port_number)
 {
-    SOCKET listen_socket;
+    SOCKET responder_socket;
     struct sockaddr_in peer_address;
     bool result;
     uint32_t length;
     bool continue_serving;
 
-    result = create_socket(port_number, &listen_socket);
-    if (!result) {
-        printf("Create platform service socket fail\n");
-#ifdef _MSC_VER
-        WSACleanup();
-#endif
-        return result;
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
+        result = InitConnectionAndHandShake(&responder_socket, port_number);
+        if (!result) {
+            return false;
+        }
+        m_server_socket = responder_socket;
     }
-
-    do {
-        printf("Platform server listening on port %d\n", port_number);
-
-        length = sizeof(peer_address);
-        m_server_socket =
-            accept(listen_socket, (struct sockaddr *)&peer_address,
-                   (socklen_t *)&length);
-        if (m_server_socket == INVALID_SOCKET) {
-            printf("Accept error.  Error is 0x%x\n",
-#ifdef _MSC_VER
-                   WSAGetLastError()
-#else
-                   errno
-#endif
-                   );
+    else {
+        result = create_socket(port_number, &responder_socket);
+        if (!result) {
+            printf("Create platform service socket fail\n");
 #ifdef _MSC_VER
             WSACleanup();
 #endif
-            closesocket(listen_socket);
             return false;
         }
-        printf("Client accepted\n");
+    }
 
+    do {
+        if (!(m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE)) {
+            printf("Platform server listening on port %d\n", port_number);
+
+            length = sizeof(peer_address);
+            m_server_socket =
+                accept(responder_socket, (struct sockaddr *)&peer_address,
+                    (socklen_t *)&length);
+            if (m_server_socket == INVALID_SOCKET) {
+                closesocket(responder_socket);
+                printf("Accept error.  Error is 0x%x\n",
+#ifdef _MSC_VER
+                    WSAGetLastError()
+#else
+                    errno
+#endif
+                    );
+#ifdef _MSC_VER
+                WSACleanup();
+#endif
+                return false;
+            }
+        }
         continue_serving = platform_server(m_server_socket);
         closesocket(m_server_socket);
 
     } while (continue_serving);
+
+    closesocket(responder_socket);
 #ifdef _MSC_VER
     WSACleanup();
 #endif
-    closesocket(listen_socket);
     return true;
 }
 
@@ -309,7 +243,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
+        // The IANA has assigned port number 4194 for SPDM
+        platform_server_routine(TCP_SPDM_PLATFORM_PORT);
+    }
+    else {
+        platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
+    }
 
     if (m_spdm_context != NULL) {
         libspdm_deinit_context(m_spdm_context);

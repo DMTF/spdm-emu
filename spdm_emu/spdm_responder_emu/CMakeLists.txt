@@ -14,6 +14,7 @@ SET(src_spdm_responder_emu
     spdm_responder_session.c
     spdm_responder_pci_doe.c
     spdm_responder_mctp.c
+    spdm_responder_tcp.c
     spdm_responder_emu.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/spdm_emu.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/command.c
@@ -37,6 +38,7 @@ SET(spdm_responder_emu_LIBRARY
     spdm_secured_message_lib
     spdm_transport_mctp_lib
     spdm_transport_pcidoe_lib
+    spdm_transport_tcp_lib
     spdm_transport_none_lib
     spdm_device_secret_lib_sample
     mctp_responder_lib
@@ -65,6 +67,7 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:spdm_secured_message_lib>
                    $<TARGET_OBJECTS:spdm_transport_mctp_lib>
                    $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>
+                   $<TARGET_OBJECTS:spdm_transport_tcp_lib>
                    $<TARGET_OBJECTS:spdm_device_secret_lib_sample>
                    $<TARGET_OBJECTS:mctp_responder_lib>
                    $<TARGET_OBJECTS:pci_doe_responder_lib>

@@ -6,13 +6,6 @@
 
 #include "spdm_device_validator_sample.h"
 
-#define IP_ADDRESS "127.0.0.1"
-
-#ifdef _MSC_VER
-struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
-#else
-struct in_addr m_ip_address = { 0x0100007F };
-#endif
 uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
 
 extern SOCKET m_socket;
@@ -30,51 +23,6 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
                                size_t *bytes_to_receive,
                                uint8_t *receive_buffer);
 
-
-bool init_client(SOCKET *sock, uint16_t port)
-{
-    SOCKET client_socket;
-    struct sockaddr_in server_addr;
-    int32_t ret_val;
-
-    client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (client_socket == INVALID_SOCKET) {
-        printf("Create socket Failed - %x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        return false;
-    }
-
-    server_addr.sin_family = AF_INET;
-    libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
-                     sizeof(struct in_addr));
-    server_addr.sin_port = htons(port);
-    libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
-
-    ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
-                      sizeof(server_addr));
-    if (ret_val == SOCKET_ERROR) {
-        printf("Connect Error - %x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        closesocket(client_socket);
-        return false;
-    }
-
-    printf("connect success!\n");
-
-    *sock = client_socket;
-    return true;
-}
-
 bool platform_client_routine(uint16_t port_number)
 {
     SOCKET platform_socket;
@@ -83,13 +31,6 @@ bool platform_client_routine(uint16_t port_number)
     size_t response_size;
     libspdm_return_t status;
 
-#ifdef _MSC_VER
-    WSADATA ws;
-    if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
-        printf("Init Windows socket Failed - %x\n", WSAGetLastError());
-        return false;
-    }
-#endif
     result = init_client(&platform_socket, port_number);
     if (!result) {
 #ifdef _MSC_VER
