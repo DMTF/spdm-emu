@@ -23,9 +23,18 @@ uint32_t m_exe_session =
      EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS |
      EXE_SESSION_SET_CERT | EXE_SESSION_GET_CSR| 0);
 
+#define IP_ADDRESS "127.0.0.1"
+
+#ifdef _MSC_VER
+struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
+#else
+struct in_addr m_ip_address = { 0x0100007F };
+#endif
+
 void print_usage(const char *name)
 {
-    printf("\n%s [--trans MCTP|PCI_DOE|NONE]\n", name);
+    printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
+    printf("   [--tcp_sub HS|NO_HS]\n");
     printf("   [--ver 1.0|1.1|1.2]\n");
     printf("   [--sec_ver 1.0|1.1]\n");
     printf(
@@ -62,6 +71,7 @@ void print_usage(const char *name)
     printf("\n");
     printf("NOTE:\n");
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
+    printf("   [--tcp_sub] is sub-option when transport layer is TCP. By default, NO-HANDSHAKE is used.\n");
     printf("   [--ver] is version. By default, all are used.\n");
     printf(
         "   [--sec_ver] is secured message version. By default, all are used.\n");
@@ -164,6 +174,12 @@ value_string_entry_t m_transport_value_string_table[] = {
     { SOCKET_TRANSPORT_TYPE_NONE, "NONE"},
     { SOCKET_TRANSPORT_TYPE_MCTP, "MCTP" },
     { SOCKET_TRANSPORT_TYPE_PCI_DOE, "PCI_DOE" },
+    { SOCKET_TRANSPORT_TYPE_TCP, "TCP"}
+};
+
+value_string_entry_t m_tcp_subtype_string_table[] = {
+    { SOCKET_TCP_NO_HANDSHAKE, "NO_HS"},
+    { SOCKET_TCP_HANDSHAKE, "HS" }
 };
 
 value_string_entry_t m_version_value_string_table[] = {
@@ -456,6 +472,28 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --trans\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--tcp_sub") == 0) {
+            if (argc >= 2) {
+                if (!get_value_from_name(
+                        m_tcp_subtype_string_table,
+                        LIBSPDM_ARRAY_SIZE(
+                            m_tcp_subtype_string_table),
+                        argv[1], &m_use_tcp_handshake)) {
+                    printf("invalid --tcp_sub %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                printf("tcp_sub - 0x%x\n", m_use_tcp_handshake);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --tcp_sub\n");
                 print_usage(program_name);
                 exit(0);
             }
@@ -1154,4 +1192,135 @@ void process_args(char *program_name, int argc, char *argv[])
     }
 
     return;
+}
+
+bool init_client(SOCKET *sock, uint16_t port)
+{
+    SOCKET client_socket;
+    struct sockaddr_in server_addr;
+    int32_t ret_val;
+
+#ifdef _MSC_VER
+    WSADATA ws;
+    if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
+        printf("Init Windows socket Failed - %x\n", WSAGetLastError());
+        return false;
+    }
+#endif
+
+    client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (client_socket == INVALID_SOCKET) {
+        printf("Create socket Failed - %x\n",
+#ifdef _MSC_VER
+               WSAGetLastError()
+#else
+               errno
+#endif
+               );
+        return false;
+    }
+
+    server_addr.sin_family = AF_INET;
+    libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
+                     sizeof(struct in_addr));
+    server_addr.sin_port = htons(port);
+    libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
+
+    ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
+                      sizeof(server_addr));
+    if (ret_val == SOCKET_ERROR) {
+        printf("Connect Error - %x\n",
+#ifdef _MSC_VER
+               WSAGetLastError()
+#else
+               errno
+#endif
+               );
+        closesocket(client_socket);
+        return false;
+    }
+
+    printf("connect success!\n");
+
+    *sock = client_socket;
+    return true;
+}
+
+bool create_socket(uint16_t port_number, SOCKET *listen_socket)
+{
+    struct sockaddr_in my_address;
+    int32_t res;
+
+    /* Initialize Winsock*/
+#ifdef _MSC_VER
+    WSADATA ws;
+    res = WSAStartup(MAKEWORD(2, 2), &ws);
+    if (res != 0) {
+        printf("WSAStartup failed with error: %d\n", res);
+        return false;
+    }
+#endif
+
+    *listen_socket = socket(PF_INET, SOCK_STREAM, 0);
+    if (INVALID_SOCKET == *listen_socket) {
+        printf("Cannot create server listen socket.  Error is 0x%x\n",
+#ifdef _MSC_VER
+               WSAGetLastError()
+#else
+               errno
+#endif
+               );
+        return false;
+    }
+
+    /* When the program stops unexpectedly the used port will stay in the TIME_WAIT
+     * state which prevents other programs from binding to this port until a timeout
+     * triggers. This timeout may be 30s to 120s. In this state the responder cannot
+     * be restarted since it cannot bind to its port.
+     * To prevent this SO_REUSEADDR is applied to the socket which allows the
+     * responder to bind to this port even if it is still in the TIME_WAIT state.*/
+    if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
+        printf("Cannot configure server listen socket.  Error is 0x%x\n",
+#ifdef _MSC_VER
+               WSAGetLastError()
+#else
+               errno
+#endif
+               );
+        closesocket(*listen_socket);
+        return false;
+    }
+
+    libspdm_zero_mem(&my_address, sizeof(my_address));
+    my_address.sin_port = htons((short)port_number);
+    my_address.sin_family = AF_INET;
+
+    res = bind(*listen_socket, (struct sockaddr *)&my_address,
+            sizeof(my_address));
+    if (res == SOCKET_ERROR) {
+        printf("Bind error.  Error is 0x%x\n",
+#ifdef _MSC_VER
+            WSAGetLastError()
+#else
+            errno
+#endif
+            );
+        closesocket(*listen_socket);
+        return false;
+    }
+
+    res = listen(*listen_socket, 3);
+    if (res == SOCKET_ERROR) {
+        printf("Listen error.  Error is 0x%x\n",
+#ifdef _MSC_VER
+               WSAGetLastError()
+#else
+               errno
+#endif
+               );
+        closesocket(*listen_socket);
+        return false;
+    }
+
+    return true;
 }

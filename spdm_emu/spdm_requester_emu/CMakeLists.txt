@@ -16,6 +16,7 @@ SET(src_spdm_requester_emu
     spdm_requester_session.c
     spdm_requester_pci_doe.c
     spdm_requester_mctp.c
+    spdm_requester_tcp.c
     spdm_requester_emu.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/spdm_emu.c
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/command.c
@@ -39,6 +40,7 @@ SET(spdm_requester_emu_LIBRARY
     spdm_secured_message_lib
     spdm_transport_mctp_lib
     spdm_transport_pcidoe_lib
+    spdm_transport_tcp_lib
     spdm_transport_none_lib
     spdm_device_secret_lib_sample
     mctp_requester_lib
@@ -64,6 +66,7 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:spdm_secured_message_lib>
                    $<TARGET_OBJECTS:spdm_transport_mctp_lib>
                    $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>
+                   $<TARGET_OBJECTS:spdm_transport_tcp_lib>
                    $<TARGET_OBJECTS:spdm_device_secret_lib_sample>
                    $<TARGET_OBJECTS:mctp_requester_lib>
                    $<TARGET_OBJECTS:pci_doe_requester_lib>
