@@ -629,6 +629,7 @@ endif()
     ADD_SUBDIRECTORY(library/cxl_ide_km_requester_lib)
     ADD_SUBDIRECTORY(library/cxl_ide_km_responder_lib)
     ADD_SUBDIRECTORY(library/cxl_ide_km_device_lib_sample)
+    ADD_SUBDIRECTORY(library/spdm_transport_tcp_lib)
 
     if(NOT TOOLCHAIN STREQUAL "ARM_DS2022")
     ADD_SUBDIRECTORY(spdm_emu/spdm_requester_emu)
