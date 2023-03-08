@@ -136,6 +136,11 @@ void *spdm_server_init(void)
             spdm_context, libspdm_transport_pci_doe_encode_message,
             libspdm_transport_pci_doe_decode_message,
             libspdm_transport_pci_doe_get_header_size);
+    } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
+        libspdm_register_transport_layer_func(
+            spdm_context, libspdm_transport_tcp_encode_message,
+            libspdm_transport_tcp_decode_message,
+            libspdm_transport_tcp_get_header_size); 
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context, spdm_transport_none_encode_message,
