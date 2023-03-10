@@ -35,8 +35,8 @@ libtdisp_error_code_t pci_tdisp_device_start_interface (const void *pci_doe_cont
     if (interface_context->tdi_state != PCI_TDISP_INTERFACE_STATE_CONFIG_LOCKED) {
         return PCI_TDISP_ERROR_CODE_INVALID_INTERFACE_STATE;
     }
-    if (libspdm_const_compare_mem (start_interface_nonce, interface_context->start_interface_nonce,
-                                   sizeof(interface_context->start_interface_nonce)) != 0) {
+    if (!libspdm_const_compare_mem (start_interface_nonce, interface_context->start_interface_nonce,
+                                    sizeof(interface_context->start_interface_nonce))) {
         return PCI_TDISP_ERROR_CODE_INVALID_NONCE;
     }
 

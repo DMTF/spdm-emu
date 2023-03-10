@@ -50,7 +50,7 @@ libtdisp_interface_context *libtdisp_get_interface_context (
 {
     if (libspdm_const_compare_mem (&g_tdisp_interface_context.interface_id,
                                    interface_id,
-                                   sizeof(g_tdisp_interface_context.interface_id)) == 0) {
+                                   sizeof(g_tdisp_interface_context.interface_id))) {
         return &g_tdisp_interface_context;
     } else {
         return NULL;

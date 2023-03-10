@@ -16,10 +16,7 @@ libtdisp_interface_context *libtdisp_initialize_interface_context (
     const pci_tdisp_interface_id_t *interface_id
     )
 {
-    libspdm_zero_mem (
-        &g_tdisp_interface_context,
-        sizeof(g_tdisp_interface_context)
-        );
+    libspdm_zero_mem(&g_tdisp_interface_context, sizeof(g_tdisp_interface_context));
     libspdm_copy_mem (
         &g_tdisp_interface_context.interface_id,
         sizeof(g_tdisp_interface_context.interface_id),
@@ -50,7 +47,7 @@ libtdisp_interface_context *libtdisp_get_interface_context (
 {
     if (libspdm_const_compare_mem (&g_tdisp_interface_context.interface_id,
                                    interface_id,
-                                   sizeof(g_tdisp_interface_context.interface_id)) == 0) {
+                                   sizeof(g_tdisp_interface_context.interface_id))) {
         return &g_tdisp_interface_context;
     } else {
         return NULL;
