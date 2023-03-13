@@ -24,7 +24,7 @@
  *        0 means no sequence number is required.
  **/
 uint8_t libspdm_tcp_get_sequence_number(uint64_t sequence_number,
-                                         uint8_t *sequence_number_buffer)
+                                        uint8_t *sequence_number_buffer)
 {
     return 0;
 }
@@ -57,9 +57,9 @@ uint32_t libspdm_tcp_get_max_random_number_count(void)
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
 libspdm_return_t libspdm_tcp_encode_message(const uint32_t *session_id, size_t message_size,
-                                             void *message,
-                                             size_t *transport_message_size,
-                                             void **transport_message)
+                                            void *message,
+                                            size_t *transport_message_size,
+                                            void **transport_message)
 {
     size_t aligned_message_size;
     size_t alignment;
@@ -81,7 +81,7 @@ libspdm_return_t libspdm_tcp_encode_message(const uint32_t *session_id, size_t m
         aligned_message_size + sizeof(tcp_spdm_binding_header_t);
     *transport_message = (uint8_t *)message - sizeof(tcp_spdm_binding_header_t);
     tcp_message_header = *transport_message;
-    tcp_message_header->payload_length = (uint16_t )(*transport_message_size - 2); 
+    tcp_message_header->payload_length = (uint16_t )(*transport_message_size - 2);
     tcp_message_header->reserved = 0;
     if (session_id != NULL) {
         tcp_message_header->message_type =
@@ -114,9 +114,9 @@ libspdm_return_t libspdm_tcp_encode_message(const uint32_t *session_id, size_t m
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
 libspdm_return_t libspdm_tcp_decode_message(uint32_t **session_id,
-                                             size_t transport_message_size,
-                                             void *transport_message,
-                                             size_t *message_size, void **message)
+                                            size_t transport_message_size,
+                                            void *transport_message,
+                                            size_t *message_size, void **message)
 {
     const tcp_spdm_binding_header_t *tcp_message_header;
 

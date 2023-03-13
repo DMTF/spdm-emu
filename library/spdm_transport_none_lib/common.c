@@ -26,9 +26,9 @@
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
 libspdm_return_t none_encode_message(const uint32_t *session_id, size_t message_size,
-                                  const void *message,
-                                  size_t *transport_message_size,
-                                  void **transport_message);
+                                     const void *message,
+                                     size_t *transport_message_size,
+                                     void **transport_message);
 
 /**
  * Decode a transport message to a normal message or secured message.
@@ -47,10 +47,10 @@ libspdm_return_t none_encode_message(const uint32_t *session_id, size_t message_
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
 libspdm_return_t none_decode_message(uint32_t **session_id,
-                                  size_t transport_message_size,
-                                  const void *transport_message,
-                                  size_t *message_size,
-                                  void **message);
+                                     size_t transport_message_size,
+                                     const void *transport_message,
+                                     size_t *message_size,
+                                     void **message);
 
 /**
  * Encode an SPDM from a transport layer message.
@@ -87,11 +87,11 @@ libspdm_return_t spdm_transport_none_encode_message(
     }
     /* normal message */
     status = none_encode_message(NULL, message_size, message,
-                                transport_message_size,
-                                transport_message);
+                                 transport_message_size,
+                                 transport_message);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
-                        status));
+                       status));
         return status;
     }
 
@@ -127,21 +127,21 @@ libspdm_return_t spdm_transport_none_decode_message(
     size_t transport_message_size, void *transport_message,
     size_t *message_size, void **message)
 {
-    
+
     libspdm_return_t status;
 
     if ((session_id == NULL) || (is_app_message == NULL)) {
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
-    
+
     /* get non-secured message*/
     status = none_decode_message(NULL,
-                                transport_message_size,
-                                transport_message,
-                                message_size, message);
+                                 transport_message_size,
+                                 transport_message,
+                                 message_size, message);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n",
-                        status));
+                       status));
         return status;
     }
 
@@ -149,4 +149,3 @@ libspdm_return_t spdm_transport_none_decode_message(
     *is_app_message = false;
     return LIBSPDM_STATUS_SUCCESS;
 }
-

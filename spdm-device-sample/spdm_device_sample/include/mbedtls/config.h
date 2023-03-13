@@ -796,8 +796,8 @@ extern void my_free( void *ptr );
  *#define MBEDTLS_ECP_DP_BP512R1_ENABLED*/
 
 /* Montgomery curves (supporting ECP) */
-//#define MBEDTLS_ECP_DP_CURVE25519_ENABLED
-//#define MBEDTLS_ECP_DP_CURVE448_ENABLED
+/* #define MBEDTLS_ECP_DP_CURVE25519_ENABLED
+* #define MBEDTLS_ECP_DP_CURVE448_ENABLED */
 
 /**
  * \def MBEDTLS_ECP_NIST_OPTIM
@@ -1345,7 +1345,7 @@ extern void my_free( void *ptr );
  *
  * This enables support for PKCS#1 v1.5 operations.
  */
-//#define MBEDTLS_PKCS1_V15
+/*#define MBEDTLS_PKCS1_V15 */
 
 /**
  * \def MBEDTLS_PKCS1_V21
@@ -1356,7 +1356,7 @@ extern void my_free( void *ptr );
  *
  * This enables support for RSAES-OAEP and RSASSA-PSS operations.
  */
-//#define MBEDTLS_PKCS1_V21
+/*#define MBEDTLS_PKCS1_V21 */
 
 /** \def MBEDTLS_PSA_CRYPTO_BUILTIN_KEYS
  *
@@ -1482,7 +1482,7 @@ extern void my_free( void *ptr );
  *
  * Enable the checkup functions (*_self_test).
  */
-//#define MBEDTLS_SELF_TEST
+/*#define MBEDTLS_SELF_TEST */
 
 /**
  * \def MBEDTLS_SHA256_SMALLER
@@ -2239,7 +2239,7 @@ extern void my_free( void *ptr );
  *
  * Comment to skip keyUsage checking for both CA and leaf certificates.
  */
-//#define MBEDTLS_X509_CHECK_KEY_USAGE
+/*#define MBEDTLS_X509_CHECK_KEY_USAGE */
 
 /**
  * \def MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
@@ -2252,7 +2252,7 @@ extern void my_free( void *ptr );
  *
  * Comment to skip extendedKeyUsage checking for certificates.
  */
-//#define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
+/*#define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE */
 
 /**
  * \def MBEDTLS_X509_RSASSA_PSS_SUPPORT
@@ -2262,7 +2262,7 @@ extern void my_free( void *ptr );
  *
  * Comment this macro to disallow using RSASSA-PSS in certificates.
  */
-//#define MBEDTLS_X509_RSASSA_PSS_SUPPORT
+/*#define MBEDTLS_X509_RSASSA_PSS_SUPPORT */
 
 /**
  * \def MBEDTLS_ZLIB_SUPPORT
@@ -2452,7 +2452,7 @@ extern void my_free( void *ptr );
  *
  * This module is required for PEM support (required by X.509).
  */
-//#define MBEDTLS_BASE64_C
+/*#define MBEDTLS_BASE64_C */
 
 /**
  * \def MBEDTLS_BIGNUM_C
@@ -2620,7 +2620,7 @@ extern void my_free( void *ptr );
  *
  * Module:  library/chacha20.c
  */
-//#define MBEDTLS_CHACHA20_C
+/*#define MBEDTLS_CHACHA20_C */
 
 /**
  * \def MBEDTLS_CHACHAPOLY_C
@@ -2631,7 +2631,7 @@ extern void my_free( void *ptr );
  *
  * This module requires: MBEDTLS_CHACHA20_C, MBEDTLS_POLY1305_C
  */
-//#define MBEDTLS_CHACHAPOLY_C
+/*#define MBEDTLS_CHACHAPOLY_C */
 
 /**
  * \def MBEDTLS_CIPHER_C
@@ -2745,7 +2745,7 @@ extern void my_free( void *ptr );
  *             See dhm.h for more details.
  *
  */
-//#define MBEDTLS_DHM_C
+/*#define MBEDTLS_DHM_C */
 
 /**
  * \def MBEDTLS_ECDH_C
@@ -3074,7 +3074,7 @@ extern void my_free( void *ptr );
  *
  * This modules adds support for decoding / parsing PEM files.
  */
-//#define MBEDTLS_PEM_PARSE_C
+/*#define MBEDTLS_PEM_PARSE_C */
 
 /**
  * \def MBEDTLS_PEM_WRITE_C
@@ -3090,7 +3090,7 @@ extern void my_free( void *ptr );
  *
  * This modules adds support for encoding / writing PEM files.
  */
-//#define MBEDTLS_PEM_WRITE_C
+/*#define MBEDTLS_PEM_WRITE_C */
 
 /**
  * \def MBEDTLS_PK_C
@@ -3212,7 +3212,7 @@ extern void my_free( void *ptr );
  * Module:  library/poly1305.c
  * Caller:  library/chachapoly.c
  */
-//#define MBEDTLS_POLY1305_C
+/*#define MBEDTLS_POLY1305_C */
 
 /**
  * \def MBEDTLS_PSA_CRYPTO_C
@@ -3301,7 +3301,7 @@ extern void my_free( void *ptr );
  *
  * Requires: MBEDTLS_BIGNUM_C, MBEDTLS_OID_C
  */
-//#define MBEDTLS_RSA_C
+/*#define MBEDTLS_RSA_C */
 
 /**
  * \def MBEDTLS_SHA1_C
@@ -3536,7 +3536,7 @@ extern void my_free( void *ptr );
  *
  * This module is required for X.509 CRL parsing.
  */
-//#define MBEDTLS_X509_CRL_PARSE_C
+/*#define MBEDTLS_X509_CRL_PARSE_C */
 
 /**
  * \def MBEDTLS_X509_CSR_PARSE_C
@@ -3550,7 +3550,7 @@ extern void my_free( void *ptr );
  *
  * This module is used for reading X.509 certificate request.
  */
-//#define MBEDTLS_X509_CSR_PARSE_C
+/*#define MBEDTLS_X509_CSR_PARSE_C */
 
 /**
  * \def MBEDTLS_X509_CREATE_C
@@ -3563,7 +3563,7 @@ extern void my_free( void *ptr );
  *
  * This module is the basis for creating X.509 certificates and CSRs.
  */
-//#define MBEDTLS_X509_CREATE_C
+/*#define MBEDTLS_X509_CREATE_C */
 
 /**
  * \def MBEDTLS_X509_CRT_WRITE_C
@@ -3576,7 +3576,7 @@ extern void my_free( void *ptr );
  *
  * This module is required for X.509 certificate creation.
  */
-//#define MBEDTLS_X509_CRT_WRITE_C
+/*#define MBEDTLS_X509_CRT_WRITE_C */
 
 /**
  * \def MBEDTLS_X509_CSR_WRITE_C
@@ -3589,7 +3589,7 @@ extern void my_free( void *ptr );
  *
  * This module is required for X.509 certificate request writing.
  */
-//#define MBEDTLS_X509_CSR_WRITE_C
+/*#define MBEDTLS_X509_CSR_WRITE_C */
 
 /**
  * \def MBEDTLS_XTEA_C

@@ -16,7 +16,7 @@ extern void *m_spdm_context;
  * @param[in]  spdm_context            The SPDM context for the device.
  **/
 libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
-                                                const uint32_t *session_id)
+                                                   const uint32_t *session_id)
 {
     libspdm_return_t status;
     uint8_t number_of_blocks;

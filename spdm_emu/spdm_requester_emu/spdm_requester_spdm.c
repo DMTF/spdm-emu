@@ -47,8 +47,8 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
 }
 
 libspdm_return_t spdm_device_send_message(void *spdm_context,
-                                       size_t request_size, const void *request,
-                                       uint64_t timeout)
+                                          size_t request_size, const void *request,
+                                          uint64_t timeout)
 {
     bool result;
 
@@ -68,9 +68,9 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
 }
 
 libspdm_return_t spdm_device_receive_message(void *spdm_context,
-                                          size_t *response_size,
-                                          void **response,
-                                          uint64_t timeout)
+                                             size_t *response_size,
+                                             void **response,
+                                             uint64_t timeout)
 {
     bool result;
     uint32_t command;
@@ -178,7 +178,7 @@ void *spdm_client_init(void)
         libspdm_register_transport_layer_func(
             spdm_context, libspdm_transport_tcp_encode_message,
             libspdm_transport_tcp_decode_message,
-            libspdm_transport_tcp_get_header_size); 
+            libspdm_transport_tcp_get_header_size);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context, spdm_transport_none_encode_message,

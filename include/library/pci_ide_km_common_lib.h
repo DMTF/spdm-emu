@@ -39,10 +39,10 @@
 
 /* (2 + 2 * 8 + (3 + 2 + 3 * 15) * 255) = 12768 */
 #define PCI_IDE_KM_IDE_REG_BLOCK_MAX_COUNT \
-            (2 + \
-             2 * PCI_IDE_KM_LINK_IDE_REG_BLOCK_MAX_COUNT + \
-             (3 + 2 + 3 * PCI_IDE_KM_SELECTIVE_IDE_ADDRESS_ASSOCIATION_REG_BLOCK_MAX_COUNT) * \
-             PCI_IDE_KM_SELECTIVE_IDE_REG_BLOCK_MAX_COUNT)
+    (2 + \
+     2 * PCI_IDE_KM_LINK_IDE_REG_BLOCK_MAX_COUNT + \
+     (3 + 2 + 3 * PCI_IDE_KM_SELECTIVE_IDE_ADDRESS_ASSOCIATION_REG_BLOCK_MAX_COUNT) * \
+     PCI_IDE_KM_SELECTIVE_IDE_REG_BLOCK_MAX_COUNT)
 
 
 
@@ -52,14 +52,14 @@
 
 /* (2 + 2 * 4 + (3 + 2 + 3 * 1) * 8) = 74 */
 #define PCI_IDE_KM_IDE_REG_BLOCK_SUPPORTED_COUNT \
-            (2 + \
-             2 * PCI_IDE_KM_LINK_IDE_REG_BLOCK_SUPPORTED_COUNT + \
-             (3 + 2 + 3 * PCI_IDE_KM_SELECTIVE_IDE_ADDRESS_ASSOCIATION_REG_BLOCK_SUPPORTED_COUNT) * \
-             PCI_IDE_KM_SELECTIVE_IDE_REG_BLOCK_SUPPORTED_COUNT)
+    (2 + \
+     2 * PCI_IDE_KM_LINK_IDE_REG_BLOCK_SUPPORTED_COUNT + \
+     (3 + 2 + 3 * PCI_IDE_KM_SELECTIVE_IDE_ADDRESS_ASSOCIATION_REG_BLOCK_SUPPORTED_COUNT) * \
+     PCI_IDE_KM_SELECTIVE_IDE_REG_BLOCK_SUPPORTED_COUNT)
 
 typedef struct {
-  uint32_t key[8];
-  uint32_t iv[2];
+    uint32_t key[8];
+    uint32_t iv[2];
 } pci_ide_km_aes_256_gcm_key_buffer_t;
 
 #endif

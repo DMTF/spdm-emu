@@ -44,7 +44,8 @@ bool platform_client_routine(uint16_t port_number)
     size_t response_size;
     libspdm_return_t status;
 
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
+        m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
         m_socket = CreateSocketAndHandShake(&platform_socket, port_number);
         if (m_socket == INVALID_SOCKET) {
             printf("Create platform service socket fail\n");
@@ -115,11 +116,11 @@ bool platform_client_routine(uint16_t port_number)
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
     /* when use --trans NONE, skip secure session  */
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
-        if (m_use_version >= SPDM_MESSAGE_VERSION_12) {      
+        if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
             status = do_certificate_provising_via_spdm(NULL);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                    printf("do_certificate_provising_via_spdm - %x\n",
-                        (uint32_t)status);
+                printf("do_certificate_provising_via_spdm - %x\n",
+                       (uint32_t)status);
                 goto done;
             }
         }
@@ -132,7 +133,7 @@ bool platform_client_routine(uint16_t port_number)
                 status = do_session_via_spdm(false);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     printf("do_session_via_spdm - %x\n",
-                        (uint32_t)status);
+                           (uint32_t)status);
                     goto done;
                 }
             }
@@ -141,7 +142,7 @@ bool platform_client_routine(uint16_t port_number)
                 status = do_session_via_spdm(true);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     printf("do_session_via_spdm - %x\n",
-                        (uint32_t)status);
+                           (uint32_t)status);
                     goto done;
                 }
             }
@@ -151,7 +152,7 @@ bool platform_client_routine(uint16_t port_number)
                     status = do_session_via_spdm(false);
                     if (LIBSPDM_STATUS_IS_ERROR(status)) {
                         printf("do_session_via_spdm - %x\n",
-                            (uint32_t)status);
+                               (uint32_t)status);
                         goto done;
                     }
                 }
@@ -174,7 +175,8 @@ done:
     }
 
     closesocket(platform_socket);
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
+        m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
         closesocket(m_socket);
     }
 
@@ -199,7 +201,7 @@ int main(int argc, char *argv[])
     else {
         platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
     }
-    
+
     printf("Client stopped\n");
 
     close_pcap_packet_file();

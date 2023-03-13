@@ -14,26 +14,26 @@
 #include "hal/library/debuglib.h"
 #include "hal/library/memlib.h"
 
-#define SPDM_DEVICE_PCI_BUS       0 // TBD
-#define SPDM_DEVICE_PCI_DEVICE    0 // TBD
-#define SPDM_DEVICE_PCI_FUNCTION  0 // TBD
+#define SPDM_DEVICE_PCI_BUS       0 /* TBD */
+#define SPDM_DEVICE_PCI_DEVICE    0 /* TBD */
+#define SPDM_DEVICE_PCI_FUNCTION  0 /* TBD */
 
-#define SPDM_DEVICE_PCIE_ADDRESS  0xE0000000 // TBD
+#define SPDM_DEVICE_PCIE_ADDRESS  0xE0000000 /* TBD */
 
-#define SPDM_DEVICE_DOE_OFFSET    0x880 // TBD
+#define SPDM_DEVICE_DOE_OFFSET    0x880 /* TBD */
 
-// standard - begin
+/* standard - begin */
 
-//
-// The Data Object Exchange PCI Express Extended Capability definitions.
-// Based on section x.x.x of PCI Express Base Specification x.x.
-//
+/*
+ * The Data Object Exchange PCI Express Extended Capability definitions.
+ * Based on section x.x.x of PCI Express Base Specification x.x.
+ *  */
 #define PCI_EXPRESS_EXTENDED_CAPABILITY_DOE_ID   0x002E
 #define PCI_EXPRESS_EXTENDED_CAPABILITY_DOE_VER1 0x1
 
-//
-// Register offsets from Data Object Exchange PCIe Ext Cap Header
-//
+/*
+ * Register offsets from Data Object Exchange PCIe Ext Cap Header
+ *  */
 #define PCI_EXPRESS_REG_DOE_CAPABILITIES_OFFSET             0x04
 #define PCI_EXPRESS_REG_DOE_CONTROL_OFFSET                  0x08
 #define PCI_EXPRESS_REG_DOE_STATUS_OFFSET                   0x0C
@@ -54,20 +54,21 @@
 #define PCI_EXPRESS_REG_DOE_STATUS_BIT_DATA_READY        0x80000000
 
 typedef struct {
-    uint32_t     header;
-    uint32_t     capability;
-    uint32_t     control;
-    uint32_t     status;
-    uint32_t     write_data_mailbox;
-    uint32_t     read_data_mailbox;
+    uint32_t header;
+    uint32_t capability;
+    uint32_t control;
+    uint32_t status;
+    uint32_t write_data_mailbox;
+    uint32_t read_data_mailbox;
 } pci_express_doe_struct_t;
 
 #pragma pack()
 
 #define PCI_ECAM_ADDRESS(bus, device, function, offset) \
-  (((offset) & 0xfff) | (((function) & 0x07) << 12) | (((device) & 0x1f) << 15) | (((bus) & 0xff) << 20))
+    (((offset) & 0xfff) | (((function) & 0x07) << 12) | (((device) & 0x1f) << 15) | \
+     (((bus) & 0xff) << 20))
 
-// standard - end
+/* standard - end */
 
 void *spdm_server_init(void);
 

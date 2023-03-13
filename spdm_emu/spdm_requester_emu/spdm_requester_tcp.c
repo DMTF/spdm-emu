@@ -26,16 +26,17 @@ SOCKET CreateSocketAndHandShake(SOCKET *sock, uint16_t port_number) {
 
     printf("Platform server listening on port %d\n", port_number);
     length = sizeof(peer_address);
-    incoming_socket = accept(requester_socket, (struct sockaddr *)&peer_address, (socklen_t *)&length);
+    incoming_socket = accept(requester_socket, (struct sockaddr *)&peer_address,
+                             (socklen_t *)&length);
     if (incoming_socket == INVALID_SOCKET) {
         closesocket(requester_socket);
         printf("Accept error.  Error is 0x%x\n",
 #ifdef _MSC_VER
-            WSAGetLastError()
+               WSAGetLastError()
 #else
-            errno
+               errno
 #endif
-            );
+               );
 #ifdef _MSC_VER
         WSACleanup();
 #endif
@@ -58,7 +59,8 @@ SOCKET CreateSocketAndHandShake(SOCKET *sock, uint16_t port_number) {
     }
 
     tcp_message_header = (tcp_spdm_binding_header_t *) &handshake_buf;
-    if(tcp_message_header->message_type != TCP_MESSAGE_TYPE_HANDSHAKE_REQUEST || tcp_message_header->payload_length != TCP_HANDSHAKE_BUFFER_SIZE - 2) {
+    if(tcp_message_header->message_type != TCP_MESSAGE_TYPE_HANDSHAKE_REQUEST ||
+       tcp_message_header->payload_length != TCP_HANDSHAKE_BUFFER_SIZE - 2) {
         closesocket(requester_socket);
         closesocket(incoming_socket);
         printf("Failed validating handshake data\n");
@@ -67,7 +69,7 @@ SOCKET CreateSocketAndHandShake(SOCKET *sock, uint16_t port_number) {
 #endif
         return INVALID_SOCKET;
     }
- 
+
     *sock = requester_socket;
     return incoming_socket;
 }

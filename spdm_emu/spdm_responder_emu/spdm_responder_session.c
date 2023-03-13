@@ -52,7 +52,8 @@ libspdm_return_t spdm_get_response_vendor_defined_request(
             request, request_size, response, response_size);
     }
 
-    if ((m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) || (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP)) {
+    if ((m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) ||
+        (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP)) {
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             libspdm_generate_error_response(spdm_context,
                                             SPDM_ERROR_CODE_INVALID_REQUEST, 0,

@@ -24,7 +24,8 @@
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_capabilities (const void *pci_doe_context,
-                                                      const void *spdm_context, const uint32_t *session_id,
+                                                      const void *spdm_context,
+                                                      const uint32_t *session_id,
                                                       const void *request, size_t request_size,
                                                       void *response, size_t *response_size)
 {
@@ -51,7 +52,8 @@ libspdm_return_t pci_tdisp_get_response_capabilities (const void *pci_doe_contex
     libspdm_zero_mem (response, *response_size);
     tdisp_response->header.version = tdisp_request->header.version;
     tdisp_response->header.message_type = PCI_TDISP_CAPABILITIES;
-    tdisp_response->header.interface_id.function_id = tdisp_request->header.interface_id.function_id;
+    tdisp_response->header.interface_id.function_id =
+        tdisp_request->header.interface_id.function_id;
 
     error_code = pci_tdisp_device_get_capabilities (pci_doe_context, spdm_context, session_id,
                                                     &tdisp_response->header.interface_id,

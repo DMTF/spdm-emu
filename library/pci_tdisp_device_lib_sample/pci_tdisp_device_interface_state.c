@@ -22,7 +22,8 @@
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_get_interface_state (const void *pci_doe_context,
-                                                            const void *spdm_context, const uint32_t *session_id,
+                                                            const void *spdm_context,
+                                                            const uint32_t *session_id,
                                                             const pci_tdisp_interface_id_t *interface_id,
                                                             uint8_t *tdi_state)
 {

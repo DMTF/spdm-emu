@@ -9,4 +9,3 @@
 void libspdm_dump_hex_str(const uint8_t *buffer, size_t buffer_size)
 {
 }
-

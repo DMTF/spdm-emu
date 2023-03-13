@@ -10,7 +10,7 @@
 #include "library/mctp_common_lib.h"
 
 libspdm_return_t pldm_control_get_tid(const void *mctp_context,
-                                   void *spdm_context, const uint32_t *session_id, uint8_t *tid);
+                                      void *spdm_context, const uint32_t *session_id, uint8_t *tid);
 
 /* internal function only*/
 
@@ -30,10 +30,10 @@ libspdm_return_t pldm_control_get_tid(const void *mctp_context,
  * @return ERROR                        The MCTP response is not received correctly.
  **/
 libspdm_return_t mctp_send_receive_data (const void *mctp_context,
-                                      void *spdm_context, const uint32_t *session_id,
-                                      mctp_message_header_t mctp_header,
-                                      const void *request, size_t request_size,
-                                      void *response, size_t *response_size);
+                                         void *spdm_context, const uint32_t *session_id,
+                                         mctp_message_header_t mctp_header,
+                                         const void *request, size_t request_size,
+                                         void *response, size_t *response_size);
 
 /**
  * Send and receive an PLDM message
@@ -51,8 +51,8 @@ libspdm_return_t mctp_send_receive_data (const void *mctp_context,
  * @return ERROR                        The PLDM response is not received correctly.
  **/
 libspdm_return_t pldm_send_receive_data (const void *mctp_context,
-                                      void *spdm_context, const uint32_t *session_id,
-                                      const void *request, size_t request_size,
-                                      void *response, size_t *response_size);
+                                         void *spdm_context, const uint32_t *session_id,
+                                         const void *request, size_t request_size,
+                                         void *response, size_t *response_size);
 
 #endif

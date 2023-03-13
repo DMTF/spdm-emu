@@ -22,7 +22,7 @@ typedef struct {
 
     /* runtime data from host */
     uint8_t stream_id;
-    /* 
+    /*
      * 00 = RX
      * 01 = TX
      */
@@ -54,9 +54,11 @@ libcxlidekm_device_port_context *libcxlidekm_get_device_port_context (
 libspdm_return_t cxl_ide_km_device_query (const void *pci_doe_context,
                                           const void *spdm_context, const uint32_t *session_id,
                                           uint8_t port_index, uint8_t *dev_func_num,
-                                          uint8_t *bus_num, uint8_t *segment, uint8_t *max_port_index,
+                                          uint8_t *bus_num, uint8_t *segment,
+                                          uint8_t *max_port_index,
                                           uint8_t *caps,
-                                          uint32_t **ide_reg_buffer, uint32_t *ide_reg_buffer_count);
+                                          uint32_t **ide_reg_buffer,
+                                          uint32_t *ide_reg_buffer_count);
 
 /**
  *  Process the IDE_KM request and return the response.
@@ -71,7 +73,8 @@ libspdm_return_t cxl_ide_km_device_query (const void *pci_doe_context,
  **/
 libspdm_return_t cxl_ide_km_device_key_prog (const void *pci_doe_context,
                                              const void *spdm_context, const uint32_t *session_id,
-                                             uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index, 
+                                             uint8_t stream_id, uint8_t key_sub_stream,
+                                             uint8_t port_index,
                                              uint8_t *kp_ack_status,
                                              const cxl_ide_km_aes_256_gcm_key_buffer_t *key_buffer);
 
@@ -88,7 +91,8 @@ libspdm_return_t cxl_ide_km_device_key_prog (const void *pci_doe_context,
  **/
 libspdm_return_t cxl_ide_km_device_key_set_go (const void *pci_doe_context,
                                                const void *spdm_context, const uint32_t *session_id,
-                                               uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index);
+                                               uint8_t stream_id, uint8_t key_sub_stream,
+                                               uint8_t port_index);
 
 /**
  *  Process the IDE_KM request and return the response.
@@ -102,8 +106,10 @@ libspdm_return_t cxl_ide_km_device_key_set_go (const void *pci_doe_context,
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t cxl_ide_km_device_key_set_stop (const void *pci_doe_context,
-                                                 const void *spdm_context, const uint32_t *session_id,
-                                                 uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index);
+                                                 const void *spdm_context,
+                                                 const uint32_t *session_id,
+                                                 uint8_t stream_id, uint8_t key_sub_stream,
+                                                 uint8_t port_index);
 
 /**
  *  Process the IDE_KM request and return the response.
@@ -118,7 +124,8 @@ libspdm_return_t cxl_ide_km_device_key_set_stop (const void *pci_doe_context,
  **/
 libspdm_return_t cxl_ide_km_device_get_key (const void *pci_doe_context,
                                             const void *spdm_context, const uint32_t *session_id,
-                                            uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index,
+                                            uint8_t stream_id, uint8_t key_sub_stream,
+                                            uint8_t port_index,
                                             cxl_ide_km_aes_256_gcm_key_buffer_t *key_buffer);
 
 #endif

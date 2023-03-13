@@ -23,7 +23,8 @@
  **/
 libspdm_return_t cxl_ide_km_key_set_stop(const void *pci_doe_context,
                                          void *spdm_context, const uint32_t *session_id,
-                                         uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index)
+                                         uint8_t stream_id, uint8_t key_sub_stream,
+                                         uint8_t port_index)
 {
     libspdm_return_t status;
     cxl_ide_km_k_set_stop_t request;

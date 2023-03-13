@@ -53,7 +53,8 @@ typedef uint32_t libtdisp_error_code_t;
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_get_version (const void *pci_doe_context,
-                                                    const void *spdm_context, const uint32_t *session_id,
+                                                    const void *spdm_context,
+                                                    const uint32_t *session_id,
                                                     const pci_tdisp_interface_id_t *interface_id,
                                                     uint8_t *version_num_count,
                                                     pci_tdisp_version_number_t *version_num_entry);
@@ -70,7 +71,8 @@ libtdisp_error_code_t pci_tdisp_device_get_version (const void *pci_doe_context,
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_get_capabilities (const void *pci_doe_context,
-                                                         const void *spdm_context, const uint32_t *session_id,
+                                                         const void *spdm_context,
+                                                         const uint32_t *session_id,
                                                          const pci_tdisp_interface_id_t *interface_id,
                                                          const pci_tdisp_requester_capabilities_t *req_caps,
                                                          pci_tdisp_responder_capabilities_t *rsp_caps);
@@ -87,7 +89,8 @@ libtdisp_error_code_t pci_tdisp_device_get_capabilities (const void *pci_doe_con
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_context,
-                                                       const void *spdm_context, const uint32_t *session_id,
+                                                       const void *spdm_context,
+                                                       const uint32_t *session_id,
                                                        const pci_tdisp_interface_id_t *interface_id,
                                                        const pci_tdisp_lock_interface_param_t *lock_interface_param,
                                                        uint8_t *start_interface_nonce);
@@ -104,7 +107,8 @@ libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_conte
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_get_interface_report (const void *pci_doe_context,
-                                                             const void *spdm_context, const uint32_t *session_id,
+                                                             const void *spdm_context,
+                                                             const uint32_t *session_id,
                                                              const pci_tdisp_interface_id_t *interface_id,
                                                              uint8_t **interface_report, uint16_t *interface_report_size);
 
@@ -120,7 +124,8 @@ libtdisp_error_code_t pci_tdisp_device_get_interface_report (const void *pci_doe
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_get_interface_state (const void *pci_doe_context,
-                                                            const void *spdm_context, const uint32_t *session_id,
+                                                            const void *spdm_context,
+                                                            const uint32_t *session_id,
                                                             const pci_tdisp_interface_id_t *interface_id,
                                                             uint8_t *tdi_state);
 
@@ -136,7 +141,8 @@ libtdisp_error_code_t pci_tdisp_device_get_interface_state (const void *pci_doe_
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_start_interface (const void *pci_doe_context,
-                                                        const void *spdm_context, const uint32_t *session_id,
+                                                        const void *spdm_context,
+                                                        const uint32_t *session_id,
                                                         const pci_tdisp_interface_id_t *interface_id,
                                                         const uint8_t *start_interface_nonce);
 
@@ -152,7 +158,8 @@ libtdisp_error_code_t pci_tdisp_device_start_interface (const void *pci_doe_cont
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_stop_interface (const void *pci_doe_context,
-                                                       const void *spdm_context, const uint32_t *session_id,
+                                                       const void *spdm_context,
+                                                       const uint32_t *session_id,
                                                        const pci_tdisp_interface_id_t *interface_id);
 
 #endif

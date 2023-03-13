@@ -23,7 +23,8 @@
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t cxl_ide_km_get_response_key_prog (const void *pci_doe_context,
-                                                   const void *spdm_context, const uint32_t *session_id,
+                                                   const void *spdm_context,
+                                                   const uint32_t *session_id,
                                                    const void *request, size_t request_size,
                                                    void *response, size_t *response_size)
 {
@@ -33,7 +34,8 @@ libspdm_return_t cxl_ide_km_get_response_key_prog (const void *pci_doe_context,
 
     ide_km_request = request;
     ide_km_response = response;
-    if (request_size != sizeof(cxl_ide_km_key_prog_t) + sizeof(cxl_ide_km_aes_256_gcm_key_buffer_t)) {
+    if (request_size !=
+        sizeof(cxl_ide_km_key_prog_t) + sizeof(cxl_ide_km_aes_256_gcm_key_buffer_t)) {
         return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
     LIBSPDM_ASSERT (*response_size >= sizeof(cxl_ide_km_kp_ack_t));

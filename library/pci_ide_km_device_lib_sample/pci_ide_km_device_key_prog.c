@@ -23,7 +23,8 @@
  **/
 libspdm_return_t pci_ide_km_device_key_prog (const void *pci_doe_context,
                                              const void *spdm_context, const uint32_t *session_id,
-                                             uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index, 
+                                             uint8_t stream_id, uint8_t key_sub_stream,
+                                             uint8_t port_index,
                                              uint8_t *kp_ack_status,
                                              const pci_ide_km_aes_256_gcm_key_buffer_t *key_buffer)
 {

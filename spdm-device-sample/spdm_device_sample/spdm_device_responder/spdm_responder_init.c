@@ -35,7 +35,8 @@ libspdm_return_t spdm_responder_send_message(void *spdm_context,
         spdm_dev_pci_cfg_doe_write_32 (PCI_EXPRESS_REG_DOE_READ_DATA_MAILBOX_OFFSET, msg[index]);
     }
 
-    spdm_dev_pci_cfg_doe_write_32 (PCI_EXPRESS_REG_DOE_STATUS_OFFSET, PCI_EXPRESS_REG_DOE_STATUS_BIT_DATA_READY);
+    spdm_dev_pci_cfg_doe_write_32 (PCI_EXPRESS_REG_DOE_STATUS_OFFSET,
+                                   PCI_EXPRESS_REG_DOE_STATUS_BIT_DATA_READY);
     return LIBSPDM_STATUS_SUCCESS;
 }
 

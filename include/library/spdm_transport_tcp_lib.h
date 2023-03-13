@@ -34,7 +34,7 @@ typedef struct {
  *
  * The APP message is encoded to a secured message directly in SPDM session.
  * The APP message format is defined by the transport layer.
- * Take TCP as example: APP message == TCP-SPDM-BINDING-HEADER + SPDM message 
+ * Take TCP as example: APP message == TCP-SPDM-BINDING-HEADER + SPDM message
  *
  * @param  spdm_context                  A pointer to the SPDM context.
  * @param  session_id                    Indicates if it is a secured message protected via SPDM session.
@@ -123,7 +123,7 @@ uint32_t libspdm_transport_tcp_get_header_size(
  *        0 means no sequence number is required.
  **/
 uint8_t libspdm_tcp_get_sequence_number(uint64_t sequence_number,
-                                         uint8_t *sequence_number_buffer);
+                                        uint8_t *sequence_number_buffer);
 
 /**
  * Return max random number count in an SPDM secure message.

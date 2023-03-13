@@ -47,8 +47,8 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
 }
 
 libspdm_return_t spdm_device_send_message(void *spdm_context,
-                                       size_t request_size, const void *request,
-                                       uint64_t timeout)
+                                          size_t request_size, const void *request,
+                                          uint64_t timeout)
 {
     bool result;
 
@@ -68,9 +68,9 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
 }
 
 libspdm_return_t spdm_device_receive_message(void *spdm_context,
-                                          size_t *response_size,
-                                          void **response,
-                                          uint64_t timeout)
+                                             size_t *response_size,
+                                             void **response,
+                                             uint64_t timeout)
 {
     bool result;
     uint32_t command;
@@ -102,8 +102,8 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
  * @return ERROR                        The response is not received correctly.
  **/
 libspdm_return_t pci_doe_send_receive_data(const void *pci_doe_context,
-                                        size_t request_size, const void *request,
-                                        size_t *response_size, void *response)
+                                           size_t request_size, const void *request,
+                                           size_t *response_size, void *response)
 {
     bool result;
     uint32_t response_code;
@@ -183,19 +183,19 @@ void *spdm_client_init(void)
                      &parameter, &data8, sizeof(data8));
     m_use_requester_capability_flags =
         (0 |
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP |
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHAL_CAP |
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCRYPT_CAP |
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MAC_CAP |
-        /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MUT_AUTH_CAP | */
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_EX_CAP |
-        /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PSK_CAP_REQUESTER | */
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCAP_CAP |
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HBEAT_CAP |
-        SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_UPD_CAP |
-        /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HANDSHAKE_IN_THE_CLEAR_CAP | */
-        /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP | */
-        0);
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHAL_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCRYPT_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MAC_CAP |
+         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MUT_AUTH_CAP | */
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_EX_CAP |
+         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PSK_CAP_REQUESTER | */
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCAP_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HBEAT_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_UPD_CAP |
+         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HANDSHAKE_IN_THE_CLEAR_CAP |
+          * SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP |*/
+         0);
     data32 = m_use_requester_capability_flags;
     if (m_use_capability_flags != 0) {
         data32 = m_use_capability_flags;

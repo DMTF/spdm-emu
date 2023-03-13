@@ -22,8 +22,10 @@
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t cxl_ide_km_device_key_set_stop (const void *pci_doe_context,
-                                                 const void *spdm_context, const uint32_t *session_id,
-                                                 uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index)
+                                                 const void *spdm_context,
+                                                 const uint32_t *session_id,
+                                                 uint8_t stream_id, uint8_t key_sub_stream,
+                                                 uint8_t port_index)
 {
     libcxlidekm_device_port_context *device_port_context;
     uint8_t index;

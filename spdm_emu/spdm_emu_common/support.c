@@ -90,7 +90,7 @@ bool libspdm_read_input_file(const char *file_name, void **file_data,
 }
 
 bool libspdm_write_output_file(const char *file_name, const void *file_data,
-                       size_t file_size)
+                               size_t file_size)
 {
     FILE *fp_out;
 

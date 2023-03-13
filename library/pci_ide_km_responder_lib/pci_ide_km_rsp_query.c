@@ -36,7 +36,8 @@ typedef struct {
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_ide_km_get_response_query (const void *pci_doe_context,
-                                                const void *spdm_context, const uint32_t *session_id,
+                                                const void *spdm_context,
+                                                const uint32_t *session_id,
                                                 const void *request, size_t request_size,
                                                 void *response, size_t *response_size)
 {

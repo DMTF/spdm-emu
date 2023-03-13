@@ -12,9 +12,9 @@
 #if defined(_MSC_VER) || (defined(__clang__) && (defined (LIBSPDM_CPU_AARCH64) || \
     defined(LIBSPDM_CPU_ARM)))
 #else
-//    #include <fcntl.h>
-//    #include <unistd.h>
-//    #include <sys/stat.h>
+/*    #include <fcntl.h>
+ *    #include <unistd.h>
+ *    #include <sys/stat.h> */
 #endif
 #include <stdarg.h>
 #include <stddef.h>

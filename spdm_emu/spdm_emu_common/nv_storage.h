@@ -44,13 +44,13 @@ libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
  * Load the negotiated_state from NV storage to an SPDM context.
  */
 libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
-                                         bool is_requester);
+                                            bool is_requester);
 
 /**
  * Save the negotiated_state to NV storage from an SPDM context.
  */
 libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
-                                         bool is_requester);
+                                            bool is_requester);
 
 /**
  * Clear the negotiated_state in the NV storage.

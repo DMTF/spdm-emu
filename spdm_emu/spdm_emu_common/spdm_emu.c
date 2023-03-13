@@ -71,7 +71,8 @@ void print_usage(const char *name)
     printf("\n");
     printf("NOTE:\n");
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
-    printf("   [--tcp_sub] is sub-option when transport layer is TCP. By default, NO-HANDSHAKE is used.\n");
+    printf(
+        "   [--tcp_sub] is sub-option when transport layer is TCP. By default, NO-HANDSHAKE is used.\n");
     printf("   [--ver] is version. By default, all are used.\n");
     printf(
         "   [--sec_ver] is secured message version. By default, all are used.\n");
@@ -116,7 +117,8 @@ void print_usage(const char *name)
         "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
     printf(
         "           0xFF must be used to if PUB_KEY_ID is set. No GET_DIGEST/GET_CERTIFICATE is sent.\n");
-    printf("   [--slot_count] is to select the local slot count. By default, 3 is used.  And the slot store cert chain continuously in emu.\n");
+    printf(
+        "   [--slot_count] is to select the local slot count. By default, 3 is used.  And the slot store cert chain continuously in emu.\n");
     printf("   [--save_state] is to save the current negotiated state to a write-only file.\n");
     printf(
         "           The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
@@ -162,7 +164,8 @@ void print_usage(const char *name)
     printf("           HEARTBEAT means to send HEARTBEAT in session.\n");
     printf("           MEAS means send GET_MEASUREMENT command in session.\n");
     printf("   [--pcap] is used to generate PCAP dump file for offline analysis.\n");
-    printf("   [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.\n");
+    printf(
+        "   [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.\n");
 }
 
 typedef struct {
@@ -1296,15 +1299,15 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     my_address.sin_family = AF_INET;
 
     res = bind(*listen_socket, (struct sockaddr *)&my_address,
-            sizeof(my_address));
+               sizeof(my_address));
     if (res == SOCKET_ERROR) {
         printf("Bind error.  Error is 0x%x\n",
 #ifdef _MSC_VER
-            WSAGetLastError()
+               WSAGetLastError()
 #else
-            errno
+               errno
 #endif
-            );
+               );
         closesocket(*listen_socket);
         return false;
     }

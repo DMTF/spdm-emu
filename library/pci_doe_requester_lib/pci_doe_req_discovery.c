@@ -33,8 +33,8 @@ typedef struct {
 #pragma pack()
 
 libspdm_return_t pci_doe_discovery (const void *pci_doe_context,
-                                 pci_doe_data_object_protocol_t *data_object_protocol,
-                                 size_t *data_object_protocol_size)
+                                    pci_doe_data_object_protocol_t *data_object_protocol,
+                                    size_t *data_object_protocol_size)
 {
     doe_discovery_request_mine_t doe_request;
     doe_discovery_response_mine_t doe_response;

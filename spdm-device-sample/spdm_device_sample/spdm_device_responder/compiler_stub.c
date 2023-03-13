@@ -16,7 +16,7 @@ void __stack_chk_fail (void)
 
 #if !defined(_MSC_EXTENSIONS)
 
-#if !defined(__ARMCOMPILER_VERSION) // to exclude armclang
+#if !defined(__ARMCOMPILER_VERSION) /* to exclude armclang */
 
 void *
 memcpy (void *dst_buf, const void *src_buf, size_t len)
@@ -148,17 +148,17 @@ char *strstr(char *str1, const char *str2)
 
 const void * memscan ( const void * ptr, int value, size_t num )
 {
-  const char  *p;
+    const char  *p;
 
-  p = (const char *)ptr;
-  do {
-    if (*p == value) {
-      return (const void *)p;
-    }
-    ++p;
-  } while (--num != 0);
+    p = (const char *)ptr;
+    do {
+        if (*p == value) {
+            return (const void *)p;
+        }
+        ++p;
+    } while (--num != 0);
 
-  return NULL;
+    return NULL;
 }
 
 const void * memchr ( const void * ptr, int value, size_t num )
@@ -176,5 +176,5 @@ int strncmp ( const char * str1, const char * str2, size_t num )
     return (int)ascii_strncmp(str1, str2, num);
 }
 
-#endif //#if !defined(__ARMCOMPILER_VERSION)
-#endif //#if !defined(_MSC_EXTENSIONS)
+#endif /*#if !defined(__ARMCOMPILER_VERSION) */
+#endif /*#if !defined(_MSC_EXTENSIONS) */

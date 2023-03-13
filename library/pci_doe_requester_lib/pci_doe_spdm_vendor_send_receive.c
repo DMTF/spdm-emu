@@ -27,11 +27,11 @@
  * @return ERROR                        The SPDM vendor defined response is not received correctly.
  **/
 libspdm_return_t pci_doe_spdm_vendor_send_receive_data_ex (
-                                                     void *spdm_context, const uint32_t *session_id,
-                                                     uint16_t vendor_id,
-                                                     pci_protocol_header_t pci_protocol,
-                                                     const void *request, size_t request_size,
-                                                     void *response, size_t *response_size)
+    void *spdm_context, const uint32_t *session_id,
+    uint16_t vendor_id,
+    pci_protocol_header_t pci_protocol,
+    const void *request, size_t request_size,
+    void *response, size_t *response_size)
 {
     libspdm_data_parameter_t parameter;
     spdm_version_number_t spdm_version;

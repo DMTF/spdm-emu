@@ -34,8 +34,8 @@
 #define CXL_IDE_KM_IDE_CAP_REG_BLOCK_MAX_COUNT 9
 
 typedef struct {
-  uint32_t key[8];
-  uint32_t iv[3];
+    uint32_t key[8];
+    uint32_t iv[3];
 } cxl_ide_km_aes_256_gcm_key_buffer_t;
 
 #endif

@@ -24,7 +24,8 @@
 libspdm_return_t cxl_ide_km_device_query (const void *pci_doe_context,
                                           const void *spdm_context, const uint32_t *session_id,
                                           uint8_t port_index, uint8_t *dev_func_num,
-                                          uint8_t *bus_num, uint8_t *segment, uint8_t *max_port_index,
+                                          uint8_t *bus_num, uint8_t *segment,
+                                          uint8_t *max_port_index,
                                           uint8_t *caps,
                                           uint32_t **ide_reg_buffer, uint32_t *ide_reg_buffer_count)
 {
