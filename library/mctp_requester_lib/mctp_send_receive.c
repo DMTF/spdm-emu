@@ -27,10 +27,10 @@
  * @return ERROR                        The MCTP response is not received correctly.
  **/
 libspdm_return_t mctp_send_receive_data (const void *mctp_context,
-                                      void *spdm_context, const uint32_t *session_id,
-                                      mctp_message_header_t mctp_header,
-                                      const void *request, size_t request_size,
-                                      void *response, size_t *response_size)
+                                         void *spdm_context, const uint32_t *session_id,
+                                         mctp_message_header_t mctp_header,
+                                         const void *request, size_t request_size,
+                                         void *response, size_t *response_size)
 {
     libspdm_data_parameter_t parameter;
     spdm_version_number_t spdm_version;

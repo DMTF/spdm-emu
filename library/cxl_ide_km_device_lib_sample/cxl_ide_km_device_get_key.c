@@ -24,7 +24,8 @@
  **/
 libspdm_return_t cxl_ide_km_device_get_key (const void *pci_doe_context,
                                             const void *spdm_context, const uint32_t *session_id,
-                                            uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index,
+                                            uint8_t stream_id, uint8_t key_sub_stream,
+                                            uint8_t port_index,
                                             cxl_ide_km_aes_256_gcm_key_buffer_t *key_buffer)
 {
     libcxlidekm_device_port_context *device_port_context;

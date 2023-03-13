@@ -20,7 +20,7 @@ bool InitConnectionAndHandShake(SOCKET *sock, uint16_t port_number) {
         return false;
     }
 
-    /* Create handshake_request */  
+    /* Create handshake_request */
     libspdm_zero_mem(handshake_buf, TCP_HANDSHAKE_BUFFER_SIZE);
     tcp_message_header = (tcp_spdm_binding_header_t *) &handshake_buf;
     tcp_message_header->payload_length = TCP_HANDSHAKE_BUFFER_SIZE - 2;

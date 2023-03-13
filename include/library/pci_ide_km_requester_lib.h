@@ -57,7 +57,8 @@ libspdm_return_t pci_ide_km_key_prog(const void *pci_doe_context,
  **/
 libspdm_return_t pci_ide_km_key_set_go(const void *pci_doe_context,
                                        void *spdm_context, const uint32_t *session_id,
-                                       uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index);
+                                       uint8_t stream_id, uint8_t key_sub_stream,
+                                       uint8_t port_index);
 
 /**
  * Send and receive an IDE_KM message
@@ -72,7 +73,8 @@ libspdm_return_t pci_ide_km_key_set_go(const void *pci_doe_context,
  **/
 libspdm_return_t pci_ide_km_key_set_stop(const void *pci_doe_context,
                                          void *spdm_context, const uint32_t *session_id,
-                                         uint8_t stream_id, uint8_t key_sub_stream, uint8_t port_index);
+                                         uint8_t stream_id, uint8_t key_sub_stream,
+                                         uint8_t port_index);
 
 /**
  * Send and receive an IDE_KM message

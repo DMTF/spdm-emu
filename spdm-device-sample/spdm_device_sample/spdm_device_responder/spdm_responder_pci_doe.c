@@ -15,16 +15,16 @@ libspdm_return_t pci_doe_init_responder()
 {
     libspdm_return_t status;
     status = pci_doe_register_vendor_response_func (
-                m_pci_doe_context,
-                SPDM_REGISTRY_ID_PCISIG, SPDM_VENDOR_ID_PCISIG,
-                PCI_PROTOCOL_ID_IDE_KM, pci_ide_km_get_response);
+        m_pci_doe_context,
+        SPDM_REGISTRY_ID_PCISIG, SPDM_VENDOR_ID_PCISIG,
+        PCI_PROTOCOL_ID_IDE_KM, pci_ide_km_get_response);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
     status = pci_doe_register_vendor_response_func (
-                m_pci_doe_context,
-                SPDM_REGISTRY_ID_PCISIG, SPDM_VENDOR_ID_PCISIG,
-                PCI_PROTOCOL_ID_TDISP, pci_tdisp_get_response);
+        m_pci_doe_context,
+        SPDM_REGISTRY_ID_PCISIG, SPDM_VENDOR_ID_PCISIG,
+        PCI_PROTOCOL_ID_TDISP, pci_tdisp_get_response);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
@@ -40,8 +40,8 @@ libspdm_return_t spdm_get_response_vendor_defined_request(
 
     LIBSPDM_ASSERT(!is_app_message);
     status = pci_doe_get_response_spdm_vendor_defined_request (
-             m_pci_doe_context, spdm_context, session_id,
-             request, request_size, response, response_size);
+        m_pci_doe_context, spdm_context, session_id,
+        request, request_size, response, response_size);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         libspdm_generate_error_response(spdm_context,
                                         SPDM_ERROR_CODE_INVALID_REQUEST, 0,

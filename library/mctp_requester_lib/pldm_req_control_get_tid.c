@@ -11,7 +11,7 @@
 #include "library/mctp_requester_lib.h"
 
 libspdm_return_t pldm_control_get_tid(const void *mctp_context,
-                                   void *spdm_context, const uint32_t *session_id, uint8_t *tid)
+                                      void *spdm_context, const uint32_t *session_id, uint8_t *tid)
 {
     libspdm_return_t status;
     pldm_get_tid_request_t app_request;

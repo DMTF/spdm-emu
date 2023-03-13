@@ -35,7 +35,8 @@ libspdm_return_t cxl_ide_km_send_receive_data (void *spdm_context, const uint32_
     cxl_protocol.protocol_id = CXL_PROTOCOL_ID_IDE_KM;
     status = pci_doe_spdm_vendor_send_receive_data_ex (spdm_context, session_id,
                                                        SPDM_VENDOR_ID_CXL, cxl_protocol,
-                                                       request, request_size, response, response_size);
+                                                       request, request_size, response,
+                                                       response_size);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }

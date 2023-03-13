@@ -31,12 +31,12 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
     /* request all at one time.*/
 
     request_attribute =
-            SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
+        SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
     status = libspdm_get_measurement(
-            spdm_context, session_id, request_attribute,
-            SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
-            slot_id, NULL, &number_of_block,
-            measurement_record_length, measurement_record);
+        spdm_context, session_id, request_attribute,
+        SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
+        slot_id, NULL, &number_of_block,
+        measurement_record_length, measurement_record);
     if (status == LIBSPDM_STATUS_SUCCESS) {
         return status;
     }
@@ -48,14 +48,14 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
     /* 1. query the total number of measurements available.*/
 
     status = libspdm_get_measurement(
-            spdm_context, session_id, request_attribute,
-            SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS,
-            slot_id, NULL, &number_of_blocks, NULL, NULL);
+        spdm_context, session_id, request_attribute,
+        SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS,
+        slot_id, NULL, &number_of_blocks, NULL, NULL);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "number_of_blocks - 0x%x\n",
-                       number_of_blocks));
+                   number_of_blocks));
     received_number_of_block = 0;
     for (index = 1; index <= 0xFE; index++) {
         if (received_number_of_block == number_of_blocks) {
@@ -68,13 +68,13 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
 
         if (received_number_of_block == number_of_blocks - 1) {
             request_attribute = m_use_measurement_attribute |
-                                    SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
+                                SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
         }
         one_measurement_record_length = sizeof(one_measurement_record);
         status = libspdm_get_measurement(
-                spdm_context, session_id, request_attribute,
-                index, slot_id, NULL, &number_of_block,
-                &one_measurement_record_length, one_measurement_record);
+            spdm_context, session_id, request_attribute,
+            index, slot_id, NULL, &number_of_block,
+            &one_measurement_record_length, one_measurement_record);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             continue;
         }
@@ -82,7 +82,8 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
 
         LIBSPDM_ASSERT (*measurement_record_length >= measurement_record_offset);
 
-        if (one_measurement_record_length < *measurement_record_length - measurement_record_offset) {
+        if (one_measurement_record_length <
+            *measurement_record_length - measurement_record_offset) {
             libspdm_copy_mem (measurement_record + measurement_record_offset,
                               *measurement_record_length - measurement_record_offset,
                               one_measurement_record,

@@ -23,9 +23,9 @@
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
 libspdm_return_t libspdm_tcp_encode_message(const uint32_t *session_id, size_t message_size,
-                                             void *message,
-                                             size_t *transport_message_size,
-                                             void **transport_message);
+                                            void *message,
+                                            size_t *transport_message_size,
+                                            void **transport_message);
 
 /**
  * Decode a transport message to a normal message or secured message.
@@ -42,10 +42,10 @@ libspdm_return_t libspdm_tcp_encode_message(const uint32_t *session_id, size_t m
  * @retval RETURN_INVALID_PARAMETER     The message is NULL or the message_size is zero.
  **/
 libspdm_return_t libspdm_tcp_decode_message(uint32_t **session_id,
-                                             size_t transport_message_size,
-                                             void *transport_message,
-                                             size_t *message_size,
-                                             void **message);
+                                            size_t transport_message_size,
+                                            void *transport_message,
+                                            size_t *message_size,
+                                            void **message);
 
 /**
  * Encode an SPDM or APP message to a transport layer message.
@@ -111,9 +111,9 @@ libspdm_return_t libspdm_transport_tcp_encode_message(
         if (!is_app_message) {
             /* SPDM message to APP message*/
             status = libspdm_tcp_encode_message(NULL, message_size,
-                                                 message,
-                                                 &app_message_size,
-                                                 &app_message);
+                                                message,
+                                                &app_message_size,
+                                                &app_message);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR,
                                "transport_encode_message - %p\n",
@@ -150,8 +150,8 @@ libspdm_return_t libspdm_transport_tcp_encode_message(
     } else {
         /* SPDM message to normal TCP message*/
         status = libspdm_tcp_encode_message(NULL, message_size, message,
-                                             transport_message_size,
-                                             transport_message);
+                                            transport_message_size,
+                                            transport_message);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_encode_message - %p\n",
                            status));
@@ -266,8 +266,8 @@ libspdm_return_t libspdm_transport_tcp_decode_message(
 
         /* APP message to SPDM message.*/
         status = libspdm_tcp_decode_message(&secured_message_session_id,
-                                             app_message_size, app_message,
-                                             message_size, message);
+                                            app_message_size, app_message,
+                                            message_size, message);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             *is_app_message = true;
             /* just return APP message.*/
@@ -289,9 +289,9 @@ libspdm_return_t libspdm_transport_tcp_decode_message(
     } else {
         /* get non-secured message*/
         status = libspdm_tcp_decode_message(&secured_message_session_id,
-                                             transport_message_size,
-                                             transport_message,
-                                             message_size, message);
+                                            transport_message_size,
+                                            transport_message,
+                                            message_size, message);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_ERROR, "transport_decode_message - %p\n",
                            status));

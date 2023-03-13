@@ -168,7 +168,8 @@ bool platform_server_routine(uint16_t port_number)
     uint32_t length;
     bool continue_serving;
 
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
+        m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
         result = InitConnectionAndHandShake(&responder_socket, port_number);
         if (!result) {
             return false;
@@ -187,22 +188,23 @@ bool platform_server_routine(uint16_t port_number)
     }
 
     do {
-        if (!(m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP && m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE)) {
+        if (!(m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
+              m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE)) {
             printf("Platform server listening on port %d\n", port_number);
 
             length = sizeof(peer_address);
             m_server_socket =
                 accept(responder_socket, (struct sockaddr *)&peer_address,
-                    (socklen_t *)&length);
+                       (socklen_t *)&length);
             if (m_server_socket == INVALID_SOCKET) {
                 closesocket(responder_socket);
                 printf("Accept error.  Error is 0x%x\n",
 #ifdef _MSC_VER
-                    WSAGetLastError()
+                       WSAGetLastError()
 #else
-                    errno
+                       errno
 #endif
-                    );
+                       );
 #ifdef _MSC_VER
                 WSACleanup();
 #endif
@@ -244,7 +246,7 @@ int main(int argc, char *argv[])
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
-        // The IANA has assigned port number 4194 for SPDM
+        /* The IANA has assigned port number 4194 for SPDM */
         platform_server_routine(TCP_SPDM_PLATFORM_PORT);
     }
     else {

@@ -38,7 +38,7 @@ libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
         /* set version for responder, because it cannot be negotiated */
         spdm_version = m_use_version << SPDM_VERSION_NUMBER_SHIFT_BIT;
         libspdm_set_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
-                        &spdm_version, sizeof(spdm_version));
+                         &spdm_version, sizeof(spdm_version));
     }
 
     if (m_use_version == 0) {
@@ -78,7 +78,8 @@ libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
                      &data8, sizeof(data8));
 
     if (!libspdm_onehot0(m_support_measurement_hash_algo)) {
-        printf("measurement_hash_algo has more bit set - 0x%08x\n", m_support_measurement_hash_algo);
+        printf("measurement_hash_algo has more bit set - 0x%08x\n",
+               m_support_measurement_hash_algo);
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;
     }
     data32 = m_support_measurement_hash_algo;
@@ -170,7 +171,7 @@ libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
  * Load the negotiated_state from NV storage to an SPDM context.
  */
 libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
-                                         bool is_requester)
+                                            bool is_requester)
 {
     bool ret;
     void *file_data;
@@ -313,7 +314,7 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
  * Save the negotiated_state to NV storage from an SPDM context.
  */
 libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
-                                         bool is_requester)
+                                            bool is_requester)
 {
     bool ret;
     spdm_negotiated_state_struct_t negotiated_state;
@@ -455,7 +456,7 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
     negotiated_state.other_params_support = data8;
 
     ret = libspdm_write_output_file(m_save_state_file_name, &negotiated_state,
-                            sizeof(negotiated_state));
+                                    sizeof(negotiated_state));
     if (!ret) {
         printf("SaveState fail - write file error\n");
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;

@@ -47,8 +47,8 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
 }
 
 libspdm_return_t spdm_device_send_message(void *spdm_context,
-                                       size_t request_size, const void *request,
-                                       uint64_t timeout)
+                                          size_t request_size, const void *request,
+                                          uint64_t timeout)
 {
     bool result;
 
@@ -68,9 +68,9 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
 }
 
 libspdm_return_t spdm_device_receive_message(void *spdm_context,
-                                          size_t *response_size,
-                                          void **response,
-                                          uint64_t timeout)
+                                             size_t *response_size,
+                                             void **response,
+                                             uint64_t timeout)
 {
     bool result;
     uint32_t command;
@@ -102,8 +102,8 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
  * @return ERROR                        The response is not received correctly.
  **/
 libspdm_return_t pci_doe_send_receive_data(const void *pci_doe_context,
-                                        size_t request_size, const void *request,
-                                        size_t *response_size, void *response)
+                                           size_t request_size, const void *request,
+                                           size_t *response_size, void *response)
 {
     bool result;
     uint32_t response_code;

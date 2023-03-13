@@ -62,8 +62,8 @@ libspdm_return_t pci_tdisp_get_interface_report(const void *pci_doe_context,
         request_size = sizeof(request);
         response_size = sizeof(response);
         status = pci_tdisp_send_receive_data(spdm_context, session_id,
-                                            &request, request_size,
-                                            &response, &response_size);
+                                             &request, request_size,
+                                             &response, &response_size);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
@@ -74,7 +74,8 @@ libspdm_return_t pci_tdisp_get_interface_report(const void *pci_doe_context,
         if (response.portion_length > request.length) {
             return LIBSPDM_STATUS_INVALID_MSG_SIZE;
         }
-        if (response_size != sizeof(pci_tdisp_device_interface_report_response_t) + response.portion_length) {
+        if (response_size !=
+            sizeof(pci_tdisp_device_interface_report_response_t) + response.portion_length) {
             return LIBSPDM_STATUS_INVALID_MSG_SIZE;
         }
         if (response.header.version != request.header.version) {
@@ -94,7 +95,8 @@ libspdm_return_t pci_tdisp_get_interface_report(const void *pci_doe_context,
                 return LIBSPDM_STATUS_BUFFER_TOO_SMALL;
             }
         } else {
-            if (total_report_length != (uint32_t)(offset + response.portion_length + response.remainder_length)) {
+            if (total_report_length !=
+                (uint32_t)(offset + response.portion_length + response.remainder_length)) {
                 return LIBSPDM_STATUS_INVALID_MSG_FIELD;
             }
         }

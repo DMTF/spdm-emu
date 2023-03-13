@@ -140,7 +140,7 @@ libspdm_return_t pci_doe_register_vendor_response_func (const void *pci_doe_cont
     m_pci_doe_spdm_dispatch[m_pci_doe_spdm_dispatch_count].protocol_id = protocol_id;
     m_pci_doe_spdm_dispatch[m_pci_doe_spdm_dispatch_count].func = func;
 
-    m_pci_doe_spdm_dispatch_count ++;
+    m_pci_doe_spdm_dispatch_count++;
 
     return LIBSPDM_STATUS_SUCCESS;
 }

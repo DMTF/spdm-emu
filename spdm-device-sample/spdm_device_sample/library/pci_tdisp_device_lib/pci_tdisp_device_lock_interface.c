@@ -16,7 +16,7 @@
 
 typedef struct {
     uint16_t interface_info;
-    uint16_t reserved; 
+    uint16_t reserved;
     uint16_t msi_x_message_control;
     uint16_t lnr_control;
     uint32_t tph_control;
@@ -38,7 +38,8 @@ typedef struct {
  *  @return ERROR          The request is not processed.
  **/
 libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_context,
-                                                       const void *spdm_context, const uint32_t *session_id,
+                                                       const void *spdm_context,
+                                                       const uint32_t *session_id,
                                                        const pci_tdisp_interface_id_t *interface_id,
                                                        const pci_tdisp_lock_interface_param_t *lock_interface_param,
                                                        uint8_t *start_interface_nonce)
@@ -75,7 +76,8 @@ libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_conte
     /* generate the report */
 
     interface_report = (void *)interface_context->interface_report;
-    interface_context->interface_report_size = sizeof(pci_tdisp_device_interface_report_struct_mine_t);
+    interface_context->interface_report_size =
+        sizeof(pci_tdisp_device_interface_report_struct_mine_t);
     libspdm_zero_mem (interface_report, sizeof(pci_tdisp_device_interface_report_struct_mine_t));
     interface_report->interface_info = PCI_TDISP_INTERFACE_INFO_NO_UPDATE_AFTER_LOCK |
                                        PCI_TDISP_INTERFACE_INFO_DMA_WITHOUT_PASID;
@@ -85,22 +87,26 @@ libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_conte
     interface_report->mmio_range_count = MMIO_RANGE_COUNT;
     interface_report->mmio_range[0].first_page = 0x0000;
     interface_report->mmio_range[0].number_of_pages = 1;
-    interface_report->mmio_range[0].range_attributes = PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_NON_TEE_MEM;
+    interface_report->mmio_range[0].range_attributes =
+        PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_NON_TEE_MEM;
     interface_report->mmio_range[0].range_id = 1;
 
     interface_report->mmio_range[1].first_page = 0x8000;
     interface_report->mmio_range[1].number_of_pages = 4;
-    interface_report->mmio_range[1].range_attributes = PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_MEM_ATTR_UPDATABLE;
+    interface_report->mmio_range[1].range_attributes =
+        PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_MEM_ATTR_UPDATABLE;
     interface_report->mmio_range[1].range_id = 2;
 
     interface_report->mmio_range[2].first_page = 0x10000;
     interface_report->mmio_range[2].number_of_pages = 8;
-    interface_report->mmio_range[2].range_attributes = PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_MEM_ATTR_UPDATABLE;
+    interface_report->mmio_range[2].range_attributes =
+        PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_MEM_ATTR_UPDATABLE;
     interface_report->mmio_range[2].range_id = 3;
 
     interface_report->mmio_range[3].first_page = 0x20000;
     interface_report->mmio_range[3].number_of_pages = 8;
-    interface_report->mmio_range[3].range_attributes = PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_MEM_ATTR_UPDATABLE;
+    interface_report->mmio_range[3].range_attributes =
+        PCI_TDISP_MMIO_RANGE_ATTRIBUTES_IS_MEM_ATTR_UPDATABLE;
     interface_report->mmio_range[3].range_id = 4;
 
     interface_report->device_specific_info_len = DEVICE_INFO_LEN;

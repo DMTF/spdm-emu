@@ -56,7 +56,8 @@ typedef
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_version (const void *pci_doe_context,
-                                                 const void *spdm_context, const uint32_t *session_id,
+                                                 const void *spdm_context,
+                                                 const uint32_t *session_id,
                                                  const void *request, size_t request_size,
                                                  void *response, size_t *response_size);
 
@@ -72,7 +73,8 @@ libspdm_return_t pci_tdisp_get_response_version (const void *pci_doe_context,
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_capabilities (const void *pci_doe_context,
-                                                      const void *spdm_context, const uint32_t *session_id,
+                                                      const void *spdm_context,
+                                                      const uint32_t *session_id,
                                                       const void *request, size_t request_size,
                                                       void *response, size_t *response_size);
 
@@ -88,7 +90,8 @@ libspdm_return_t pci_tdisp_get_response_capabilities (const void *pci_doe_contex
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_lock_interface (const void *pci_doe_context,
-                                                        const void *spdm_context, const uint32_t *session_id,
+                                                        const void *spdm_context,
+                                                        const uint32_t *session_id,
                                                         const void *request, size_t request_size,
                                                         void *response, size_t *response_size);
 
@@ -104,7 +107,8 @@ libspdm_return_t pci_tdisp_get_response_lock_interface (const void *pci_doe_cont
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_interface_report (const void *pci_doe_context,
-                                                          const void *spdm_context, const uint32_t *session_id,
+                                                          const void *spdm_context,
+                                                          const uint32_t *session_id,
                                                           const void *request, size_t request_size,
                                                           void *response, size_t *response_size);
 
@@ -120,7 +124,8 @@ libspdm_return_t pci_tdisp_get_response_interface_report (const void *pci_doe_co
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_interface_state (const void *pci_doe_context,
-                                                         const void *spdm_context, const uint32_t *session_id,
+                                                         const void *spdm_context,
+                                                         const uint32_t *session_id,
                                                          const void *request, size_t request_size,
                                                          void *response, size_t *response_size);
 
@@ -136,7 +141,8 @@ libspdm_return_t pci_tdisp_get_response_interface_state (const void *pci_doe_con
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_start_interface (const void *pci_doe_context,
-                                                         const void *spdm_context, const uint32_t *session_id,
+                                                         const void *spdm_context,
+                                                         const uint32_t *session_id,
                                                          const void *request, size_t request_size,
                                                          void *response, size_t *response_size);
 
@@ -152,7 +158,8 @@ libspdm_return_t pci_tdisp_get_response_start_interface (const void *pci_doe_con
  *  @return ERROR          The request is not processed.
  **/
 libspdm_return_t pci_tdisp_get_response_stop_interface (const void *pci_doe_context,
-                                                        const void *spdm_context, const uint32_t *session_id,
+                                                        const void *spdm_context,
+                                                        const uint32_t *session_id,
                                                         const void *request, size_t request_size,
                                                         void *response, size_t *response_size);
 

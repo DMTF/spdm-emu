@@ -32,9 +32,9 @@ libtdisp_interface_context *libtdisp_initialize_interface_context (
     g_tdisp_interface_context.tdisp_rsp_caps.dsm_caps = 0;
     g_tdisp_interface_context.tdisp_rsp_caps.req_msg_supported[0] = 0x7F;
     g_tdisp_interface_context.tdisp_rsp_caps.lock_interface_flags_supported =
-                                             PCI_TDISP_LOCK_INTERFACE_FLAGS_NO_FW_UPDATE |
-                                             PCI_TDISP_LOCK_INTERFACE_FLAGS_SYSTEM_CACHE_LINE_SIZE |
-                                             PCI_TDISP_LOCK_INTERFACE_FLAGS_LOCK_MSIX;
+        PCI_TDISP_LOCK_INTERFACE_FLAGS_NO_FW_UPDATE |
+        PCI_TDISP_LOCK_INTERFACE_FLAGS_SYSTEM_CACHE_LINE_SIZE |
+        PCI_TDISP_LOCK_INTERFACE_FLAGS_LOCK_MSIX;
     g_tdisp_interface_context.tdisp_rsp_caps.dev_addr_width = 48;
     g_tdisp_interface_context.tdisp_rsp_caps.num_req_this = 0;
     g_tdisp_interface_context.tdisp_rsp_caps.num_req_all = 0;
