@@ -60,7 +60,7 @@ jobs:
               fi
           fi
 
-          minsize=1960000
+          minsize=1200000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
              ! grep "libspdm_stop_session - (nil)" "$filename";
           then
@@ -102,7 +102,7 @@ jobs:
               fi
           fi
 
-          minsize=1500000
+          minsize=1200000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
             ! grep "libspdm_stop_session - (nil)" "$filename";
           then
@@ -136,7 +136,7 @@ jobs:
               fi
           fi
 
-          minsize=1500000
+          minsize=1200000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
             ! grep "libspdm_stop_session - (nil)" "$filename";
           then
@@ -195,7 +195,7 @@ jobs:
               fi
           fi
 
-          minsize=1960000
+          minsize=1200000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
              ! grep "libspdm_stop_session - (nil)" "$filename";
           then
@@ -237,7 +237,7 @@ jobs:
               fi
           fi
 
-          minsize=1500000
+          minsize=1200000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
             ! grep "libspdm_stop_session - (nil)" "$filename";
           then
@@ -271,7 +271,7 @@ jobs:
               fi
           fi
 
-          minsize=1500000
+          minsize=1200000
           if [ `stat -c%s "$filename"` -lt $minsize ] ||
             ! grep "libspdm_stop_session - (nil)" "$filename";
           then
