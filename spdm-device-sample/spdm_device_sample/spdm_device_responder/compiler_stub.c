@@ -59,7 +59,7 @@ void *memmove(void *dest, const void *src, size_t count)
 /* Compare bytes in two buffers. */
 int memcmp(const void *buf1, const void *buf2, size_t count)
 {
-    return (int)libspdm_const_compare_mem(buf1, buf2, count);
+    return libspdm_consttime_is_mem_equal(buf1, buf2, count) ? 0 : 1;
 }
 
 int ascii_strcmp(const char *first_string, const char *second_string)
