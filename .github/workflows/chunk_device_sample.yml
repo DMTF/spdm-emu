@@ -1,0 +1,48 @@
+name: enable_device_sample_test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  gcc_mbedtls_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
+          make copy_sample_key
+          make -j`nproc`
+
+  VS2019_mbedtls_build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+        #ilammy/msvc-dev-cmd@v1 is GitHub Action for configuring Developer Command Prompt for Microsoft Visual Studio on Windows.
+        #This sets up the environment for compiling C/C++ code from command line.
+      - name: Add msbuild to PATH
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=mbedtls ..
+          nmake  copy_sample_key
+          nmake
