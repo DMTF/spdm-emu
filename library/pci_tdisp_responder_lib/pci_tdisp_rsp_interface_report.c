@@ -53,7 +53,7 @@ libspdm_return_t pci_tdisp_get_response_interface_report (const void *pci_doe_co
     interface_report = NULL;
     interface_report_size = 0;
     error_code = pci_tdisp_device_get_interface_report (pci_doe_context, spdm_context, session_id,
-                                                        &tdisp_response->header.interface_id,
+                                                        &tdisp_request->header.interface_id,
                                                         &interface_report, &interface_report_size);
     if (error_code != PCI_TDISP_ERROR_CODE_SUCCESS) {
         return pci_tdisp_get_response_error (pci_doe_context, spdm_context, session_id,

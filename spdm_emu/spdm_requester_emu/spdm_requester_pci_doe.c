@@ -137,7 +137,7 @@ libspdm_return_t pci_tdisp_process_session_message(void *spdm_context, uint32_t 
     uint32_t *device_specific_info_len;
     uint8_t *device_specific_info;
 
-    interface_id.function_id = 0;
+    interface_id.function_id = 0xbeef;
     interface_id.reserved = 0;
     status = pci_tdisp_get_version (m_pci_doe_context, spdm_context, &session_id, &interface_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
