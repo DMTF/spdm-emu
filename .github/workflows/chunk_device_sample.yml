@@ -1,0 +1,51 @@
+name: enable_device_sample_test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  arm_mbedtls_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          wget https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz
+          tar -xvf gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz -C ~/
+          export PATH=~/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu/bin:$PATH
+          cd spdm-device-sample/spdm_device_sample
+          mkdir build
+          cd build
+          cmake -DARCH=aarch64 -DTOOLCHAIN=ARM_GNU -DTARGET=Release -DCRYPTO=mbedtls ..
+          make -j`nproc`
+
+  VS2019_mbedtls_build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+        #ilammy/msvc-dev-cmd@v1 is GitHub Action for configuring Developer Command Prompt for Microsoft Visual Studio on Windows.
+        #This sets up the environment for compiling C/C++ code from command line.
+      - name: Add msbuild to PATH
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build
+        run: |
+          cd spdm-device-sample\spdm_device_sample
+          mkdir build
+          cd build
+          cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=mbedtls ..
+          nmake
