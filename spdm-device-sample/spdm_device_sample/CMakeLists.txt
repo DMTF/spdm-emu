@@ -175,7 +175,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
     if(TOOLCHAIN STREQUAL "GCC")
         SET(CMAKE_C_COMPILER gcc)
-        ADD_COMPILE_OPTIONS(-std=c99 -fshort-wchar -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -ffunction-sections -fdata-sections -fno-common -Wno-address -fpie -fno-asynchronous-unwind-tables -DUSING_LTO  -Wno-maybe-uninitialized -Wno-uninitialized  -Wno-builtin-declaration-mismatch -Wno-nonnull-compare -Werror-implicit-function-declaration -Wcast-qual)
+        ADD_COMPILE_OPTIONS(-std=c99 -fshort-wchar -fno-strict-aliasing -Wall -Werror -Wno-array-bounds -ffunction-sections -fdata-sections -fno-common -Wno-address -fpie -fno-asynchronous-unwind-tables -DUSING_LTO  -Wno-maybe-uninitialized -Wno-uninitialized  -Wno-builtin-declaration-mismatch -Wno-nonnull-compare -Werror-implicit-function-declaration)
         if (ARCH STREQUAL "x64")
             ADD_COMPILE_OPTIONS(-mno-red-zone)
         endif()
@@ -768,7 +768,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 ADD_COMPILE_OPTIONS(-DLIBSPDM_CONFIG="${PROJECT_SOURCE_DIR}/include/spdm_lib_config.h")
-ADD_COMPILE_OPTIONS(-DMBEDTLS_CONFIG_FILE="${PROJECT_SOURCE_DIR}/include/mbedtls/config.h")
+ADD_COMPILE_OPTIONS(-UMBEDTLS_CONFIG_FILE -DMBEDTLS_CONFIG_FILE="${PROJECT_SOURCE_DIR}/include/mbedtls/config.h")
 
     if(CRYPTO STREQUAL "mbedtls")
         ADD_SUBDIRECTORY(${LIBSPDM_DIR}/os_stub/cryptlib_mbedtls out/cryptlib_mbedtls.lib)
