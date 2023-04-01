@@ -127,7 +127,6 @@ void *spdm_server_init(void)
     uint8_t data8;
     uint16_t data16;
     uint32_t data32;
-    bool res;
     void *data;
     size_t data_size;
 
@@ -213,7 +212,7 @@ void *spdm_server_init(void)
                      &data8, sizeof(data8));
 
     /* certificate */
-    res = libspdm_read_responder_public_certificate_chain(
+    libspdm_read_responder_public_certificate_chain(
         SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA_384,
         SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P384,
         &data, &data_size,
