@@ -33,17 +33,11 @@ bool libspdm_read_responder_public_certificate_chain(
     size_t *size, void **hash, size_t *hash_size)
 {
     bool res;
-    void *file_data;
-    size_t file_size;
     spdm_cert_chain_t *cert_chain;
     size_t cert_chain_size;
     const uint8_t *root_cert;
     size_t root_cert_len;
     size_t digest_size;
-    bool is_device_cert_model;
-
-    /*defalut is true*/
-    is_device_cert_model = true;
 
     *data = NULL;
     *size = 0;
@@ -68,10 +62,6 @@ bool libspdm_read_responder_public_certificate_chain(
     case SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P384:
         cert_chain = (void *)m_libspdm_ecp384_bundle_responder_certchain;
         cert_chain_size = sizeof(m_libspdm_ecp384_bundle_responder_certchain);
-        file_data = m_libspdm_ecp384_bundle_responder_certchain
-                    + sizeof(spdm_cert_chain_t) + digest_size;
-        file_size = sizeof(m_libspdm_ecp384_bundle_responder_certchain)
-                    - sizeof(spdm_cert_chain_t) - digest_size;
         break;
 #endif
     default:
