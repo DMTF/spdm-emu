@@ -136,7 +136,7 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
                  uint32_t number_of_bytes);
 
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
-extern uint8_t m_send_receive_buffer[LIBSPDM_SENDER_RECEIVE_BUFFER_SIZE];
+extern uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 extern size_t m_send_receive_buffer_size;
 
 static inline bool libspdm_onehot0(uint32_t mask)
