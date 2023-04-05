@@ -325,7 +325,7 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
     uint32_t data32;
     spdm_version_number_t spdm_version[SPDM_MAX_VERSION_COUNT];
     size_t index;
-    uint8_t vca_buffer[LIBSPDM_MAX_MESSAGE_SMALL_BUFFER_SIZE];
+    uint8_t vca_buffer[LIBSPDM_MAX_MESSAGE_VCA_BUFFER_SIZE];
 
     if (m_save_state_file_name == NULL) {
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;

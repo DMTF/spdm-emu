@@ -90,7 +90,7 @@ libspdm_return_t libspdm_transport_tcp_encode_message(
     size_t transport_header_size;
 
     spdm_secured_message_callbacks.version =
-        SPDM_SECURED_MESSAGE_CALLBACKS_VERSION;
+        LIBSPDM_SECURED_MESSAGE_CALLBACKS_VERSION;
     spdm_secured_message_callbacks.get_sequence_number =
         libspdm_tcp_get_sequence_number;
     spdm_secured_message_callbacks.get_max_random_number_count =
@@ -214,7 +214,7 @@ libspdm_return_t libspdm_transport_tcp_decode_message(
     libspdm_set_last_spdm_error_struct(spdm_context, &spdm_error);
 
     spdm_secured_message_callbacks.version =
-        SPDM_SECURED_MESSAGE_CALLBACKS_VERSION;
+        LIBSPDM_SECURED_MESSAGE_CALLBACKS_VERSION;
     spdm_secured_message_callbacks.get_sequence_number =
         libspdm_tcp_get_sequence_number;
     spdm_secured_message_callbacks.get_max_random_number_count =

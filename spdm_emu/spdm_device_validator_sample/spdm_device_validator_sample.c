@@ -6,7 +6,7 @@
 
 #include "spdm_device_validator_sample.h"
 
-uint8_t m_receive_buffer[LIBSPDM_MAX_MESSAGE_BUFFER_SIZE];
+uint8_t m_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 
 extern SOCKET m_socket;
 
