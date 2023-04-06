@@ -11,6 +11,9 @@ uint8_t m_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 extern SOCKET m_socket;
 
 extern void *m_spdm_context;
+#if LIBSPDM_FIPS_MODE
+extern void *m_fips_selftest_context;
+#endif /*LIBSPDM_FIPS_MODE*/
 extern void *m_scratch_buffer;
 
 uint8_t m_other_slot_id = 0;
@@ -171,6 +174,13 @@ done:
         NULL, 0, &response, &response_size, NULL);
 
     if (m_spdm_context != NULL) {
+#if LIBSPDM_FIPS_MODE
+        if (!libspdm_export_fips_selftest_context_from_spdm_context(
+                m_spdm_context, m_fips_selftest_context,
+                libspdm_get_fips_selftest_context_size())) {
+            return false;
+        }
+#endif /*LIBSPDM_FIPS_MODE*/
         libspdm_deinit_context(m_spdm_context);
         free(m_spdm_context);
         free(m_scratch_buffer);

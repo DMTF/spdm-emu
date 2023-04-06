@@ -11,6 +11,9 @@ uint32_t m_command;
 SOCKET m_server_socket;
 
 extern void *m_spdm_context;
+#if LIBSPDM_FIPS_MODE
+extern void *m_fips_selftest_context;
+#endif /*LIBSPDM_FIPS_MODE*/
 extern void *m_scratch_buffer;
 extern void *m_pci_doe_context;
 
@@ -254,6 +257,13 @@ int main(int argc, char *argv[])
     }
 
     if (m_spdm_context != NULL) {
+#if LIBSPDM_FIPS_MODE
+        if (!libspdm_export_fips_selftest_context_from_spdm_context(
+                m_spdm_context, m_fips_selftest_context,
+                libspdm_get_fips_selftest_context_size())) {
+            return 0;
+        }
+#endif /*LIBSPDM_FIPS_MODE*/
         libspdm_deinit_context(m_spdm_context);
         free(m_spdm_context);
         free(m_scratch_buffer);

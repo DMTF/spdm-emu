@@ -7,6 +7,9 @@
 #include "spdm_responder_emu.h"
 
 void *m_spdm_context;
+#if LIBSPDM_FIPS_MODE
+void *m_fips_selftest_context;
+#endif /*LIBSPDM_FIPS_MODE*/
 void *m_scratch_buffer;
 
 extern uint32_t m_command;
@@ -100,6 +103,9 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
 void *spdm_server_init(void)
 {
     void *spdm_context;
+#if LIBSPDM_FIPS_MODE
+    void * fips_selftest_context;
+#endif /*LIBSPDM_FIPS_MODE*/
     libspdm_data_parameter_t parameter;
     uint8_t data8;
     uint16_t data16;
@@ -117,6 +123,21 @@ void *spdm_server_init(void)
     }
     spdm_context = m_spdm_context;
     libspdm_init_context(spdm_context);
+
+#if LIBSPDM_FIPS_MODE
+    m_fips_selftest_context = (void *)malloc(libspdm_get_fips_selftest_context_size());
+    if (m_fips_selftest_context == NULL) {
+        return NULL;
+    }
+    fips_selftest_context = m_fips_selftest_context;
+    libspdm_init_fips_selftest_context(fips_selftest_context);
+
+    if (!libspdm_import_fips_selftest_context_to_spdm_context(
+            spdm_context, fips_selftest_context,
+            libspdm_get_fips_selftest_context_size())) {
+        return NULL;
+    }
+#endif /*LIBSPDM_FIPS_MODE*/
 
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
                                     spdm_device_receive_message);
