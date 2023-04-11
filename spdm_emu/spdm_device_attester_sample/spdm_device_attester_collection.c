@@ -37,7 +37,7 @@ spdm_device_evidence_collection (void *spdm_context)
 
     /* setup session based on slot 0 */
     status = libspdm_start_session(
-        spdm_context, false,
+        spdm_context, false, NULL, 0,
         SPDM_CHALLENGE_REQUEST_NO_MEASUREMENT_SUMMARY_HASH,
         0,
         SPDM_KEY_EXCHANGE_REQUEST_SESSION_POLICY_TERMINATION_POLICY_RUNTIME_UPDATE,

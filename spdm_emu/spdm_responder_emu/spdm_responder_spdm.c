@@ -424,13 +424,6 @@ void spdm_server_connection_state_callback(
             }
         }
 
-        status = libspdm_set_data(spdm_context, LIBSPDM_DATA_PSK_HINT, NULL,
-                                  LIBSPDM_TEST_PSK_HINT_STRING,
-                                  sizeof(LIBSPDM_TEST_PSK_HINT_STRING));
-        if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_set_data - %x\n", (uint32_t)status);
-        }
-
         if (m_save_state_file_name != NULL) {
             spdm_save_negotiated_state(spdm_context, false);
         }

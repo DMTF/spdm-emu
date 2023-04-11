@@ -88,6 +88,8 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     heartbeat_period = 0;
     libspdm_zero_mem(measurement_hash, sizeof(measurement_hash));
     status = libspdm_start_session(spdm_context, use_psk,
+                                   LIBSPDM_TEST_PSK_HINT_STRING,
+                                   sizeof(LIBSPDM_TEST_PSK_HINT_STRING),
                                    m_use_measurement_summary_hash_type,
                                    m_use_slot_id, m_session_policy, &session_id,
                                    &heartbeat_period, measurement_hash);

@@ -135,6 +135,29 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
 bool write_bytes(const SOCKET socket, const uint8_t *buffer,
                  uint32_t number_of_bytes);
 
+#ifndef LIBSPDM_SENDER_BUFFER_SIZE
+#define LIBSPDM_SENDER_BUFFER_SIZE (0x1100 + \
+                                    LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#endif
+#ifndef LIBSPDM_RECEIVER_BUFFER_SIZE
+#define LIBSPDM_RECEIVER_BUFFER_SIZE (0x1200 + \
+                                      LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#endif
+
+/* Maximum size of a single SPDM message.
+ * It matches DataTransferSize in SPDM specification. */
+#define LIBSPDM_SENDER_DATA_TRANSFER_SIZE (LIBSPDM_SENDER_BUFFER_SIZE - \
+                                           LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#define LIBSPDM_RECEIVER_DATA_TRANSFER_SIZE (LIBSPDM_RECEIVER_BUFFER_SIZE - \
+                                             LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#define LIBSPDM_DATA_TRANSFER_SIZE LIBSPDM_RECEIVER_DATA_TRANSFER_SIZE
+
+#if (LIBSPDM_SENDER_BUFFER_SIZE > LIBSPDM_RECEIVER_BUFFER_SIZE)
+#define LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE LIBSPDM_SENDER_BUFFER_SIZE
+#else
+#define LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE LIBSPDM_RECEIVER_BUFFER_SIZE
+#endif
+
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
 extern uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 extern size_t m_send_receive_buffer_size;
