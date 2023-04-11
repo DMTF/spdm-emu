@@ -80,6 +80,16 @@
 #define LIBSPDM_MAX_CSR_SIZE 0x1000
 #endif
 
+/* To ensure integrity in communication between the Requester and the Responder libspdm calculates
+ * cryptographic digests and signatures over multiple requests and responses. This value specifies
+ * whether libspdm will use a running calculation over the transcript, where requests and responses
+ * are discarded as they are cryptographically consumed, or whether libspdm will buffer the entire
+ * transcript before calculating the digest or signature.
+ */
+#ifndef LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT
+#define LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT 0
+#endif
+
 /*
  * +--------------------------+------------------------------------------+---------+
  * | GET_VERSION              | 4                                        | 1       |
@@ -94,120 +104,44 @@
  */
 #define LIBSPDM_MAX_MESSAGE_VCA_BUFFER_SIZE (150 + 2 * LIBSPDM_MAX_VERSION_COUNT)
 
-/*
- * +--------------------------+------------------------------------------+---------+
- * | GET_DIGESTS 1.2          | 4                                        | 1       |
- * | DIGESTS 1.2              | 4 + H * SlotNum = [36, 516]              | [1, 18] |
- * +--------------------------+------------------------------------------+---------+
- * | GET_CERTIFICATE 1.2      | 8                                        | 1       |
- * | CERTIFICATE 1.2          | 8 + PortionLen                           | [1, ]   |
- * +--------------------------+------------------------------------------+---------+
- */
-#ifndef LIBSPDM_MAX_MESSAGE_B_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_B_BUFFER_SIZE (24 + \
-                                           LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT + \
-                                           LIBSPDM_MAX_CERT_CHAIN_SIZE)
-#endif
-
-/*
- * +--------------------------+------------------------------------------+---------+
- * | CHALLENGE 1.2            | 40                                       | 1       |
- * | CHALLENGE_AUTH 1.2       | 38 + H * 2 + S [+ O] = [166, 678]        | [6, 23] |
- * +--------------------------+------------------------------------------+---------+
- */
-#ifndef LIBSPDM_MAX_MESSAGE_C_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_C_BUFFER_SIZE (78 + \
-                                           LIBSPDM_MAX_HASH_SIZE * 2 + \
-                                           LIBSPDM_MAX_ASYM_KEY_SIZE + SPDM_MAX_OPAQUE_DATA_SIZE)
-#endif
-
-/*
- * +--------------------------+------------------------------------------+---------+
- * | GET_MEASUREMENTS 1.2     | 5 + Nonce (0 or 32)                      | 1       |
- * | MEASUREMENTS 1.2         | 42 + MeasRecLen (+ S) [+ O] = [106, 554] | [4, 19] |
- * +--------------------------+------------------------------------------+---------+
- */
-#ifndef LIBSPDM_MAX_MESSAGE_M_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_M_BUFFER_SIZE (47 + SPDM_NONCE_SIZE + \
-                                           LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE + \
-                                           LIBSPDM_MAX_ASYM_KEY_SIZE + SPDM_MAX_OPAQUE_DATA_SIZE)
-#endif
-
-/*
- * +--------------------------+------------------------------------------+---------+
- * | KEY_EXCHANGE 1.2         | 42 + D [+ O] = [106, 554]                | [4, 19] |
- * | KEY_EXCHANGE_RSP 1.2     | 42 + D + H + S (+ H) [+ O] = [234, 1194] | [8, 40] |
- * +--------------------------+------------------------------------------+---------+
- * | PSK_EXCHANGE 1.2         | 12 [+ PSKHint] + R [+ O] = 44            | 2       |
- * | PSK_EXCHANGE_RSP 1.2     | 12 + R + H (+ H) [+ O] = [108, 172]      | [4, 6]  |
- * +--------------------------+------------------------------------------+---------+
- */
-#ifndef LIBSPDM_MAX_MESSAGE_K_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_K_BUFFER_SIZE (84 + LIBSPDM_MAX_DHE_KEY_SIZE * 2 + \
-                                           LIBSPDM_MAX_HASH_SIZE * 2 + LIBSPDM_MAX_ASYM_KEY_SIZE + \
-                                           SPDM_MAX_OPAQUE_DATA_SIZE * 2)
-#endif
-
-/*
- * +--------------------------+------------------------------------------+---------+
- * | FINISH 1.2               | 4 (+ S) + H = [100, 580]                 | [4, 20] |
- * | FINISH_RSP 1.2           | 4 (+ H) = [36, 69]                       | [1, 3]  |
- * +--------------------------+------------------------------------------+---------+
- * | PSK_FINISH 1.2           | 4 + H = [36, 68]                         | [1, 3]  |
- * | PSK_FINISH_RSP 1.2       | 4                                        | 1       |
- * +--------------------------+------------------------------------------+---------+
- */
-#ifndef LIBSPDM_MAX_MESSAGE_F_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_F_BUFFER_SIZE (8 + LIBSPDM_MAX_HASH_SIZE * 2 + \
-                                           LIBSPDM_MAX_ASYM_KEY_SIZE)
-#endif
-
-#ifndef LIBSPDM_MAX_MESSAGE_L1L2_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_L1L2_BUFFER_SIZE \
-    (LIBSPDM_MAX_MESSAGE_VCA_BUFFER_SIZE + LIBSPDM_MAX_MESSAGE_M_BUFFER_SIZE)
-#endif
-
-#ifndef LIBSPDM_MAX_MESSAGE_M1M2_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_M1M2_BUFFER_SIZE \
-    (LIBSPDM_MAX_MESSAGE_VCA_BUFFER_SIZE + \
-     LIBSPDM_MAX_MESSAGE_B_BUFFER_SIZE + LIBSPDM_MAX_MESSAGE_C_BUFFER_SIZE)
-#endif
-
-/* Just add one LIBSPDM_MAX_CERT_CHAIN_SIZE to reduce the TH buffer size by default */
-#ifndef LIBSPDM_MAX_MESSAGE_TH_BUFFER_SIZE
-#define LIBSPDM_MAX_MESSAGE_TH_BUFFER_SIZE \
-    (LIBSPDM_MAX_MESSAGE_VCA_BUFFER_SIZE + \
-     LIBSPDM_MAX_CERT_CHAIN_SIZE + LIBSPDM_MAX_MESSAGE_K_BUFFER_SIZE + \
-     LIBSPDM_MAX_MESSAGE_F_BUFFER_SIZE)
-#endif
-
-/* To ensure integrity in communication between the Requester and the Responder libspdm calculates
- * cryptographic digests and signatures over multiple requests and responses. This value specifies
- * whether libspdm will use a running calculation over the transcript, where requests and responses
- * are discarded as they are cryptographically consumed, or whether libspdm will buffer the entire
- * transcript before calculating the digest or signature.
- */
-#ifndef LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT
-#define LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT 0
-#endif
-
-
 /* Cryptography Configuration
  * In each category, at least one should be selected.
  * NOTE: Not all combination can be supported. E.g. Don't mix NIST algo with SMx.*/
 
-#ifndef LIBSPDM_RSA_SSA_SUPPORT
-#define LIBSPDM_RSA_SSA_SUPPORT 0
+#ifndef LIBSPDM_RSA_SSA_2048_SUPPORT
+#define LIBSPDM_RSA_SSA_2048_SUPPORT 0
 #endif
-#ifndef LIBSPDM_RSA_PSS_SUPPORT
-#define LIBSPDM_RSA_PSS_SUPPORT 0
+#ifndef LIBSPDM_RSA_SSA_3072_SUPPORT
+#define LIBSPDM_RSA_SSA_3072_SUPPORT 0
 #endif
-#ifndef LIBSPDM_ECDSA_SUPPORT
-#define LIBSPDM_ECDSA_SUPPORT 1
+#ifndef LIBSPDM_RSA_SSA_4096_SUPPORT
+#define LIBSPDM_RSA_SSA_4096_SUPPORT 0
 #endif
-#ifndef LIBSPDM_SM2_DSA_SUPPORT
-#define LIBSPDM_SM2_DSA_SUPPORT 0
+
+#ifndef LIBSPDM_RSA_PSS_2048_SUPPORT
+#define LIBSPDM_RSA_PSS_2048_SUPPORT 0
 #endif
+#ifndef LIBSPDM_RSA_PSS_3072_SUPPORT
+#define LIBSPDM_RSA_PSS_3072_SUPPORT 0
+#endif
+#ifndef LIBSPDM_RSA_PSS_4096_SUPPORT
+#define LIBSPDM_RSA_PSS_4096_SUPPORT 0
+#endif
+
+#ifndef LIBSPDM_ECDSA_P256_SUPPORT
+#define LIBSPDM_ECDSA_P256_SUPPORT 0
+#endif
+#ifndef LIBSPDM_ECDSA_P384_SUPPORT
+#define LIBSPDM_ECDSA_P384_SUPPORT 1
+#endif
+#ifndef LIBSPDM_ECDSA_P521_SUPPORT
+#define LIBSPDM_ECDSA_P521_SUPPORT 0
+#endif
+
+#ifndef LIBSPDM_SM2_DSA_P256_SUPPORT
+#define LIBSPDM_SM2_DSA_P256_SUPPORT 0
+#endif
+
 #ifndef LIBSPDM_EDDSA_ED25519_SUPPORT
 #define LIBSPDM_EDDSA_ED25519_SUPPORT 0
 #endif
@@ -215,24 +149,43 @@
 #define LIBSPDM_EDDSA_ED448_SUPPORT 0
 #endif
 
-#ifndef LIBSPDM_FFDHE_SUPPORT
-#define LIBSPDM_FFDHE_SUPPORT 0
+#ifndef LIBSPDM_FFDHE_2048_SUPPORT
+#define LIBSPDM_FFDHE_2048_SUPPORT 0
 #endif
-#ifndef LIBSPDM_ECDHE_SUPPORT
-#define LIBSPDM_ECDHE_SUPPORT 1
+#ifndef LIBSPDM_FFDHE_3072_SUPPORT
+#define LIBSPDM_FFDHE_3072_SUPPORT 0
 #endif
-#ifndef LIBSPDM_SM2_KEY_EXCHANGE_SUPPORT
-#define LIBSPDM_SM2_KEY_EXCHANGE_SUPPORT 0
+#ifndef LIBSPDM_FFDHE_4096_SUPPORT
+#define LIBSPDM_FFDHE_4096_SUPPORT 0
 #endif
 
-#ifndef LIBSPDM_AEAD_GCM_SUPPORT
-#define LIBSPDM_AEAD_GCM_SUPPORT 1
+#ifndef LIBSPDM_ECDHE_P256_SUPPORT
+#define LIBSPDM_ECDHE_P256_SUPPORT 0
 #endif
+#ifndef LIBSPDM_ECDHE_P384_SUPPORT
+#define LIBSPDM_ECDHE_P384_SUPPORT 1
+#endif
+#ifndef LIBSPDM_ECDHE_P521_SUPPORT
+#define LIBSPDM_ECDHE_P521_SUPPORT 0
+#endif
+
+#ifndef LIBSPDM_SM2_KEY_EXCHANGE_P256_SUPPORT
+#define LIBSPDM_SM2_KEY_EXCHANGE_P256_SUPPORT 0
+#endif
+
+#ifndef LIBSPDM_AEAD_AES_128_GCM_SUPPORT
+#define LIBSPDM_AEAD_AES_128_GCM_SUPPORT 0
+#endif
+#ifndef LIBSPDM_AEAD_AES_256_GCM_SUPPORT
+#define LIBSPDM_AEAD_AES_256_GCM_SUPPORT 1
+#endif
+
 #ifndef LIBSPDM_AEAD_CHACHA20_POLY1305_SUPPORT
 #define LIBSPDM_AEAD_CHACHA20_POLY1305_SUPPORT 0
 #endif
-#ifndef LIBSPDM_AEAD_SM4_SUPPORT
-#define LIBSPDM_AEAD_SM4_SUPPORT 0
+
+#ifndef LIBSPDM_AEAD_SM4_128_GCM_SUPPORT
+#define LIBSPDM_AEAD_SM4_128_GCM_SUPPORT 0
 #endif
 
 #ifndef LIBSPDM_SHA256_SUPPORT
@@ -244,6 +197,7 @@
 #ifndef LIBSPDM_SHA512_SUPPORT
 #define LIBSPDM_SHA512_SUPPORT 0
 #endif
+
 #ifndef LIBSPDM_SHA3_256_SUPPORT
 #define LIBSPDM_SHA3_256_SUPPORT 0
 #endif
@@ -253,6 +207,7 @@
 #ifndef LIBSPDM_SHA3_512_SUPPORT
 #define LIBSPDM_SHA3_512_SUPPORT 0
 #endif
+
 #ifndef LIBSPDM_SM3_256_SUPPORT
 #define LIBSPDM_SM3_256_SUPPORT 0
 #endif
@@ -426,39 +381,13 @@
 #ifndef LIBSPDM_TRANSPORT_ADDITIONAL_SIZE
 #define LIBSPDM_TRANSPORT_ADDITIONAL_SIZE    64
 #endif
-#ifndef LIBSPDM_SENDER_BUFFER_SIZE
-#define LIBSPDM_SENDER_BUFFER_SIZE (0x1100 + \
-                                    LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
-#endif
-#ifndef LIBSPDM_RECEIVER_BUFFER_SIZE
-#define LIBSPDM_RECEIVER_BUFFER_SIZE (0x1200 + \
-                                      LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
-#endif
-
-/* Maximum size of a single SPDM message.
- * It matches DataTransferSize in SPDM specification. */
-#define LIBSPDM_SENDER_DATA_TRANSFER_SIZE (LIBSPDM_SENDER_BUFFER_SIZE - \
-                                           LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
-#define LIBSPDM_RECEIVER_DATA_TRANSFER_SIZE (LIBSPDM_RECEIVER_BUFFER_SIZE - \
-                                             LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
-#define LIBSPDM_DATA_TRANSFER_SIZE LIBSPDM_RECEIVER_DATA_TRANSFER_SIZE
 
 /* Maximum size of a large SPDM message.
- * If chunk is unsupported, it must be same as LIBSPDM_DATA_TRANSFER_SIZE.
- * If chunk is supported, it must be larger than LIBSPDM_DATA_TRANSFER_SIZE.
+ * If chunk is unsupported, it must be same as DATA_TRANSFER_SIZE.
+ * If chunk is supported, it must be larger than DATA_TRANSFER_SIZE.
  * It matches MaxSPDMmsgSize in SPDM specification. */
-#if LIBSPDM_ENABLE_CAPABILITY_CHUNK_CAP
-    #ifndef LIBSPDM_MAX_SPDM_MSG_SIZE
-    #define LIBSPDM_MAX_SPDM_MSG_SIZE 0x1200
-    #endif
-#else
-    #define LIBSPDM_MAX_SPDM_MSG_SIZE LIBSPDM_DATA_TRANSFER_SIZE
-#endif
-
-#if (LIBSPDM_SENDER_BUFFER_SIZE > LIBSPDM_RECEIVER_BUFFER_SIZE)
-#define LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE LIBSPDM_SENDER_BUFFER_SIZE
-#else
-#define LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE LIBSPDM_RECEIVER_BUFFER_SIZE
+#ifndef LIBSPDM_MAX_SPDM_MSG_SIZE
+#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x1200
 #endif
 
 /* Enable message logging.

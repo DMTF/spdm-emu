@@ -14,6 +14,29 @@
 #include "hal/library/debuglib.h"
 #include "hal/library/memlib.h"
 
+#ifndef LIBSPDM_SENDER_BUFFER_SIZE
+#define LIBSPDM_SENDER_BUFFER_SIZE (0x1100 + \
+                                    LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#endif
+#ifndef LIBSPDM_RECEIVER_BUFFER_SIZE
+#define LIBSPDM_RECEIVER_BUFFER_SIZE (0x1200 + \
+                                      LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#endif
+
+/* Maximum size of a single SPDM message.
+ * It matches DataTransferSize in SPDM specification. */
+#define LIBSPDM_SENDER_DATA_TRANSFER_SIZE (LIBSPDM_SENDER_BUFFER_SIZE - \
+                                           LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#define LIBSPDM_RECEIVER_DATA_TRANSFER_SIZE (LIBSPDM_RECEIVER_BUFFER_SIZE - \
+                                             LIBSPDM_TRANSPORT_ADDITIONAL_SIZE)
+#define LIBSPDM_DATA_TRANSFER_SIZE LIBSPDM_RECEIVER_DATA_TRANSFER_SIZE
+
+#if (LIBSPDM_SENDER_BUFFER_SIZE > LIBSPDM_RECEIVER_BUFFER_SIZE)
+#define LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE LIBSPDM_SENDER_BUFFER_SIZE
+#else
+#define LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE LIBSPDM_RECEIVER_BUFFER_SIZE
+#endif
+
 #define SPDM_DEVICE_PCI_BUS       0 /* TBD */
 #define SPDM_DEVICE_PCI_DEVICE    0 /* TBD */
 #define SPDM_DEVICE_PCI_FUNCTION  0 /* TBD */
