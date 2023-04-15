@@ -8,8 +8,6 @@
 #include "internal/libspdm_common_lib.h"
 #include "hal/library/memlib.h"
 
-#define TCP_ALIGNMENT 4
-
 /**
  * Get sequence number in an SPDM secure message.
  *
@@ -81,7 +79,7 @@ libspdm_return_t libspdm_tcp_encode_message(const uint32_t *session_id, size_t m
     uint32_t data32;
     tcp_spdm_binding_header_t *tcp_message_header;
 
-    alignment = TCP_ALIGNMENT;
+    alignment = LIBSPDM_TCP_ALIGNMENT;
     aligned_message_size =
         (message_size + (alignment - 1)) & ~(alignment - 1);
 
@@ -165,7 +163,7 @@ libspdm_return_t libspdm_tcp_decode_message(uint32_t **session_id,
     }
 
     LIBSPDM_ASSERT(((transport_message_size - sizeof(tcp_spdm_binding_header_t)) &
-                    (TCP_ALIGNMENT - 1)) == 0);
+                    (LIBSPDM_TCP_ALIGNMENT - 1)) == 0);
 
     *message_size = transport_message_size - sizeof(tcp_spdm_binding_header_t);
     *message = (uint8_t *)transport_message + sizeof(tcp_spdm_binding_header_t);
