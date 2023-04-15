@@ -315,10 +315,9 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
 }
 
 libspdm_return_t spdm_device_acquire_sender_buffer (
-    void *context, size_t *max_msg_size, void **msg_buf_ptr)
+    void *context, void **msg_buf_ptr)
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
-    *max_msg_size = sizeof(m_send_receive_buffer);
     *msg_buf_ptr = m_send_receive_buffer;
     libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
     m_send_receive_buffer_acquired = true;
@@ -335,10 +334,9 @@ void spdm_device_release_sender_buffer (
 }
 
 libspdm_return_t spdm_device_acquire_receiver_buffer (
-    void *context, size_t *max_msg_size, void **msg_buf_ptr)
+    void *context, void **msg_buf_ptr)
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
-    *max_msg_size = sizeof(m_send_receive_buffer);
     *msg_buf_ptr = m_send_receive_buffer;
     libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
     m_send_receive_buffer_acquired = true;

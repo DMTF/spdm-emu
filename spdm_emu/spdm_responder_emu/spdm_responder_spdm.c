@@ -116,34 +116,39 @@ void *spdm_server_init(void)
     }
     spdm_context = m_spdm_context;
     libspdm_init_context(spdm_context);
-    scratch_buffer_size = libspdm_get_sizeof_required_scratch_buffer(m_spdm_context);
-    m_scratch_buffer = (void *)malloc(scratch_buffer_size);
-    if (m_scratch_buffer == NULL) {
-        free(m_spdm_context);
-        m_spdm_context = NULL;
-        return NULL;
-    }
 
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
                                     spdm_device_receive_message);
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
-            spdm_context, libspdm_transport_mctp_encode_message,
+            spdm_context,
+            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            libspdm_transport_mctp_encode_message,
             libspdm_transport_mctp_decode_message,
             libspdm_transport_mctp_get_header_size);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         libspdm_register_transport_layer_func(
-            spdm_context, libspdm_transport_pci_doe_encode_message,
+            spdm_context,
+            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            libspdm_transport_pci_doe_encode_message,
             libspdm_transport_pci_doe_decode_message,
             libspdm_transport_pci_doe_get_header_size);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
         libspdm_register_transport_layer_func(
-            spdm_context, libspdm_transport_tcp_encode_message,
+            spdm_context,
+            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            libspdm_transport_tcp_encode_message,
             libspdm_transport_tcp_decode_message,
             libspdm_transport_tcp_get_header_size);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
-            spdm_context, spdm_transport_none_encode_message,
+            spdm_context,
+            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            spdm_transport_none_encode_message,
             spdm_transport_none_decode_message,
             spdm_transport_none_get_header_size);
     } else {
@@ -152,11 +157,20 @@ void *spdm_server_init(void)
         return NULL;
     }
     libspdm_register_device_buffer_func(spdm_context,
+                                        LIBSPDM_SENDER_BUFFER_SIZE,
+                                        LIBSPDM_RECEIVER_BUFFER_SIZE,
                                         spdm_device_acquire_sender_buffer,
                                         spdm_device_release_sender_buffer,
                                         spdm_device_acquire_receiver_buffer,
                                         spdm_device_release_receiver_buffer);
 
+    scratch_buffer_size = libspdm_get_sizeof_required_scratch_buffer(m_spdm_context);
+    m_scratch_buffer = (void *)malloc(scratch_buffer_size);
+    if (m_scratch_buffer == NULL) {
+        free(m_spdm_context);
+        m_spdm_context = NULL;
+        return NULL;
+    }
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
     if (m_load_state_file_name != NULL) {
