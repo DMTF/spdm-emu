@@ -9,6 +9,12 @@
 
 #include "library/spdm_common_lib.h"
 
+#define LIBSPDM_NONE_ALIGNMENT 1
+#define LIBSPDM_NONE_SEQUENCE_NUMBER_COUNT 0
+#define LIBSPDM_NONE_MAX_RANDOM_NUMBER_COUNT 0
+
+/* NONE type does not support secured message */
+#define LIBSPDM_NONE_TRANSPORT_ADDITIONAL_SIZE    (0)
 
 /**
  * Encode an SPDM or APP message to a transport layer message.
