@@ -81,10 +81,9 @@ libspdm_return_t spdm_responder_receive_message(void *spdm_context,
 }
 
 libspdm_return_t spdm_device_acquire_sender_buffer (
-    void *context, size_t *max_msg_size, void **msg_buf_ptr)
+    void *context, void **msg_buf_ptr)
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
-    *max_msg_size = sizeof(m_send_receive_buffer);
     *msg_buf_ptr = m_send_receive_buffer;
     libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
     m_send_receive_buffer_acquired = true;
@@ -101,10 +100,9 @@ void spdm_device_release_sender_buffer (
 }
 
 libspdm_return_t spdm_device_acquire_receiver_buffer (
-    void *context, size_t *max_msg_size, void **msg_buf_ptr)
+    void *context, void **msg_buf_ptr)
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
-    *max_msg_size = sizeof(m_send_receive_buffer);
     *msg_buf_ptr = m_send_receive_buffer;
     libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
     m_send_receive_buffer_acquired = true;
@@ -136,20 +134,24 @@ void *spdm_server_init(void)
     }
     libspdm_init_context(spdm_context);
 
-    /* io function callback */
-    libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, sizeof(m_scratch_buffer));
-
     libspdm_register_device_io_func(spdm_context, spdm_responder_send_message,
                                     spdm_responder_receive_message);
     libspdm_register_transport_layer_func(spdm_context,
+                                          LIBSPDM_MAX_SPDM_MSG_SIZE,
+                                          LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
                                           libspdm_transport_pci_doe_encode_message,
                                           libspdm_transport_pci_doe_decode_message,
                                           libspdm_transport_pci_doe_get_header_size);
     libspdm_register_device_buffer_func(spdm_context,
+                                        LIBSPDM_SENDER_BUFFER_SIZE,
+                                        LIBSPDM_RECEIVER_BUFFER_SIZE,
                                         spdm_device_acquire_sender_buffer,
                                         spdm_device_release_sender_buffer,
                                         spdm_device_acquire_receiver_buffer,
                                         spdm_device_release_receiver_buffer);
+
+    /* io function callback */
+    libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, sizeof(m_scratch_buffer));
 
     /* version */
     libspdm_zero_mem(&parameter, sizeof(parameter));

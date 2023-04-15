@@ -368,28 +368,6 @@
  * +==========================+==========================================+=========+
  */
 
-/* Required sender/receive buffer in device io.
- * NOTE: This is transport specific. Below configuration is just an example.
- * +-------+--------+---------------------------+------+--+------+---+--------+-----+
- * | TYPE  |TransHdr|      EncryptionHeader     |AppHdr|  |Random|MAC|AlignPad|FINAL|
- * |       |        |SessionId|SeqNum|Len|AppLen|      |  |      |   |        |     |
- * +-------+--------+---------------------------+------+  +------+---+--------+-----+
- * | MCTP  |    1   |    4    |   2  | 2 |   2  |   1  |  |  32  | 12|   0    |  56 |
- * |PCI_DOE|    8   |    4    |   0  | 2 |   2  |   0  |  |   0  | 12|   3    |  31 |
- * +-------+--------+---------------------------+------+--+------+---+--------+-----+
- */
-#ifndef LIBSPDM_TRANSPORT_ADDITIONAL_SIZE
-#define LIBSPDM_TRANSPORT_ADDITIONAL_SIZE    64
-#endif
-
-/* Maximum size of a large SPDM message.
- * If chunk is unsupported, it must be same as DATA_TRANSFER_SIZE.
- * If chunk is supported, it must be larger than DATA_TRANSFER_SIZE.
- * It matches MaxSPDMmsgSize in SPDM specification. */
-#ifndef LIBSPDM_MAX_SPDM_MSG_SIZE
-#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x1200
-#endif
-
 /* Enable message logging.
  * See https://github.com/DMTF/libspdm/blob/main/doc/user_guide.md#message-logging
  * for more information */
