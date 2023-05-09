@@ -3,7 +3,7 @@
 ## Specification
 
    * CoRIM / CoMID:
-     * RATS: [Concise Reference Integrity Manifest](https://datatracker.ietf.org/doc/draft-birkholz-rats-corim/)
+     * RATS: [Concise Reference Integrity Manifest](https://datatracker.ietf.org/doc/draft-ietf-rats-corim/)
 
    * CoSWID:
      * RATS: [Remote Attestation Procedures Architecture](https://datatracker.ietf.org/doc/draft-ietf-rats-architecture/)
