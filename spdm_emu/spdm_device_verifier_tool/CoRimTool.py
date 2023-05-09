@@ -50,7 +50,7 @@ ClassMap = {'comid_class_id': 0, 'comid_vendor': 1, 'comid_model': 2, 'comid_lay
 MeasurementMap = {'comid_mkey': 0, 'comid_mval': 1}
 MeasurementValueMap = {'comid_ver': 0, 'comid_svn': 1, 'comid_digests': 2, 'comid_flags': 3, 'comid_raw_value': 4,
                        'comid_raw_value_mask': 5, 'comid_mac_addr': 6, 'comid_ip_addr': 7, 'comid_serial_number': 8,
-                       'comid_ueid': 9, 'comid_uuid': 10}
+                       'comid_ueid': 9, 'comid_uuid': 10, 'comid_name': 11}
 VersionMap = {'comid_version': 0, 'comid_version_scheme': 1}
 VerificationKeyMap = {'comid_key': 0, 'comid_keychain': 1}
 TagRelTypeChoice = {'comid_supplements': 0, 'comid_replaces': 1}
