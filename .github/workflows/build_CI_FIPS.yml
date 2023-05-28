@@ -18,9 +18,7 @@ jobs:
         # If any *.c *.h *.md file(except:libspdm) have Tab, the check will fail.
       - name: Check code format
         run: |
-          sudo apt install uncrustify -y
-          find . -name "*.c" -o -name "*.h" | uncrustify -c .uncrustify.cfg --check -F -
-          if [ $? -ne 0 ]
+          if grep -rn "	" * --include=*.c --include=*.h --include=*.md;
           then exit 1
           fi
 
