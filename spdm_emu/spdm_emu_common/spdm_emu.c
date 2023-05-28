@@ -15,13 +15,15 @@ uint32_t m_exe_mode = EXE_MODE_SHUTDOWN;
 uint32_t m_exe_connection = (0 |
                              /* EXE_CONNECTION_VERSION_ONLY |*/
                              EXE_CONNECTION_DIGEST | EXE_CONNECTION_CERT |
-                             EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS | 0);
+                             EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS |
+                             EXE_CONNECTION_SET_CERT | EXE_CONNECTION_GET_CSR | 0);
 
 uint32_t m_exe_session =
     (0 | EXE_SESSION_KEY_EX | EXE_SESSION_PSK |
      /* EXE_SESSION_NO_END |*/
      EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT | EXE_SESSION_MEAS |
-     EXE_SESSION_SET_CERT | EXE_SESSION_GET_CSR| 0);
+     EXE_SESSION_SET_CERT | EXE_SESSION_GET_CSR |
+     EXE_SESSION_DIGEST | EXE_SESSION_CERT | EXE_SESSION_APP | 0);
 
 #define IP_ADDRESS "127.0.0.1"
 
@@ -64,8 +66,8 @@ void print_usage(const char *name)
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
-    printf("   [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS]\n");
-    printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS]\n");
+    printf("   [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|GET_CSR|SET_CERT]\n");
+    printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|APP]\n");
     printf("   [--pcap <pcap_file_name>]\n");
     printf("   [--priv_key_mode PEM|RAW]\n");
     printf("\n");
@@ -144,7 +146,7 @@ void print_usage(const char *name)
     printf(
         "           CONTINUE means the requester asks the responder to preserve the current SPDM context.\n");
     printf(
-        "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS.\n");
+        "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,GET_CSR,SET_CERT.\n");
     printf(
         "           VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.\n");
     printf("               The version for responder must be provisioned from ver.\n");
@@ -155,14 +157,21 @@ void print_usage(const char *name)
     printf("           CERT means send GET_CERTIFICATE command.\n");
     printf("           CHAL means send CHALLENGE command.\n");
     printf("           MEAS means send GET_MEASUREMENT command.\n");
+    printf("           GET_CSR means send GET_CSR command.\n");
+    printf("           SET_CERT means send SET_CERTIFICATE command.\n");
     printf(
-        "   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS.\n");
+        "   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,DIGEST,CERT,GET_CSR,SET_CERT,APP.\n");
     printf("           KEY_EX means to setup KEY_EXCHANGE session.\n");
     printf("           PSK means to setup PSK_EXCHANGE session.\n");
     printf("           NO_END means to not send END_SESSION.\n");
     printf("           KEY_UPDATE means to send KEY_UPDATE in session.\n");
     printf("           HEARTBEAT means to send HEARTBEAT in session.\n");
     printf("           MEAS means send GET_MEASUREMENT command in session.\n");
+    printf("           DIGEST means send GET_DIGESTS command in session.\n");
+    printf("           CERT means send GET_CERTIFICATE command in session.\n");
+    printf("           GET_CSR means send GET_CSR command in session.\n");
+    printf("           SET_CERT means send SET_CERTIFICATE command in session.\n");
+    printf("           APP means send vendor defined message or application message in session.\n");
     printf("   [--pcap] is used to generate PCAP dump file for offline analysis.\n");
     printf(
         "   [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.\n");
@@ -372,6 +381,8 @@ value_string_entry_t m_exe_connection_string_table[] = {
     { EXE_CONNECTION_CERT, "CERT" },
     { EXE_CONNECTION_CHAL, "CHAL" },
     { EXE_CONNECTION_MEAS, "MEAS" },
+    { EXE_CONNECTION_SET_CERT, "SET_CERT" },
+    { EXE_CONNECTION_GET_CSR, "GET_CSR" },
 };
 
 value_string_entry_t m_exe_session_string_table[] = {
@@ -381,6 +392,11 @@ value_string_entry_t m_exe_session_string_table[] = {
     { EXE_SESSION_KEY_UPDATE, "KEY_UPDATE" },
     { EXE_SESSION_HEARTBEAT, "HEARTBEAT" },
     { EXE_SESSION_MEAS, "MEAS" },
+    { EXE_SESSION_DIGEST, "DIGEST" },
+    { EXE_SESSION_CERT, "CERT" },
+    { EXE_SESSION_SET_CERT, "SET_CERT" },
+    { EXE_SESSION_GET_CSR, "GET_CSR" },
+    { EXE_SESSION_APP, "APP" },
 };
 
 bool get_value_from_name(const value_string_entry_t *table,
