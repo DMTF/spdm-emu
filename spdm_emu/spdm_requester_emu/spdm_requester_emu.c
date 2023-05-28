@@ -13,6 +13,8 @@ extern SOCKET m_socket;
 extern void *m_spdm_context;
 extern void *m_scratch_buffer;
 
+uint8_t m_other_slot_id = 0;
+
 void *spdm_client_init(void);
 
 libspdm_return_t pci_doe_init_requester(void);
@@ -147,8 +149,8 @@ bool platform_client_routine(uint16_t port_number)
                 }
             }
             if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
-                if (m_use_slot_id == 0) {
-                    m_use_slot_id =  1;
+                if (m_other_slot_id != 0) {
+                    m_use_slot_id = m_other_slot_id;
                     status = do_session_via_spdm(false);
                     if (LIBSPDM_STATUS_IS_ERROR(status)) {
                         printf("do_session_via_spdm - %x\n",

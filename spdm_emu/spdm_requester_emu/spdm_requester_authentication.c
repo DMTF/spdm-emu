@@ -38,12 +38,18 @@ spdm_authentication(void *context, uint8_t *slot_mask,
 {
     libspdm_return_t status;
     size_t cert_chain_buffer_size;
+    uint8_t index;
 
     if ((m_exe_connection & EXE_CONNECTION_DIGEST) != 0) {
         status = libspdm_get_digest(context, NULL, slot_mask,
                                     total_digest_buffer);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
+        }
+        for (index = 1; index < SPDM_MAX_SLOT_COUNT; index++) {
+            if ((*slot_mask & (1 << index)) != 0) {
+                m_other_slot_id = index;
+            }
         }
     }
 
@@ -56,12 +62,14 @@ spdm_authentication(void *context, uint8_t *slot_mask,
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     return status;
                 }
-                *cert_chain_size = cert_chain_buffer_size;
-                libspdm_zero_mem(cert_chain, cert_chain_buffer_size);
-                status = libspdm_get_certificate(
-                    context, NULL, 1, cert_chain_size, cert_chain);
-                if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                    return status;
+                if (m_other_slot_id != 0) {
+                    *cert_chain_size = cert_chain_buffer_size;
+                    libspdm_zero_mem(cert_chain, cert_chain_buffer_size);
+                    status = libspdm_get_certificate(
+                        context, NULL, m_other_slot_id, cert_chain_size, cert_chain);
+                    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                        return status;
+                    }
                 }
             } else {
                 status = libspdm_get_certificate(
