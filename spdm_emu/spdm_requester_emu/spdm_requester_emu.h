@@ -24,4 +24,6 @@
 #include "stdio.h"
 #include "spdm_emu.h"
 
+extern uint8_t m_other_slot_id;
+
 #endif

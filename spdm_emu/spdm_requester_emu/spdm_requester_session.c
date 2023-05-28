@@ -269,17 +269,19 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     /*set_certificate for slot_id:1 in secure session*/
     if (session_id != NULL) {
         if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
-            slot_id = 1;
-            status = libspdm_set_certificate(spdm_context, session_id, slot_id,
-                                             cert_chain_to_set, cert_chain_size_to_set);
+            if (m_other_slot_id != 0) {
+                slot_id = m_other_slot_id;
+                status = libspdm_set_certificate(spdm_context, session_id, slot_id,
+                                                cert_chain_to_set, cert_chain_size_to_set);
 
-            if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                printf("libspdm_set_certificate - %x\n",
-                       (uint32_t)status);
+                if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                    printf("libspdm_set_certificate - %x\n",
+                        (uint32_t)status);
+                }
+
+                free(cert_chain_to_set);
+                return status;
             }
-
-            free(cert_chain_to_set);
-            return status;
         }
     }
 
