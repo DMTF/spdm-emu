@@ -72,6 +72,8 @@ extern uint32_t m_exe_mode;
 #define EXE_CONNECTION_CERT 0x4
 #define EXE_CONNECTION_CHAL 0x8
 #define EXE_CONNECTION_MEAS 0x10
+#define EXE_CONNECTION_SET_CERT 0x20
+#define EXE_CONNECTION_GET_CSR 0x40
 extern uint32_t m_exe_connection;
 
 #define EXE_SESSION_KEY_EX 0x1
@@ -82,6 +84,9 @@ extern uint32_t m_exe_connection;
 #define EXE_SESSION_MEAS 0x20
 #define EXE_SESSION_SET_CERT 0x40
 #define EXE_SESSION_GET_CSR 0x80
+#define EXE_SESSION_DIGEST 0x100
+#define EXE_SESSION_CERT 0x200
+#define EXE_SESSION_APP 0x400
 extern uint32_t m_exe_session;
 
 void libspdm_dump_hex_str(const uint8_t *buffer, size_t buffer_size);

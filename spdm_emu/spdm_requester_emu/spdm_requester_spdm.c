@@ -328,6 +328,8 @@ void *spdm_client_init(void)
     if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP & responder_capabilities_flag) == 0) {
         m_exe_connection &= ~EXE_CONNECTION_DIGEST;
         m_exe_connection &= ~EXE_CONNECTION_CERT;
+        m_exe_session &= ~EXE_SESSION_DIGEST;
+        m_exe_session &= ~EXE_SESSION_CERT;
     }
     if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHAL_CAP & responder_capabilities_flag) == 0) {
         m_exe_connection &= ~EXE_CONNECTION_CHAL;
@@ -354,9 +356,11 @@ void *spdm_client_init(void)
         m_exe_session &= ~EXE_SESSION_HEARTBEAT;
     }
     if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_CERT_CAP & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_SET_CERT;
         m_exe_session &= ~EXE_SESSION_SET_CERT;
     }
     if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CSR_CAP & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_GET_CSR;
         m_exe_session &= ~EXE_SESSION_GET_CSR;
     }
 
