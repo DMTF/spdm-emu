@@ -195,4 +195,8 @@ static inline bool libspdm_onehot0(uint32_t mask)
     return !mask || !(mask & (mask - 1));
 }
 
+#ifndef LIBSPDM_MAX_CSR_SIZE
+#define LIBSPDM_MAX_CSR_SIZE 0xffff
+#endif
+
 #endif
