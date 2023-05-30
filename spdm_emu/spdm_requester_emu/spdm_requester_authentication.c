@@ -53,10 +53,11 @@ spdm_authentication(void *context, uint8_t *slot_mask,
         }
     }
 
+    cert_chain_buffer_size = *cert_chain_size;
+
     if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
         if (slot_id != 0xFF) {
             if (slot_id == 0) {
-                cert_chain_buffer_size = *cert_chain_size;
                 status = libspdm_get_certificate(
                     context, NULL, 0, cert_chain_size, cert_chain);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
@@ -99,6 +100,7 @@ spdm_authentication(void *context, uint8_t *slot_mask,
 
     if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
         if (slot_id != 0xFF) {
+            *cert_chain_size = cert_chain_buffer_size;
             status = libspdm_get_certificate(
                 context, NULL, slot_id, cert_chain_size, cert_chain);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
