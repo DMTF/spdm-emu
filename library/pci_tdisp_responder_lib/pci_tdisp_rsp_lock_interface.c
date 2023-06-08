@@ -47,16 +47,10 @@ libspdm_return_t pci_tdisp_get_response_lock_interface (const void *pci_doe_cont
     }
 
     LIBSPDM_ASSERT (*response_size >= sizeof(pci_tdisp_lock_interface_response_t));
-    *response_size = sizeof(pci_tdisp_lock_interface_response_t);
-
     libspdm_zero_mem (response, *response_size);
-    tdisp_response->header.version = tdisp_request->header.version;
-    tdisp_response->header.message_type = PCI_TDISP_LOCK_INTERFACE_RSP;
-    tdisp_response->header.interface_id.function_id =
-        tdisp_request->header.interface_id.function_id;
 
     error_code = pci_tdisp_device_lock_interface (pci_doe_context, spdm_context, session_id,
-                                                  &tdisp_response->header.interface_id,
+                                                  &tdisp_request->header.interface_id,
                                                   &tdisp_request->lock_interface_param,
                                                   tdisp_response->start_interface_nonce);
     if (error_code != PCI_TDISP_ERROR_CODE_SUCCESS) {
@@ -64,6 +58,13 @@ libspdm_return_t pci_tdisp_get_response_lock_interface (const void *pci_doe_cont
                                              request, error_code, 0,
                                              response, response_size);
     }
+
+    *response_size = sizeof(pci_tdisp_lock_interface_response_t);
+
+    tdisp_response->header.version = tdisp_request->header.version;
+    tdisp_response->header.message_type = PCI_TDISP_LOCK_INTERFACE_RSP;
+    tdisp_response->header.interface_id.function_id =
+        tdisp_request->header.interface_id.function_id;
 
     return LIBSPDM_STATUS_SUCCESS;
 }
