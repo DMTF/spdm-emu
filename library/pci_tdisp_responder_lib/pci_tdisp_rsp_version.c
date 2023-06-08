@@ -55,17 +55,11 @@ libspdm_return_t pci_tdisp_get_response_version (const void *pci_doe_context,
     }
 
     LIBSPDM_ASSERT (*response_size >= sizeof(pci_tdisp_version_response_mine_t));
-    *response_size = sizeof(pci_tdisp_version_response_mine_t);
-
     libspdm_zero_mem (response, *response_size);
-    tdisp_response->header.version = tdisp_request->header.version;
-    tdisp_response->header.message_type = PCI_TDISP_VERSION;
-    tdisp_response->header.interface_id.function_id =
-        tdisp_request->header.interface_id.function_id;
-
     tdisp_response->version_num_count = LIBTDISP_MAX_VERSION_COUNT;
+
     error_code = pci_tdisp_device_get_version (pci_doe_context, spdm_context, session_id,
-                                               &tdisp_response->header.interface_id,
+                                               &tdisp_request->header.interface_id,
                                                &tdisp_response->version_num_count,
                                                tdisp_response->version_num_entry);
     if (error_code != PCI_TDISP_ERROR_CODE_SUCCESS) {
@@ -73,6 +67,13 @@ libspdm_return_t pci_tdisp_get_response_version (const void *pci_doe_context,
                                              request, error_code, 0,
                                              response, response_size);
     }
+
+    *response_size = sizeof(pci_tdisp_version_response_mine_t);
+
+    tdisp_response->header.version = tdisp_request->header.version;
+    tdisp_response->header.message_type = PCI_TDISP_VERSION;
+    tdisp_response->header.interface_id.function_id =
+        tdisp_request->header.interface_id.function_id;
 
     return LIBSPDM_STATUS_SUCCESS;
 }
