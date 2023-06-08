@@ -207,6 +207,14 @@ void *spdm_server_init(void)
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                      &parameter, &data8, sizeof(data8));
     data32 = m_use_responder_capability_flags;
+    if (m_use_slot_id == 0xFF) {
+        data32 |= SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP;
+        data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
+        data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP;
+        data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_CERT_CAP;
+        data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CSR_CAP;
+        data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_INSTALL_RESET_CAP;
+    }
     if (m_use_capability_flags != 0) {
         data32 = m_use_capability_flags;
         m_use_responder_capability_flags = m_use_capability_flags;
