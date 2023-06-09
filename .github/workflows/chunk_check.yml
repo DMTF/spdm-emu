@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=106 -DLIBSPDM_RECEIVER_BUFFER_SIZE=106 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
+          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=170 -DLIBSPDM_RECEIVER_BUFFER_SIZE=170 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
           make copy_sample_key
           make -j`nproc`
       - name: Enable_chunk(transfer size consistent)
@@ -161,7 +161,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=106 -DLIBSPDM_RECEIVER_BUFFER_SIZE=106 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
+          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=170 -DLIBSPDM_RECEIVER_BUFFER_SIZE=170 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
           make copy_sample_key
           make -j`nproc`
       - name: Enable_chunk(transfer size consistent)
@@ -302,7 +302,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=106 -DLIBSPDM_RECEIVER_BUFFER_SIZE=106 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=mbedtls ..
+          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=170 -DLIBSPDM_RECEIVER_BUFFER_SIZE=170 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=mbedtls ..
           nmake  copy_sample_key
           nmake
       - name: Enable_chunk
@@ -329,7 +329,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=106 -DLIBSPDM_RECEIVER_BUFFER_SIZE=106 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=openssl ..
+          cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=170 -DLIBSPDM_RECEIVER_BUFFER_SIZE=170 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=openssl ..
           nmake  copy_sample_key
           nmake
       - name: Enable_chunk

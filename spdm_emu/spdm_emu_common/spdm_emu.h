@@ -140,8 +140,13 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
 bool write_bytes(const SOCKET socket, const uint8_t *buffer,
                  uint32_t number_of_bytes);
 
+#define LIBSPDM_TRANSPORT_HEADER_SIZE 64
+#define LIBSPDM_TRANSPORT_TAIL_SIZE 64
+
 /* define common LIBSPDM_TRANSPORT_ADDITIONAL_SIZE. It should be the biggest one. */
-#define LIBSPDM_TRANSPORT_ADDITIONAL_SIZE 64
+#define LIBSPDM_TRANSPORT_ADDITIONAL_SIZE \
+    (LIBSPDM_TRANSPORT_HEADER_SIZE + LIBSPDM_TRANSPORT_TAIL_SIZE)
+
 #if LIBSPDM_TRANSPORT_ADDITIONAL_SIZE < LIBSPDM_NONE_TRANSPORT_ADDITIONAL_SIZE
 #error LIBSPDM_TRANSPORT_ADDITIONAL_SIZE is smaller than the required size in NONE
 #endif
@@ -189,6 +194,10 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
 extern uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 extern size_t m_send_receive_buffer_size;
+
+#ifndef LIBSPDM_MAX_CSR_SIZE
+#define LIBSPDM_MAX_CSR_SIZE 0xffff
+#endif
 
 static inline bool libspdm_onehot0(uint32_t mask)
 {
