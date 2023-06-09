@@ -21,7 +21,7 @@
 #include "library/cxl_ide_km_responder_lib.h"
 
 #include "os_include.h"
-#include "stdio.h"
+#include <stdio.h>
 #include "spdm_emu.h"
 
 #endif

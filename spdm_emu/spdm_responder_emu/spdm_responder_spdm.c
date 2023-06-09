@@ -107,6 +107,7 @@ void *spdm_server_init(void)
     spdm_version_number_t spdm_version;
     libspdm_return_t status;
     size_t scratch_buffer_size;
+    void *requester_cert_chain_buffer;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -119,38 +120,39 @@ void *spdm_server_init(void)
 
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
                                     spdm_device_receive_message);
+
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
             spdm_context,
             LIBSPDM_MAX_SPDM_MSG_SIZE,
-            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            LIBSPDM_TRANSPORT_HEADER_SIZE,
+            LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_mctp_encode_message,
-            libspdm_transport_mctp_decode_message,
-            libspdm_transport_mctp_get_header_size);
+            libspdm_transport_mctp_decode_message);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         libspdm_register_transport_layer_func(
             spdm_context,
             LIBSPDM_MAX_SPDM_MSG_SIZE,
-            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            LIBSPDM_TRANSPORT_HEADER_SIZE,
+            LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_pci_doe_encode_message,
-            libspdm_transport_pci_doe_decode_message,
-            libspdm_transport_pci_doe_get_header_size);
+            libspdm_transport_pci_doe_decode_message);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
         libspdm_register_transport_layer_func(
             spdm_context,
             LIBSPDM_MAX_SPDM_MSG_SIZE,
-            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            LIBSPDM_TRANSPORT_HEADER_SIZE,
+            LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_tcp_encode_message,
-            libspdm_transport_tcp_decode_message,
-            libspdm_transport_tcp_get_header_size);
+            libspdm_transport_tcp_decode_message);
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context,
             LIBSPDM_MAX_SPDM_MSG_SIZE,
-            LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+            0,
+            0,
             spdm_transport_none_encode_message,
-            spdm_transport_none_decode_message,
-            spdm_transport_none_get_header_size);
+            spdm_transport_none_decode_message);
     } else {
         free(m_spdm_context);
         m_spdm_context = NULL;
@@ -172,6 +174,19 @@ void *spdm_server_init(void)
         return NULL;
     }
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
+
+    requester_cert_chain_buffer = (void *)malloc(SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
+    if (requester_cert_chain_buffer == NULL)
+    {
+        return NULL;
+    }
+    libspdm_register_cert_chain_buffer(spdm_context, requester_cert_chain_buffer,
+                                       SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
+
+    if (!libspdm_check_context(spdm_context))
+    {
+        return NULL;
+    }
 
     if (m_load_state_file_name != NULL) {
         status = spdm_load_negotiated_state(spdm_context, false);
