@@ -6,7 +6,6 @@ INCLUDE_DIRECTORIES(${LIBSPDM_DIR}/include
 
 SET(src_pci_doe_responder_lib
     pci_doe_dispatch.c
-    pci_doe_rsp_discovery.c
     pci_doe_spdm_vendor_dispatch.c
 )
 

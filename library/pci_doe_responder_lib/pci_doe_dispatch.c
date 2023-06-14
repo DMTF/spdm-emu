@@ -10,14 +10,10 @@
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/pci_doe_responder_lib.h"
 
-typedef struct {
-    pci_doe_data_object_protocol_t protocol;
-    pci_doe_get_response_func_t func;
-} pci_doe_dispatch_struct_t;
-
-pci_doe_dispatch_struct_t m_pci_doe_dispatch[] = {
-    {{PCI_DOE_VENDOR_ID_PCISIG, PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY},
-     pci_doe_get_response_discovery},
+pci_doe_data_object_protocol_t m_data_object_protocol[] = {
+    {PCI_DOE_VENDOR_ID_PCISIG, PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY},
+    {PCI_DOE_VENDOR_ID_PCISIG, PCI_DOE_DATA_OBJECT_TYPE_SPDM},
+    {PCI_DOE_VENDOR_ID_PCISIG, PCI_DOE_DATA_OBJECT_TYPE_SECURED_SPDM},
 };
 
 /**
@@ -35,22 +31,31 @@ libspdm_return_t pci_doe_get_response_doe_request(const void *pci_doe_context,
                                                   const void *request, size_t request_size,
                                                   void *response, size_t *response_size)
 {
-    pci_doe_data_object_header_t *doe_request;
-    size_t index;
+    uint8_t index = 0;
+    uint32_t *reply = response;
+    libspdm_return_t ret;
 
-    doe_request = (void *)request;
-    if (request_size < sizeof(doe_request)) {
-        return LIBSPDM_STATUS_INVALID_MSG_SIZE;
+    ret = libspdm_pci_doe_decode_discovery_request(request_size, request, &index);
+
+    if (ret != LIBSPDM_STATUS_SUCCESS) {
+        return ret;
     }
 
-    for (index = 0; index < LIBSPDM_ARRAY_SIZE(m_pci_doe_dispatch); index++) {
-        if ((doe_request->vendor_id == m_pci_doe_dispatch[index].protocol.vendor_id) &&
-            (doe_request->data_object_type ==
-             m_pci_doe_dispatch[index].protocol.data_object_type)) {
-            return m_pci_doe_dispatch[index].func (pci_doe_context, request, request_size, response,
-                                                   response_size);
-        }
+    if (index >= LIBSPDM_ARRAY_SIZE(m_data_object_protocol)) {
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+    } else if (index == LIBSPDM_ARRAY_SIZE(m_data_object_protocol) - 1) {
+        reply[2] = m_data_object_protocol[index].data_object_type << 16 |
+                   m_data_object_protocol[index].vendor_id;
+    } else {
+        reply[2] = (index + 1) << 24 |
+                   m_data_object_protocol[index].data_object_type << 16 |
+                   m_data_object_protocol[index].vendor_id;
     }
 
-    return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+    return libspdm_pci_doe_encode_discovery(
+            sizeof(uint32_t),
+            &reply[2],
+            response_size,
+            &response
+        );
 }
