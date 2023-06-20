@@ -138,10 +138,10 @@ void *spdm_server_init(void)
                                     spdm_responder_receive_message);
     libspdm_register_transport_layer_func(spdm_context,
                                           LIBSPDM_MAX_SPDM_MSG_SIZE,
-                                          LIBSPDM_TRANSPORT_ADDITIONAL_SIZE,
+                                          LIBSPDM_PCI_DOE_TRANSPORT_HEADER_SIZE,
+                                          LIBSPDM_PCI_DOE_TRANSPORT_TAIL_SIZE,
                                           libspdm_transport_pci_doe_encode_message,
-                                          libspdm_transport_pci_doe_decode_message,
-                                          libspdm_transport_pci_doe_get_header_size);
+                                          libspdm_transport_pci_doe_decode_message);
     libspdm_register_device_buffer_func(spdm_context,
                                         LIBSPDM_SENDER_BUFFER_SIZE,
                                         LIBSPDM_RECEIVER_BUFFER_SIZE,

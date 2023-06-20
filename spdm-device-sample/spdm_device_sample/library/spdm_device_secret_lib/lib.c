@@ -547,7 +547,7 @@ bool libspdm_generate_measurement_summary_hash(
     uint8_t measurement_specification, uint32_t measurement_hash_algo,
     uint8_t measurement_summary_hash_type,
     uint8_t *measurement_summary_hash,
-    size_t *measurement_summary_hash_size)
+    uint32_t measurement_summary_hash_size)
 {
     uint8_t measurement_data[LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE];
     size_t index;
@@ -566,7 +566,7 @@ bool libspdm_generate_measurement_summary_hash(
 
     case SPDM_CHALLENGE_REQUEST_TCB_COMPONENT_MEASUREMENT_HASH:
     case SPDM_CHALLENGE_REQUEST_ALL_MEASUREMENTS_HASH:
-        if (*measurement_summary_hash_size != libspdm_get_hash_size(base_hash_algo)) {
+        if (measurement_summary_hash_size != libspdm_get_hash_size(base_hash_algo)) {
             return false;
         }
 
@@ -674,6 +674,32 @@ bool libspdm_generate_measurement_summary_hash(
     }
     return true;
 }
+
+size_t libspdm_secret_lib_meas_opaque_data_size = 0x20;
+
+bool libspdm_measurement_opaque_data(
+    spdm_version_number_t spdm_version,
+    uint8_t measurement_specification,
+    uint32_t measurement_hash_algo,
+    uint8_t measurement_index,
+    uint8_t request_attribute,
+    void *opaque_data,
+    size_t *opaque_data_size)
+{
+    size_t index;
+
+    LIBSPDM_ASSERT(libspdm_secret_lib_meas_opaque_data_size <= *opaque_data_size);
+
+    *opaque_data_size = libspdm_secret_lib_meas_opaque_data_size;
+
+    for (index = 0; index < *opaque_data_size; index++)
+    {
+        ((uint8_t *)opaque_data)[index] = (uint8_t)index;
+    }
+
+    return true;
+}
+
 #endif /* LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP */
 
 /**
