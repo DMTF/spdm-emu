@@ -76,10 +76,6 @@
 #define LIBSPDM_MAX_CERT_CHAIN_BLOCK_LEN 1024
 #endif
 
-#ifndef LIBSPDM_MAX_CSR_SIZE
-#define LIBSPDM_MAX_CSR_SIZE 0x1000
-#endif
-
 /* To ensure integrity in communication between the Requester and the Responder libspdm calculates
  * cryptographic digests and signatures over multiple requests and responses. This value specifies
  * whether libspdm will use a running calculation over the transcript, where requests and responses
@@ -89,20 +85,6 @@
 #ifndef LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT
 #define LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT 0
 #endif
-
-/*
- * +--------------------------+------------------------------------------+---------+
- * | GET_VERSION              | 4                                        | 1       |
- * | VERSION {1.0, 1.1, 1.2}  | 6 + 2 * 3 = 12                           | 1       |
- * +--------------------------+------------------------------------------+---------+
- * | GET_CAPABILITIES 1.2     | 20                                       | 1       |
- * | CAPABILITIES 1.2         | 20                                       | 1       |
- * +--------------------------+------------------------------------------+---------+
- * | NEGOTIATE_ALGORITHMS 1.2 | 32 + 4 * 4 = 48                          | 2       |
- * | ALGORITHMS 1.2           | 36 + 4 * 4 = 52                          | 2       |
- * +--------------------------+------------------------------------------+---------+
- */
-#define LIBSPDM_MAX_MESSAGE_VCA_BUFFER_SIZE (150 + 2 * LIBSPDM_MAX_VERSION_COUNT)
 
 /* Cryptography Configuration
  * In each category, at least one should be selected.
@@ -239,7 +221,7 @@
 /* LIBSPDM_ENABLE_CAPABILITY_MUT_AUTH_CAP - Enable/Disable mutual authentication.
 * LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP    - Enable/Disable encapsulated message.*/
 
-/* LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP - Enable/Disable get csr capability.
+/* LIBSPDM_ENABLE_CAPABILITY_CSR_CAP - Enable/Disable get csr capability.
  * LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP - Enable/Disable set certificate capability. */
 
 #ifndef LIBSPDM_ENABLE_CAPABILITY_CERT_CAP
@@ -274,8 +256,8 @@
 #define LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP 0
 #endif
 
-#ifndef LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP
-#define LIBSPDM_ENABLE_CAPABILITY_GET_CSR_CAP 0
+#ifndef LIBSPDM_ENABLE_CAPABILITY_CSR_CAP
+#define LIBSPDM_ENABLE_CAPABILITY_CSR_CAP 0
 #endif
 
 #ifndef LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP
@@ -284,6 +266,22 @@
 
 #ifndef LIBSPDM_ENABLE_CAPABILITY_CHUNK_CAP
 #define LIBSPDM_ENABLE_CAPABILITY_CHUNK_CAP 0
+#endif
+
+/* If 1 then endpoint supports sending GET_CERTIFICATE and GET_DIGESTS requests.
+ * If enabled and endpoint is a Responder then LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP
+ * must also be enabled.
+ */
+#ifndef LIBSPDM_SEND_GET_CERTIFICATE_SUPPORT
+#define LIBSPDM_SEND_GET_CERTIFICATE_SUPPORT 0
+#endif
+
+/* If 1 then endpoint supports sending CHALLENGE request.
+ * If enabled and endpoint is a Responder then LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP
+ * must also be enabled.
+ */
+#ifndef LIBSPDM_SEND_CHALLENGE_SUPPORT
+#define LIBSPDM_SEND_CHALLENGE_SUPPORT 0
 #endif
 
 /* When LIBSPDM_RESPOND_IF_READY_SUPPORT is 0 then
