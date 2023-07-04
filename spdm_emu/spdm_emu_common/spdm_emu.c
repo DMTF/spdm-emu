@@ -260,7 +260,7 @@ value_string_entry_t m_hash_value_string_table[] = {
 };
 
 value_string_entry_t m_measurement_spec_value_string_table[] = {
-    { SPDM_MEASUREMENT_BLOCK_HEADER_SPECIFICATION_DMTF, "DMTF" },
+    { SPDM_MEASUREMENT_SPECIFICATION_DMTF, "DMTF" },
 };
 
 value_string_entry_t m_measurement_hash_value_string_table[] = {
