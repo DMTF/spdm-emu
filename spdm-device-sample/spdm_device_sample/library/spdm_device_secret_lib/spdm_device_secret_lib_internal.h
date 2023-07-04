@@ -16,7 +16,11 @@
 #include "library/spdm_crypt_lib.h"
 #include "spdm_crypt_ext_lib/spdm_crypt_ext_lib.h"
 #include "spdm_crypt_ext_lib/cryptlib_ext.h"
-#include "hal/library/responder_secretlib.h"
+#include "hal/library/responder/asymsignlib.h"
+#include "hal/library/responder/csrlib.h"
+#include "hal/library/responder/measlib.h"
+#include "hal/library/responder/psklib.h"
+#include "hal/library/responder/setcertlib.h"
 #include "hal/library/debuglib.h"
 
 #define LIBSPDM_MEASUREMENT_BLOCK_HASH_NUMBER 4

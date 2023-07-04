@@ -181,7 +181,7 @@ void *spdm_server_init(void)
                      &data32, sizeof(data32));
 
     /* algorithm */
-    data8 = SPDM_MEASUREMENT_BLOCK_HEADER_SPECIFICATION_DMTF;
+    data8 = SPDM_MEASUREMENT_SPECIFICATION_DMTF;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
                      &data8, sizeof(data8));
     data32 = SPDM_ALGORITHMS_MEASUREMENT_HASH_ALGO_TPM_ALG_SHA_384;
