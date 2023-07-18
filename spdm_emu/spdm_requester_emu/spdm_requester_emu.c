@@ -132,7 +132,7 @@ bool platform_client_routine(uint16_t port_number)
     }
     else
     {
-#if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
+#if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_CAP)
         if (m_use_version >= SPDM_MESSAGE_VERSION_11) {
             if ((m_exe_session & EXE_SESSION_KEY_EX) != 0) {
                 status = do_session_via_spdm(false);
@@ -163,7 +163,7 @@ bool platform_client_routine(uint16_t port_number)
                 }
             }
         }
-#endif /*(LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)*/
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP || LIBSPDM_ENABLE_CAPABILITY_PSK_CAP)*/
     }
     /* Do test - end*/
 
