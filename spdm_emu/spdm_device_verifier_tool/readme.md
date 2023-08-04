@@ -6,8 +6,8 @@
      * RATS: [Concise Reference Integrity Manifest](https://datatracker.ietf.org/doc/draft-ietf-rats-corim/)
 
    * CoSWID:
-     * RATS: [Remote Attestation Procedures Architecture](https://datatracker.ietf.org/doc/draft-ietf-rats-architecture/)
-     * SACM: [Concise Software Identification Tags](https://datatracker.ietf.org/doc/draft-ietf-sacm-coswid/)
+     * RATS: [RFC9334 - Remote Attestation Procedures Architecture](https://datatracker.ietf.org/doc/rfc9334/)
+     * SACM: [RFC9393 - Concise Software Identification Tags](https://datatracker.ietf.org/doc/rfc9393/)
      * RATS: [Reference Integrity Measurement Extension for Concise Software Identities](https://datatracker.ietf.org/doc/draft-birkholz-rats-coswid-rim/)
 
    * [CBOR](http://cbor.io/):
