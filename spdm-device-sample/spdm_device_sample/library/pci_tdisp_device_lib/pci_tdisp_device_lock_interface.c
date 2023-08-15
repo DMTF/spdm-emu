@@ -59,7 +59,7 @@ libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_conte
                       sizeof(interface_context->lock_interface_param),
                       lock_interface_param,
                       sizeof(*lock_interface_param));
-    result = libspdm_random_bytes(start_interface_nonce, sizeof(*start_interface_nonce));
+    result = libspdm_random_bytes(start_interface_nonce, PCI_TDISP_START_INTERFACE_NONCE_SIZE);
     if (!result) {
         return PCI_TDISP_ERROR_CODE_INSUFFICIENT_ENTROPY;
     }
@@ -67,7 +67,7 @@ libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_conte
     libspdm_copy_mem (&interface_context->start_interface_nonce,
                       sizeof(interface_context->start_interface_nonce),
                       start_interface_nonce,
-                      sizeof(*start_interface_nonce));
+                      PCI_TDISP_START_INTERFACE_NONCE_SIZE);
 
     /* lock the interface */
 
