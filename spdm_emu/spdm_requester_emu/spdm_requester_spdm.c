@@ -421,6 +421,12 @@ void *spdm_client_init(void)
          SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
         m_use_slot_id = 0xFF;
     }
+    if (((m_exe_connection & EXE_CONNECTION_CERT) == 0) && (m_use_slot_id != 0xFF)) {
+        m_exe_connection &= ~EXE_CONNECTION_CHAL;
+        m_exe_connection &= ~EXE_CONNECTION_MEAS;
+        m_exe_session &= ~EXE_SESSION_KEY_EX;
+        m_exe_session &= ~EXE_SESSION_MEAS;
+    }
     if (m_use_slot_id == 0xFF) {
         res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
         if (res) {
