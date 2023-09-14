@@ -54,37 +54,8 @@ jobs:
               echo "port is used"
           fi
           ./spdm_responder_emu --ver 1.1 &
+          sleep 5s
           ./spdm_requester_emu --ver 1.1 >requester.log
-
-          filename=./requester.log
-          if [ ! -f "$filename" ];
-          then
-              echo "Gen requester.log fail"
-              exit 1
-          fi
-          if grep "Connect Error - 6f" requester.log
-          then
-              sleep 100s
-              echo -e "\n try connect again!!! \n"
-              ./spdm_responder_emu --ver 1.1 &
-              ./spdm_requester_emu --ver 1.1 >requester.log
-              if [ ! -f "$filename" ];
-              then
-                  echo "Second Gen requester.log fail"
-                  exit 1
-              fi
-          fi
-
-          minsize=990000
-          if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             ! grep "libspdm_stop_session - (nil)" requester.log;
-          then
-              echo "requester run fail"
-              cat -n "$filename"
-              echo "requester.log size is `stat -c%s "$filename"`"
-              exit 1
-          fi
-
 
   gcc_openssl_build:
     runs-on: ubuntu-latest
@@ -114,36 +85,8 @@ jobs:
               echo "port is used"
           fi
           ./spdm_responder_emu --ver 1.1 &
+          sleep 5s
           ./spdm_requester_emu --ver 1.1 >requester.log
-
-          filename=./requester.log
-          if [ ! -f "$filename" ];
-          then
-              echo "Gen requester.log fail"
-              exit 1
-          fi
-          if grep "Connect Error - 6f" requester.log
-          then
-              sleep 100s
-              echo -e "\n try connect again!!! \n"
-              ./spdm_responder_emu --ver 1.1 &
-              ./spdm_requester_emu --ver 1.1 >requester.log
-              if [ ! -f "$filename" ];
-              then
-                  echo "Second Gen requester.log fail"
-                  exit 1
-              fi
-          fi
-
-          minsize=990000
-          if [ `stat -c%s "$filename"` -lt $minsize ] ||
-             ! grep "libspdm_stop_session - (nil)" requester.log;
-          then
-              echo "requester run fail"
-              cat -n "$filename"
-              echo "requester.log size is `stat -c%s "$filename"`"
-              exit 1
-          fi
 
   VS2019_mbedtls_build:
     runs-on: windows-latest
@@ -169,6 +112,7 @@ jobs:
         run: |
           cd build/bin
           ./spdm_responder_emu --ver 1.1 &
+          sleep 5s
           ./spdm_requester_emu --ver 1.1
 
   VS2019_openssl_build:
@@ -196,4 +140,5 @@ jobs:
         run: |
           cd build/bin
           ./spdm_responder_emu --ver 1.1 &
+          sleep 5s
           ./spdm_requester_emu --ver 1.1

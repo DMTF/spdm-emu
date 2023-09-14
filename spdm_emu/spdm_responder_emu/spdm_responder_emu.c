@@ -229,6 +229,7 @@ bool platform_server_routine(uint16_t port_number)
 int main(int argc, char *argv[])
 {
     libspdm_return_t status;
+    bool result;
 
     printf("%s version 0.1\n", "spdm_responder_emu");
     srand((unsigned int)time(NULL));
@@ -237,23 +238,23 @@ int main(int argc, char *argv[])
 
     m_spdm_context = spdm_server_init();
     if (m_spdm_context == NULL) {
-        return 0;
+        return 1;
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         status = pci_doe_init_responder ();
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("pci_doe_init_responder - %x\n", (uint32_t)status);
-            return 0;
+            return 1;
         }
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
         /* The IANA has assigned port number 4194 for SPDM */
-        platform_server_routine(TCP_SPDM_PLATFORM_PORT);
+        result = platform_server_routine(TCP_SPDM_PLATFORM_PORT);
     }
     else {
-        platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
+        result = platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
     }
 
     if (m_spdm_context != NULL) {
@@ -261,7 +262,7 @@ int main(int argc, char *argv[])
         if (!libspdm_export_fips_selftest_context_from_spdm_context(
                 m_spdm_context, m_fips_selftest_context,
                 libspdm_get_fips_selftest_context_size())) {
-            return 0;
+            return 1;
         }
 #endif /*LIBSPDM_FIPS_MODE*/
         libspdm_deinit_context(m_spdm_context);
@@ -272,5 +273,5 @@ int main(int argc, char *argv[])
     printf("Server stopped\n");
 
     close_pcap_packet_file();
-    return 0;
+    return (!result);
 }
