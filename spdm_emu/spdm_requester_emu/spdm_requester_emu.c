@@ -87,6 +87,8 @@ bool platform_client_routine(uint16_t port_number)
         }
     }
 
+    result = false;
+
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         status = pci_doe_init_requester ();
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
@@ -167,11 +169,14 @@ bool platform_client_routine(uint16_t port_number)
     }
     /* Do test - end*/
 
+    result = true;
 done:
     response_size = 0;
-    result = communicate_platform_data(
-        m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
-        NULL, 0, &response, &response_size, NULL);
+    if (!communicate_platform_data(
+            m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
+            NULL, 0, &response, &response_size, NULL)) {
+            return false;
+        }
 
     if (m_spdm_context != NULL) {
 #if LIBSPDM_FIPS_MODE
@@ -196,11 +201,12 @@ done:
     WSACleanup();
 #endif
 
-    return true;
+    return result;
 }
 
 int main(int argc, char *argv[])
 {
+    bool result;
     printf("%s version 0.1\n", "spdm_requester_emu");
     srand((unsigned int)time(NULL));
 
@@ -208,14 +214,14 @@ int main(int argc, char *argv[])
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
         /* Port number 4194 for SPDM */
-        platform_client_routine(TCP_SPDM_PLATFORM_PORT);
+        result = platform_client_routine(TCP_SPDM_PLATFORM_PORT);
     }
     else {
-        platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
+        result = platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
     }
 
     printf("Client stopped\n");
 
     close_pcap_packet_file();
-    return 0;
+    return (!result);
 }
