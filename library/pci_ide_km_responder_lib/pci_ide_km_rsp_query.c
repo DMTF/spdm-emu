@@ -57,6 +57,7 @@ libspdm_return_t pci_ide_km_get_response_query (const void *pci_doe_context,
 
     libspdm_zero_mem (response, *response_size);
     ide_km_response->header.object_id = PCI_IDE_KM_OBJECT_ID_QUERY_RESP;
+    ide_km_response->port_index = ide_km_request->port_index;
 
     status = pci_ide_km_device_query (pci_doe_context, spdm_context, session_id,
                                       ide_km_request->port_index,

@@ -48,7 +48,7 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
 
     ide_reg_block_count = PCI_IDE_KM_IDE_REG_BLOCK_SUPPORTED_COUNT;
     status = pci_ide_km_query (m_pci_doe_context, spdm_context, &session_id,
-                               0, &dev_func_num, &bus_num, &segment, &max_port_index,
+                               1, &dev_func_num, &bus_num, &segment, &max_port_index,
                                ide_reg_block, &ide_reg_block_count);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
@@ -67,7 +67,7 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
     key_buffer.iv[0] = 0;
     key_buffer.iv[1] = 1;
     status = pci_ide_km_key_prog (m_pci_doe_context, spdm_context, &session_id,
-                                  0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 0,
+                                  0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 1,
                                   &key_buffer, &kp_ack_status);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
@@ -81,7 +81,7 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
     key_buffer.iv[0] = 0;
     key_buffer.iv[1] = 1;
     status = pci_ide_km_key_prog (m_pci_doe_context, spdm_context, &session_id,
-                                  0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 0,
+                                  0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 1,
                                   &key_buffer, &kp_ack_status);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
@@ -89,14 +89,14 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_prog K0|TX - %02x\n", kp_ack_status));
 
     status = pci_ide_km_key_set_go (m_pci_doe_context, spdm_context, &session_id,
-                                    0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 0);
+                                    0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 1);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_go K0|RX\n"));
 
     status = pci_ide_km_key_set_go (m_pci_doe_context, spdm_context, &session_id,
-                                    0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 0);
+                                    0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 1);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
@@ -104,14 +104,14 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
 
 
     status = pci_ide_km_key_set_stop (m_pci_doe_context, spdm_context, &session_id,
-                                      0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 0);
+                                      0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 1);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_stop K0|RX\n"));
 
     status = pci_ide_km_key_set_stop (m_pci_doe_context, spdm_context, &session_id,
-                                      0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 0);
+                                      0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 1);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
