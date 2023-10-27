@@ -77,6 +77,7 @@ libspdm_return_t cxl_ide_km_get_key(const void *pci_doe_context,
 
     libspdm_copy_mem (key_buffer, sizeof(cxl_ide_km_aes_256_gcm_key_buffer_t),
                       &response.key_buffer, sizeof(response.key_buffer));
+    libspdm_zero_mem (&response.key_buffer, sizeof(response.key_buffer));
 
     return LIBSPDM_STATUS_SUCCESS;
 }
