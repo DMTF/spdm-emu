@@ -75,6 +75,8 @@ libspdm_return_t pci_doe_spdm_vendor_send_receive_data_ex (
     status = libspdm_send_receive_data(spdm_context, session_id,
                                        false, spdm_request, spdm_request_size,
                                        spdm_response, &spdm_response_size);
+    /* clear the copied memory, because it may include secret */
+    libspdm_zero_mem (spdm_request + 1, request_size);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
@@ -113,6 +115,8 @@ libspdm_return_t pci_doe_spdm_vendor_send_receive_data_ex (
     *response_size = spdm_response->pci_doe_vendor_header.payload_length -
                      sizeof(pci_protocol_header_t);
     libspdm_copy_mem (response, *response_size, spdm_response + 1, *response_size);
+    /* clear the copied memory, because it may include secret */
+    libspdm_zero_mem (spdm_response + 1, *response_size);
 
     return LIBSPDM_STATUS_SUCCESS;
 }

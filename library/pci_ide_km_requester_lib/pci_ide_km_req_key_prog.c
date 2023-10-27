@@ -58,6 +58,7 @@ libspdm_return_t pci_ide_km_key_prog(const void *pci_doe_context,
     status = pci_ide_km_send_receive_data(spdm_context, session_id,
                                           &request, request_size,
                                           &response, &response_size);
+    libspdm_zero_mem (&request.key_buffer, sizeof(pci_ide_km_aes_256_gcm_key_buffer_t));
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
