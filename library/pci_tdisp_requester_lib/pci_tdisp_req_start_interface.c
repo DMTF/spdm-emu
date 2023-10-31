@@ -44,6 +44,7 @@ libspdm_return_t pci_tdisp_start_interface(const void *pci_doe_context,
     status = pci_tdisp_send_receive_data(spdm_context, session_id,
                                          &request, request_size,
                                          &response, &response_size);
+    libspdm_zero_mem (&request.start_interface_nonce, sizeof(request.start_interface_nonce));
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
