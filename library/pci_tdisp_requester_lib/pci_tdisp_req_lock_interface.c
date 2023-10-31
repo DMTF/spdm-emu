@@ -63,6 +63,7 @@ libspdm_return_t pci_tdisp_lock_interface(const void *pci_doe_context,
 
     libspdm_copy_mem (start_interface_nonce, PCI_TDISP_START_INTERFACE_NONCE_SIZE,
                       response.start_interface_nonce, sizeof(response.start_interface_nonce));
+    libspdm_zero_mem (&response.start_interface_nonce, sizeof(response.start_interface_nonce));
 
     return LIBSPDM_STATUS_SUCCESS;
 }
