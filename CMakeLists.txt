@@ -441,7 +441,11 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
             ADD_COMPILE_OPTIONS(-m32 -march=i586)
         endif()
 
-        SET(CMAKE_C_STANDARD_LIBRARIES "Kernel32.lib MSVCRTD.lib vcruntimed.lib ucrtd.lib Gdi32.lib User32.lib Winmm.lib Advapi32.lib ws2_32.lib")
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            SET(CMAKE_C_STANDARD_LIBRARIES "Kernel32.lib MSVCRTD.lib vcruntimed.lib ucrtd.lib Gdi32.lib User32.lib Winmm.lib Advapi32.lib ws2_32.lib")
+        elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+            SET(CMAKE_C_STANDARD_LIBRARIES "Kernel32.lib MSVCRTD.lib vcruntime.lib ucrt.lib Gdi32.lib User32.lib Winmm.lib Advapi32.lib ws2_32.lib")
+        endif()
 
      elseif(TOOLCHAIN STREQUAL "ARM_DS2022")
         SET(CMAKE_C_COMPILER    "armclang.exe")
