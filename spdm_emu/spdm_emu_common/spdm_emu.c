@@ -37,10 +37,10 @@ void print_usage(const char *name)
 {
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
     printf("   [--tcp_sub HS|NO_HS]\n");
-    printf("   [--ver 1.0|1.1|1.2]\n");
+    printf("   [--ver 1.0|1.1|1.2|1.3]\n");
     printf("   [--sec_ver 1.0|1.1]\n");
     printf(
-        "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET]\n");
+        "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--meas_spec DMTF]\n");
     printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
@@ -52,9 +52,9 @@ void print_usage(const char *name)
         "   [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
     printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
     printf("   [--key_schedule HMAC_HASH]\n");
-    printf("   [--other_param OPAQUE_FMT_1]\n");
+    printf("   [--other_param OPAQUE_FMT_1|MULTI_KEY_CONN]\n");
     printf(
-        "   [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET]\n");
+        "   [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
     printf("   [--basic_mut_auth NO|BASIC]\n");
     printf("   [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]\n");
     printf("   [--meas_sum NO|TCB|ALL]\n");
@@ -81,9 +81,9 @@ void print_usage(const char *name)
     printf(
         "   [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.\n");
     printf(
-        "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Requester.\n");
+        "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG is used for Requester.\n");
     printf(
-        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR is used for Responder.\n");
+        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO is used for Responder.\n");
     printf("   [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.\n");
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
     printf(
@@ -95,7 +95,7 @@ void print_usage(const char *name)
         "   [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.\n");
     printf("   [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.\n");
     printf("   [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.\n");
-    printf("   [--other_param] is other parameter support. By default, OPAQUE_FMT_1 is used.\n");
+    printf("   [--other_param] is other parameter support. By default, OPAQUE_FMT_1,MULTI_KEY_CONN is used.\n");
     printf("           Above algorithms also support multiple flags. Please use ',' for them.\n");
     printf("           Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.\n");
     printf("           Please don't mix NIST algo with SMx algo.\n");
@@ -198,6 +198,7 @@ value_string_entry_t m_version_value_string_table[] = {
     { SPDM_MESSAGE_VERSION_10, "1.0" },
     { SPDM_MESSAGE_VERSION_11, "1.1" },
     { SPDM_MESSAGE_VERSION_12, "1.2" },
+    { SPDM_MESSAGE_VERSION_13, "1.3" },
 };
 
 value_string_entry_t m_secured_message_version_value_string_table[] = {
@@ -220,6 +221,11 @@ value_string_entry_t m_spdm_requester_capabilities_string_table[] = {
       "HANDSHAKE_IN_CLEAR" },
     { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP, "PUB_KEY_ID" },
     { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP, "CHUNK" },
+    { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_EP_INFO_CAP_NO_SIG, "EP_INFO_NO_SIG" },
+    { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_EP_INFO_CAP_SIG, "EP_INFO_SIG" },
+    { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_EVENT_CAP, "EVENT" },
+    { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP_ONLY, "MULTI_KEY_ONLY" },
+    { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP_NEG, "MULTI_KEY_NEG" },
 };
 
 value_string_entry_t m_spdm_responder_capabilities_string_table[] = {
@@ -247,6 +253,14 @@ value_string_entry_t m_spdm_responder_capabilities_string_table[] = {
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_CERT_CAP, "SET_CERT" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CSR_CAP, "CSR" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_INSTALL_RESET_CAP, "CERT_INSTALL_RESET" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_EP_INFO_CAP_NO_SIG, "EP_INFO_NO_SIG" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_EP_INFO_CAP_SIG, "EP_INFO_SIG" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MEL_CAP, "MEL" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_EVENT_CAP, "EVENT" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MULTI_KEY_CAP_ONLY, "MULTI_KEY_ONLY" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MULTI_KEY_CAP_NEG, "MULTI_KEY_NEG" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_GET_KEY_PAIR_INFO_CAP, "GET_KEY_PAIR_INFO" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_INFO_CAP, "SET_KEY_PAIR_INFO" },
 };
 
 value_string_entry_t m_hash_value_string_table[] = {
@@ -317,6 +331,7 @@ value_string_entry_t m_key_schedule_value_string_table[] = {
 
 value_string_entry_t m_other_param_value_string_table[] = {
     { SPDM_ALGORITHMS_OPAQUE_DATA_FORMAT_1, "OPAQUE_FMT_1" },
+    { SPDM_ALGORITHMS_MULTI_KEY_CONN, "MULTI_KEY_CONN" },
 };
 
 value_string_entry_t m_basic_mut_auth_policy_string_table[] = {
