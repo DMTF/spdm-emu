@@ -6,9 +6,9 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
    ```
       spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE]
-         [--ver 1.0|1.1|1.2]
+         [--ver 1.0|1.1|1.2|1.3]
          [--sec_ver 1.0|1.1]
-         [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET]
+         [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]
          [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
          [--meas_spec DMTF]
          [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
@@ -17,8 +17,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]
          [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]
          [--key_schedule HMAC_HASH]
-         [--other_param OPAQUE_FMT_1]
-         [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET]
+         [--other_param OPAQUE_FMT_1|MULTI_KEY_CONN]
+         [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]
          [--basic_mut_auth NO|BASIC]
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
          [--meas_sum NO|TCB|ALL]
@@ -40,8 +40,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--ver] is version. By default, all are used.
          [--sec_ver] is secured message version. By default, all are used.
          [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.
-                 By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR is used for Requester.
-                 By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR is used for Responder.
+                 By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG is used for Requester.
+                 By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO is used for Responder.
          [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.
          [--meas_spec] is measurement hash spec. By default, DMTF is used.
          [--meas_hash] is measurement hash algorithm. By default, SHA_512,SHA_384,SHA_256 is used.
@@ -50,7 +50,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.
          [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.
          [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.
-         [--other_param] is other parameter support. By default, OPAQUE_FMT_1 is used.
+         [--other_param] is other parameter support. By default, OPAQUE_FMT_1,MULTI_KEY_CONN is used.
                  Above algorithms also support multiple flags. Please use ',' for them.
                  Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.
                  Please don't mix NIST algo with SMx algo.
