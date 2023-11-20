@@ -285,6 +285,9 @@ void *spdm_server_init(void)
     data8 = m_support_other_params_support;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
                      &data8, sizeof(data8));
+    data8 = m_support_mel_spec;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_MEL_SPEC, &parameter,
+                     &data8, sizeof(data8));
 
     data8 = 0xF0;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_HEARTBEAT_PERIOD, &parameter,

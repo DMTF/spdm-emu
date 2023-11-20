@@ -44,6 +44,7 @@ void print_usage(const char *name)
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--meas_spec DMTF]\n");
     printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
+    printf("   [--mel_spec DMTF]\n");
     printf(
         "   [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
     printf(
@@ -88,6 +89,7 @@ void print_usage(const char *name)
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
     printf(
         "   [--meas_hash] is measurement hash algorithm. By default, SHA_512,SHA_384,SHA_256 is used.\n");
+    printf("   [--mel_spec] is mel spec. By default, DMTF is used.\n");
     printf("   [--asym] is asym algorithm. By default, ECDSA_P384,ECDSA_P256 is used.\n");
     printf(
         "   [--req_asym] is requester asym algorithm. By default, RSAPSS_3072,RSAPSS_2048,RSASSA_3072,RSASSA_2048 is used.\n");
@@ -275,6 +277,10 @@ value_string_entry_t m_hash_value_string_table[] = {
 
 value_string_entry_t m_measurement_spec_value_string_table[] = {
     { SPDM_MEASUREMENT_SPECIFICATION_DMTF, "DMTF" },
+};
+
+value_string_entry_t m_mel_spec_value_string_table[] = {
+    { SPDM_MEL_SPECIFICATION_DMTF, "DMTF" },
 };
 
 value_string_entry_t m_measurement_hash_value_string_table[] = {
@@ -707,6 +713,31 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --meas_spec\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--mel_spec") == 0) {
+            if (argc >= 2) {
+                if (!get_flags_from_name(
+                        m_mel_spec_value_string_table,
+                        LIBSPDM_ARRAY_SIZE(
+                            m_mel_spec_value_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --mel_spec %s\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_support_mel_spec = (uint8_t)data32;
+                printf("mel_spec - 0x%02x\n",
+                       m_support_mel_spec);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --mel_spec\n");
                 print_usage(program_name);
                 exit(0);
             }

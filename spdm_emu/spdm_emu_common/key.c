@@ -185,6 +185,11 @@ uint16_t m_support_key_schedule_algo = SPDM_ALGORITHMS_KEY_SCHEDULE_HMAC_HASH;
 uint8_t m_support_other_params_support =
     SPDM_ALGORITHMS_OPAQUE_DATA_FORMAT_1 |
     SPDM_ALGORITHMS_MULTI_KEY_CONN;
+/*
+ * SPDM_MEL_SPECIFICATION_DMTF,
+ */
+uint8_t m_support_mel_spec =
+    SPDM_MEL_SPECIFICATION_DMTF;
 
 uint8_t m_session_policy =
     SPDM_KEY_EXCHANGE_REQUEST_SESSION_POLICY_TERMINATION_POLICY_RUNTIME_UPDATE;

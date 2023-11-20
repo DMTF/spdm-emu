@@ -307,6 +307,9 @@ void *spdm_client_init(void)
     data8 = m_support_other_params_support;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
                      &data8, sizeof(data8));
+    data8 = m_support_mel_spec;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_MEL_SPEC, &parameter,
+                     &data8, sizeof(data8));
 
     if (m_load_state_file_name == NULL) {
         /* Skip if state is loaded*/

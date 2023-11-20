@@ -48,6 +48,7 @@ extern uint32_t m_use_asym_algo;
 extern uint16_t m_use_req_asym_algo;
 
 extern uint8_t m_support_measurement_spec;
+extern uint8_t m_support_mel_spec;
 extern uint32_t m_support_measurement_hash_algo;
 extern uint32_t m_support_hash_algo;
 extern uint32_t m_support_asym_algo;

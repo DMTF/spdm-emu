@@ -143,6 +143,15 @@ libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
             data8 = m_support_other_params_support;
             libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
                              &data8, sizeof(data8));
+            if (m_use_version >= SPDM_MESSAGE_VERSION_13) {
+                if (!libspdm_onehot0(m_support_mel_spec)) {
+                    printf("mel_spec has more bit set - 0x%02x\n", m_support_mel_spec);
+                    return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+                }
+                data8 = m_support_mel_spec;
+                libspdm_set_data(spdm_context, LIBSPDM_DATA_MEL_SPEC, &parameter,
+                                 &data8, sizeof(data8));
+            }
         }
     } else {
         data16 = 0;
@@ -229,6 +238,7 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
     m_support_req_asym_algo = negotiated_state.req_base_asym_alg;
     m_support_key_schedule_algo = negotiated_state.key_schedule;
     m_support_other_params_support = negotiated_state.other_params_support;
+    m_support_mel_spec = negotiated_state.mel_spec;
 
     /* Set connection info*/
 
@@ -282,6 +292,11 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
             data8 = m_support_other_params_support;
             libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
                              &data8, sizeof(data8));
+            if (m_use_version >= SPDM_MESSAGE_VERSION_13) {
+                data8 = m_support_mel_spec;
+                libspdm_set_data(spdm_context, LIBSPDM_DATA_MEL_SPEC, &parameter,
+                                 &data8, sizeof(data8));
+            }
         }
         libspdm_set_data(spdm_context, LIBSPDM_DATA_VCA_CACHE, &parameter,
                          negotiated_state.vca_buffer, negotiated_state.vca_buffer_size);
