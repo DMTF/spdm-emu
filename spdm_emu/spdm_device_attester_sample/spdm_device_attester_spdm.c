@@ -240,6 +240,9 @@ void *spdm_client_init(void)
     data8 = m_support_other_params_support;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_OTHER_PARAMS_SUPPORT, &parameter,
                      &data8, sizeof(data8));
+    data8 = m_support_mel_spec;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_MEL_SPEC, &parameter,
+                     &data8, sizeof(data8));
 
     status = libspdm_init_connection(spdm_context, false);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
