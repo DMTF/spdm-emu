@@ -417,6 +417,21 @@ void spdm_server_connection_state_callback(
                                      LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
                                      &parameter, data, data_size);
                 }
+                data8 = (uint8_t)(0xA0 + index);
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
+                                 &parameter, &data8, sizeof(data8));
+                data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_CERT_INFO,
+                                 &parameter, &data8, sizeof(data8));
+                data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
+                         SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
+                         SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
+                         SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
+                                 &parameter, &data16, sizeof(data16));
             }
             /* do not free it*/
         }
@@ -484,6 +499,12 @@ void spdm_server_connection_state_callback(
                                  &parameter, &data8, sizeof(data8));
             }
         }
+
+        libspdm_zero_mem(&parameter, sizeof(parameter));
+        parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+        data8 = 0x3F;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SUPPORTED_SLOT_MASK, &parameter,
+                         &data8, sizeof(data8));
 
         if (m_save_state_file_name != NULL) {
             spdm_save_negotiated_state(spdm_context, false);
