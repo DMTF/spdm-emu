@@ -275,6 +275,7 @@ void *spdm_client_init(void)
     if (m_use_slot_id == 0xFF) {
         data32 |= SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP;
         data32 &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP;
+        data32 &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP;
     }
     if (m_use_capability_flags != 0) {
         data32 = m_use_capability_flags;
