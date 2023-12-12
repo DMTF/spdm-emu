@@ -219,6 +219,9 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     size_t cert_chain_size_to_set;
     uint8_t slot_id;
     bool res;
+    libspdm_data_parameter_t parameter;
+    uint32_t data32;
+    size_t  data32_size;
 
     cert_chain_to_set = NULL;
     cert_chain_size_to_set = 0;
@@ -245,11 +248,27 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
 #endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP*/
 
 #if LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP
-    res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
-                                                          m_use_asym_algo,
-                                                          &cert_chain_to_set,
-                                                          &cert_chain_size_to_set,
-                                                          NULL, NULL);
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+    data32_size = sizeof(data32);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                     &data32, &data32_size);
+
+    if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
+        res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
+                                                              m_use_asym_algo,
+                                                              &cert_chain_to_set,
+                                                              &cert_chain_size_to_set,
+                                                              NULL, NULL);
+    } else {
+        res = libspdm_read_responder_public_certificate_chain_alias_cert_till_dev_cert_ca(
+            m_use_hash_algo,
+            m_use_asym_algo,
+            &cert_chain_to_set,
+            &cert_chain_size_to_set,
+            NULL, NULL);
+    }
+
     if (!res) {
         printf("set certificate :read_responder_public_certificate_chain fail!\n");
         free(cert_chain_to_set);

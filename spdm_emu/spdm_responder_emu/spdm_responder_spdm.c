@@ -394,10 +394,25 @@ void spdm_server_connection_state_callback(
                          &parameter, &data16, &data_size);
         m_use_req_asym_algo = data16;
 
-        res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
-                                                              m_use_asym_algo,
-                                                              &data, &data_size,
-                                                              NULL, NULL);
+        libspdm_zero_mem(&parameter, sizeof(parameter));
+        parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+        data_size = sizeof(data32);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                        &data32, &data_size);
+
+        if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
+            res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
+                                                                m_use_asym_algo,
+                                                                &data, &data_size,
+                                                                NULL, NULL);
+        } else {
+            res = libspdm_read_responder_public_certificate_chain_alias_cert(
+                m_use_hash_algo,
+                m_use_asym_algo,
+                &data, &data_size,
+                NULL, NULL);
+        }
+
         res = libspdm_read_responder_public_certificate_chain_per_slot(1,
                                                                        m_use_hash_algo,
                                                                        m_use_asym_algo,
