@@ -209,23 +209,33 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
 {
     void *spdm_context;
 
-#if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP
-    uint8_t csr_form_get[LIBSPDM_MAX_CSR_SIZE];
-    size_t csr_len;
-#endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP*/
+#if (LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP) || (LIBSPDM_ENABLE_CAPABILITY_CSR_CAP)
+    libspdm_data_parameter_t parameter;
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP) || (LIBSPDM_ENABLE_CAPABILITY_CSR_CAP)*/
+
 
 #if LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP
     void *cert_chain_to_set;
     size_t cert_chain_size_to_set;
     uint8_t slot_id;
     bool res;
-    libspdm_data_parameter_t parameter;
     uint32_t data32;
     size_t  data32_size;
 
     cert_chain_to_set = NULL;
     cert_chain_size_to_set = 0;
 #endif /*LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP*/
+
+#if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP
+    uint8_t csr_form_get[LIBSPDM_MAX_CSR_SIZE];
+    size_t csr_len;
+    bool multi_key_conn_rsp;
+    size_t data_size;
+#if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX
+    uint8_t key_pair_id;
+    uint8_t request_attribute;
+#endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX*/
+#endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP*/
 
     libspdm_return_t status;
     spdm_context = m_spdm_context;
@@ -236,12 +246,24 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     csr_len = LIBSPDM_MAX_CSR_SIZE;
     libspdm_zero_mem(csr_form_get, sizeof(csr_form_get));
     if ((m_exe_connection & EXE_CONNECTION_GET_CSR) != 0) {
-        status = libspdm_get_csr(spdm_context, NULL, NULL, 0, NULL, 0, csr_form_get,
-                                 &csr_len);
-        if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_get_csr - %x\n",
-                   (uint32_t)status);
-            return status;
+        libspdm_zero_mem(&parameter, sizeof(parameter));
+        parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+        data_size = sizeof(multi_key_conn_rsp);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_RSP, &parameter,
+                         &multi_key_conn_rsp, &data_size);
+
+        if (!multi_key_conn_rsp) {
+            status = libspdm_get_csr(spdm_context, NULL, NULL, 0, NULL, 0, csr_form_get,
+                                     &csr_len);
+        } else {
+#if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX
+            request_attribute = 0;
+            key_pair_id = 1;
+            status = libspdm_get_csr_ex(spdm_context, NULL, NULL, 0, NULL, 0, csr_form_get,
+                                        &csr_len, request_attribute, key_pair_id, NULL);
+#else
+            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
+#endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX*/
         }
     }
 
