@@ -520,7 +520,10 @@ void spdm_server_connection_state_callback(
 
         libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-        data8 = 0x3F;
+        data8 = 0;
+        for (index = 0; index < m_use_slot_count; index++) {
+            data8 |= (1 << index);
+        }
         libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SUPPORTED_SLOT_MASK, &parameter,
                          &data8, sizeof(data8));
 
