@@ -5,6 +5,9 @@
  **/
 
 #include "spdm_requester_emu.h"
+#include <sys/un.h>
+#include <linux/mctp.h>
+#include <errno.h>
 
 uint8_t m_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 
@@ -17,6 +20,10 @@ extern void *m_fips_selftest_context;
 extern void *m_scratch_buffer;
 
 uint8_t m_other_slot_id = 0;
+
+enum {
+    GET_VERSION = 1,
+};
 
 void *spdm_client_init(void);
 
@@ -40,6 +47,21 @@ libspdm_return_t do_authentication_via_spdm(void);
 
 libspdm_return_t do_session_via_spdm(bool use_psk);
 libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id);
+
+void do_send_single_spdm_cmd(void *spdm_context)
+{
+    if (spdm_context == NULL)
+        return;
+
+    switch(m_send_single_spdm_cmd) {
+    case GET_VERSION:
+        libspdm_get_version(spdm_context, NULL, NULL);
+        break;
+    default:
+        break;
+    }
+    
+}
 
 bool platform_client_routine(uint16_t port_number)
 {
@@ -74,7 +96,8 @@ bool platform_client_routine(uint16_t port_number)
         m_socket = platform_socket;
     }
 
-    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE) {
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE &&
+            m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_KERNEL) {
         response_size = sizeof(m_receive_buffer);
         result = communicate_platform_data(
             m_socket,
@@ -95,6 +118,12 @@ bool platform_client_routine(uint16_t port_number)
             printf("pci_doe_init_requester - %x\n", (uint32_t)status);
             goto done;
         }
+    }
+
+    if (m_send_single_spdm_cmd == GET_VERSION) {
+        m_spdm_context = spdm_client_init();
+        do_send_single_spdm_cmd(m_spdm_context);
+        goto done_single_cmd;
     }
 
     m_spdm_context = spdm_client_init();
@@ -172,12 +201,15 @@ bool platform_client_routine(uint16_t port_number)
     result = true;
 done:
     response_size = 0;
-    if (!communicate_platform_data(
-            m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
-            NULL, 0, &response, &response_size, NULL)) {
-            return false;
-        }
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_KERNEL) {
+        if (!communicate_platform_data(
+                m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
+                NULL, 0, &response, &response_size, NULL)) {
+                return false;
+            }
+    }
 
+done_single_cmd:
     if (m_spdm_context != NULL) {
 #if LIBSPDM_FIPS_MODE
         if (!libspdm_export_fips_selftest_context_from_spdm_context(
