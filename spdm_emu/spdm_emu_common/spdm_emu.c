@@ -5,7 +5,11 @@
  **/
 
 #include "spdm_emu.h"
+#include <sys/un.h>
+#include <linux/mctp.h>
+#include <errno.h>
 
+#define MCTP_MESSAGE_TYPE_SPDM 0x05
 /*
  * EXE_MODE_SHUTDOWN
  * EXE_MODE_CONTINUE
@@ -46,7 +50,7 @@ struct in_addr m_ip_address = { 0x0100007F };
 
 void print_usage(const char *name)
 {
-    printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
+    printf("\n%s [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]\n", name);
     printf("   [--tcp_sub RI|NO_RI]\n");
     printf("   [--ip <ip_address>]\n");
     printf("   [--port <port_number>]\n");
@@ -64,6 +68,7 @@ void print_usage(const char *name)
         "   [--req_asym NONE|RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
     printf(
         "   [--dhe NONE|FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
+    printf("   [--cmd GET_VERSION]\n");
     printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
     printf("   [--pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]\n");
     printf("   [--req_pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]\n");
@@ -233,7 +238,8 @@ value_string_entry_t m_transport_value_string_table[] = {
     { SOCKET_TRANSPORT_TYPE_NONE, "NONE"},
     { SOCKET_TRANSPORT_TYPE_MCTP, "MCTP" },
     { SOCKET_TRANSPORT_TYPE_PCI_DOE, "PCI_DOE" },
-    { SOCKET_TRANSPORT_TYPE_TCP, "TCP"}
+    { SOCKET_TRANSPORT_TYPE_TCP, "TCP"},
+    { SOCKET_TRANSPORT_TYPE_MCTP_KERNEL, "MCTP_KERNEL" },
 };
 
 value_string_entry_t m_tcp_subtype_string_table[] = {
@@ -510,6 +516,10 @@ value_string_entry_t m_exe_session_string_table[] = {
     { EXE_SESSION_GET_CSR, "GET_CSR" },
     { EXE_SESSION_APP, "APP" },
     { EXE_SESSION_EP_INFO, "EP_INFO" },
+};
+
+value_string_entry_t m_cmd_string_table[] = {
+    { 0x1, "GET_VERSION" },
 };
 
 bool get_value_from_name(const value_string_entry_t *table,
@@ -1490,6 +1500,48 @@ void process_args(char *program_name, int argc, char *argv[])
             continue;
         }
 
+        if (strcmp(argv[0], "--cmd") == 0) {
+            if (argc >= 2) {
+                if (!get_value_from_name(
+                        m_cmd_string_table,
+                        LIBSPDM_ARRAY_SIZE(m_cmd_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --cmd %s\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_send_single_spdm_cmd = (uint8_t)data32;
+                printf("spdm_cmd - 0x%02x\n", m_send_single_spdm_cmd);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --cmd\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--eid") == 0) {
+            if (argc >= 2) {
+                m_use_eid = (uint8_t)atoi(argv[1]);
+                if (m_use_eid >= 256) {
+                    printf("invalid --eid %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                printf("eid - 0x%02x\n", m_use_eid);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --eid\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
         printf("invalid %s\n", argv[0]);
         print_usage(program_name);
         exit(0);
@@ -1523,69 +1575,94 @@ bool convert_ip_to_addr(const char *ip_string, struct in_addr *addr)
 bool init_client(SOCKET *sock, uint16_t port)
 {
     SOCKET client_socket;
-    struct sockaddr_in server_addr;
-    struct in_addr ip_addr;
-    int32_t ret_val;
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_KERNEL)
+    {
+        struct sockaddr_mctp addr = { 0 };
+        int rc = -1;
+        client_socket = socket(AF_MCTP, SOCK_DGRAM, 0);
+        if (-1 == client_socket)
+        {
+            printf("Failed to create the socket : RC = %d\n", client_socket);
+            return false;
+        }
+
+        addr.smctp_family = AF_MCTP;
+        addr.smctp_network = MCTP_NET_ANY;
+        addr.smctp_addr.s_addr = MCTP_ADDR_ANY;
+        addr.smctp_type = MCTP_MESSAGE_TYPE_SPDM;
+        addr.smctp_tag = MCTP_TAG_OWNER;
+
+        rc = bind(client_socket, (struct sockaddr *)&addr, sizeof(addr));
+        if (rc)
+        {
+            printf("Failed to bind socket: RC=%d\n", rc);
+            return false;
+        }
+    }
+    else {
+        struct sockaddr_in server_addr;
+        struct in_addr ip_addr;
+        int32_t ret_val;
 
 #ifdef _MSC_VER
-    WSADATA ws;
-    if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
-        printf("Init Windows socket Failed - %x\n", WSAGetLastError());
-        return false;
-    }
+        WSADATA ws;
+        if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
+            printf("Init Windows socket Failed - %x\n", WSAGetLastError());
+            return false;
+        }
 #endif
 
-    client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (client_socket == INVALID_SOCKET) {
-        printf("Create socket Failed - %x\n",
+        client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (client_socket == INVALID_SOCKET) {
+            printf("Create socket Failed - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+                   WSAGetLastError()
 #else
-               errno
+                   errno
 #endif
-               );
-        return false;
-    }
+                   );
+            return false;
+        }
 
-    server_addr.sin_family = AF_INET;
-    
-    /* Use custom IP if provided, otherwise use default */
-    if (strcmp(m_ip_address_string, "127.0.0.1") != 0) {
-        if (!convert_ip_to_addr(m_ip_address_string, &ip_addr)) {
-            printf("Invalid IP address: %s\n", m_ip_address_string);
+        server_addr.sin_family = AF_INET;
+
+        /* Use custom IP if provided, otherwise use default */
+        if (strcmp(m_ip_address_string, "127.0.0.1") != 0) {
+            if (!convert_ip_to_addr(m_ip_address_string, &ip_addr)) {
+                printf("Invalid IP address: %s\n", m_ip_address_string);
+                closesocket(client_socket);
+                return false;
+            }
+            libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &ip_addr,
+                             sizeof(struct in_addr));
+        } else {
+            libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
+                             sizeof(struct in_addr));
+        }
+
+        /* Use custom port if provided */
+        if (m_custom_port != 0) {
+            server_addr.sin_port = htons(m_custom_port);
+        } else {
+            server_addr.sin_port = htons(port);
+        }
+
+        libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
+
+        ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
+                          sizeof(server_addr));
+        if (ret_val == SOCKET_ERROR) {
+            printf("Connect Error - %x\n",
+#ifdef _MSC_VER
+                   WSAGetLastError()
+#else
+                   errno
+#endif
+                   );
             closesocket(client_socket);
             return false;
         }
-        libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &ip_addr,
-                         sizeof(struct in_addr));
-    } else {
-        libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
-                         sizeof(struct in_addr));
     }
-    
-    /* Use custom port if provided */
-    if (m_custom_port != 0) {
-        server_addr.sin_port = htons(m_custom_port);
-    } else {
-        server_addr.sin_port = htons(port);
-    }
-    
-    libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
-
-    ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
-                      sizeof(server_addr));
-    if (ret_val == SOCKET_ERROR) {
-        printf("Connect Error - %x\n",
-#ifdef _MSC_VER
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
-        closesocket(client_socket);
-        return false;
-    }
-
     printf("connect success!\n");
 
     *sock = client_socket;
