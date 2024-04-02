@@ -21,6 +21,8 @@
 #include "command.h"
 #include "nv_storage.h"
 
+extern uint8_t m_send_single_spdm_cmd;
+extern uint8_t m_use_eid;
 extern uint32_t m_use_transport_layer;
 extern uint32_t m_use_tcp_role_inquiry;
 extern uint8_t m_use_version;

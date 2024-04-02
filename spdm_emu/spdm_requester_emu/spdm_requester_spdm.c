@@ -13,6 +13,8 @@ void *m_fips_selftest_context;
 void *m_scratch_buffer;
 SOCKET m_socket;
 
+#define GET_VERSION     0x01
+
 bool communicate_platform_data(SOCKET socket, uint32_t command,
                                const uint8_t *send_buffer, size_t bytes_to_send,
                                uint32_t *response,
@@ -202,7 +204,7 @@ void *spdm_client_init(void)
     if ((m_use_requester_capability_flags & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP) == 0) {
         max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
     }
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) || m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_KERNEL) {
         libspdm_register_transport_layer_func(
             spdm_context,
             max_spdm_msg_size,
@@ -334,6 +336,10 @@ void *spdm_client_init(void)
     data32 = m_support_kem_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_KEM_ALG, &parameter,
                      &data32, sizeof(data32));
+
+    if(m_send_single_spdm_cmd == GET_VERSION) {
+        return m_spdm_context;
+    }
 
     if (m_load_state_file_name == NULL) {
         /* Skip if state is loaded*/
