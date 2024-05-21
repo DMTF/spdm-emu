@@ -32,6 +32,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
     libspdm_data_parameter_t parameter;
     uint8_t requester_context[SPDM_REQ_CONTEXT_SIZE] = {
         0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x00};
+    bool measurement_exist_list[SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS] = {false};
 
     /*get requester_capabilities_flag*/
     libspdm_zero_mem(&parameter, sizeof(parameter));
@@ -71,7 +72,6 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
         request_attribute = m_use_measurement_attribute;
 
         /* 1. query the total number of measurements available.*/
-
         requester_context[SPDM_REQ_CONTEXT_SIZE - 1] =
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS;
         status = libspdm_get_measurement_ex2(
@@ -84,17 +84,17 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
         }
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "number_of_blocks - 0x%x\n",
                        number_of_blocks));
+
+        /* 2. get the existing measurement list*/
         received_number_of_block = 0;
-        for (index = 1; index <= 0xFE; index++) {
+        for (index = 1; index < SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS; index++) {
             if (received_number_of_block == number_of_blocks) {
                 break;
             }
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "index - 0x%x\n", index));
 
-            /* 2. query measurement one by one
-             * get signature in last message only.*/
-
             requester_context[SPDM_REQ_CONTEXT_SIZE - 1] = index;
+            /* get signature in last message only.*/
             if (received_number_of_block == number_of_blocks - 1) {
                 if (need_sig) {
                     request_attribute = m_use_measurement_attribute |
@@ -112,10 +112,52 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 continue;
             }
-            received_number_of_block += 1;
+            received_number_of_block++;
+            measurement_exist_list[index] = true;
         }
         if (received_number_of_block != number_of_blocks) {
             return LIBSPDM_STATUS_INVALID_STATE_PEER;
+        }
+
+        /** 3. query measurement one by one
+         *
+         * In SPDM 1.2 spec, the L1/L2 will be reset in case of MEASUREMENT error. That impacts 1-by-1 calculation.
+         * For example, if a device supports Measurement 1 and Measurement 3,
+         * then our current mechanism will cause Measurement 1 NOT included in final transcript,
+         * because Measurement 2 is missing.
+         *
+         * The soultion is: get the existing measurement list, then query measurement one by one.
+         **/
+        received_number_of_block = 0;
+        for (index = 1; index < SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS; index++) {
+            if (received_number_of_block == number_of_blocks) {
+                break;
+            }
+
+            if (measurement_exist_list[index]) {
+                LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "exist measurement index - 0x%x\n", index));
+                
+                requester_context[SPDM_REQ_CONTEXT_SIZE - 1] = index;
+                /* get signature in last message only.*/
+                if (received_number_of_block == number_of_blocks - 1) {
+                    if (need_sig) {
+                        request_attribute = m_use_measurement_attribute |
+                                            SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
+                    } else {
+                        request_attribute = m_use_measurement_attribute;
+                    }
+                }
+                measurement_record_length = sizeof(measurement_record);
+                status = libspdm_get_measurement_ex2(
+                    spdm_context, session_id, request_attribute,
+                    index, m_use_slot_id & 0xF, requester_context, NULL, &number_of_block,
+                    &measurement_record_length, measurement_record,
+                    NULL, NULL, NULL, NULL, NULL);
+                if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                    return LIBSPDM_STATUS_ERROR_PEER;
+                }
+                received_number_of_block++;
+            }
         }
     }
 
