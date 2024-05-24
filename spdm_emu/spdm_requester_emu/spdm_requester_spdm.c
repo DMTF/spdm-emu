@@ -373,6 +373,10 @@ void *spdm_client_init(void)
         m_exe_connection &= ~EXE_CONNECTION_MEAS;
         m_exe_session &= ~EXE_SESSION_MEAS;
     }
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MEL_CAP & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_MEL;
+        m_exe_session &= ~EXE_SESSION_MEL;
+    }
 
     if (((SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_EX_CAP & requester_capabilities_flag) == 0) ||
         ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_KEY_EX_CAP & responder_capabilities_flag) == 0)) {

@@ -31,7 +31,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
-         [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|GET_CSR|SET_CERT]
+         [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT]
          [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|APP]
          [--pcap <PcapFileName>]
          [--priv_key_mode PEM|RAW]
@@ -80,7 +80,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.
                  SHUTDOWN means the requester asks the responder to stop.
                  CONTINUE means the requester asks the responder to preserve the current SPDM context.
-         [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,GET_CSR,SET_CERT.
+         [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT.
                  VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.
                      The version for responder must be provisioned from ver.
                      The capablities for local and peer are from cap|peer_cap.
@@ -89,15 +89,17 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  CERT means send GET_CERTIFICATE command.
                  CHAL means send CHALLENGE command.
                  MEAS means send GET_MEASUREMENT command.
+                 MEL means send GET_MEL command.
                  GET_CSR means send GET_CSR command.
                  SET_CERT means send SET_CERTIFICATE command.
-         [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,DIGEST,CERT,GET_CSR,SET_CERT,APP.
+         [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,APP.
                  KEY_EX means to setup KEY_EXCHANGE session.
                  PSK means to setup PSK_EXCHANGE session.
                  NO_END means to not send END_SESSION.
                  KEY_UPDATE means to send KEY_UPDATE in session.
                  HEARTBEAT means to send HEARTBEAT in session.
                  MEAS means send GET_MEASUREMENT command in session.
+                 MEL means send GET_MEL command in session.
                  DIGEST means send GET_DIGESTS command in session.
                  CERT means send GET_CERTIFICATE command in session.
                  GET_CSR means send GET_CSR command in session.
