@@ -183,4 +183,40 @@ libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id)
     return LIBSPDM_STATUS_SUCCESS;
 }
 
+/**
+ * This function executes SPDM measurement MEL.
+ *
+ * @param[in]  spdm_context            The SPDM context for the device.
+ **/
+libspdm_return_t do_measurement_mel_via_spdm(const uint32_t *session_id)
+{
+    libspdm_return_t status;
+    void *spdm_context;
+    size_t spdm_mel_size;
+    uint8_t spdm_mel[LIBSPDM_MAX_MEASUREMENT_EXTENSION_LOG_SIZE];
+    libspdm_data_parameter_t parameter;
+    uint32_t measurement_hash_algo;
+    size_t data_size;
+
+    spdm_context = m_spdm_context;
+    spdm_mel_size = sizeof(spdm_mel);
+    libspdm_zero_mem(spdm_mel, sizeof(spdm_mel));
+
+    /* get setting from connection*/
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+
+    data_size = sizeof(measurement_hash_algo);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_HASH_ALGO, &parameter,
+                     &measurement_hash_algo, &data_size);
+
+    status = libspdm_get_measurement_extension_log(spdm_context, session_id, &spdm_mel_size,
+                                                   spdm_mel);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/

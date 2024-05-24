@@ -22,6 +22,10 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
 libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
 
+#if LIBSPDM_ENABLE_CAPABILITY_MEL_CAP
+libspdm_return_t do_measurement_mel_via_spdm(const uint32_t *session_id);
+#endif /*LIBSPDM_ENABLE_CAPABILITY_MEL_CAP*/
+
 libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t session_id);
 libspdm_return_t mctp_process_session_message(void *spdm_context, uint32_t session_id);
 libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id);
@@ -171,6 +175,16 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         }
     }
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
+
+#if LIBSPDM_ENABLE_CAPABILITY_MEL_CAP
+    if ((m_exe_session & EXE_SESSION_MEL) != 0) {
+        status = do_measurement_mel_via_spdm(&session_id);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("do_measurement_mel_via_spdm - %x\n",
+                   (uint32_t)status);
+        }
+    }
+#endif /*LIBSPDM_ENABLE_CAPABILITY_MEL_CAP*/
 
 #if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
     status = get_digest_cert_in_session(&session_id);
