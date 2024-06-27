@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(${LIBSPDM_DIR}/include
+include_directories(${LIBSPDM_DIR}/include
                     ${SPDM_EMU_DIR}/include
 )
 
-SET(src_pci_tdisp_device_lib_sample
+set(src_pci_tdisp_device_lib_sample
     pci_tdisp_device_context.c
     pci_tdisp_device_version.c
     pci_tdisp_device_capabilities.c
@@ -15,4 +15,4 @@ SET(src_pci_tdisp_device_lib_sample
     pci_tdisp_device_stop_interface.c
 )
 
-ADD_LIBRARY(pci_tdisp_device_lib_sample STATIC ${src_pci_tdisp_device_lib_sample})
+add_library(pci_tdisp_device_lib_sample STATIC ${src_pci_tdisp_device_lib_sample})

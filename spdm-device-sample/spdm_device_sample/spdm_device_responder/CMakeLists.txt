@@ -1,22 +1,22 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     if(ARCH STREQUAL "x64")
-        SET(CMAKE_EXE_LINKER_FLAGS "-nostdlib -flto -Wl,--entry,ModuleEntryPoint")
+        set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -flto -Wl,--entry,ModuleEntryPoint")
     elseif(ARCH STREQUAL "aarch64")
         if(TOOLCHAIN STREQUAL "ARM_DS2022")
-            SET(CMAKE_EXE_LINKER_FLAGS "--target=aarch64-arm-none-eabi -nostdlib -flto -Wl,--entry,ModuleEntryPoint,--undefined=__udivti3")
+            set(CMAKE_EXE_LINKER_FLAGS "--target=aarch64-arm-none-eabi -nostdlib -flto -Wl,--entry,ModuleEntryPoint,--undefined=__udivti3")
         elseif(TOOLCHAIN STREQUAL "ARM_GNU")
-            SET(CMAKE_EXE_LINKER_FLAGS "-nostdlib -flto -Wl,--entry,ModuleEntryPoint,--undefined=__udivti3")
+            set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -flto -Wl,--entry,ModuleEntryPoint,--undefined=__udivti3")
         elseif(TOOLCHAIN STREQUAL "AARCH64_GCC")
-            SET(CMAKE_EXE_LINKER_FLAGS "-nostdlib -flto -Wl,--entry,ModuleEntryPoint")
+            set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -flto -Wl,--entry,ModuleEntryPoint")
         endif()
     endif()
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
-    SET(CMAKE_EXE_LINKER_FLAGS "/DLL /ENTRY:ModuleEntryPoint /NOLOGO /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /NODEFAULTLIB /IGNORE:4086 /MAP /OPT:REF")
+    set(CMAKE_EXE_LINKER_FLAGS "/DLL /ENTRY:ModuleEntryPoint /NOLOGO /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /NODEFAULTLIB /IGNORE:4086 /MAP /OPT:REF")
 endif()
 
-INCLUDE_DIRECTORIES(${SPDM_DEVICE_DIR}/include
+include_directories(${SPDM_DEVICE_DIR}/include
                     ${SPDM_DEVICE_DIR}/spdm_device_responder
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/os_stub
@@ -25,7 +25,7 @@ INCLUDE_DIRECTORIES(${SPDM_DEVICE_DIR}/include
                     ${PROJECT_SOURCE_DIR}/library
 )
 
-SET(src_spdm_device_responder
+set(src_spdm_device_responder
     spdm_responder_init.c
     spdm_responder_main.c
     compiler_stub.c
@@ -34,7 +34,7 @@ SET(src_spdm_device_responder
     pci.c
 )
 
-SET(spdm_device_responder_LIBRARY
+set(spdm_device_responder_LIBRARY
     memlib
     debuglib
     spdm_responder_lib
@@ -59,10 +59,10 @@ SET(spdm_device_responder_LIBRARY
 )
 
 if(TOOLCHAIN STREQUAL "ARM_DS2022" OR TOOLCHAIN STREQUAL "ARM_GNU")
-    SET(spdm_device_responder_LIBRARY ${spdm_device_responder_LIBRARY} armbuild_lib)
+    set(spdm_device_responder_LIBRARY ${spdm_device_responder_LIBRARY} armbuild_lib)
 endif()
 
-    ADD_EXECUTABLE(spdm_device_responder ${src_spdm_device_responder})
-    TARGET_LINK_LIBRARIES(spdm_device_responder ${spdm_device_responder_LIBRARY})
+    add_executable(spdm_device_responder ${src_spdm_device_responder})
+    target_link_libraries(spdm_device_responder ${spdm_device_responder_LIBRARY})
 
 

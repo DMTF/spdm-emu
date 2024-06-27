@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(${LIBSPDM_DIR}/include
+include_directories(${LIBSPDM_DIR}/include
                     ${SPDM_EMU_DIR}/include
 )
 
-SET(src_mctp_requester_lib
+set(src_mctp_requester_lib
     mctp_send_receive.c
     pldm_send_receive.c
     pldm_req_control_get_tid.c
 )
 
-ADD_LIBRARY(mctp_requester_lib STATIC ${src_mctp_requester_lib})
+add_library(mctp_requester_lib STATIC ${src_mctp_requester_lib})

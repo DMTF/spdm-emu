@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    ADD_COMPILE_OPTIONS(-Werror)
+    add_compile_options(-Werror)
 endif()
 
-INCLUDE_DIRECTORIES(${SPDM_DEVICE_DIR}/include
+include_directories(${SPDM_DEVICE_DIR}/include
                     ${SPDM_EMU_DIR}/include
                     spdm_device_secret_lib
                     ${LIBSPDM_DIR}/include
@@ -12,9 +12,9 @@ INCLUDE_DIRECTORIES(${SPDM_DEVICE_DIR}/include
                     ${LIBSPDM_DIR}/os_stub
 )
 
-SET(src_spdm_device_secret_lib
+set(src_spdm_device_secret_lib
     lib.c
     cert.c
 )
 
-ADD_LIBRARY(spdm_device_secret_lib STATIC ${src_spdm_device_secret_lib})
+add_library(spdm_device_secret_lib STATIC ${src_spdm_device_secret_lib})

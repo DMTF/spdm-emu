@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
+include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
@@ -11,7 +11,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
                     ${COMMON_TEST_FRAMEWORK_DIR}/include
 )
 
-SET(src_spdm_device_validator_sample
+set(src_spdm_device_validator_sample
     spdm_device_validator_sample.c
     spdm_device_validator_config.c
     spdm_device_validator_spdm.c
@@ -24,7 +24,7 @@ SET(src_spdm_device_validator_sample
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
-SET(spdm_device_validator_sample_LIBRARY
+set(spdm_device_validator_sample_LIBRARY
     memlib
     debuglib_null
     spdm_requester_lib
@@ -49,7 +49,7 @@ SET(spdm_device_validator_sample_LIBRARY
 )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
-    ADD_EXECUTABLE(spdm_device_validator_sample
+    add_executable(spdm_device_validator_sample
                    ${src_spdm_responder_test_client}
                    $<TARGET_OBJECTS:memlib>
                    $<TARGET_OBJECTS:debuglib_null>
@@ -69,6 +69,6 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:common_test_utility_lib>
     )
 else()
-    ADD_EXECUTABLE(spdm_device_validator_sample ${src_spdm_device_validator_sample})
-    TARGET_LINK_LIBRARIES(spdm_device_validator_sample ${spdm_device_validator_sample_LIBRARY})
+    add_executable(spdm_device_validator_sample ${src_spdm_device_validator_sample})
+    target_link_libraries(spdm_device_validator_sample ${spdm_device_validator_sample_LIBRARY})
 endif()

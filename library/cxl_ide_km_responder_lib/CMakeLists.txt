@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(${LIBSPDM_DIR}/include
+include_directories(${LIBSPDM_DIR}/include
                     ${SPDM_EMU_DIR}/include
 )
 
-SET(src_cxl_ide_km_responder_lib
+set(src_cxl_ide_km_responder_lib
     cxl_ide_km_dispatch.c
     cxl_ide_km_rsp_query.c
     cxl_ide_km_rsp_key_prog.c
@@ -13,4 +13,4 @@ SET(src_cxl_ide_km_responder_lib
     cxl_ide_km_rsp_get_key.c
 )
 
-ADD_LIBRARY(cxl_ide_km_responder_lib STATIC ${src_cxl_ide_km_responder_lib})
+add_library(cxl_ide_km_responder_lib STATIC ${src_cxl_ide_km_responder_lib})

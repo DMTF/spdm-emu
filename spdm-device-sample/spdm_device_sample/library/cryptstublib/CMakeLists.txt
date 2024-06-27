@@ -1,20 +1,20 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    ADD_COMPILE_OPTIONS(-Wno-incompatible-pointer-types -Wno-pointer-sign)
-    ADD_COMPILE_OPTIONS(-Werror)
+    add_compile_options(-Wno-incompatible-pointer-types -Wno-pointer-sign)
+    add_compile_options(-Werror)
 endif()
 
-INCLUDE_DIRECTORIES(${SPDM_EMU_DIR}/include
+include_directories(${SPDM_EMU_DIR}/include
                     ${SPDM_DEVICE_DIR}/include
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/include/hal/${ARCH}
                     ${LIBSPDM_DIR}/os_stub/include
 )
 
-SET(src_cryptstublib
+set(src_cryptstublib
     rand.c
     timeclock.c
 )
 
-ADD_LIBRARY(cryptstublib STATIC ${src_cryptstublib})
+add_library(cryptstublib STATIC ${src_cryptstublib})
