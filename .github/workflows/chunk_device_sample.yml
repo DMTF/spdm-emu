@@ -18,7 +18,7 @@ jobs:
   arm_mbedtls_build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -28,6 +28,7 @@ jobs:
           tar -xvf gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz -C ~/
           export PATH=~/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu/bin:$PATH
           cd spdm-device-sample/spdm_device_sample
+          cmake --version
           mkdir build
           cd build
           cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=aarch64 -DTOOLCHAIN=ARM_GNU -DTARGET=Release -DCRYPTO=mbedtls ..
