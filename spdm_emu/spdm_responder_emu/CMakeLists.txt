@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_emu
+include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_emu
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
@@ -9,7 +9,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_emu
                     ${LIBSPDM_DIR}/os_stub
 )
 
-SET(src_spdm_responder_emu
+set(src_spdm_responder_emu
     spdm_responder_spdm.c
     spdm_responder_session.c
     spdm_responder_pci_doe.c
@@ -24,7 +24,7 @@ SET(src_spdm_responder_emu
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
-SET(spdm_responder_emu_LIBRARY
+set(spdm_responder_emu_LIBRARY
     memlib
     debuglib
     spdm_responder_lib
@@ -53,7 +53,7 @@ SET(spdm_responder_emu_LIBRARY
 )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
-    ADD_EXECUTABLE(spdm_responder_emu
+    add_executable(spdm_responder_emu
                    ${src_spdm_responder_emu}
                    $<TARGET_OBJECTS:memlib>
                    $<TARGET_OBJECTS:debuglib>
@@ -80,6 +80,6 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:platform_lib>
     )
 else()
-    ADD_EXECUTABLE(spdm_responder_emu ${src_spdm_responder_emu})
-    TARGET_LINK_LIBRARIES(spdm_responder_emu ${spdm_responder_emu_LIBRARY})
+    add_executable(spdm_responder_emu ${src_spdm_responder_emu})
+    target_link_libraries(spdm_responder_emu ${spdm_responder_emu_LIBRARY})
 endif()

@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
+include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
                     ${LIBSPDM_DIR}/include
@@ -8,7 +8,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${LIBSPDM_DIR}/os_stub
 )
 
-SET(src_spdm_device_attester_sample
+set(src_spdm_device_attester_sample
     spdm_device_attester_sample.c
     spdm_device_attester_spdm.c
     spdm_device_attester_pci_doe.c
@@ -22,7 +22,7 @@ SET(src_spdm_device_attester_sample
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
-SET(spdm_device_attester_sample_LIBRARY
+set(spdm_device_attester_sample_LIBRARY
     memlib
     debuglib_null
     spdm_requester_lib
@@ -47,7 +47,7 @@ SET(spdm_device_attester_sample_LIBRARY
 )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
-    ADD_EXECUTABLE(spdm_device_attester_sample
+    add_executable(spdm_device_attester_sample
                    ${src_spdm_responder_test_client}
                    $<TARGET_OBJECTS:memlib>
                    $<TARGET_OBJECTS:debuglib_null>
@@ -68,6 +68,6 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:common_test_utility_lib>
     )
 else()
-    ADD_EXECUTABLE(spdm_device_attester_sample ${src_spdm_device_attester_sample})
-    TARGET_LINK_LIBRARIES(spdm_device_attester_sample ${spdm_device_attester_sample_LIBRARY})
+    add_executable(spdm_device_attester_sample ${src_spdm_device_attester_sample})
+    target_link_libraries(spdm_device_attester_sample ${spdm_device_attester_sample_LIBRARY})
 endif()

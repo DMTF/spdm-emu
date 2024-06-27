@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_requester_emu
+include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_requester_emu
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
@@ -9,7 +9,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_requester_emu
                     ${LIBSPDM_DIR}/os_stub
 )
 
-SET(src_spdm_requester_emu
+set(src_spdm_requester_emu
     spdm_requester_spdm.c
     spdm_requester_authentication.c
     spdm_requester_measurement.c
@@ -26,7 +26,7 @@ SET(src_spdm_requester_emu
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
-SET(spdm_requester_emu_LIBRARY
+set(spdm_requester_emu_LIBRARY
     memlib
     debuglib
     spdm_requester_lib
@@ -52,7 +52,7 @@ SET(spdm_requester_emu_LIBRARY
 )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
-    ADD_EXECUTABLE(spdm_requester_emu
+    add_executable(spdm_requester_emu
                    ${src_spdm_requester_emu}
                    $<TARGET_OBJECTS:memlib>
                    $<TARGET_OBJECTS:debuglib>
@@ -76,6 +76,6 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:platform_lib>
     )
 else()
-    ADD_EXECUTABLE(spdm_requester_emu ${src_spdm_requester_emu})
-    TARGET_LINK_LIBRARIES(spdm_requester_emu ${spdm_requester_emu_LIBRARY})
+    add_executable(spdm_requester_emu ${src_spdm_requester_emu})
+    target_link_libraries(spdm_requester_emu ${spdm_requester_emu_LIBRARY})
 endif()
