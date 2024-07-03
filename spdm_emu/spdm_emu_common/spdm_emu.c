@@ -39,7 +39,7 @@ void print_usage(const char *name)
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
     printf("   [--tcp_sub HS|NO_HS]\n");
     printf("   [--ver 1.0|1.1|1.2|1.3]\n");
-    printf("   [--sec_ver 1.0|1.1]\n");
+    printf("   [--sec_ver 1.0|1.1|1.2]\n");
     printf(
         "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
@@ -207,8 +207,9 @@ value_string_entry_t m_version_value_string_table[] = {
 };
 
 value_string_entry_t m_secured_message_version_value_string_table[] = {
-    { SPDM_MESSAGE_VERSION_10, "1.0" },
-    { SPDM_MESSAGE_VERSION_11, "1.1" },
+    { SECURED_SPDM_VERSION_10, "1.0" },
+    { SECURED_SPDM_VERSION_11, "1.1" },
+    { SECURED_SPDM_VERSION_12, "1.2" },
 };
 
 value_string_entry_t m_spdm_requester_capabilities_string_table[] = {
