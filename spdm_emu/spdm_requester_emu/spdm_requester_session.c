@@ -225,8 +225,8 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
 
 #if (LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP) || (LIBSPDM_ENABLE_CAPABILITY_CSR_CAP)
     libspdm_data_parameter_t parameter;
+    bool multi_key_conn_rsp;
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP) || (LIBSPDM_ENABLE_CAPABILITY_CSR_CAP)*/
-
 
 #if LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP
     void *cert_chain_to_set;
@@ -243,7 +243,6 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
 #if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP
     uint8_t csr_form_get[LIBSPDM_MAX_CSR_SIZE];
     size_t csr_len;
-    bool multi_key_conn_rsp;
     size_t data_size;
 #if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX
     uint8_t key_pair_id;
@@ -314,16 +313,22 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     /*set_certificate for slot_id:0 in secure environment*/
     if ((m_exe_connection & EXE_CONNECTION_SET_CERT) != 0) {
         slot_id = 0;
-        status = libspdm_set_certificate(spdm_context, NULL, slot_id,
-                                         cert_chain_to_set, cert_chain_size_to_set);
 
+        if (multi_key_conn_rsp) {
+            status = libspdm_set_certificate_ex(
+                spdm_context, NULL, slot_id, cert_chain_to_set, cert_chain_size_to_set,
+                SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT <<
+                SPDM_SET_CERTIFICATE_REQUEST_ATTRIBUTES_CERT_MODEL_OFFSET, 1);
+        } else {
+            status = libspdm_set_certificate(spdm_context, NULL, slot_id,
+                                             cert_chain_to_set, cert_chain_size_to_set);
+        }
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("libspdm_set_certificate - %x\n",
                    (uint32_t)status);
             free(cert_chain_to_set);
             return status;
         }
-
     }
 
     /*set_certificate for slot_id:1 in secure session*/
@@ -331,8 +336,17 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
         if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
             if (m_other_slot_id != 0) {
                 slot_id = m_other_slot_id;
-                status = libspdm_set_certificate(spdm_context, session_id, slot_id,
-                                                cert_chain_to_set, cert_chain_size_to_set);
+
+                if (multi_key_conn_rsp) {
+                    status = libspdm_set_certificate_ex(
+                        spdm_context, session_id, slot_id,
+                        cert_chain_to_set, cert_chain_size_to_set,
+                        SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT <<
+                        SPDM_SET_CERTIFICATE_REQUEST_ATTRIBUTES_CERT_MODEL_OFFSET, 1);
+                } else {
+                    status = libspdm_set_certificate(spdm_context, session_id, slot_id,
+                                                    cert_chain_to_set, cert_chain_size_to_set);
+                }
 
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     printf("libspdm_set_certificate - %x\n",

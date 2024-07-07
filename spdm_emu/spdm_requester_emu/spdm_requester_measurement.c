@@ -10,6 +10,8 @@
 
 extern void *m_spdm_context;
 
+#define LIBSPDM_MAX_MEASUREMENT_EXTENSION_LOG_SIZE 0x1000
+
 /**
  * This function executes SPDM measurement and extend to TPM.
  *
@@ -136,7 +138,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
 
             if (measurement_exist_list[index]) {
                 LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "exist measurement index - 0x%x\n", index));
-                
+
                 requester_context[SPDM_REQ_CONTEXT_SIZE - 1] = index;
                 /* get signature in last message only.*/
                 if (received_number_of_block == number_of_blocks - 1) {
