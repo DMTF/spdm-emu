@@ -7,6 +7,7 @@
 #include "spdm_device_validator_sample.h"
 
 void *m_pci_doe_context;
+#define DOE_DISCOVERY_VERSION 0
 
 libspdm_return_t pci_doe_init_request()
 {
@@ -17,7 +18,7 @@ libspdm_return_t pci_doe_init_request()
 
     data_object_protocol_size = sizeof(data_object_protocol);
     status =
-        pci_doe_discovery (m_pci_doe_context, data_object_protocol, &data_object_protocol_size);
+        pci_doe_discovery (m_pci_doe_context, data_object_protocol, &data_object_protocol_size, DOE_DISCOVERY_VERSION);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }

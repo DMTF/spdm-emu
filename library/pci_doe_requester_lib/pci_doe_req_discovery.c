@@ -34,7 +34,8 @@ typedef struct {
 
 libspdm_return_t pci_doe_discovery (const void *pci_doe_context,
                                     pci_doe_data_object_protocol_t *data_object_protocol,
-                                    size_t *data_object_protocol_size)
+                                    size_t *data_object_protocol_size,
+                                    uint8_t version)
 {
     doe_discovery_request_mine_t doe_request;
     doe_discovery_response_mine_t doe_response;
@@ -52,6 +53,7 @@ libspdm_return_t pci_doe_discovery (const void *pci_doe_context,
     doe_request.doe_header.data_object_type = PCI_DOE_DATA_OBJECT_TYPE_DOE_DISCOVERY;
     doe_request.doe_header.length = sizeof(doe_discovery_request_mine_t) / sizeof(uint32_t);
     doe_request.doe_discovery_request.index = 0;
+    doe_request.doe_discovery_request.version = version;
 
     do {
         if (total_index <
