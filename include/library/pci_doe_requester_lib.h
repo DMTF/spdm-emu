@@ -11,7 +11,8 @@
 
 libspdm_return_t pci_doe_discovery (const void *pci_doe_context,
                                     pci_doe_data_object_protocol_t *data_object_protocol,
-                                    size_t *data_object_protocol_size);
+                                    size_t *data_object_protocol_size,
+                                    uint8_t version);
 
 /* external provided function */
 
