@@ -38,6 +38,10 @@ libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id);
 libspdm_return_t do_measurement_mel_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEL_CAP*/
 
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
+libspdm_return_t do_get_key_pair_info_via_spdm(const uint32_t *session_id);
+#endif /*LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP*/
+
 #if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
 libspdm_return_t do_authentication_via_spdm(void);
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
@@ -136,6 +140,19 @@ bool platform_client_routine(uint16_t port_number)
         }
     }
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEL_CAP*/
+
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
+    if (((m_exe_connection & EXE_CONNECTION_GET_KEY_PAIR_INFO) != 0) &&
+        (m_use_version >= SPDM_MESSAGE_VERSION_13)) {
+        status = do_get_key_pair_info_via_spdm(NULL);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("do_get_key_pair_info_via_spdm - %x\n",
+                   (uint32_t)status);
+            goto done;
+        }
+    }
+#endif /* LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP */
+
     /* when use --trans NONE, skip secure session  */
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         if (m_use_version >= SPDM_MESSAGE_VERSION_12) {

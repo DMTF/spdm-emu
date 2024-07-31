@@ -13,6 +13,7 @@ set(src_spdm_requester_emu
     spdm_requester_spdm.c
     spdm_requester_authentication.c
     spdm_requester_measurement.c
+    spdm_requester_key_pair_info.c
     spdm_requester_session.c
     spdm_requester_pci_doe.c
     spdm_requester_mctp.c
