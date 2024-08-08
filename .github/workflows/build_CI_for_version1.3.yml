@@ -1,0 +1,144 @@
+name: Version 1.3 with Certificates
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  format_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        # If any *.c *.h *.md file(except:libspdm) have Tab, the check will fail.
+      - name: Check code format
+        run: |
+          if grep -rn "	" * --include=*.c --include=*.h --include=*.md;
+          then exit 1
+          fi
+
+  gcc_mbedtls_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
+          make copy_sample_key
+          make -j`nproc`
+      - name: Emu_Test
+        run: |
+          cd build/bin
+
+          test_port=2323
+          TCPListeningnum=`netstat -an | grep ":$test_port " | awk '/^tcp.*/ && $NF == "LISTEN" {print $0}' | wc -l`
+          UDPListeningnum=`netstat -an | grep ":$test_port " | awk '/^udp.*/ && $NF == "0.0.0.0:*" {print $0}' | wc -l`
+          Listeningnum=$((TCPListeningnum + UDPListeningnum))
+          if [ $Listeningnum -eq 0 ]; then
+              echo "port is not used"
+          else
+              echo "port is used"
+          fi
+          ./spdm_responder_emu --ver 1.3 &
+          sleep 5s
+          ./spdm_requester_emu --ver 1.3 >requester.log
+
+  gcc_openssl_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
+          make copy_sample_key
+          make -j`nproc`
+      - name: Emu_Test
+        run: |
+          cd build/bin
+
+          test_port=2323
+          TCPListeningnum=`netstat -an | grep ":$test_port " | awk '/^tcp.*/ && $NF == "LISTEN" {print $0}' | wc -l`
+          UDPListeningnum=`netstat -an | grep ":$test_port " | awk '/^udp.*/ && $NF == "0.0.0.0:*" {print $0}' | wc -l`
+          Listeningnum=$((TCPListeningnum + UDPListeningnum))
+          if [ $Listeningnum -eq 0 ]; then
+              echo "port is not used"
+          else
+              echo "port is used"
+          fi
+          ./spdm_responder_emu --ver 1.3 &
+          sleep 5s
+          ./spdm_requester_emu --ver 1.3 >requester.log
+
+  VS2019_mbedtls_build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+        #ilammy/msvc-dev-cmd@v1 is GitHub Action for configuring Developer Command Prompt for Microsoft Visual Studio on Windows.
+        #This sets up the environment for compiling C/C++ code from command line.
+      - name: Add msbuild to PATH
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=mbedtls ..
+          nmake  copy_sample_key
+          nmake
+      - name: Emu_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --ver 1.3 &
+          sleep 5s
+          ./spdm_requester_emu --ver 1.3
+
+  VS2019_openssl_build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+        #ilammy/msvc-dev-cmd@v1 is GitHub Action for configuring Developer Command Prompt for Microsoft Visual Studio on Windows.
+        #This sets up the environment for compiling C/C++ code from command line.
+      - name: Add msbuild to PATH
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=openssl ..
+          nmake  copy_sample_key
+          nmake
+      - name: Emu_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --ver 1.3 &
+          sleep 5s
+          ./spdm_requester_emu --ver 1.3
