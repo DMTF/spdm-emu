@@ -86,6 +86,7 @@ libspdm_return_t cxl_ide_km_query(const void *pci_doe_context,
     *bus_num= response.bus_num;
     *segment= response.segment;
     *max_port_index= response.max_port_index;
+    *caps = response.caps;
     libspdm_copy_mem (ide_reg_buffer,
                       *ide_reg_buffer_count * sizeof(uint32_t),
                       response.ide_reg_block,
