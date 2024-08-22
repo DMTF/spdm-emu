@@ -54,3 +54,61 @@ libspdm_return_t do_get_key_pair_info_via_spdm(const uint32_t *session_id)
 }
 
 #endif /*LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP*/
+
+#if LIBSPDM_ENABLE_CAPABILITY_SET_KEY_PAIR_INFO_CAP
+
+extern void *m_spdm_context;
+
+/**
+ * This function executes SPDM set_key_pair_info.
+ *
+ * @param[in]  spdm_context            The SPDM context for the device.
+ **/
+libspdm_return_t do_set_key_pair_info_via_spdm(const uint32_t *session_id)
+{
+    libspdm_return_t status;
+    void *spdm_context;
+
+    uint8_t key_pair_id;
+    uint8_t operation;
+    uint16_t desired_key_usage;
+    uint32_t desired_asym_algo;
+    uint8_t desired_assoc_cert_slot_mask;
+
+    spdm_context = m_spdm_context;
+
+    /*change: disconnect the association with the slot*/
+    key_pair_id = 1;
+    operation = SPDM_SET_KEY_PAIR_INFO_CHANGE_OPERATION;
+    desired_key_usage = 0;
+    desired_asym_algo = 0;
+    desired_assoc_cert_slot_mask = 0;
+
+    status = libspdm_set_key_pair_info(spdm_context, session_id,
+                                       key_pair_id, operation,
+                                       desired_key_usage,
+                                       desired_asym_algo,
+                                       desired_assoc_cert_slot_mask);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    /*erase*/
+    operation = SPDM_SET_KEY_PAIR_INFO_ERASE_OPERATION;
+    desired_key_usage = 0;
+    desired_asym_algo = 0;
+    desired_assoc_cert_slot_mask = 0;
+
+    status = libspdm_set_key_pair_info(spdm_context, session_id,
+                                       key_pair_id, operation,
+                                       desired_key_usage,
+                                       desired_asym_algo,
+                                       desired_assoc_cert_slot_mask);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
+#endif /*LIBSPDM_ENABLE_CAPABILITY_SET_KEY_PAIR_INFO_CAP*/
