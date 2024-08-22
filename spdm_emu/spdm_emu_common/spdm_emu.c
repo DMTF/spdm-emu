@@ -17,7 +17,7 @@ uint32_t m_exe_connection = (0 |
                              EXE_CONNECTION_DIGEST | EXE_CONNECTION_CERT |
                              EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS | EXE_CONNECTION_MEL |
                              EXE_CONNECTION_SET_CERT | EXE_CONNECTION_GET_CSR |
-                             EXE_CONNECTION_GET_KEY_PAIR_INFO | 0);
+                             EXE_CONNECTION_GET_KEY_PAIR_INFO | EXE_CONNECTION_SET_KEY_PAIR_INFO | 0);
 
 uint32_t m_exe_session =
     (0 | EXE_SESSION_KEY_EX | EXE_SESSION_PSK |
@@ -25,7 +25,7 @@ uint32_t m_exe_session =
      EXE_SESSION_KEY_UPDATE | EXE_SESSION_HEARTBEAT |
      EXE_SESSION_MEAS | EXE_SESSION_MEL |
      EXE_SESSION_SET_CERT | EXE_SESSION_GET_CSR |
-     EXE_SESSION_GET_KEY_PAIR_INFO |
+     EXE_SESSION_GET_KEY_PAIR_INFO | EXE_SESSION_SET_KEY_PAIR_INFO |
      EXE_SESSION_DIGEST | EXE_SESSION_CERT | EXE_SESSION_APP | 0);
 
 #define IP_ADDRESS "127.0.0.1"
@@ -70,8 +70,8 @@ void print_usage(const char *name)
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
-    printf("   [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO]\n");
-    printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|APP]\n");
+    printf("   [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
+    printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|APP]\n");
     printf("   [--pcap <pcap_file_name>]\n");
     printf("   [--priv_key_mode PEM|RAW]\n");
     printf("\n");
@@ -87,7 +87,7 @@ void print_usage(const char *name)
     printf(
         "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG is used for Requester.\n");
     printf(
-        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO is used for Responder.\n");
+        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO is used for Responder.\n");
     printf("   [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.\n");
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
     printf(
@@ -151,7 +151,7 @@ void print_usage(const char *name)
     printf(
         "           CONTINUE means the requester asks the responder to preserve the current SPDM context.\n");
     printf(
-        "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO.\n");
+        "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO.\n");
     printf(
         "           VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.\n");
     printf("               The version for responder must be provisioned from ver.\n");
@@ -166,8 +166,9 @@ void print_usage(const char *name)
     printf("           GET_CSR means send GET_CSR command.\n");
     printf("           SET_CERT means send SET_CERTIFICATE command.\n");
     printf("           GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command.\n");
+    printf("           SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command.\n");
     printf(
-        "   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,APP.\n");
+        "   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,APP.\n");
     printf("           KEY_EX means to setup KEY_EXCHANGE session.\n");
     printf("           PSK means to setup PSK_EXCHANGE session.\n");
     printf("           NO_END means to not send END_SESSION.\n");
@@ -180,6 +181,7 @@ void print_usage(const char *name)
     printf("           GET_CSR means send GET_CSR command in session.\n");
     printf("           SET_CERT means send SET_CERTIFICATE command in session.\n");
     printf("           GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command in session.\n");
+    printf("           SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command in session.\n");
     printf("           APP means send vendor defined message or application message in session.\n");
     printf("   [--pcap] is used to generate PCAP dump file for offline analysis.\n");
     printf(
@@ -414,6 +416,7 @@ value_string_entry_t m_exe_connection_string_table[] = {
     { EXE_CONNECTION_SET_CERT, "SET_CERT" },
     { EXE_CONNECTION_GET_CSR, "GET_CSR" },
     { EXE_CONNECTION_GET_KEY_PAIR_INFO, "GET_KEY_PAIR_INFO" },
+    { EXE_CONNECTION_SET_KEY_PAIR_INFO, "SET_KEY_PAIR_INFO" },
 };
 
 value_string_entry_t m_exe_session_string_table[] = {
@@ -425,6 +428,7 @@ value_string_entry_t m_exe_session_string_table[] = {
     { EXE_SESSION_MEAS, "MEAS" },
     { EXE_SESSION_MEL, "MEL" },
     { EXE_SESSION_GET_KEY_PAIR_INFO, "GET_KEY_PAIR_INFO" },
+    { EXE_SESSION_SET_KEY_PAIR_INFO, "SET_KEY_PAIR_INFO" },
     { EXE_SESSION_DIGEST, "DIGEST" },
     { EXE_SESSION_CERT, "CERT" },
     { EXE_SESSION_SET_CERT, "SET_CERT" },

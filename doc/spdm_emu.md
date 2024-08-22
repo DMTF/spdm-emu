@@ -31,7 +31,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
-         [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO]
+         [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]
          [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|APP]
          [--pcap <PcapFileName>]
          [--priv_key_mode PEM|RAW]
@@ -42,7 +42,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--sec_ver] is secured message version. By default, all are used.
          [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.
                  By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG is used for Requester.
-                 By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO is used for Responder.
+                 By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO is used for Responder.
          [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.
          [--meas_spec] is measurement hash spec. By default, DMTF is used.
          [--meas_hash] is measurement hash algorithm. By default, SHA_512,SHA_384,SHA_256 is used.
@@ -80,7 +80,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.
                  SHUTDOWN means the requester asks the responder to stop.
                  CONTINUE means the requester asks the responder to preserve the current SPDM context.
-         [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT, GET_KEY_PAIR_INFO.
+         [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT, GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO.
                  VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.
                      The version for responder must be provisioned from ver.
                      The capablities for local and peer are from cap|peer_cap.
@@ -93,7 +93,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  GET_CSR means send GET_CSR command.
                  SET_CERT means send SET_CERTIFICATE command.
                  GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command.
-         [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,APP.
+                 SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command.
+         [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,APP.
                  KEY_EX means to setup KEY_EXCHANGE session.
                  PSK means to setup PSK_EXCHANGE session.
                  NO_END means to not send END_SESSION.
@@ -106,6 +107,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  GET_CSR means send GET_CSR command in session.
                  SET_CERT means send SET_CERTIFICATE command in session.
                  GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command in session.
+                 SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command in session.
                  APP means send vendor defined message or application message in session.
          [--pcap] is used to generate PCAP dump file for offline analysis.
          [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.

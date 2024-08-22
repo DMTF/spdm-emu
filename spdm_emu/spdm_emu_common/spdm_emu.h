@@ -77,6 +77,7 @@ extern uint32_t m_exe_mode;
 #define EXE_CONNECTION_GET_CSR 0x40
 #define EXE_CONNECTION_MEL 0x80
 #define EXE_CONNECTION_GET_KEY_PAIR_INFO 0x100
+#define EXE_CONNECTION_SET_KEY_PAIR_INFO 0x200
 extern uint32_t m_exe_connection;
 
 #define EXE_SESSION_KEY_EX 0x1
@@ -92,6 +93,7 @@ extern uint32_t m_exe_connection;
 #define EXE_SESSION_APP 0x400
 #define EXE_SESSION_MEL 0x800
 #define EXE_SESSION_GET_KEY_PAIR_INFO 0x1000
+#define EXE_SESSION_SET_KEY_PAIR_INFO 0x2000
 extern uint32_t m_exe_session;
 
 void libspdm_dump_hex_str(const uint8_t *buffer, size_t buffer_size);

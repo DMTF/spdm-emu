@@ -406,6 +406,10 @@ void *spdm_client_init(void)
         m_exe_connection &= ~EXE_CONNECTION_GET_KEY_PAIR_INFO;
         m_exe_session &= ~EXE_SESSION_GET_KEY_PAIR_INFO;
     }
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_INFO_CAP & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_SET_KEY_PAIR_INFO;
+        m_exe_session &= ~EXE_CONNECTION_SET_KEY_PAIR_INFO;
+    }
 
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
