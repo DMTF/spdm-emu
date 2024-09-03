@@ -19,6 +19,7 @@
 #include "library/pci_ide_km_responder_lib.h"
 #include "library/pci_tdisp_responder_lib.h"
 #include "library/cxl_ide_km_responder_lib.h"
+#include "library/cxl_tsp_responder_lib.h"
 
 #include "os_include.h"
 #include <stdio.h>

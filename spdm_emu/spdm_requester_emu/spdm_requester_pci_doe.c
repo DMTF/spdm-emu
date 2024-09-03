@@ -379,6 +379,147 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
     return LIBSPDM_STATUS_SUCCESS;
 }
 
+libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t session_id)
+{
+    libspdm_return_t status;
+    libcxltsp_device_capabilities_t device_capabilities;
+    libcxltsp_device_configuration_t device_configuration;
+    libcxltsp_device_2nd_session_info_t device_2nd_session_info;
+    libcxltsp_device_configuration_t current_device_configuration;
+    uint8_t current_tsp_state;
+    size_t index;
+    uint8_t configuration_report_buffer[LIBCXLTSP_CONFIGURATION_REPORT_MAX_SIZE];
+    uint32_t configuration_report_size;
+    cxl_tsp_target_configuration_report_t *configuration_report;
+
+    status = cxl_tsp_get_version (m_pci_doe_context, spdm_context, &session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_get_version done\n"));
+
+    libspdm_zero_mem (&device_capabilities, sizeof(device_capabilities));
+    status = cxl_tsp_get_capabilities (m_pci_doe_context, spdm_context, &session_id,
+                                       &device_capabilities);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "device_capabilities:\n"));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_features_supported - 0x%04x\n",
+                   device_capabilities.memory_encryption_features_supported));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_algorithms_supported - 0x%08x\n",
+                   device_capabilities.memory_encryption_algorithms_supported));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_number_of_range_based_keys - 0x%04x\n",
+                   device_capabilities.memory_encryption_number_of_range_based_keys));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  te_state_change_and_access_control_features_supported - 0x%04x\n",
+                   device_capabilities.te_state_change_and_access_control_features_supported));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  supported_explicit_oob_te_state_granularity - 0x%08x\n",
+                   device_capabilities.supported_explicit_oob_te_state_granularity));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  supported_explicit_ib_te_state_granularity - 0x%08x\n",
+                   device_capabilities.supported_explicit_ib_te_state_granularity));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  configuration_features_supported - 0x%04x\n",
+                   device_capabilities.configuration_features_supported));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  number_of_ckids - 0x%08x\n",
+                   device_capabilities.number_of_ckids));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  number_of_secondary_sessions - 0x%02x\n",
+                   device_capabilities.number_of_secondary_sessions));
+
+    libspdm_zero_mem (&device_configuration, sizeof(device_configuration));
+    device_configuration.memory_encryption_features_enable =
+        CXL_TSP_MEMORY_ENCRYPTION_FEATURES_ENABLE_ENCRYPTION;
+    device_configuration.memory_encryption_algorithm_select =
+        CXL_TSP_MEMORY_ENCRYPTION_ALGORITHMS_AES_XTS_256;
+    device_configuration.te_state_change_and_access_control_features_enable =
+        CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_READ_ACCESS_CONTROL |
+        CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_IMPLICIT_TE_STATE_CHANGE |
+        CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE;
+    device_configuration.explicit_oob_te_state_granularity = 0;
+    device_configuration.configuration_features_enable =
+        CXL_TSP_CONFIGURATION_FEATURES_ENABLE_LOCKED_TARGET_FW_UPDATE;
+    device_configuration.ckid_base = 0;
+    device_configuration.number_of_ckids = 0;
+    device_configuration.explicit_ib_te_state_granularity_entry[0].te_state_granularity = 0;
+    device_configuration.explicit_ib_te_state_granularity_entry[0].length_index = 0;
+    device_configuration.explicit_ib_te_state_granularity_entry[1].length_index = 0xFF;
+    device_configuration.explicit_ib_te_state_granularity_entry[2].length_index = 0xFF;
+    device_configuration.explicit_ib_te_state_granularity_entry[3].length_index = 0xFF;
+    device_configuration.explicit_ib_te_state_granularity_entry[4].length_index = 0xFF;
+    device_configuration.explicit_ib_te_state_granularity_entry[5].length_index = 0xFF;
+    device_configuration.explicit_ib_te_state_granularity_entry[6].length_index = 0xFF;
+    device_configuration.explicit_ib_te_state_granularity_entry[7].length_index = 0xFF;
+    libspdm_zero_mem (&device_2nd_session_info, sizeof(device_2nd_session_info));
+    device_2nd_session_info.configuration_validity_flags = 0x0;
+    status = cxl_tsp_set_configuration (m_pci_doe_context, spdm_context, &session_id,
+                                        &device_configuration, &device_2nd_session_info);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_set_configuration done\n"));
+
+    libspdm_zero_mem (&current_device_configuration, sizeof(current_device_configuration));
+    current_tsp_state = CXL_TSP_STATE_CONFIG_UNLOCKED;
+    status = cxl_tsp_get_configuration (m_pci_doe_context, spdm_context, &session_id,
+                                        &current_device_configuration, &current_tsp_state);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_device_configuration:\n"));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_features_enable - 0x%04x\n",
+                   current_device_configuration.memory_encryption_features_enable));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_algorithm_select - 0x%08x\n",
+                   current_device_configuration.memory_encryption_algorithm_select));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  te_state_change_and_access_control_features_enable - 0x%04x\n",
+                   current_device_configuration.te_state_change_and_access_control_features_enable));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  explicit_oob_te_state_granularity - 0x%08x\n",
+                   current_device_configuration.explicit_oob_te_state_granularity));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  configuration_features_enable - 0x%04x\n",
+                   current_device_configuration.configuration_features_enable));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  ckid_base - 0x%08x\n",
+                   current_device_configuration.ckid_base));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  number_of_ckids - 0x%08x\n",
+                   current_device_configuration.number_of_ckids));
+    for (index = 0; index < LIBSPDM_ARRAY_SIZE(current_device_configuration.explicit_ib_te_state_granularity_entry); index++) {
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  explicit_ib_te_state_granularity_entry[%d]:\n", index));
+#ifdef _MSC_VER
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    te_state_granularity - 0x%016I64x\n",
+                       current_device_configuration.explicit_ib_te_state_granularity_entry[index].te_state_granularity));
+#else
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    te_state_granularity - 0x%016llx\n",
+                       current_device_configuration.explicit_ib_te_state_granularity_entry[index].te_state_granularity));
+#endif
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    number_of_ckids - 0x%02x\n",
+                       current_device_configuration.explicit_ib_te_state_granularity_entry[index].length_index));
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_tsp_state - 0x%02x\n", current_tsp_state));
+
+    configuration_report_size = sizeof(configuration_report_buffer);
+    status = cxl_tsp_get_configuration_report (
+        m_pci_doe_context, spdm_context, &session_id,
+        configuration_report_buffer, &configuration_report_size);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    configuration_report = (cxl_tsp_target_configuration_report_t *)configuration_report_buffer;
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "configuration_report:\n"));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  valid_tsp_report_fields - 0x%02x\n", configuration_report->valid_tsp_report_fields));
+
+    status = cxl_tsp_lock_configuration (m_pci_doe_context, spdm_context, &session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_lock_configuration done\n"));
+
+    current_tsp_state = CXL_TSP_STATE_CONFIG_UNLOCKED;
+    status = cxl_tsp_get_configuration (m_pci_doe_context, spdm_context, &session_id,
+                                        NULL, &current_tsp_state);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_tsp_state - 0x%02x\n", current_tsp_state));
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
 libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t session_id)
 {
     libspdm_return_t status;
@@ -394,6 +535,11 @@ libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t se
     }
 
     status = cxl_ide_km_process_session_message (spdm_context, session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    status = cxl_tsp_process_session_message (spdm_context, session_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
