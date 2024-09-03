@@ -32,5 +32,12 @@ libspdm_return_t pci_doe_init_responder()
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
+    status = pci_doe_register_vendor_response_func (
+        m_pci_doe_context,
+        SPDM_REGISTRY_ID_PCISIG, SPDM_VENDOR_ID_CXL,
+        CXL_PROTOCOL_ID_TSP, cxl_tsp_get_response);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
     return LIBSPDM_STATUS_SUCCESS;
 }
