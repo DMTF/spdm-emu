@@ -331,9 +331,9 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
     if (!result) {
         return LIBSPDM_STATUS_LOW_ENTROPY;
     }
-    key_buffer.iv[0] = 0;
-    key_buffer.iv[1] = 1;
-    key_buffer.iv[2] = 2;
+    key_buffer.iv[0] = 0x80000000;
+    key_buffer.iv[1] = 0;
+    key_buffer.iv[2] = 1;
     status = cxl_ide_km_key_prog (m_pci_doe_context, spdm_context, &session_id,
                                   0, CXL_IDE_KM_KEY_DIRECTION_TX | CXL_IDE_KM_KEY_IV_INITIAL |
                                   CXL_IDE_KM_KEY_SUB_STREAM_CXL, 0,
