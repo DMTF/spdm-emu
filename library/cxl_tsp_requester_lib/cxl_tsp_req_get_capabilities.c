@@ -9,6 +9,135 @@
 #include "library/spdm_requester_lib.h"
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/cxl_tsp_requester_lib.h"
+#include "hal/library/debuglib.h"
+
+libspdm_return_t
+cxl_tsp_validate_capability (
+    libcxltsp_device_capabilities_t *device_capabilities
+    )
+{
+    uint16_t memory_encryption_features_supported;
+    uint32_t memory_encryption_algorithms_supported;
+    uint16_t te_state_change_and_access_control_features_supported;
+    uint32_t supported_explicit_oob_te_state_granularity;
+    uint32_t supported_explicit_ib_te_state_granularity;
+    uint16_t configuration_features_supported;
+
+    memory_encryption_features_supported = device_capabilities->memory_encryption_features_supported &
+        (CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_ENCRYPTION |
+         CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_ENCRYPTION |
+         CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_RANGE_BASED_ENCRYPTION |
+         CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_INITIATOR_SUPPLIED_ENTROPY |
+         CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_REQUIRED);
+    if ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_ENCRYPTION) == 0) {
+        if (((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_ENCRYPTION) != 0) ||
+            ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_RANGE_BASED_ENCRYPTION) != 0) ||
+            ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_REQUIRED) != 0)) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    } else {
+        if (((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_REQUIRED) != 0) &&
+            ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_ENCRYPTION) == 0)) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    }
+
+    memory_encryption_algorithms_supported = device_capabilities->memory_encryption_algorithms_supported &
+        (CXL_TSP_MEMORY_ENCRYPTION_ALGORITHMS_AES_XTS_128 |
+         CXL_TSP_MEMORY_ENCRYPTION_ALGORITHMS_AES_XTS_256 |
+         CXL_TSP_MEMORY_ENCRYPTION_ALGORITHMS_VENDOR_SPECIFIC);
+    if ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_ENCRYPTION) != 0) {
+        if (memory_encryption_algorithms_supported == 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    }
+
+    if ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_RANGE_BASED_ENCRYPTION) == 0) {
+        if (device_capabilities->memory_encryption_number_of_range_based_keys != 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    } else {
+        if (device_capabilities->memory_encryption_number_of_range_based_keys == 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    }
+
+    te_state_change_and_access_control_features_supported = device_capabilities->te_state_change_and_access_control_features_supported & 
+        (CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_WRITE_ACCESS_CONTROL |
+         CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_READ_ACCESS_CONTROL |
+         CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_IMPLICIT_TE_STATE_CHANGE |
+         CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_OOB_TE_STATE_CHANGE |
+         CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE |
+         CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_TE_STATE_CHANGE_SANITIZE);
+    if (((te_state_change_and_access_control_features_supported &
+          CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_WRITE_ACCESS_CONTROL) != 0) &&
+        (((te_state_change_and_access_control_features_supported &
+           (CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_OOB_TE_STATE_CHANGE |
+            CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE))) == 0)) {
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+    }
+    if (((te_state_change_and_access_control_features_supported &
+          CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_READ_ACCESS_CONTROL) != 0) &&
+        (((te_state_change_and_access_control_features_supported &
+           (CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_IMPLICIT_TE_STATE_CHANGE |
+            CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_OOB_TE_STATE_CHANGE |
+            CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE))) == 0)) {
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+    }
+    if (((te_state_change_and_access_control_features_supported &
+          CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_TE_STATE_CHANGE_SANITIZE) != 0) &&
+        (((te_state_change_and_access_control_features_supported &
+           (CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_OOB_TE_STATE_CHANGE |
+            CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE))) == 0)) {
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+    }
+
+    supported_explicit_oob_te_state_granularity = device_capabilities->supported_explicit_oob_te_state_granularity;
+    if ((te_state_change_and_access_control_features_supported & CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_OOB_TE_STATE_CHANGE) == 0) {
+        if (supported_explicit_oob_te_state_granularity != 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    } else {
+        if (supported_explicit_oob_te_state_granularity == 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    }
+
+    supported_explicit_ib_te_state_granularity = device_capabilities->supported_explicit_ib_te_state_granularity &
+        (0x7FF | CXL_TSP_EXPLICIT_IB_TE_STATE_CHANGE_GRANULARITY_ENTIRE_MEMORY);
+    if ((te_state_change_and_access_control_features_supported & CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE) == 0) {
+        if (supported_explicit_ib_te_state_granularity != 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    } else {
+        if (supported_explicit_ib_te_state_granularity == 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    }
+
+    if ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_ENCRYPTION) != 0) {
+        if ((device_capabilities->number_of_ckids < 2) ||
+            (device_capabilities->number_of_ckids > 0x2000)) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    }
+
+    configuration_features_supported = device_capabilities->configuration_features_supported &
+        (CXL_TSP_CONFIGURATION_FEATURES_SUPPORT_LOCKED_TARGET_FW_UPDATE |
+         CXL_TSP_CONFIGURATION_FEATURES_SUPPORT_TARGET_SUPPORT_ADDITIONAL_SPDM_SESSIONS);
+    if ((configuration_features_supported & CXL_TSP_CONFIGURATION_FEATURES_SUPPORT_TARGET_SUPPORT_ADDITIONAL_SPDM_SESSIONS) == 0) {
+        if (device_capabilities->number_of_secondary_sessions != 0) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    } else {
+        if ((device_capabilities->number_of_secondary_sessions == 0) ||
+            (device_capabilities->number_of_secondary_sessions > 4)) {
+            return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+        }
+    }
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
 
 /**
  * Send and receive an TSP message
@@ -64,6 +193,11 @@ libspdm_return_t cxl_tsp_get_capabilities(
     device_capabilities->configuration_features_supported = response.configuration_features_supported;
     device_capabilities->number_of_ckids = response.number_of_ckids;
     device_capabilities->number_of_secondary_sessions = response.number_of_secondary_sessions;
+
+    status = cxl_tsp_validate_capability (device_capabilities);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
 
     return LIBSPDM_STATUS_SUCCESS;
 }
