@@ -31,6 +31,7 @@ libspdm_return_t cxl_tsp_get_response_lock_configuration (
     const cxl_tsp_lock_target_configuration_req_t *tsp_request;
     cxl_tsp_lock_target_configuration_rsp_t *tsp_response;
     libcxltsp_error_code_t error_code;
+    uint8_t current_tsp_state;
 
     tsp_request = request;
     tsp_response = response;
@@ -45,6 +46,29 @@ libspdm_return_t cxl_tsp_get_response_lock_configuration (
         return cxl_tsp_get_response_error (
             pci_doe_context, spdm_context, session_id,
             request, CXL_TSP_ERROR_CODE_VERSION_MISMATCH, 0,
+            response, response_size);
+    }
+
+    error_code = cxl_tsp_device_get_configuration (
+        pci_doe_context, spdm_context, session_id,
+        NULL,
+        &current_tsp_state);
+    if (error_code != CXL_TSP_ERROR_CODE_SUCCESS) {
+        return cxl_tsp_get_response_error (
+            pci_doe_context, spdm_context, session_id,
+            request, error_code, 0,
+            response, response_size);
+    }
+    if (current_tsp_state == CXL_TSP_STATE_CONFIG_LOCKED) {
+        return cxl_tsp_get_response_error (
+            pci_doe_context, spdm_context, session_id,
+            request, CXL_TSP_ERROR_CODE_ALREADY_LOCKED, 0,
+            response, response_size);
+    }
+    if (current_tsp_state != CXL_TSP_STATE_CONFIG_UNLOCKED) {
+        return cxl_tsp_get_response_error (
+            pci_doe_context, spdm_context, session_id,
+            request, CXL_TSP_ERROR_CODE_INVALID_SECURITY_STATE, 0,
             response, response_size);
     }
 

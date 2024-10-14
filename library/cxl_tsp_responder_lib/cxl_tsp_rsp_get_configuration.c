@@ -63,6 +63,13 @@ libspdm_return_t cxl_tsp_get_response_get_configuration (
             request, error_code, 0,
             response, response_size);
     }
+    if ((current_tsp_state != CXL_TSP_STATE_CONFIG_UNLOCKED) &&
+        (current_tsp_state != CXL_TSP_STATE_CONFIG_LOCKED)) {
+        return cxl_tsp_get_response_error (
+            pci_doe_context, spdm_context, session_id,
+            request, CXL_TSP_ERROR_CODE_INVALID_SECURITY_STATE, 0,
+            response, response_size);
+    }
 
     *response_size = sizeof(cxl_tsp_get_target_configuration_rsp_t);
 

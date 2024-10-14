@@ -35,6 +35,7 @@ libspdm_return_t cxl_tsp_get_response_get_configuration_report (
     uint16_t configuration_report_size;
     uint16_t length;
     uint16_t offset;
+    uint8_t current_tsp_state;
 
     tsp_request = request;
     tsp_response = response;
@@ -49,6 +50,24 @@ libspdm_return_t cxl_tsp_get_response_get_configuration_report (
         return cxl_tsp_get_response_error (
             pci_doe_context, spdm_context, session_id,
             request, CXL_TSP_ERROR_CODE_VERSION_MISMATCH, 0,
+            response, response_size);
+    }
+
+    error_code = cxl_tsp_device_get_configuration (
+        pci_doe_context, spdm_context, session_id,
+        NULL,
+        &current_tsp_state);
+    if (error_code != CXL_TSP_ERROR_CODE_SUCCESS) {
+        return cxl_tsp_get_response_error (
+            pci_doe_context, spdm_context, session_id,
+            request, error_code, 0,
+            response, response_size);
+    }
+    if ((current_tsp_state != CXL_TSP_STATE_CONFIG_UNLOCKED) &&
+        (current_tsp_state != CXL_TSP_STATE_CONFIG_LOCKED)) {
+        return cxl_tsp_get_response_error (
+            pci_doe_context, spdm_context, session_id,
+            request, CXL_TSP_ERROR_CODE_INVALID_SECURITY_STATE, 0,
             response, response_size);
     }
 
