@@ -40,7 +40,7 @@ libcxltsp_device_context *libcxltsp_initialize_device_context (
         CXL_TSP_CONFIGURATION_FEATURES_SUPPORT_LOCKED_TARGET_FW_UPDATE |
         CXL_TSP_CONFIGURATION_FEATURES_SUPPORT_TARGET_SUPPORT_ADDITIONAL_SPDM_SESSIONS;
     g_cxltsp_device_context.device_capabilities.number_of_ckids = 0;
-    g_cxltsp_device_context.device_capabilities.number_of_secondary_sessions = 0;
+    g_cxltsp_device_context.device_capabilities.number_of_secondary_sessions = 1;
 
     return &g_cxltsp_device_context;
 }
