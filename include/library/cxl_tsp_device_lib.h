@@ -10,6 +10,10 @@
 #include "library/cxl_tsp_responder_lib.h"
 
 typedef struct {
+    bool session_id_primary_valid;
+    uint32_t session_id_primary;
+    bool session_id_secondary_valid[CXL_TSP_2ND_SESSION_COUNT];
+    uint32_t session_id_secondary[CXL_TSP_2ND_SESSION_COUNT];
     uint8_t supported_tsp_versions[1];
     uint8_t supported_tsp_versions_count;
     /* provision info from device */
@@ -32,6 +36,14 @@ libcxltsp_device_context *libcxltsp_initialize_device_context (
 libcxltsp_device_context *libcxltsp_get_device_context (
     const void *pci_doe_context
     );
+
+void libcxltsp_initialize_session_id (
+    void *spdm_context,
+    uint32_t session_id
+    );
+
+bool libcxltsp_is_session_primary (uint32_t session_id);
+bool libcxltsp_is_session_secondary (uint32_t session_id);
 
 typedef uint32_t libcxltsp_error_code_t;
 #define CXL_TSP_ERROR_CODE_SUCCESS 0

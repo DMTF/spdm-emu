@@ -6,16 +6,87 @@
 
 #include "hal/base.h"
 #include "hal/library/memlib.h"
+#include "hal/library/debuglib.h"
 #include "library/spdm_requester_lib.h"
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/cxl_tsp_device_lib.h"
 
 libcxltsp_device_context g_cxltsp_device_context;
 
+extern uint8_t m_cxl_tsp_current_psk_session_index;
+
+bool libcxltsp_is_session_primary (uint32_t session_id)
+{
+    if (g_cxltsp_device_context.session_id_primary_valid &&
+        (g_cxltsp_device_context.session_id_primary == session_id)) {
+        return true;
+    }
+    return false;
+}
+
+bool libcxltsp_is_session_secondary (uint32_t session_id)
+{
+    size_t index;
+
+    for (index = 0; index < 4; index++) {
+        if (g_cxltsp_device_context.session_id_secondary_valid[index] &&
+            (g_cxltsp_device_context.session_id_secondary[index] == session_id)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void libcxltsp_set_session_id (uint32_t session_id, bool is_secondary, size_t session_index)
+{
+    if (!is_secondary) {
+        g_cxltsp_device_context.session_id_primary_valid = true;
+        g_cxltsp_device_context.session_id_primary = session_id;
+    } else {
+        LIBSPDM_ASSERT (session_index < 4);
+        g_cxltsp_device_context.session_id_secondary_valid[session_index] = true;
+        g_cxltsp_device_context.session_id_secondary[session_index] = session_id;
+    }
+}
+
+void libcxltsp_initialize_session_id (
+    void *spdm_context,
+    uint32_t session_id
+    )
+{
+    libspdm_data_parameter_t parameter;
+    bool is_psk;
+    size_t data_size;
+
+    if (!g_cxltsp_device_context.session_id_primary_valid) {
+        libcxltsp_set_session_id (session_id, false, 0);
+        return ;
+    }
+
+    is_psk = false;
+    data_size = sizeof(is_psk);
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_SESSION;
+    *(uint32_t *)parameter.additional_data = session_id;
+    libspdm_get_data (spdm_context, LIBSPDM_DATA_SESSION_USE_PSK, &parameter, &is_psk, &data_size);
+    if (!is_psk) {
+        return ;
+    }
+    if (m_cxl_tsp_current_psk_session_index >= 4) {
+        return ;
+    }
+    libcxltsp_set_session_id (session_id, true, m_cxl_tsp_current_psk_session_index);
+    return ;
+}
+
 libcxltsp_device_context *libcxltsp_initialize_device_context (
     const void *pci_doe_context
     )
 {
+    if (g_cxltsp_device_context.session_id_primary_valid) {
+        return &g_cxltsp_device_context;
+    }
+
     libspdm_zero_mem (
         &g_cxltsp_device_context,
         sizeof(g_cxltsp_device_context)

@@ -37,6 +37,13 @@ libspdm_return_t cxl_tsp_get_response_get_configuration_report (
     uint16_t offset;
     uint8_t current_tsp_state;
 
+    if (session_id == NULL) {
+        return CXL_TSP_ERROR_CODE_NO_PRIVILEGE;
+    }
+    if ((!libcxltsp_is_session_primary(*session_id)) && (!libcxltsp_is_session_secondary(*session_id))) {
+        return CXL_TSP_ERROR_CODE_NO_PRIVILEGE;
+    }
+
     tsp_request = request;
     tsp_response = response;
     if (request_size != sizeof(cxl_tsp_get_target_configuration_report_req_t)) {
