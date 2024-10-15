@@ -41,6 +41,10 @@ libspdm_return_t cxl_tsp_get_response_get_version (
     cxl_tsp_get_target_tsp_version_rsp_mine_t *tsp_response;
     libcxltsp_error_code_t error_code;
 
+    if (session_id == NULL) {
+        return CXL_TSP_ERROR_CODE_NO_PRIVILEGE;
+    }
+
     tsp_request = request;
     tsp_response = response;
     if (request_size != sizeof(cxl_tsp_get_target_tsp_version_req_t)) {

@@ -33,6 +33,10 @@ libspdm_return_t cxl_tsp_get_response_get_capabilities (
     libcxltsp_error_code_t error_code;
     libcxltsp_device_capabilities_t device_capabilities;
 
+    if (session_id == NULL) {
+        return CXL_TSP_ERROR_CODE_NO_PRIVILEGE;
+    }
+
     tsp_request = request;
     tsp_response = response;
     if (request_size != sizeof(cxl_tsp_get_target_capabilities_req_t)) {

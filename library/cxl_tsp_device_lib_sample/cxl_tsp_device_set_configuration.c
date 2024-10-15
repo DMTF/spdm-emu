@@ -10,6 +10,8 @@
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/cxl_tsp_device_lib.h"
 
+extern uint8_t m_cxl_tsp_2nd_session_psk[CXL_TSP_2ND_SESSION_COUNT][CXL_TSP_2ND_SESSION_KEY_SIZE];
+
 /**
  *  Process the TSP request and return the response.
  *
@@ -28,6 +30,7 @@ libcxltsp_error_code_t cxl_tsp_device_set_configuration (
     const libcxltsp_device_2nd_session_info_t *device_2nd_session_info)
 {
     libcxltsp_device_context *device_context;
+    size_t index;
 
     device_context = libcxltsp_get_device_context (pci_doe_context);
     if (device_context == NULL) {
@@ -42,5 +45,14 @@ libcxltsp_error_code_t cxl_tsp_device_set_configuration (
                       device_2nd_session_info,
                       sizeof(libcxltsp_device_2nd_session_info_t));
 
+    for (index = 0; index < CXL_TSP_2ND_SESSION_COUNT; index++) {
+        if ((device_context->device_2nd_session_info.configuration_validity_flags & (0x1 << index)) != 0) {
+            libspdm_copy_mem(
+                m_cxl_tsp_2nd_session_psk[index],
+                sizeof(m_cxl_tsp_2nd_session_psk[index]),
+                &device_context->device_2nd_session_info.secondary_session_psk_key_material[index],
+                sizeof(device_context->device_2nd_session_info.secondary_session_psk_key_material[index]));
+        }
+    }
     return CXL_TSP_ERROR_CODE_SUCCESS;
 }

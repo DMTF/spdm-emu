@@ -33,6 +33,9 @@ libcxltsp_error_code_t cxl_tsp_device_get_version (
     if (device_context == NULL) {
         return CXL_TSP_ERROR_CODE_UNSPECIFIED;
     }
+
+    libcxltsp_initialize_session_id ((void *)spdm_context, *session_id);
+
     libspdm_copy_mem (version_number_entry,
                       sizeof(cxl_tsp_version_number_t) * (*version_number_entry_count),
                       device_context->supported_tsp_versions,
