@@ -22,6 +22,7 @@ cxl_tsp_dispatch_struct_t m_cxl_tsp_dispatch[] = {
     {CXL_TSP_OPCODE_GET_TARGET_CONFIGURATION, cxl_tsp_get_response_get_configuration},
     {CXL_TSP_OPCODE_GET_TARGET_CONFIGURATION_REPORT, cxl_tsp_get_response_get_configuration_report},
     {CXL_TSP_OPCODE_LOCK_TARGET_CONFIGURATION, cxl_tsp_get_response_lock_configuration},
+    {CXL_TSP_OPCODE_SET_TARGET_TE_STATE, cxl_tsp_get_response_set_te_state},
 };
 
 /**
