@@ -12,6 +12,7 @@ set(src_cxl_tsp_responder_lib
     cxl_tsp_rsp_get_configuration.c
     cxl_tsp_rsp_get_configuration_report.c
     cxl_tsp_rsp_lock_configuration.c
+    cxl_tsp_rsp_set_te_state.c
     cxl_tsp_rsp_error.c
 )
 

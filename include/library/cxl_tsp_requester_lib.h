@@ -113,6 +113,24 @@ libspdm_return_t cxl_tsp_lock_configuration(
  * @param  session_id                   Indicates if it is a secured message protected via SPDM session.
  *                                     If session_id is NULL, it is a normal message.
  *                                     If session_id is NOT NULL, it is a secured message.
+ *
+ * @retval LIBSPDM_STATUS_SUCCESS               The IDM_KM request is sent and response is received.
+ * @return ERROR                        The IDM_KM response is not received correctly.
+ **/
+libspdm_return_t cxl_tsp_set_te_state(
+    const void *pci_doe_context,
+    void *spdm_context, const uint32_t *session_id,
+    uint8_t te_state,
+    uint8_t number_of_memory_ranges,
+    const cxl_tsp_memory_range_t *memory_ranges);
+
+/**
+ * Send and receive an TSP message
+ *
+ * @param  spdm_context                 A pointer to the SPDM context.
+ * @param  session_id                   Indicates if it is a secured message protected via SPDM session.
+ *                                     If session_id is NULL, it is a normal message.
+ *                                     If session_id is NOT NULL, it is a secured message.
  * @param request                       the TSP request message, start from cxl_tsp_header_t.
  * @param request_size                  size in bytes of request.
  * @param response                      the TSP response message, start from cxl_tsp_header_t.

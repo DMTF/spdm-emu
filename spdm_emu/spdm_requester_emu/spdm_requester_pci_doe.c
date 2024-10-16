@@ -396,6 +396,8 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
     uint32_t configuration_report_size;
     cxl_tsp_target_configuration_report_t *configuration_report;
     bool result;
+    uint8_t te_state;
+    cxl_tsp_memory_range_t memory_range[1];
 
     status = cxl_tsp_get_version (m_pci_doe_context, spdm_context, &session_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
@@ -563,6 +565,30 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
             return status;
         }
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_tsp_state(%d) - 0x%02x\n", is_secondary, current_tsp_state));
+    }
+
+    if (is_primary || is_secondary) {
+        memory_range[0].length = 0x10000;
+        memory_range[0].starting_address = 0x100000;
+        te_state = 0x1;
+        status = cxl_tsp_set_te_state (m_pci_doe_context, spdm_context, &session_id,
+                                       te_state,
+                                       LIBSPDM_ARRAY_SIZE(memory_range),
+                                       memory_range);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return status;
+        }
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "set_te_state(%d) - 0x%02x\n", is_secondary, te_state));
+
+        te_state = 0x0;
+        status = cxl_tsp_set_te_state (m_pci_doe_context, spdm_context, &session_id,
+                                       te_state,
+                                       LIBSPDM_ARRAY_SIZE(memory_range),
+                                       memory_range);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            return status;
+        }
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "set_te_state(%d) - 0x%02x\n", is_secondary, te_state));
     }
 
     if (is_primary) {

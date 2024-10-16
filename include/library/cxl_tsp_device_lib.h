@@ -146,4 +146,22 @@ libcxltsp_error_code_t cxl_tsp_device_lock_configuration (
     const void *pci_doe_context,
     const void *spdm_context, const uint32_t *session_id);
 
+/**
+ *  Process the TSP request and return the response.
+ *
+ *  @param request       the TSP request message, start from cxl_tsp_header_t.
+ *  @param request_size  size in bytes of request.
+ *  @param response      the TSP response message, start from cxl_tsp_header_t.
+ *  @param response_size size in bytes of response.
+ *
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
+ *  @return ERROR          The request is not processed.
+ **/
+libcxltsp_error_code_t cxl_tsp_device_set_te_state (
+    const void *pci_doe_context,
+    const void *spdm_context, const uint32_t *session_id,
+    uint8_t te_state,
+    uint8_t number_of_memory_ranges,
+    const cxl_tsp_memory_range_t *memory_ranges);
+
 #endif

@@ -166,4 +166,21 @@ libspdm_return_t cxl_tsp_get_response_lock_configuration (
     const void *request, size_t request_size,
     void *response, size_t *response_size);
 
+/**
+ *  Process the TSP request and return the response.
+ *
+ *  @param request       the TSP request message, start from cxl_tsp_header_t.
+ *  @param request_size  size in bytes of request.
+ *  @param response      the TSP response message, start from cxl_tsp_header_t.
+ *  @param response_size size in bytes of response.
+ *
+ *  @retval LIBSPDM_STATUS_SUCCESS The request is processed and the response is returned.
+ *  @return ERROR          The request is not processed.
+ **/
+libspdm_return_t cxl_tsp_get_response_set_te_state (
+    const void *pci_doe_context,
+    const void *spdm_context, const uint32_t *session_id,
+    const void *request, size_t request_size,
+    void *response, size_t *response_size);
+
 #endif

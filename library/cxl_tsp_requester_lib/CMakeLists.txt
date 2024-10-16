@@ -12,6 +12,7 @@ set(src_cxl_tsp_requester_lib
     cxl_tsp_req_get_configuration.c
     cxl_tsp_req_get_configuration_report.c
     cxl_tsp_req_lock_configuration.c
+    cxl_tsp_req_set_te_state.c
 )
 
 add_library(cxl_tsp_requester_lib STATIC ${src_cxl_tsp_requester_lib})
