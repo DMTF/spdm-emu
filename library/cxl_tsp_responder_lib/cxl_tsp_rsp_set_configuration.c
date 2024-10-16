@@ -241,7 +241,7 @@ libspdm_return_t cxl_tsp_get_response_set_configuration (
     if (session_id == NULL) {
         return CXL_TSP_ERROR_CODE_NO_PRIVILEGE;
     }
-    if (!libcxltsp_is_session_primary(*session_id)) {
+    if (libcxltsp_get_session_type(*session_id) != LIB_CXL_TSP_SESSION_TYPE_PRIMARY) {
         return CXL_TSP_ERROR_CODE_NO_PRIVILEGE;
     }
 

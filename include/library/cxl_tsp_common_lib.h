@@ -44,4 +44,10 @@ typedef struct {
     cxl_tsp_secondary_session_psk_key_material_t secondary_session_psk_key_material[4];
 } libcxltsp_device_2nd_session_info_t;
 
+typedef enum {
+    LIB_CXL_TSP_SESSION_TYPE_PRIMARY,
+    LIB_CXL_TSP_SESSION_TYPE_SECONDARY,
+    LIB_CXL_TSP_SESSION_TYPE_OTHER,
+} libcxltsp_session_type;
+
 #endif

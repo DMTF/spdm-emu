@@ -37,6 +37,16 @@ bool libcxltsp_is_session_secondary (uint32_t session_id)
     return false;
 }
 
+libcxltsp_session_type libcxltsp_get_session_type (uint32_t session_id)
+{
+    if (libcxltsp_is_session_primary(session_id)) {
+        return LIB_CXL_TSP_SESSION_TYPE_PRIMARY;
+    } else if (libcxltsp_is_session_secondary(session_id)) {
+        return LIB_CXL_TSP_SESSION_TYPE_SECONDARY;
+    }
+    return LIB_CXL_TSP_SESSION_TYPE_OTHER;
+}
+
 void libcxltsp_set_session_id (uint32_t session_id, bool is_secondary, size_t session_index)
 {
     if (!is_secondary) {

@@ -42,8 +42,7 @@ void libcxltsp_initialize_session_id (
     uint32_t session_id
     );
 
-bool libcxltsp_is_session_primary (uint32_t session_id);
-bool libcxltsp_is_session_secondary (uint32_t session_id);
+libcxltsp_session_type libcxltsp_get_session_type (uint32_t session_id);
 
 typedef uint32_t libcxltsp_error_code_t;
 #define CXL_TSP_ERROR_CODE_SUCCESS 0
