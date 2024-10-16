@@ -35,7 +35,7 @@
 
    Use x86 command prompt for ARCH=ia32 and x64 command prompt for ARCH=x64. (TOOLCHAIN=VS2022|VS2019|VS2015|CLANG)
    ```
-   cd spdm_emu
+   cd spdm-emu
    mkdir build
    cd build
    cmake -G"NMake Makefiles" -DARCH=<x64|ia32> -DTOOLCHAIN=<toolchain> -DTARGET=<Debug|Release> -DCRYPTO=<mbedtls|openssl> ..
@@ -47,7 +47,7 @@
 
    (TOOLCHAIN=GCC|CLANG)
    ```
-   cd spdm_emu
+   cd spdm-emu
    mkdir build
    cd build
    cmake -DARCH=<x64|ia32|arm|aarch64|riscv32|riscv64|arc> -DTOOLCHAIN=<toolchain> -DTARGET=<Debug|Release> -DCRYPTO=<mbedtls|openssl> ..
@@ -59,7 +59,7 @@
 
 ### Run spdm_emu
 
-   The spdm_emu output is at spdm_emu/build/bin.
+   The spdm_emu output is at spdm-emu/build/bin.
    Open one command prompt at output dir to run `spdm_responder_emu` and another command prompt to run `spdm_requester_emu`.
 
    Please refer to [spdm_emu](https://github.com/DMTF/spdm-emu/blob/main/doc/spdm_emu.md) for detail.
