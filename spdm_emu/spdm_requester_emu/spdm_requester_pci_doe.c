@@ -383,7 +383,7 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
     return LIBSPDM_STATUS_SUCCESS;
 }
 
-libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t session_id, bool is_primary, bool is_secondary)
+libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t session_id, libcxltsp_session_type session_type)
 {
     libspdm_return_t status;
     libcxltsp_device_capabilities_t device_capabilities;
@@ -403,7 +403,7 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_get_version(%d) done\n", is_secondary));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_get_version(%d) done\n", session_type));
 
     libspdm_zero_mem (&device_capabilities, sizeof(device_capabilities));
     status = cxl_tsp_get_capabilities (m_pci_doe_context, spdm_context, &session_id,
@@ -411,7 +411,7 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "device_capabilities(%d):\n", is_secondary));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "device_capabilities(%d):\n", session_type));
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_features_supported - 0x%04x\n",
                    device_capabilities.memory_encryption_features_supported));
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_algorithms_supported - 0x%08x\n",
@@ -431,7 +431,7 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  number_of_secondary_sessions - 0x%02x\n",
                    device_capabilities.number_of_secondary_sessions));
 
-    if (is_primary) {
+    if (session_type == LIB_CXL_TSP_SESSION_TYPE_PRIMARY) {
         libspdm_zero_mem (&device_configuration, sizeof(device_configuration));
         device_configuration.memory_encryption_features_enable =
             CXL_TSP_MEMORY_ENCRYPTION_FEATURES_ENABLE_ENCRYPTION;
@@ -495,10 +495,10 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_set_configuration(%d) done\n", is_secondary));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_set_configuration(%d) done\n", session_type));
     }
 
-    if (is_primary || is_secondary) {
+    if (session_type != LIB_CXL_TSP_SESSION_TYPE_OTHER) {
         libspdm_zero_mem (&current_device_configuration, sizeof(current_device_configuration));
         current_tsp_state = CXL_TSP_STATE_CONFIG_UNLOCKED;
         status = cxl_tsp_get_configuration (m_pci_doe_context, spdm_context, &session_id,
@@ -506,7 +506,7 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_device_configuration(%d):\n", is_secondary));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_device_configuration(%d):\n", session_type));
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_features_enable - 0x%04x\n",
                     current_device_configuration.memory_encryption_features_enable));
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  memory_encryption_algorithm_select - 0x%08x\n",
@@ -533,10 +533,10 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
             LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "    number_of_ckids - 0x%02x\n",
                         current_device_configuration.explicit_ib_te_state_granularity_entry[index].length_index));
         }
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_tsp_state(%d) - 0x%02x\n", is_secondary, current_tsp_state));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_tsp_state(%d) - 0x%02x\n", session_type, current_tsp_state));
     }
 
-    if (is_primary || is_secondary) {
+    if (session_type != LIB_CXL_TSP_SESSION_TYPE_OTHER) {
         configuration_report_size = sizeof(configuration_report_buffer);
         status = cxl_tsp_get_configuration_report (
             m_pci_doe_context, spdm_context, &session_id,
@@ -545,29 +545,29 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
             return status;
         }
         configuration_report = (cxl_tsp_target_configuration_report_t *)configuration_report_buffer;
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "configuration_report(%d):\n", is_secondary));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "configuration_report(%d):\n", session_type));
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "  valid_tsp_report_fields - 0x%02x\n", configuration_report->valid_tsp_report_fields));
     }
 
-    if (is_primary) {
+    if (session_type == LIB_CXL_TSP_SESSION_TYPE_PRIMARY) {
         status = cxl_tsp_lock_configuration (m_pci_doe_context, spdm_context, &session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_lock_configuration(%d) done\n", is_secondary));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_tsp_lock_configuration(%d) done\n", session_type));
     }
 
-    if (is_primary || is_secondary) {
+    if (session_type != LIB_CXL_TSP_SESSION_TYPE_OTHER) {
         current_tsp_state = CXL_TSP_STATE_CONFIG_UNLOCKED;
         status = cxl_tsp_get_configuration (m_pci_doe_context, spdm_context, &session_id,
                                             NULL, &current_tsp_state);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_tsp_state(%d) - 0x%02x\n", is_secondary, current_tsp_state));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "current_tsp_state(%d) - 0x%02x\n", session_type, current_tsp_state));
     }
 
-    if (is_primary || is_secondary) {
+    if (session_type != LIB_CXL_TSP_SESSION_TYPE_OTHER) {
         memory_range[0].length = 0x10000;
         memory_range[0].starting_address = 0x100000;
         te_state = 0x1;
@@ -578,7 +578,7 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "set_te_state(%d) - 0x%02x\n", is_secondary, te_state));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "set_te_state(%d) - 0x%02x\n", session_type, te_state));
 
         te_state = 0x0;
         status = cxl_tsp_set_te_state (m_pci_doe_context, spdm_context, &session_id,
@@ -588,10 +588,10 @@ libspdm_return_t cxl_tsp_process_session_message(void *spdm_context, uint32_t se
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
-        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "set_te_state(%d) - 0x%02x\n", is_secondary, te_state));
+        LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "set_te_state(%d) - 0x%02x\n", session_type, te_state));
     }
 
-    if (is_primary) {
+    if (session_type == LIB_CXL_TSP_SESSION_TYPE_PRIMARY) {
         /* test CXL_TSP 2nd session */
         if ((device_capabilities.configuration_features_supported &
              CXL_TSP_CONFIGURATION_FEATURES_SUPPORT_TARGET_SUPPORT_ADDITIONAL_SPDM_SESSIONS) != 0) {
@@ -652,7 +652,7 @@ libspdm_return_t do_cxl_tsp_2nd_session_via_spdm(void *spdm_context, size_t inde
         return status;
     }
 
-    status = cxl_tsp_process_session_message (spdm_context, session_id, false, true);
+    status = cxl_tsp_process_session_message (spdm_context, session_id, LIB_CXL_TSP_SESSION_TYPE_SECONDARY);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         printf("do_app_session_via_spdm(2nd) - %x\n", (uint32_t)status);
         return status;
@@ -688,7 +688,8 @@ libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t se
         return status;
     }
 
-    status = cxl_tsp_process_session_message (spdm_context, session_id, is_first, false);
+    status = cxl_tsp_process_session_message (spdm_context, session_id,
+        is_first ? LIB_CXL_TSP_SESSION_TYPE_PRIMARY : LIB_CXL_TSP_SESSION_TYPE_OTHER);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
