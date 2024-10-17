@@ -15,6 +15,8 @@
 
 #define LIBCXLTSP_CONFIGURATION_REPORT_PORTION_LEN 0x40
 
+#define LIBCXLTSP_ERROR_MESSAGE_MAX_SIZE (sizeof(cxl_tsp_error_rsp_t))
+
 typedef struct {
     uint16_t memory_encryption_features_supported;
     uint32_t memory_encryption_algorithms_supported;
