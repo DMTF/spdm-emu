@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2024 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
  **/
 
@@ -29,7 +29,8 @@ libspdm_return_t pci_tdisp_get_interface_state(const void *pci_doe_context,
     libspdm_return_t status;
     pci_tdisp_get_device_interface_state_request_t request;
     size_t request_size;
-    pci_tdisp_device_interface_state_response_t response;
+    uint8_t res_buf[LIBTDISP_ERROR_MESSAGE_MAX_SIZE];
+    pci_tdisp_device_interface_state_response_t *response;
     size_t response_size;
 
     libspdm_zero_mem (&request, sizeof(request));
@@ -38,10 +39,11 @@ libspdm_return_t pci_tdisp_get_interface_state(const void *pci_doe_context,
     request.header.interface_id.function_id = interface_id->function_id;
 
     request_size = sizeof(request);
-    response_size = sizeof(response);
+    response = (void *)res_buf;
+    response_size = sizeof(res_buf);
     status = pci_tdisp_send_receive_data(spdm_context, session_id,
                                          &request, request_size,
-                                         &response, &response_size);
+                                         response, &response_size);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
@@ -49,17 +51,17 @@ libspdm_return_t pci_tdisp_get_interface_state(const void *pci_doe_context,
     if (response_size != sizeof(pci_tdisp_device_interface_state_response_t)) {
         return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
-    if (response.header.version != request.header.version) {
+    if (response->header.version != request.header.version) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
-    if (response.header.message_type != PCI_TDISP_DEVICE_INTERFACE_STATE) {
+    if (response->header.message_type != PCI_TDISP_DEVICE_INTERFACE_STATE) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
-    if (response.header.interface_id.function_id != request.header.interface_id.function_id) {
+    if (response->header.interface_id.function_id != request.header.interface_id.function_id) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
-    *tdi_state = response.tdi_state;
+    *tdi_state = response->tdi_state;
 
     return LIBSPDM_STATUS_SUCCESS;
 }
