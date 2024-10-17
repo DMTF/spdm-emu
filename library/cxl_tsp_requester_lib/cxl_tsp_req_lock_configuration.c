@@ -28,7 +28,8 @@ libspdm_return_t cxl_tsp_lock_configuration(
     libspdm_return_t status;
     cxl_tsp_lock_target_configuration_req_t request;
     size_t request_size;
-    cxl_tsp_lock_target_configuration_rsp_t response;
+    uint8_t res_buf[LIBCXLTSP_ERROR_MESSAGE_MAX_SIZE];
+    cxl_tsp_lock_target_configuration_rsp_t *response;
     size_t response_size;
 
     libspdm_zero_mem (&request, sizeof(request));
@@ -36,10 +37,11 @@ libspdm_return_t cxl_tsp_lock_configuration(
     request.header.op_code = CXL_TSP_OPCODE_LOCK_TARGET_CONFIGURATION;
 
     request_size = sizeof(request);
-    response_size = sizeof(response);
+    response = (void *)res_buf;
+    response_size = sizeof(res_buf);
     status = cxl_tsp_send_receive_data(spdm_context, session_id,
                                        &request, request_size,
-                                       &response, &response_size);
+                                       response, &response_size);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
@@ -47,10 +49,10 @@ libspdm_return_t cxl_tsp_lock_configuration(
     if (response_size != sizeof(cxl_tsp_lock_target_configuration_rsp_t)) {
         return LIBSPDM_STATUS_INVALID_MSG_SIZE;
     }
-    if (response.header.tsp_version != request.header.tsp_version) {
+    if (response->header.tsp_version != request.header.tsp_version) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
-    if (response.header.op_code != CXL_TSP_OPCODE_LOCK_TARGET_CONFIGURATION_RSP) {
+    if (response->header.op_code != CXL_TSP_OPCODE_LOCK_TARGET_CONFIGURATION_RSP) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
 
