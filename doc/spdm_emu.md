@@ -59,31 +59,31 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.
          [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.
          [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.
-         [--meas_sum] is the measurment summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.
-         [--meas_op] is the measurement operation in GET_MEASUREMEMT. By default, ONE_BY_ONE is used.
-         [--meas_att] is the measurement attribute in GET_MEASUREMEMT. By default, HASH is used.
+         [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.
+         [--meas_op] is the measurement operation in GET_MEASUREMENT. By default, ONE_BY_ONE is used.
+         [--meas_att] is the measurement attribute in GET_MEASUREMENT. By default, HASH is used.
          [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.
          [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.
                  0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.
          [--slot_count] is to select the local slot count. By default, 3 is used. And the slot store cert chain continuously in emu.
          [--save_state] is to save the current negotiated state to a write-only file.
-                 The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.
+                 The requester and responder will save state after GET_VERSION/GET_CAPABILITIES /NEGOTIATE_ALGORITHMS.
                  (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param)
                  The responder should set CACHE capabilities, otherwise the state will not be saved.
                  The requester will clear PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION to preserve, otherwise this bit is set.
                  The responder will save empty state, if the requester sets PRESERVE_NEGOTIATED_STATE_CLEAR bit in END_SESSION.
          [--load_state] is to load the negotiated state to current session from a read-only file.
                  The requester and responder will provision the state just after SPDM context is created.
-                 The user need guarantee the state file is gnerated correctly.
+                 The user need guarantee the state file is generated correctly.
                  The command line input - ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param are ignored.
-                 The requester will skip GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.
+                 The requester will skip GET_VERSION/GET_CAPABILITIES/NEGOTIATE_ALGORITHMS.
          [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.
                  SHUTDOWN means the requester asks the responder to stop.
                  CONTINUE means the requester asks the responder to preserve the current SPDM context.
          [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT, GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO.
                  VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.
                      The version for responder must be provisioned from ver.
-                     The capablities for local and peer are from cap|peer_cap.
+                     The capabilities for local and peer are from cap|peer_cap.
                      The negotiated algorithms are from hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param and they shall have at most 1 bit set.
                  DIGEST means send GET_DIGESTS command.
                  CERT means send GET_CERTIFICATE command.
@@ -110,7 +110,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command in session.
                  APP means send vendor defined message or application message in session.
          [--pcap] is used to generate PCAP dump file for offline analysis.
-         [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.
+         [--priv_key_mode] is used to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.
    ```
 
    Take spdm_requester_emu or spdm_responder_emu as an example, a user may use `spdm_requester_emu --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
