@@ -407,73 +407,86 @@ void spdm_server_connection_state_callback(
         libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                         &data32, &data_size);
 
-        if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
-            res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
-                                                                m_use_asym_algo,
-                                                                &data, &data_size,
-                                                                NULL, NULL);
+        if ((m_use_responder_capability_flags &
+             SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) != 0) {
+            m_use_slot_id = 0xFF;
+        }
+        if ((m_use_requester_capability_flags &
+             SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
+            m_use_req_slot_id = 0xFF;
+        }
+
+        printf("slot_id - %x\n", m_use_slot_id);
+        printf("req_slot_id - %x\n", m_use_req_slot_id);
+
+        if (m_use_slot_id == 0xFF) {
+            res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
+            if (res) {
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
+                                 &parameter, data, data_size);
+                /* Do not free it.*/
+            }
         } else {
-            res = libspdm_read_responder_public_certificate_chain_alias_cert(
+            if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
+                res = libspdm_read_responder_public_certificate_chain(
+                    m_use_hash_algo,
+                    m_use_asym_algo,
+                    &data, &data_size,
+                    NULL, NULL);
+            } else {
+                res = libspdm_read_responder_public_certificate_chain_alias_cert(
+                    m_use_hash_algo,
+                    m_use_asym_algo,
+                    &data, &data_size,
+                    NULL, NULL);
+            }
+
+            res = libspdm_read_responder_public_certificate_chain_per_slot(
+                1,
                 m_use_hash_algo,
                 m_use_asym_algo,
-                &data, &data_size,
+                &data1, &data1_size,
                 NULL, NULL);
+            if (res) {
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+
+                for (index = 0; index < m_use_slot_count; index++) {
+                    parameter.additional_data[0] = index;
+                    if (index == 1) {
+                        libspdm_set_data(spdm_context,
+                                         LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                         &parameter, data1, data1_size);
+                    } else {
+                        libspdm_set_data(spdm_context,
+                                         LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                         &parameter, data, data_size);
+                    }
+                    data8 = (uint8_t)(0xA0 + index);
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
+                                     &parameter, &data8, sizeof(data8));
+                    data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_CERT_INFO,
+                                     &parameter, &data8, sizeof(data8));
+                    data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
+                             SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
+                             SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
+                             SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
+                                     &parameter, &data16, sizeof(data16));
+                }
+                /* do not free it*/
+            }
         }
 
-        res = libspdm_read_responder_public_certificate_chain_per_slot(1,
-                                                                       m_use_hash_algo,
-                                                                       m_use_asym_algo,
-                                                                       &data1, &data1_size,
-                                                                       NULL, NULL);
-        if (res) {
-            libspdm_zero_mem(&parameter, sizeof(parameter));
-            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-
-            for (index = 0; index < m_use_slot_count; index++) {
-                parameter.additional_data[0] = index;
-                if (index == 1) {
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                                     &parameter, data1, data1_size);
-                } else {
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                                     &parameter, data, data_size);
-                }
-                data8 = (uint8_t)(0xA0 + index);
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
-                                 &parameter, &data8, sizeof(data8));
-                data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_CERT_INFO,
-                                 &parameter, &data8, sizeof(data8));
-                data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
-                         SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
-                         SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
-                         SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
-                                 &parameter, &data16, sizeof(data16));
-            }
-            /* do not free it*/
-        }
-
-        if (m_use_req_asym_algo != 0) {
-            if ((m_use_responder_capability_flags &
-                 SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) != 0) {
-                m_use_slot_id = 0xFF;
-            }
-            if (m_use_slot_id == 0xFF) {
-                res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
-                if (res) {
-                    libspdm_zero_mem(&parameter, sizeof(parameter));
-                    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
-                                     &parameter, data, data_size);
-                    /* Do not free it.*/
-                }
+        if (m_use_req_slot_id == 0xFF) {
+            if (m_use_req_asym_algo != 0) {
                 res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
                 if (res) {
                     libspdm_zero_mem(&parameter, sizeof(parameter));
@@ -483,7 +496,9 @@ void spdm_server_connection_state_callback(
                                      &parameter, data, data_size);
                     /* Do not free it.*/
                 }
-            } else {
+            }
+        } else {
+            if (m_use_req_asym_algo != 0) {
                 res = libspdm_read_requester_root_public_certificate(
                     m_use_hash_algo, m_use_req_asym_algo, &data,
                     &data_size, &hash, &hash_size);
@@ -501,22 +516,24 @@ void spdm_server_connection_state_callback(
                     /* Do not free it.*/
                 }
             }
+        }
 
+        if (m_use_req_asym_algo != 0) {
             if (res) {
-                if (m_use_slot_id == 0xFF) {
+                if (m_use_req_slot_id == 0xFF) {
                     /* 0xFF slot is only allowed in */
                     m_use_mut_auth = SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED;
                 }
                 data8 = m_use_mut_auth;
                 parameter.additional_data[0] =
-                    m_use_slot_id; /* req_slot_id;*/
+                    m_use_req_slot_id; /* req_slot_id;*/
                 libspdm_set_data(spdm_context,
                                  LIBSPDM_DATA_MUT_AUTH_REQUESTED, &parameter,
                                  &data8, sizeof(data8));
 
                 data8 = m_use_basic_mut_auth;
                 parameter.additional_data[0] =
-                    m_use_slot_id; /* req_slot_id;*/
+                    m_use_req_slot_id; /* req_slot_id;*/
                 libspdm_set_data(spdm_context,
                                  LIBSPDM_DATA_BASIC_MUT_AUTH_REQUESTED,
                                  &parameter, &data8, sizeof(data8));
