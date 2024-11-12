@@ -272,7 +272,7 @@ void *spdm_client_init(void)
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                      &parameter, &data8, sizeof(data8));
     data32 = m_use_requester_capability_flags;
-    if (m_use_slot_id == 0xFF) {
+    if (m_use_req_slot_id == 0xFF) {
         data32 |= SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP;
         data32 &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP;
         data32 &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP;
@@ -435,7 +435,7 @@ void *spdm_client_init(void)
 
     if ((m_use_requester_capability_flags &
          SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
-        m_use_slot_id = 0xFF;
+        m_use_req_slot_id = 0xFF;
     }
     if (((m_exe_connection & EXE_CONNECTION_CERT) == 0) && (m_use_slot_id != 0xFF)) {
         m_exe_connection &= ~EXE_CONNECTION_CHAL;
@@ -443,6 +443,10 @@ void *spdm_client_init(void)
         m_exe_session &= ~EXE_SESSION_KEY_EX;
         m_exe_session &= ~EXE_SESSION_MEAS;
     }
+
+    printf("slot_id - %x\n", m_use_slot_id);
+    printf("req_slot_id - %x\n", m_use_req_slot_id);
+
     if (m_use_slot_id == 0xFF) {
         res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
         if (res) {
@@ -454,20 +458,6 @@ void *spdm_client_init(void)
             /* Do not free it.*/
         } else {
             printf("read_responder_public_key fail!\n");
-            free(m_spdm_context);
-            m_spdm_context = NULL;
-            return NULL;
-        }
-        res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
-        if (res) {
-            libspdm_zero_mem(&parameter, sizeof(parameter));
-            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-            libspdm_set_data(spdm_context,
-                             LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
-                             &parameter, data, data_size);
-            /* Do not free it.*/
-        } else {
-            printf("read_requester_public_key fail!\n");
             free(m_spdm_context);
             m_spdm_context = NULL;
             return NULL;
@@ -518,42 +508,61 @@ void *spdm_client_init(void)
         }
     }
 
-    if (m_use_req_asym_algo != 0) {
-        res = libspdm_read_requester_public_certificate_chain(m_use_hash_algo,
-                                                              m_use_req_asym_algo,
-                                                              &data, &data_size, NULL,
-                                                              NULL);
-        if (res) {
-            libspdm_zero_mem(&parameter, sizeof(parameter));
-            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-
-            for (index = 0; index < m_use_slot_count; index++) {
-                parameter.additional_data[0] = index;
+    if (m_use_req_slot_id == 0xFF) {
+        if (m_use_req_asym_algo != 0) {
+            res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
+            if (res) {
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
                 libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                 LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
                                  &parameter, data, data_size);
-                data8 = (uint8_t)(0xB0 + index);
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
-                                 &parameter, &data8, sizeof(data8));
-                data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_CERT_INFO,
-                                 &parameter, &data8, sizeof(data8));
-                data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
-                         SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
-                         SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
-                         SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
-                                 &parameter, &data16, sizeof(data16));
+                /* Do not free it.*/
+            } else {
+                printf("read_requester_public_key fail!\n");
+                free(m_spdm_context);
+                m_spdm_context = NULL;
+                return NULL;
             }
-            /* do not free it*/
-        } else {
-            printf("read_requester_public_certificate_chain fail!\n");
-            free(m_spdm_context);
-            m_spdm_context = NULL;
-            return NULL;
+        }
+    } else {
+        if (m_use_req_asym_algo != 0) {
+            res = libspdm_read_requester_public_certificate_chain(m_use_hash_algo,
+                                                                  m_use_req_asym_algo,
+                                                                  &data, &data_size, NULL,
+                                                                  NULL);
+            if (res) {
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+
+                for (index = 0; index < m_use_slot_count; index++) {
+                    parameter.additional_data[0] = index;
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                     &parameter, data, data_size);
+                    data8 = (uint8_t)(0xB0 + index);
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
+                                     &parameter, &data8, sizeof(data8));
+                    data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_CERT_INFO,
+                                     &parameter, &data8, sizeof(data8));
+                    data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
+                            SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
+                            SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
+                            SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
+                                     &parameter, &data16, sizeof(data16));
+                }
+                /* do not free it*/
+            } else {
+                printf("read_requester_public_certificate_chain fail!\n");
+                free(m_spdm_context);
+                m_spdm_context = NULL;
+                return NULL;
+            }
         }
     }
 

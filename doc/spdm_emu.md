@@ -28,6 +28,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--key_upd REQ|ALL|RSP]
          [--slot_id <0~7|0xFF>]
          [--slot_count <1~8>]
+         [--req_slot_id <0~7|0xFF>]
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
@@ -63,7 +64,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--meas_op] is the measurement operation in GET_MEASUREMENT. By default, ONE_BY_ONE is used.
          [--meas_att] is the measurement attribute in GET_MEASUREMENT. By default, HASH is used.
          [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.
-         [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.
+         [--slot_id] is to select the responder slot ID in GET_MEASUREMENT, CHALLENGE_AUTH and KEY_EXCHANGE. By default, 0 is used.
+         [--req_slot_id] is to select the requester slot ID in KEY_EXCHANGE_RSP and FINISH. By default, 0 is used.
                  0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.
          [--slot_count] is to select the local slot count. By default, 3 is used. And the slot store cert chain continuously in emu.
          [--save_state] is to save the current negotiated state to a write-only file.

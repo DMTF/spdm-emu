@@ -67,6 +67,7 @@ void print_usage(const char *name)
     printf("   [--key_upd REQ|ALL|RSP]\n");
     printf("   [--slot_id <0~7|0xFF>]\n");
     printf("   [--slot_count <1~8>]\n");
+    printf("   [--req_slot_id <0~7|0xFF>]\n");
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
@@ -119,7 +120,9 @@ void print_usage(const char *name)
     printf(
         "   [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.\n");
     printf(
-        "   [--slot_id] is to select the peer slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and FINISH. By default, 0 is used.\n");
+        "   [--slot_id] is to select the responder slot ID in GET_MEASUREMENT, CHALLENGE_AUTH and KEY_EXCHANGE. By default, 0 is used.\n");
+    printf(
+        "   [--req_slot_id] is to select the requester slot ID in KEY_EXCHANGE_RSP and FINISH. By default, 0 is used.\n");
     printf(
         "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
     printf(
@@ -1119,6 +1122,29 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --slot_count\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--req_slot_id") == 0) {
+            if (argc >= 2) {
+                if (!get_value_from_name(
+                        m_slot_id_string_table,
+                        LIBSPDM_ARRAY_SIZE(m_slot_id_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --req_slot_id %s\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_req_slot_id = (uint8_t)data32;
+                printf("req_slot_id - 0x%02x\n", m_use_req_slot_id);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --req_slot_id\n");
                 print_usage(program_name);
                 exit(0);
             }
