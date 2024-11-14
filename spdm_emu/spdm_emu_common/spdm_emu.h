@@ -198,7 +198,27 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
  * If chunk is supported, it must be larger than DATA_TRANSFER_SIZE.
  * It matches MaxSPDMmsgSize in SPDM specification. */
 #ifndef LIBSPDM_MAX_SPDM_MSG_SIZE
+/* MLDSA - 0x8000, SLHDSA - 0x28000 */
+#if ((LIBSPDM_SLH_DSA_SHA2_128S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_128S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_128F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_128F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_192S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_192S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_192F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_192F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_256S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_256S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_256F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_256F_SUPPORT))
+#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x28000
+#elif ((LIBSPDM_ML_DSA_44_SUPPORT) || \
+    (LIBSPDM_ML_DSA_65_SUPPORT) || \
+    (LIBSPDM_ML_DSA_87_SUPPORT))
+#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x8000
+#else
 #define LIBSPDM_MAX_SPDM_MSG_SIZE 0x1200
+#endif
 #endif
 
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
