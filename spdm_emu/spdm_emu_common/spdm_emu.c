@@ -71,7 +71,7 @@ void print_usage(const char *name)
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
-    printf("   [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
+    printf("   [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
     printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|APP]\n");
     printf("   [--pcap <pcap_file_name>]\n");
     printf("   [--priv_key_mode PEM|RAW]\n");
@@ -161,6 +161,7 @@ void print_usage(const char *name)
     printf("               The capablities for local and peer are from cap|peer_cap.\n");
     printf(
         "               The negotiated algorithms are from hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param and they shall have at most 1 bit set.\n");
+    printf("           VCA can be used when all other commands are skipped.\n");
     printf("           DIGEST means send GET_DIGESTS command.\n");
     printf("           CERT means send GET_CERTIFICATE command.\n");
     printf("           CHAL means send CHALLENGE command.\n");
@@ -411,6 +412,7 @@ value_string_entry_t m_exe_mode_string_table[] = {
 
 value_string_entry_t m_exe_connection_string_table[] = {
     { EXE_CONNECTION_VERSION_ONLY, "VER_ONLY" },
+    { 0, "VCA" },
     { EXE_CONNECTION_DIGEST, "DIGEST" },
     { EXE_CONNECTION_CERT, "CERT" },
     { EXE_CONNECTION_CHAL, "CHAL" },
@@ -484,11 +486,8 @@ bool get_flags_from_name(const value_string_entry_t *table,
         *flags |= value;
         flag_name = strtok(NULL, ",");
     }
-    if (*flags == 0) {
-        ret = false;
-    } else {
-        ret = true;
-    }
+    /* allow *flags to be 0 */
+    ret = true;
 done:
     free(local_name);
     return ret;

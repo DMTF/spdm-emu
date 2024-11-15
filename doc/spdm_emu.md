@@ -32,7 +32,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
-         [--exe_conn VER_ONLY|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]
+         [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]
          [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|APP]
          [--pcap <PcapFileName>]
          [--priv_key_mode PEM|RAW]
@@ -87,6 +87,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                      The version for responder must be provisioned from ver.
                      The capabilities for local and peer are from cap|peer_cap.
                      The negotiated algorithms are from hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param and they shall have at most 1 bit set.
+                 VCA can be used when all other commands are skipped.
                  DIGEST means send GET_DIGESTS command.
                  CERT means send GET_CERTIFICATE command.
                  CHAL means send CHALLENGE command.
