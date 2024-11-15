@@ -323,25 +323,44 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, &data32_size);
 
-    if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
-        res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
-                                                              m_use_asym_algo,
-                                                              &cert_chain_to_set,
-                                                              &cert_chain_size_to_set,
-                                                              NULL, NULL);
-    } else {
-        res = libspdm_read_responder_public_certificate_chain_alias_cert_till_dev_cert_ca(
-            m_use_hash_algo,
-            m_use_asym_algo,
-            &cert_chain_to_set,
-            &cert_chain_size_to_set,
-            NULL, NULL);
+    if (m_use_asym_algo != 0) {
+        if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
+            res = libspdm_read_responder_public_certificate_chain(m_use_hash_algo,
+                                                                m_use_asym_algo,
+                                                                &cert_chain_to_set,
+                                                                &cert_chain_size_to_set,
+                                                                NULL, NULL);
+        } else {
+            res = libspdm_read_responder_public_certificate_chain_alias_cert_till_dev_cert_ca(
+                m_use_hash_algo,
+                m_use_asym_algo,
+                &cert_chain_to_set,
+                &cert_chain_size_to_set,
+                NULL, NULL);
+        }
     }
-
-    if (!res) {
-        printf("set certificate :read_responder_public_certificate_chain fail!\n");
-        free(cert_chain_to_set);
-        return LIBSPDM_STATUS_INVALID_CERT;
+    if (m_use_pqc_asym_algo != 0) {
+        if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
+            res = libspdm_read_pqc_responder_public_certificate_chain(m_use_hash_algo,
+                                                                      m_use_pqc_asym_algo,
+                                                                      &cert_chain_to_set,
+                                                                      &cert_chain_size_to_set,
+                                                                      NULL, NULL);
+        } else {
+            res = libspdm_read_pqc_responder_public_certificate_chain_alias_cert_till_dev_cert_ca(
+                m_use_hash_algo,
+                m_use_pqc_asym_algo,
+                &cert_chain_to_set,
+                &cert_chain_size_to_set,
+                NULL, NULL);
+        }
+    }
+    if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
+        if (!res) {
+            printf("set certificate :read_responder_public_certificate_chain fail!\n");
+            free(cert_chain_to_set);
+            return LIBSPDM_STATUS_INVALID_CERT;
+        }
     }
 
     /*set_certificate for slot_id:0 in secure environment*/

@@ -273,6 +273,9 @@ void *spdm_server_init(void)
     data32 = m_support_hash_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
                      &data32, sizeof(data32));
+    data32 = m_support_pqc_asym_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_PQC_ASYM_ALGO, &parameter,
+                     &data32, sizeof(data32));
     data16 = m_support_dhe_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP, &parameter,
                      &data16, sizeof(data16));
@@ -291,6 +294,12 @@ void *spdm_server_init(void)
     data8 = m_support_mel_spec;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_MEL_SPEC, &parameter,
                      &data8, sizeof(data8));
+    data32 = m_support_req_pqc_asym_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_PQC_ASYM_ALG, &parameter,
+                     &data32, sizeof(data32));
+    data32 = m_support_kem_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_KEM_ALG, &parameter,
+                     &data32, sizeof(data32));
 
     data8 = 0xF0;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_HEARTBEAT_PERIOD, &parameter,
@@ -400,6 +409,14 @@ void spdm_server_connection_state_callback(
         libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG,
                          &parameter, &data16, &data_size);
         m_use_req_asym_algo = data16;
+        data_size = sizeof(data32);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_PQC_ASYM_ALGO,
+                         &parameter, &data32, &data_size);
+        m_use_pqc_asym_algo = data32;
+        data_size = sizeof(data32);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_PQC_ASYM_ALG,
+                         &parameter, &data32, &data_size);
+        m_use_req_pqc_asym_algo = data32;
 
         libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
@@ -420,74 +437,112 @@ void spdm_server_connection_state_callback(
         printf("req_slot_id - %x\n", m_use_req_slot_id);
 
         if (m_use_slot_id == 0xFF) {
-            res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
-            if (res) {
-                libspdm_zero_mem(&parameter, sizeof(parameter));
-                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
-                                 &parameter, data, data_size);
-                /* Do not free it.*/
+            if (m_use_asym_algo != 0) {
+                res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
+            }
+            if (m_use_pqc_asym_algo != 0) {
+                res = libspdm_read_responder_pqc_public_key(m_use_pqc_asym_algo, &data, &data_size);
+            }
+            if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
+                if (res) {
+                    libspdm_zero_mem(&parameter, sizeof(parameter));
+                    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                    libspdm_set_data(spdm_context,
+                                     LIBSPDM_DATA_LOCAL_PUBLIC_KEY,
+                                     &parameter, data, data_size);
+                    /* Do not free it.*/
+                }
             }
         } else {
-            if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
-                res = libspdm_read_responder_public_certificate_chain(
+            if (m_use_asym_algo != 0) {
+                if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
+                    res = libspdm_read_responder_public_certificate_chain(
+                        m_use_hash_algo,
+                        m_use_asym_algo,
+                        &data, &data_size,
+                        NULL, NULL);
+                } else {
+                    res = libspdm_read_responder_public_certificate_chain_alias_cert(
+                        m_use_hash_algo,
+                        m_use_asym_algo,
+                        &data, &data_size,
+                        NULL, NULL);
+                }
+
+                res = libspdm_read_responder_public_certificate_chain_per_slot(
+                    1,
                     m_use_hash_algo,
                     m_use_asym_algo,
-                    &data, &data_size,
-                    NULL, NULL);
-            } else {
-                res = libspdm_read_responder_public_certificate_chain_alias_cert(
-                    m_use_hash_algo,
-                    m_use_asym_algo,
-                    &data, &data_size,
+                    &data1, &data1_size,
                     NULL, NULL);
             }
-
-            res = libspdm_read_responder_public_certificate_chain_per_slot(
-                1,
-                m_use_hash_algo,
-                m_use_asym_algo,
-                &data1, &data1_size,
-                NULL, NULL);
-            if (res) {
-                libspdm_zero_mem(&parameter, sizeof(parameter));
-                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-
-                for (index = 0; index < m_use_slot_count; index++) {
-                    parameter.additional_data[0] = index;
-                    if (index == 1) {
-                        libspdm_set_data(spdm_context,
-                                         LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                                         &parameter, data1, data1_size);
-                    } else {
-                        libspdm_set_data(spdm_context,
-                                         LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                                         &parameter, data, data_size);
-                    }
-                    data8 = (uint8_t)(0xA0 + index);
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
-                                     &parameter, &data8, sizeof(data8));
-                    data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_CERT_INFO,
-                                     &parameter, &data8, sizeof(data8));
-                    data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
-                             SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
-                             SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
-                             SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
-                                     &parameter, &data16, sizeof(data16));
+            if (m_use_pqc_asym_algo != 0) {
+                if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
+                    res = libspdm_read_pqc_responder_public_certificate_chain(
+                        m_use_hash_algo,
+                        m_use_pqc_asym_algo,
+                        &data, &data_size,
+                        NULL, NULL);
+                } else {
+                    res = libspdm_read_pqc_responder_public_certificate_chain_alias_cert(
+                        m_use_hash_algo,
+                        m_use_pqc_asym_algo,
+                        &data, &data_size,
+                        NULL, NULL);
                 }
-                /* do not free it*/
+
+                res = libspdm_read_pqc_responder_public_certificate_chain_per_slot(
+                    1,
+                    m_use_hash_algo,
+                    m_use_pqc_asym_algo,
+                    &data1, &data1_size,
+                    NULL, NULL);
+            }
+            if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
+                if (res) {
+                    libspdm_zero_mem(&parameter, sizeof(parameter));
+                    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+
+                    for (index = 0; index < m_use_slot_count; index++) {
+                        parameter.additional_data[0] = index;
+                        if (index == 1) {
+                            libspdm_set_data(spdm_context,
+                                             LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                             &parameter, data1, data1_size);
+                        } else {
+                            libspdm_set_data(spdm_context,
+                                             LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                             &parameter, data, data_size);
+                        }
+                        data8 = (uint8_t)(0xA0 + index);
+                        libspdm_set_data(spdm_context,
+                                         LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
+                                         &parameter, &data8, sizeof(data8));
+                        data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                        libspdm_set_data(spdm_context,
+                                         LIBSPDM_DATA_LOCAL_CERT_INFO,
+                                         &parameter, &data8, sizeof(data8));
+                        data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
+                                SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
+                                SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
+                                SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
+                        libspdm_set_data(spdm_context,
+                                         LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
+                                         &parameter, &data16, sizeof(data16));
+                    }
+                    /* do not free it*/
+                }
             }
         }
 
         if (m_use_req_slot_id == 0xFF) {
             if (m_use_req_asym_algo != 0) {
                 res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
+            }
+            if (m_use_req_pqc_asym_algo != 0) {
+                res = libspdm_read_requester_pqc_public_key(m_use_req_pqc_asym_algo, &data, &data_size);
+            }
+            if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
                 if (res) {
                     libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
@@ -502,11 +557,18 @@ void spdm_server_connection_state_callback(
                 res = libspdm_read_requester_root_public_certificate(
                     m_use_hash_algo, m_use_req_asym_algo, &data,
                     &data_size, &hash, &hash_size);
-                libspdm_x509_get_cert_from_cert_chain(
-                    (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
-                    data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
-                    &root_cert, &root_cert_size);
+            }
+            if (m_use_req_pqc_asym_algo != 0) {
+                res = libspdm_read_pqc_requester_root_public_certificate(
+                    m_use_hash_algo, m_use_req_pqc_asym_algo, &data,
+                    &data_size, &hash, &hash_size);
+            }
+            if ((m_use_req_pqc_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
                 if (res) {
+                    libspdm_x509_get_cert_from_cert_chain(
+                        (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
+                        data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
+                        &root_cert, &root_cert_size);
                     libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
                     libspdm_set_data(
@@ -518,7 +580,7 @@ void spdm_server_connection_state_callback(
             }
         }
 
-        if (m_use_req_asym_algo != 0) {
+        if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
             if (res) {
                 if (m_use_req_slot_id == 0xFF) {
                     /* 0xFF slot is only allowed in */

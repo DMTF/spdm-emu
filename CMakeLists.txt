@@ -618,6 +618,9 @@ if(NOT ENABLE_BINARY_BUILD STREQUAL "1")
     endif()
 endif()
 
+    add_subdirectory(${LIBSPDM_DIR}/os_stub/oqslib out/oqslib.out)
+    add_subdirectory(${LIBSPDM_DIR}/os_stub/pqccryptlib_oqs out/pqccryptlib_oqs.out)
+
     add_subdirectory(${LIBSPDM_DIR}/library/spdm_common_lib out/spdm_common_lib.out)
     add_subdirectory(${LIBSPDM_DIR}/library/spdm_requester_lib out/spdm_requester_lib.out)
     add_subdirectory(${LIBSPDM_DIR}/library/spdm_responder_lib out/spdm_responder_lib.out)
