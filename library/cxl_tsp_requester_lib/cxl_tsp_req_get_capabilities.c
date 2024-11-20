@@ -84,6 +84,15 @@ cxl_tsp_validate_capability (
             CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE))) == 0)) {
         return LIBSPDM_STATUS_INVALID_MSG_FIELD;
     }
+    supported_explicit_ib_te_state_granularity = device_capabilities->supported_explicit_ib_te_state_granularity;
+    if (((te_state_change_and_access_control_features_supported &
+          CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_IMPLICIT_TE_STATE_CHANGE) != 0) &&
+        (((te_state_change_and_access_control_features_supported &
+           CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_IB_TE_STATE_CHANGE) == 0) ||
+         ((supported_explicit_ib_te_state_granularity &
+           CXL_TSP_EXPLICIT_IB_TE_STATE_CHANGE_GRANULARITY_64B) == 0))) {
+        return LIBSPDM_STATUS_INVALID_MSG_FIELD;
+    }
     if (((te_state_change_and_access_control_features_supported &
           CXL_TSP_TE_STATE_CHANGE_AND_ACCESS_CONTROL_FEATURES_EXPLICIT_TE_STATE_CHANGE_SANITIZE) != 0) &&
         (((te_state_change_and_access_control_features_supported &
