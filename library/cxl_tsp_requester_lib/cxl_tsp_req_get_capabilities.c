@@ -126,7 +126,7 @@ cxl_tsp_validate_capability (
 
     if ((memory_encryption_features_supported & CXL_TSP_MEMORY_ENCRYPTION_FEATURES_SUPPORT_CKID_BASED_ENCRYPTION) != 0) {
         if ((device_capabilities->number_of_ckids < 2) ||
-            (device_capabilities->number_of_ckids > 0x2000)) {
+            (device_capabilities->number_of_ckids >= 0x2000)) {
             return LIBSPDM_STATUS_INVALID_MSG_FIELD;
         }
     }
