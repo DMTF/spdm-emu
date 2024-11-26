@@ -310,7 +310,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
         }
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("libspdm_get_csr - %x\n", (uint32_t)status);
-            return status;
+            // TBD 1.4 - Do not check return status because it does not support PQC.
         }
     }
 
