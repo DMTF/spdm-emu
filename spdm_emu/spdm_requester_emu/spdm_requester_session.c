@@ -300,13 +300,17 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
                                      &csr_len);
         } else {
 #if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX
-            request_attribute = 0;
+            request_attribute = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
             key_pair_id = 1;
             status = libspdm_get_csr_ex(spdm_context, NULL, NULL, 0, NULL, 0, csr_form_get,
                                         &csr_len, request_attribute, key_pair_id, NULL);
 #else
             return LIBSPDM_STATUS_UNSUPPORTED_CAP;
 #endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX*/
+        }
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("libspdm_get_csr - %x\n", (uint32_t)status);
+            return status;
         }
     }
 
