@@ -297,7 +297,7 @@ void *spdm_server_init(void)
                      &data8, sizeof(data8));
 
     /*total key pair info number*/
-    data8 = 16;
+    data8 = libspdm_read_total_key_pairs();
     libspdm_set_data(spdm_context, LIBSPDM_DATA_TOTAL_KEY_PAIRS, &parameter,
                      &data8, sizeof(data8));
 
