@@ -47,6 +47,8 @@ extern uint32_t m_use_hash_algo;
 extern uint32_t m_use_measurement_hash_algo;
 extern uint32_t m_use_asym_algo;
 extern uint16_t m_use_req_asym_algo;
+extern uint32_t m_use_pqc_asym_algo;
+extern uint32_t m_use_req_pqc_asym_algo;
 
 extern uint8_t m_support_measurement_spec;
 extern uint8_t m_support_mel_spec;
@@ -58,6 +60,9 @@ extern uint16_t m_support_dhe_algo;
 extern uint16_t m_support_aead_algo;
 extern uint16_t m_support_key_schedule_algo;
 extern uint8_t m_support_other_params_support;
+extern uint32_t m_support_pqc_asym_algo;
+extern uint32_t m_support_req_pqc_asym_algo;
+extern uint32_t m_support_kem_algo;
 
 extern uint8_t m_session_policy;
 extern uint8_t m_end_session_attributes;
@@ -196,7 +201,7 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
  * If chunk is supported, it must be larger than DATA_TRANSFER_SIZE.
  * It matches MaxSPDMmsgSize in SPDM specification. */
 #ifndef LIBSPDM_MAX_SPDM_MSG_SIZE
-#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x1200
+#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x8000
 #endif
 
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */

@@ -35,6 +35,8 @@ set(spdm_requester_emu_LIBRARY
     ${CRYPTO_LIB_PATHS}
     rnglib
     cryptlib_${CRYPTO}
+    oqslib
+    pqccryptlib_oqs
     malloclib
     spdm_crypt_lib
     spdm_crypt_ext_lib

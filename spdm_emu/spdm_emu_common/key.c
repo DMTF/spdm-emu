@@ -24,6 +24,7 @@ uint32_t m_use_requester_capability_flags =
      SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP |
      /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP |    conflict with SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP   */
      SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP_NEG |
+     SPDM_GET_CAPABILITIES_REQUEST_FLAGS_LARGE_CERT_CAP | /* conflict with SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP */
      0);
 uint32_t m_use_responder_capability_flags =
     (0 | SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CACHE_CAP |
@@ -52,6 +53,8 @@ uint32_t m_use_responder_capability_flags =
      SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MULTI_KEY_CAP_NEG |
      SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_GET_KEY_PAIR_INFO_CAP |
      SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_INFO_CAP |
+     /* SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_RESET_CAP | */
+     SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_LARGE_CERT_CAP | /* conflict with SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP */
      0);
 
 uint32_t m_use_capability_flags = 0;
@@ -102,6 +105,9 @@ uint32_t m_use_hash_algo;
 uint32_t m_use_measurement_hash_algo;
 uint32_t m_use_asym_algo;
 uint16_t m_use_req_asym_algo;
+
+uint32_t m_use_pqc_asym_algo;
+uint32_t m_use_req_pqc_asym_algo;
 
 /*
  * SPDM_MEASUREMENT_SPECIFICATION_DMTF,
@@ -193,6 +199,20 @@ uint8_t m_support_other_params_support =
  */
 uint8_t m_support_mel_spec =
     SPDM_MEL_SPECIFICATION_DMTF;
+
+uint32_t m_support_pqc_asym_algo =
+    SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_44 |
+    SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_65 |
+    SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_87;
+
+uint32_t m_support_req_pqc_asym_algo =
+    SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_44 |
+    SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_65 |
+    SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_87;
+
+uint32_t m_support_kem_algo = SPDM_ALGORITHMS_KEM_ALG_ML_KEM_512 |
+                              SPDM_ALGORITHMS_KEM_ALG_ML_KEM_768 |
+                              SPDM_ALGORITHMS_KEM_ALG_ML_KEM_1024;
 
 uint8_t m_session_policy =
     SPDM_KEY_EXCHANGE_REQUEST_SESSION_POLICY_TERMINATION_POLICY_RUNTIME_UPDATE;

@@ -293,6 +293,9 @@ void *spdm_client_init(void)
     data32 = m_support_hash_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_BASE_HASH_ALGO, &parameter,
                      &data32, sizeof(data32));
+    data32 = m_support_pqc_asym_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_PQC_ASYM_ALGO, &parameter,
+                     &data32, sizeof(data32));
     data16 = m_support_dhe_algo;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_DHE_NAME_GROUP, &parameter,
                      &data16, sizeof(data16));
@@ -311,6 +314,12 @@ void *spdm_client_init(void)
     data8 = m_support_mel_spec;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_MEL_SPEC, &parameter,
                      &data8, sizeof(data8));
+    data32 = m_support_req_pqc_asym_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_REQ_PQC_ASYM_ALG, &parameter,
+                     &data32, sizeof(data32));
+    data32 = m_support_kem_algo;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_KEM_ALG, &parameter,
+                     &data32, sizeof(data32));
 
     if (m_load_state_file_name == NULL) {
         /* Skip if state is loaded*/
@@ -432,7 +441,19 @@ void *spdm_client_init(void)
     libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_BASE_ASYM_ALG, &parameter,
                      &data16, &data_size);
     m_use_req_asym_algo = data16;
+    data_size = sizeof(data32);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_PQC_ASYM_ALGO, &parameter,
+                     &data32, &data_size);
+    m_use_pqc_asym_algo = data32;
+    data_size = sizeof(data32);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_PQC_ASYM_ALG, &parameter,
+                     &data32, &data_size);
+    m_use_req_pqc_asym_algo = data32;
 
+    if ((m_use_responder_capability_flags &
+         SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) != 0) {
+        m_use_slot_id = 0xFF;
+    }
     if ((m_use_requester_capability_flags &
          SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
         m_use_req_slot_id = 0xFF;
@@ -448,69 +469,102 @@ void *spdm_client_init(void)
     printf("req_slot_id - %x\n", m_use_req_slot_id);
 
     if (m_use_slot_id == 0xFF) {
-        res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
-        if (res) {
-            libspdm_zero_mem(&parameter, sizeof(parameter));
-            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-            libspdm_set_data(spdm_context,
-                             LIBSPDM_DATA_PEER_PUBLIC_KEY,
-                             &parameter, data, data_size);
-            /* Do not free it.*/
-        } else {
-            printf("read_responder_public_key fail!\n");
-            free(m_spdm_context);
-            m_spdm_context = NULL;
-            return NULL;
+        if (m_use_asym_algo != 0) {
+            res = libspdm_read_responder_public_key(m_use_asym_algo, &data, &data_size);
+        }
+        if (m_use_pqc_asym_algo != 0) {
+            res = libspdm_read_responder_pqc_public_key(m_use_pqc_asym_algo, &data, &data_size);
+        }
+        if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
+            if (res) {
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_PEER_PUBLIC_KEY,
+                                 &parameter, data, data_size);
+                /* Do not free it.*/
+            } else {
+                printf("read_responder_public_key fail!\n");
+                free(m_spdm_context);
+                m_spdm_context = NULL;
+                return NULL;
+            }
         }
     } else {
-        res = libspdm_read_responder_root_public_certificate(m_use_hash_algo,
-                                                             m_use_asym_algo,
-                                                             &data, &data_size,
-                                                             &hash, &hash_size);
-        if (res) {
-            libspdm_x509_get_cert_from_cert_chain(
-                (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
-                data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
-                &root_cert, &root_cert_size);
-            libspdm_zero_mem(&parameter, sizeof(parameter));
-            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-            libspdm_set_data(spdm_context,
-                             LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
-                             &parameter, (void *)root_cert, root_cert_size);
-            /* Do not free it.*/
-        } else {
-            printf("read_responder_root_public_certificate fail!\n");
-            free(m_spdm_context);
-            m_spdm_context = NULL;
-            return NULL;
+        if (m_use_asym_algo != 0) {
+            res = libspdm_read_responder_root_public_certificate(m_use_hash_algo,
+                                                                 m_use_asym_algo,
+                                                                 &data, &data_size,
+                                                                 &hash, &hash_size);
         }
-        res = libspdm_read_responder_root_public_certificate_slot(1,
-                                                                  m_use_hash_algo,
-                                                                  m_use_asym_algo,
-                                                                  &data1, &data1_size,
-                                                                  &hash1, &hash1_size);
-        if (res) {
-            libspdm_x509_get_cert_from_cert_chain(
-                (uint8_t *)data1 + sizeof(spdm_cert_chain_t) + hash1_size,
-                data1_size - sizeof(spdm_cert_chain_t) - hash1_size, 0,
-                &root_cert1, &root_cert1_size);
-            libspdm_zero_mem(&parameter, sizeof(parameter));
-            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-            libspdm_set_data(spdm_context,
-                             LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
-                             &parameter, (void *)root_cert1, root_cert1_size);
-            /* Do not free it.*/
-        } else {
-            printf("read_responder_root_public_certificate fail!\n");
-            free(m_spdm_context);
-            m_spdm_context = NULL;
-            return NULL;
+        if (m_use_pqc_asym_algo != 0) {
+            res = libspdm_read_pqc_responder_root_public_certificate(m_use_hash_algo,
+                                                                     m_use_pqc_asym_algo,
+                                                                     &data, &data_size,
+                                                                     &hash, &hash_size);
+        }
+        if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
+            if (res) {
+                libspdm_x509_get_cert_from_cert_chain(
+                    (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
+                    data_size - sizeof(spdm_cert_chain_t) - hash_size, 0,
+                    &root_cert, &root_cert_size);
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                libspdm_set_data(spdm_context,
+                                LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+                                &parameter, (void *)root_cert, root_cert_size);
+                /* Do not free it.*/
+            } else {
+                printf("read_responder_root_public_certificate fail!\n");
+                free(m_spdm_context);
+                m_spdm_context = NULL;
+                return NULL;
+            }
+        }
+        if (m_use_asym_algo != 0) {
+            res = libspdm_read_responder_root_public_certificate_slot(1,
+                                                                      m_use_hash_algo,
+                                                                      m_use_asym_algo,
+                                                                      &data1, &data1_size,
+                                                                      &hash1, &hash1_size);
+        }
+        if (m_use_pqc_asym_algo != 0) {
+            res = libspdm_read_pqc_responder_root_public_certificate_slot(1,
+                                                                          m_use_hash_algo,
+                                                                          m_use_pqc_asym_algo,
+                                                                          &data1, &data1_size,
+                                                                          &hash1, &hash1_size);
+        }
+        if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
+            if (res) {
+                libspdm_x509_get_cert_from_cert_chain(
+                    (uint8_t *)data1 + sizeof(spdm_cert_chain_t) + hash1_size,
+                    data1_size - sizeof(spdm_cert_chain_t) - hash1_size, 0,
+                    &root_cert1, &root_cert1_size);
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+                libspdm_set_data(spdm_context,
+                                LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
+                                &parameter, (void *)root_cert1, root_cert1_size);
+                /* Do not free it.*/
+            } else {
+                printf("read_responder_root_public_certificate fail!\n");
+                free(m_spdm_context);
+                m_spdm_context = NULL;
+                return NULL;
+            }
         }
     }
 
     if (m_use_req_slot_id == 0xFF) {
         if (m_use_req_asym_algo != 0) {
             res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
+        }
+        if (m_use_req_pqc_asym_algo != 0) {
+            res = libspdm_read_requester_pqc_public_key(m_use_req_pqc_asym_algo, &data, &data_size);
+        }
+        if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
             if (res) {
                 libspdm_zero_mem(&parameter, sizeof(parameter));
                 parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
@@ -531,6 +585,14 @@ void *spdm_client_init(void)
                                                                   m_use_req_asym_algo,
                                                                   &data, &data_size, NULL,
                                                                   NULL);
+        }
+        if (m_use_req_pqc_asym_algo != 0) {
+            res = libspdm_read_pqc_requester_public_certificate_chain(m_use_hash_algo,
+                                                                      m_use_req_pqc_asym_algo,
+                                                                      &data, &data_size, NULL,
+                                                                      NULL);
+        }
+        if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
             if (res) {
                 libspdm_zero_mem(&parameter, sizeof(parameter));
                 parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
