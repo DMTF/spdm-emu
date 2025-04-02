@@ -411,6 +411,11 @@ void *spdm_client_init(void)
         m_exe_session &= ~EXE_CONNECTION_SET_KEY_PAIR_INFO;
     }
 
+    if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_EP_INFO_CAP_SIG & responder_capabilities_flag) == 0) {
+        m_exe_connection &= ~EXE_CONNECTION_EP_INFO;
+        m_exe_session &= ~EXE_SESSION_EP_INFO;
+    }
+
     data_size = sizeof(data32);
     libspdm_get_data(spdm_context, LIBSPDM_DATA_CONNECTION_STATE, &parameter,
                      &data32, &data_size);
@@ -440,8 +445,10 @@ void *spdm_client_init(void)
     if (((m_exe_connection & EXE_CONNECTION_CERT) == 0) && (m_use_slot_id != 0xFF)) {
         m_exe_connection &= ~EXE_CONNECTION_CHAL;
         m_exe_connection &= ~EXE_CONNECTION_MEAS;
+        m_exe_connection &= ~EXE_CONNECTION_EP_INFO;
         m_exe_session &= ~EXE_SESSION_KEY_EX;
         m_exe_session &= ~EXE_SESSION_MEAS;
+        m_exe_session &= ~EXE_SESSION_EP_INFO;
     }
 
     printf("slot_id - %x\n", m_use_slot_id);
