@@ -12,6 +12,7 @@ include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_requester_emu
 set(src_spdm_requester_emu
     spdm_requester_spdm.c
     spdm_requester_authentication.c
+    spdm_requester_endpoint_info.c
     spdm_requester_measurement.c
     spdm_requester_key_pair_info.c
     spdm_requester_session.c

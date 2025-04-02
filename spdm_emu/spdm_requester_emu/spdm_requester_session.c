@@ -26,6 +26,10 @@ libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id);
 libspdm_return_t do_measurement_mel_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEL_CAP*/
 
+#if LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP
+libspdm_return_t do_get_endpoint_info_via_spdm(const uint32_t *session_id);
+#endif /*LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP*/
+
 #if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
 libspdm_return_t do_get_key_pair_info_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP*/
@@ -193,6 +197,17 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         }
     }
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEL_CAP*/
+
+#if LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP
+    if ((m_exe_session & EXE_SESSION_EP_INFO) != 0 &&
+        (m_use_version >= SPDM_MESSAGE_VERSION_13)) {
+        status = do_get_endpoint_info_via_spdm(&session_id);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            printf("do_get_endpoint_info_via_spdm - %x\n",
+                   (uint32_t)status);
+        }
+    }
+#endif /*LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP*/
 
 #if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
     if (((m_exe_session & EXE_SESSION_GET_KEY_PAIR_INFO) != 0) &&
