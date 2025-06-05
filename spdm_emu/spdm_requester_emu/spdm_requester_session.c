@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2025 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -156,8 +156,8 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
             response_size = 0;
             result = communicate_platform_data(
                 m_socket,
-                SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, NULL,
-                0, &response, &response_size, NULL);
+                SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, (const uint8_t *)&session_id,
+                sizeof(session_id), &response, &response_size, NULL);
             if (!result) {
                 printf("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE fail\n");
             } else {

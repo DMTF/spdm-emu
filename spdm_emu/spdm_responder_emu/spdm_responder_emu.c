@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2025 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -28,6 +28,7 @@ bool platform_server(const SOCKET socket)
     libspdm_return_t status;
     uint8_t response[LIBPCIDOE_MAX_NON_SPDM_MESSAGE_SIZE];
     size_t response_size;
+    uint32_t session_id;
 
     while (true) {
         status = libspdm_responder_dispatch_message(m_spdm_context);
@@ -62,7 +63,12 @@ bool platform_server(const SOCKET socket)
 
         case SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE:
 #if (LIBSPDM_ENABLE_CAPABILITY_MUT_AUTH_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)
-            libspdm_init_key_update_encap_state(m_spdm_context);
+            if (m_send_receive_buffer_size == sizeof(session_id)) {
+                session_id = *(uint32_t *)m_send_receive_buffer;
+            } else {
+                session_id = 0;
+            }
+            libspdm_init_key_update_encap_state_with_session(m_spdm_context, session_id);
             result = send_platform_data(
                 socket,
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, NULL,
