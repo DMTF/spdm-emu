@@ -80,6 +80,26 @@ bool platform_server(const SOCKET socket)
 #endif
             break;
 
+        case SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO:
+#if (LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)
+            libspdm_init_get_endpoint_info_encap_state(m_spdm_context);
+            result = send_platform_data(
+                socket,
+                SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
+                0);
+            if (!result) {
+                printf("send_platform_data Error - %x\n",
+#ifdef _MSC_VER
+                       WSAGetLastError()
+#else
+                       errno
+#endif
+                       );
+                return true;
+            }
+#endif /*(LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)*/
+            break;
+
         case SOCKET_SPDM_COMMAND_SHUTDOWN:
             result = send_platform_data(
                 socket, SOCKET_SPDM_COMMAND_SHUTDOWN, NULL, 0);
