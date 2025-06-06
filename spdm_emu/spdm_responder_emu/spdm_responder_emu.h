@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2025 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -9,6 +9,7 @@
 
 #include "hal/base.h"
 #include "hal/library/memlib.h"
+#include "industry_standard/spdm_tcp_binding.h"
 #include "library/spdm_responder_lib.h"
 #include "library/spdm_transport_none_lib.h"
 #include "library/spdm_transport_mctp_lib.h"

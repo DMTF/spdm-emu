@@ -20,7 +20,7 @@ extern void *m_pci_doe_context;
 void *spdm_server_init(void);
 libspdm_return_t pci_doe_init_responder ();
 
-bool InitConnectionAndHandShake(SOCKET *sock, uint16_t port_number);
+bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number);
 
 bool platform_server(const SOCKET socket)
 {
@@ -172,8 +172,8 @@ bool platform_server_routine(uint16_t port_number)
     bool continue_serving;
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
-        m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
-        result = InitConnectionAndHandShake(&responder_socket, port_number);
+        m_use_tcp_role_inquiry == SOCKET_TCP_ROLE_INQUIRY) {
+        result = InitConnectionAndRoleInquiry(&responder_socket, port_number);
         if (!result) {
             return false;
         }
@@ -192,7 +192,7 @@ bool platform_server_routine(uint16_t port_number)
 
     do {
         if (!(m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
-              m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE)) {
+              m_use_tcp_role_inquiry == SOCKET_TCP_ROLE_INQUIRY)) {
             printf("Platform server listening on port %d\n", port_number);
 
             length = sizeof(peer_address);

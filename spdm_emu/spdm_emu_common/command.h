@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2025 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -23,8 +23,8 @@
 #define SOCKET_TRANSPORT_TYPE_PCI_DOE 0x02
 #define SOCKET_TRANSPORT_TYPE_TCP 0x03
 
-#define SOCKET_TCP_NO_HANDSHAKE 0x00
-#define SOCKET_TCP_HANDSHAKE 0x01
+#define SOCKET_TCP_NO_ROLE_INQUIRY 0x00
+#define SOCKET_TCP_ROLE_INQUIRY 0x01
 
 #define SOCKET_SPDM_COMMAND_NORMAL 0x0001
 #define SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE 0x8001

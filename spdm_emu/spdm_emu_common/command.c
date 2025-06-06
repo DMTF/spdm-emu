@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2025 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -11,7 +11,7 @@
 
 uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
 
-uint32_t m_use_tcp_handshake = SOCKET_TCP_NO_HANDSHAKE;
+uint32_t m_use_tcp_role_inquiry = SOCKET_TCP_NO_ROLE_INQUIRY;
 
 bool m_send_receive_buffer_acquired = false;
 uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];

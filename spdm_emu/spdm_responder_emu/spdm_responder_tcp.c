@@ -1,15 +1,15 @@
 /**
  *  Copyright Notice:
- *  Copyright 2023 DMTF. All rights reserved.
+ *  Copyright 2023 - 2005 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
 #include "spdm_responder_emu.h"
 
-bool InitConnectionAndHandShake(SOCKET *sock, uint16_t port_number) {
+bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
     bool result;
-    uint8_t handshake_buf[TCP_HANDSHAKE_BUFFER_SIZE];
-    tcp_spdm_binding_header_t *tcp_message_header;
+    uint8_t role_inquiry_buf[sizeof(spdm_tcp_binding_header_t)];
+    spdm_tcp_binding_header_t *tcp_message_header;
     SOCKET responder_socket;
 
     result = init_client(&responder_socket, port_number);
@@ -20,19 +20,20 @@ bool InitConnectionAndHandShake(SOCKET *sock, uint16_t port_number) {
         return false;
     }
 
-    /* Create handshake_request */
-    libspdm_zero_mem(handshake_buf, TCP_HANDSHAKE_BUFFER_SIZE);
-    tcp_message_header = (tcp_spdm_binding_header_t *) &handshake_buf;
-    tcp_message_header->payload_length = TCP_HANDSHAKE_BUFFER_SIZE - 2;
-    tcp_message_header->message_type = TCP_MESSAGE_TYPE_HANDSHAKE_REQUEST;
+    /* Create role_inquiry request */
+    libspdm_zero_mem(role_inquiry_buf, sizeof(role_inquiry_buf));
+    tcp_message_header = (spdm_tcp_binding_header_t *) &role_inquiry_buf;
+    tcp_message_header->payload_length = 0;
+    tcp_message_header->binding_version = 1;
+    tcp_message_header->message_type = SPDM_TCP_MESSAGE_TYPE_ROLE_INQUIRY;
 
-    /* Send handshake_request */
-    printf("Press ENTER to send handshake_request...\n");
+    /* Send role_inquiry request */
+    printf("Press ENTER to send role_inquiry request...\n");
     getchar();
-    result = write_bytes(responder_socket, handshake_buf, TCP_HANDSHAKE_BUFFER_SIZE);
+    result = write_bytes(responder_socket, role_inquiry_buf, sizeof(role_inquiry_buf));
     if (!result) {
         closesocket(responder_socket);
-        printf("Error sending handshake request. \n");
+        printf("Error sending role_inquiry request. \n");
 #ifdef _MSC_VER
         WSACleanup();
 #endif

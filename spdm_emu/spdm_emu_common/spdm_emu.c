@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2025 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -41,7 +41,7 @@ struct in_addr m_ip_address = { 0x0100007F };
 void print_usage(const char *name)
 {
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
-    printf("   [--tcp_sub HS|NO_HS]\n");
+    printf("   [--tcp_sub RI|NO_RI]\n");
     printf("   [--ver 1.0|1.1|1.2|1.3]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
     printf(
@@ -81,7 +81,7 @@ void print_usage(const char *name)
     printf("NOTE:\n");
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
     printf(
-        "   [--tcp_sub] is sub-option when transport layer is TCP. By default, NO-HANDSHAKE is used.\n");
+        "   [--tcp_sub] is sub-option when transport layer is TCP. By default, NO_RI (No RoleInquiry) is used.\n");
     printf("   [--ver] is version. By default, all are used.\n");
     printf(
         "   [--sec_ver] is secured message version. By default, all are used.\n");
@@ -209,8 +209,8 @@ value_string_entry_t m_transport_value_string_table[] = {
 };
 
 value_string_entry_t m_tcp_subtype_string_table[] = {
-    { SOCKET_TCP_NO_HANDSHAKE, "NO_HS"},
-    { SOCKET_TCP_HANDSHAKE, "HS" }
+    { SOCKET_TCP_NO_ROLE_INQUIRY, "NO_RI"},
+    { SOCKET_TCP_ROLE_INQUIRY, "RI" }
 };
 
 value_string_entry_t m_version_value_string_table[] = {
@@ -547,12 +547,12 @@ void process_args(char *program_name, int argc, char *argv[])
                         m_tcp_subtype_string_table,
                         LIBSPDM_ARRAY_SIZE(
                             m_tcp_subtype_string_table),
-                        argv[1], &m_use_tcp_handshake)) {
+                        argv[1], &m_use_tcp_role_inquiry)) {
                     printf("invalid --tcp_sub %s\n", argv[1]);
                     print_usage(program_name);
                     exit(0);
                 }
-                printf("tcp_sub - 0x%x\n", m_use_tcp_handshake);
+                printf("tcp_sub - 0x%x\n", m_use_tcp_role_inquiry);
                 argc -= 2;
                 argv += 2;
                 continue;
