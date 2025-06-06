@@ -158,6 +158,23 @@ bool platform_client_routine(uint16_t port_number)
                    (uint32_t)status);
             goto done;
         }
+#if LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP
+        response_size = 0;
+        result = communicate_platform_data(
+            m_socket,
+            SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
+            0, &response, &response_size, NULL);
+        if (!result) {
+            printf("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO fail\n");
+        } else {
+            status = libspdm_send_receive_encap_request(
+                m_spdm_context, NULL);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                printf("libspdm_send_receive_encap_request - libspdm_get_endpoint_info - %x\n",
+                    (uint32_t)status);
+            }
+        }
+#endif /*LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP*/
     }
 #endif /*LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP*/
 

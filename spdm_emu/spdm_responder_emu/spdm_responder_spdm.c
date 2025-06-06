@@ -36,6 +36,25 @@ void spdm_server_session_state_callback(void *spdm_context,
 void spdm_server_connection_state_callback(
     void *spdm_context, libspdm_connection_state_t connection_state);
 
+/**
+ * Encapsulate Get Endpoint Info Callback Function.
+ *
+ * @param spdm_context       A pointer to the SPDM context.
+ * @param subcode            The subcode of the GET_ENDPOINT_INFO request.
+ * @param param2             Bit [7:4]. Reserved.
+ *                           Bit [3:0]. SlotID.
+ * @param request_attributes The request attributes of the GET_ENDPOINT_INFO request.
+ * @param endpoint_info_size The size in bytes of the endpoint_info buffer.
+ * @param endpoint_info      A pointer to the buffer to store the endpoint information.
+ */
+libspdm_return_t spdm_get_endpoint_info_callback (
+    void *spdm_context,
+    uint8_t subcode,
+    uint8_t param2,
+    uint8_t request_attributes,
+    uint32_t endpoint_info_size,
+    const void *endpoint_info);
+
 libspdm_return_t spdm_get_response_vendor_defined_request(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     size_t request_size, const void *request, size_t *response_size,
@@ -303,6 +322,9 @@ void *spdm_server_init(void)
 
     libspdm_register_get_response_func(
         spdm_context, spdm_get_response_vendor_defined_request);
+
+    libspdm_register_get_endpoint_info_callback_func(
+        spdm_context, spdm_get_endpoint_info_callback);
 
     libspdm_register_session_state_callback_func(
         spdm_context, spdm_server_session_state_callback);
@@ -626,4 +648,24 @@ void spdm_server_session_state_callback(void *spdm_context,
         LIBSPDM_ASSERT(false);
         break;
     }
+}
+
+libspdm_return_t spdm_get_endpoint_info_callback (
+    void *spdm_context,
+    uint8_t subcode,
+    uint8_t param2,
+    uint8_t request_attributes,
+    uint32_t endpoint_info_size,
+    const void *endpoint_info)
+{
+    printf("spdm_get_endpoint_info_callback\n");
+    printf("  subcode - 0x%x\n", subcode);
+    printf("  param2 - 0x%x\n", param2);
+    printf("  request_attributes - 0x%x\n", request_attributes);
+    printf("  endpoint_info_size - 0x%x\n", endpoint_info_size);
+    printf("  endpoint_info:");
+    dump_data(endpoint_info, endpoint_info_size);
+    printf("\n");
+
+    return LIBSPDM_STATUS_SUCCESS;
 }

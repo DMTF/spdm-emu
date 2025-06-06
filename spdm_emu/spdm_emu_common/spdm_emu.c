@@ -124,7 +124,7 @@ void print_usage(const char *name)
     printf(
         "   [--slot_id] is to select the responder slot ID in GET_MEASUREMENT, CHALLENGE_AUTH, KEY_EXCHANGE and GET_ENDPOINT_INFO. By default, 0 is used.\n");
     printf(
-        "   [--req_slot_id] is to select the requester slot ID in KEY_EXCHANGE_RSP and FINISH. By default, 0 is used.\n");
+        "   [--req_slot_id] is to select the requester slot ID in KEY_EXCHANGE_RSP, FINISH and Encapsulate GET_ENDPOINT_INFO. By default, 0 is used.\n");
     printf(
         "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
     printf(
