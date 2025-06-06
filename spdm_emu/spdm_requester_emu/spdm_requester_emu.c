@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2025 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -22,7 +22,7 @@ void *spdm_client_init(void);
 
 libspdm_return_t pci_doe_init_requester(void);
 
-SOCKET CreateSocketAndHandShake(SOCKET *sock, uint16_t port_number);
+SOCKET CreateSocketAndRoleInquiry(SOCKET *sock, uint16_t port_number);
 
 bool communicate_platform_data(SOCKET socket, uint32_t command,
                                const uint8_t *send_buffer, size_t bytes_to_send,
@@ -66,8 +66,8 @@ bool platform_client_routine(uint16_t port_number)
     libspdm_return_t status;
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
-        m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
-        m_socket = CreateSocketAndHandShake(&platform_socket, port_number);
+        m_use_tcp_role_inquiry == SOCKET_TCP_ROLE_INQUIRY) {
+        m_socket = CreateSocketAndRoleInquiry(&platform_socket, port_number);
         if (m_socket == INVALID_SOCKET) {
             printf("Create platform service socket fail\n");
 #ifdef _MSC_VER
@@ -257,7 +257,7 @@ done:
 
     closesocket(platform_socket);
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
-        m_use_tcp_handshake == SOCKET_TCP_HANDSHAKE) {
+        m_use_tcp_role_inquiry == SOCKET_TCP_ROLE_INQUIRY) {
         closesocket(m_socket);
     }
 
