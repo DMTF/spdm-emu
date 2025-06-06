@@ -206,6 +206,24 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
             printf("do_get_endpoint_info_via_spdm - %x\n",
                    (uint32_t)status);
         }
+
+#if LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP
+        response_size = 0;
+        result = communicate_platform_data(
+            m_socket,
+            SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
+            0, &response, &response_size, NULL);
+        if (!result) {
+            printf("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO fail\n");
+        } else {
+            status = libspdm_send_receive_encap_request(
+                spdm_context, &session_id);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                printf("libspdm_send_receive_encap_request - libspdm_get_endpoint_info - %x\n",
+                    (uint32_t)status);
+            }
+        }
+#endif /*LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP*/
     }
 #endif /*LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP*/
 
