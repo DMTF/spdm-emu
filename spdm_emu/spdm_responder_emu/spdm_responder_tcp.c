@@ -9,7 +9,7 @@
 bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
     bool result;
     uint8_t role_inquiry_buf[sizeof(spdm_tcp_binding_header_t)];
-    spdm_tcp_binding_header_t *tcp_message_header;
+    size_t role_inquiry_size = sizeof(role_inquiry_buf);
     SOCKET responder_socket;
 
     result = init_client(&responder_socket, port_number);
@@ -20,20 +20,26 @@ bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
         return false;
     }
 
-    /* Create role_inquiry request */
-    libspdm_zero_mem(role_inquiry_buf, sizeof(role_inquiry_buf));
-    tcp_message_header = (spdm_tcp_binding_header_t *) &role_inquiry_buf;
-    tcp_message_header->payload_length = 0;
-    tcp_message_header->binding_version = 1;
-    tcp_message_header->message_type = SPDM_TCP_MESSAGE_TYPE_ROLE_INQUIRY;
+    void *message_ptr = &role_inquiry_buf;
+    libspdm_return_t status = libspdm_tcp_encode_discovery_message(
+        SPDM_TCP_MESSAGE_TYPE_ROLE_INQUIRY,
+        &role_inquiry_size,
+        &message_ptr
+        );
+
+    if (status != LIBSPDM_STATUS_SUCCESS) {
+        closesocket(responder_socket);
+        printf("Failed to encode Role-Inquiry message. Status: 0x%x\n", status);
+        return false;
+    }
 
     /* Send role_inquiry request */
-    printf("Press ENTER to send role_inquiry request...\n");
+    printf("Press ENTER to send Role-Inquiry request...\n");
     getchar();
-    result = write_bytes(responder_socket, role_inquiry_buf, sizeof(role_inquiry_buf));
+    result = write_bytes(responder_socket, role_inquiry_buf, (uint32_t)role_inquiry_size);
     if (!result) {
         closesocket(responder_socket);
-        printf("Error sending role_inquiry request. \n");
+        printf("Error sending Role-Inquiry request.\n");
 #ifdef _MSC_VER
         WSACleanup();
 #endif
@@ -41,6 +47,5 @@ bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
     }
 
     *sock = responder_socket;
-
     return true;
 }
