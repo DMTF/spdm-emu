@@ -82,7 +82,7 @@ bool platform_server(const SOCKET socket)
 
         case SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO:
 #if (LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)
-            libspdm_init_get_endpoint_info_encap_state(m_spdm_context);
+            libspdm_init_get_endpoint_info_encap_state(m_spdm_context, LIBSPDM_INVALID_SESSION_ID);
             result = send_platform_data(
                 socket,
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
