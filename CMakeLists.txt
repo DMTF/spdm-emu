@@ -9,12 +9,12 @@ message("#########################")
 message("## Build Configuration ##")
 message("#########################")
 
-set(CMAKE_GENERATOR ${CMAKE_GENERATOR} CACHE string "Choose the generator of cmake")
-set(ARCH ${ARCH} CACHE string "Choose the arch of build: ia32 x64 arm aarch64 riscv32 riscv64 arc" FORCE)
-set(TOOLCHAIN ${TOOLCHAIN} CACHE string "Choose the toolchain of build: Windows: VS2015 VS2019 VS2022 CLANG ARM_DS2022 LIBFUZZER Linux: GCC ARM_GCC AARCH64_GCC RISCV32_GCC RISCV64_GCC ARC_GCC ARM_DS2022 CLANG CBMC AFL KLEE LIBFUZZER" FORCE)
-set(CMAKE_BUILD_TYPE ${TARGET} CACHE string "Choose the target of build: Debug Release" FORCE)
-set(CRYPTO ${CRYPTO} CACHE string "Choose the crypto of build: mbedtls openssl" FORCE)
-set(GCOV ${GCOV} CACHE string "Choose the target of Gcov: ON  OFF, and default is OFF" FORCE)
+set(CMAKE_GENERATOR ${CMAKE_GENERATOR} CACHE STRING "Choose the generator of cmake")
+set(ARCH ${ARCH} CACHE STRING "Choose the arch of build: ia32 x64 arm aarch64 riscv32 riscv64 arc" FORCE)
+set(TOOLCHAIN ${TOOLCHAIN} CACHE STRING "Choose the toolchain of build: Windows: VS2015 VS2019 VS2022 CLANG ARM_DS2022 LIBFUZZER Linux: GCC ARM_GCC AARCH64_GCC RISCV32_GCC RISCV64_GCC ARC_GCC ARM_DS2022 CLANG CBMC AFL KLEE LIBFUZZER" FORCE)
+set(CMAKE_BUILD_TYPE ${TARGET} CACHE STRING "Choose the target of build: Debug Release" FORCE)
+set(CRYPTO ${CRYPTO} CACHE STRING "Choose the crypto of build: mbedtls openssl" FORCE)
+set(GCOV ${GCOV} CACHE STRING "Choose the target of Gcov: ON  OFF, and default is OFF" FORCE)
 
 if(NOT GCOV)
     set(GCOV "OFF")
@@ -28,8 +28,8 @@ set(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/com
 #
 # OpenSSL specific compiled libraries.
 #
-set(COMPILED_LIBCRYPTO_PATH ${COMPILED_LIBCRYPTO_PATH} CACHE string "Optionally provide a path to libcrypto" FORCE)
-set(COMPILED_LIBSSL_PATH ${COMPILED_LIBSSL_PATH} CACHE string "Optionally provide a path to libssl" FORCE)
+set(COMPILED_LIBCRYPTO_PATH ${COMPILED_LIBCRYPTO_PATH} CACHE STRING "Optionally provide a path to libcrypto" FORCE)
+set(COMPILED_LIBSSL_PATH ${COMPILED_LIBSSL_PATH} CACHE STRING "Optionally provide a path to libssl" FORCE)
 
 message("CMAKE_GENERATOR = ${CMAKE_GENERATOR}")
 
@@ -524,7 +524,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
     elseif(TOOLCHAIN STREQUAL "CBMC")
         set(CMAKE_C_COMPILER goto-cl.exe)
         # See https://gitlab.kitware.com/cmake/cmake/-/issues/18317 for following workaround
-        string(REGEX REPLACE "/W3" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+        STRING(REGEX REPLACE "/W3" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
         add_compile_options(/nologo /WX /W4 /Gs32768 /D UNICODE /Gy /EHs-c- /GR- /GF /Z7 /Oy- /D_CRT_SECURE_NO_WARNINGS /DCBMC_CC)
         set(MBEDTLS_FLAGS /wd4244 /wd4132 /wd4245 /wd4310 /wd4701 /wd4127 /wd4204)
         set(OPENSSL_FLAGS /FIbase.h /wd4090 /wd4132 /wd4244 /wd4245 /wd4267 /wd4306 /wd4310 /wd4700 /wd4389 /wd4702 /wd4706 /wd4819 /wd4013)
@@ -540,7 +540,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
         set(CMAKE_C_FLAGS_DEBUG       "/Od")
     else()
         # See https://gitlab.kitware.com/cmake/cmake/-/issues/18317 for following workaround
-        string(REGEX REPLACE "/W3" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+        STRING(REGEX REPLACE "/W3" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
         add_compile_options(/nologo /WX /W4 /D UNICODE /Gy /EHs-c- /GR- /GF /Z7 /Gw /Oy- /D_CRT_SECURE_NO_WARNINGS /wd4063 /wd4100 /wd4127 /wd4701 /wd4703 /wd4057)
         set(MBEDTLS_FLAGS /wd4244 /wd4132 /wd4245 /wd4310 /wd4701 /wd4127 /wd4204)
         set(OPENSSL_FLAGS /FIbase.h /wd4090 /wd4132 /wd4244 /wd4245 /wd4267 /wd4306 /wd4310 /wd4700 /wd4389 /wd4702 /wd4706 /wd4819 /wd4013)
@@ -589,15 +589,15 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
                     PRE_BUILD
                     COMMAND cp -r -f ${LIBSPDM_DIR}/unit_test/sample_key/* ${EXECUTABLE_OUTPUT_PATH})
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
-    string(REPLACE "/" "\\" SRC ${LIBSPDM_DIR}/unit_test/sample_key/*)
+    STRING(REPLACE "/" "\\" SRC ${LIBSPDM_DIR}/unit_test/sample_key/*)
     if(CMAKE_GENERATOR MATCHES "^Visual Studio")
         if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            string(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH}/Debug)
+            STRING(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH}/Debug)
         else()
-            string(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH}/Release)
+            STRING(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH}/Release)
         endif()
     else()
-        string(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH})
+        STRING(REPLACE "/" "\\" DEST ${EXECUTABLE_OUTPUT_PATH})
     endif()
     add_custom_command(TARGET copy_sample_key
                        PRE_BUILD
