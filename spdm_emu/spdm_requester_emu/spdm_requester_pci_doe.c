@@ -37,7 +37,56 @@ libspdm_return_t pci_doe_init_requester()
     return LIBSPDM_STATUS_SUCCESS;
 }
 
-libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t session_id)
+libspdm_return_t ide_key_program_and_go(void *spdm_context, uint32_t *session_id, uint8_t stream_id,
+                                        uint8_t key_sub_stream, char *key_sub_stream_str)
+{
+    libspdm_return_t status;
+    pci_ide_km_aes_256_gcm_key_buffer_t key_buffer;
+    uint8_t kp_ack_status;
+    bool result;
+
+    result = libspdm_get_random_number(sizeof(key_buffer.key), (void *)key_buffer.key);
+    if (!result) {
+        return LIBSPDM_STATUS_LOW_ENTROPY;
+    }
+    key_buffer.iv[0] = 0;
+    key_buffer.iv[1] = 1;
+    status = pci_ide_km_key_prog (m_pci_doe_context, spdm_context, session_id,
+                                  stream_id, key_sub_stream, 1, &key_buffer, &kp_ack_status);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_prog %s - %02x\n", key_sub_stream_str, kp_ack_status));
+    status = pci_ide_km_key_set_go (m_pci_doe_context, spdm_context, session_id,
+                                    stream_id, key_sub_stream, 1);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_go %s - %02x\n",
+                  key_sub_stream_str, kp_ack_status));
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
+libspdm_return_t ide_key_stop(void *spdm_context, uint32_t *session_id, uint8_t stream_id,
+                              uint8_t key_sub_stream, char *key_sub_stream_str)
+{
+    libspdm_return_t status;
+
+    status = pci_ide_km_key_set_stop (m_pci_doe_context, spdm_context, session_id,
+                                      stream_id, key_sub_stream, 1);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_stop %s\n",
+                  key_sub_stream_str));
+
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
+libspdm_return_t pci_ide_km_process_session_message_setup(void *spdm_context, uint32_t session_id)
 {
     uint8_t max_port_index;
     libspdm_return_t status;
@@ -47,9 +96,8 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
     uint8_t segment;
     uint32_t ide_reg_block[PCI_IDE_KM_IDE_REG_BLOCK_SUPPORTED_COUNT];
     uint32_t ide_reg_block_count;
-    pci_ide_km_aes_256_gcm_key_buffer_t key_buffer;
-    uint8_t kp_ack_status;
-    bool result;
+    uint8_t key_sub_stream;
+    uint8_t stream_id = 0;
 
     ide_reg_block_count = PCI_IDE_KM_IDE_REG_BLOCK_SUPPORTED_COUNT;
     status = pci_ide_km_query (m_pci_doe_context, spdm_context, &session_id,
@@ -65,62 +113,79 @@ libspdm_return_t pci_ide_km_process_session_message(void *spdm_context, uint32_t
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "%04x: 0x%08x\n", index, ide_reg_block[index]));
     }
 
-    result = libspdm_get_random_number(sizeof(key_buffer.key), (void *)key_buffer.key);
-    if (!result) {
-        return LIBSPDM_STATUS_LOW_ENTROPY;
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX | PCI_IDE_KM_KEY_SUB_STREAM_PR;
+    status = ide_key_program_and_go(spdm_context, &session_id, stream_id, key_sub_stream, "K0|RX|PR");
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+       return status;
     }
-    key_buffer.iv[0] = 0;
-    key_buffer.iv[1] = 1;
-    status = pci_ide_km_key_prog (m_pci_doe_context, spdm_context, &session_id,
-                                  0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 1,
-                                  &key_buffer, &kp_ack_status);
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX | PCI_IDE_KM_KEY_SUB_STREAM_NPR;
+    status = ide_key_program_and_go(spdm_context, &session_id, stream_id, key_sub_stream, "K0|RX|NPR");
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_prog K0|RX - %02x\n", kp_ack_status));
-
-    result = libspdm_get_random_number(sizeof(key_buffer.key), (void *)key_buffer.key);
-    if (!result) {
-        return LIBSPDM_STATUS_LOW_ENTROPY;
-    }
-    key_buffer.iv[0] = 0;
-    key_buffer.iv[1] = 1;
-    status = pci_ide_km_key_prog (m_pci_doe_context, spdm_context, &session_id,
-                                  0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 1,
-                                  &key_buffer, &kp_ack_status);
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX | PCI_IDE_KM_KEY_SUB_STREAM_CPL;
+    status = ide_key_program_and_go(spdm_context, &session_id, stream_id, key_sub_stream, "K0|RX|CPL");
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_prog K0|TX - %02x\n", kp_ack_status));
 
-    status = pci_ide_km_key_set_go (m_pci_doe_context, spdm_context, &session_id,
-                                    0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 1);
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX | PCI_IDE_KM_KEY_SUB_STREAM_PR;
+    status = ide_key_program_and_go(spdm_context, &session_id, stream_id, key_sub_stream, "K0|TX|PR");
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_go K0|RX\n"));
-
-    status = pci_ide_km_key_set_go (m_pci_doe_context, spdm_context, &session_id,
-                                    0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 1);
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX | PCI_IDE_KM_KEY_SUB_STREAM_NPR;
+    status = ide_key_program_and_go(spdm_context, &session_id, stream_id, key_sub_stream, "K0|TX|NPR");
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_go K0|TX\n"));
-
-
-    status = pci_ide_km_key_set_stop (m_pci_doe_context, spdm_context, &session_id,
-                                      0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX, 1);
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX | PCI_IDE_KM_KEY_SUB_STREAM_CPL;
+    status = ide_key_program_and_go(spdm_context, &session_id, stream_id, key_sub_stream, "K0|TX|CPL");
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_stop K0|RX\n"));
+ 
+    /* Leaving the keys in go state for tdisp. Keys will stop in ide_km teardown after tdisp */
+    return LIBSPDM_STATUS_SUCCESS;
+}
 
-    status = pci_ide_km_key_set_stop (m_pci_doe_context, spdm_context, &session_id,
-                                      0, PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX, 1);
+libspdm_return_t pci_ide_km_process_session_message_teardown(void *spdm_context, uint32_t session_id)
+{
+    uint8_t key_sub_stream;
+    uint8_t stream_id = 0;
+    libspdm_return_t status;
+
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX | PCI_IDE_KM_KEY_SUB_STREAM_PR;
+    status = ide_key_stop(spdm_context, &session_id, stream_id, key_sub_stream, "K0|RX|PR");
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+       return status;
+    }
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX | PCI_IDE_KM_KEY_SUB_STREAM_NPR;
+    status = ide_key_stop(spdm_context, &session_id, stream_id, key_sub_stream, "K0|RX|NPR");
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_stop K0|TX\n"));
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_RX | PCI_IDE_KM_KEY_SUB_STREAM_CPL;
+    status = ide_key_stop(spdm_context, &session_id, stream_id, key_sub_stream, "K0|RX|CPL");
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX | PCI_IDE_KM_KEY_SUB_STREAM_PR;
+    status = ide_key_stop(spdm_context, &session_id, stream_id, key_sub_stream, "K0|TX|PR");
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX | PCI_IDE_KM_KEY_SUB_STREAM_NPR;
+    status = ide_key_stop(spdm_context, &session_id, stream_id, key_sub_stream, "K0|TX|NPR");
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+    key_sub_stream = PCI_IDE_KM_KEY_SET_K0 | PCI_IDE_KM_KEY_DIRECTION_TX | PCI_IDE_KM_KEY_SUB_STREAM_CPL;
+    status = ide_key_stop(spdm_context, &session_id, stream_id, key_sub_stream, "K0|TX|CPL");
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
 
     return LIBSPDM_STATUS_SUCCESS;
 }
@@ -693,12 +758,17 @@ libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t se
     libspdm_return_t status;
     static bool is_first = true;
 
-    status = pci_ide_km_process_session_message (spdm_context, session_id);
+    status = pci_ide_km_process_session_message_setup (spdm_context, session_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
 
     status = pci_tdisp_process_session_message (spdm_context, session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
+
+    status = pci_ide_km_process_session_message_teardown (spdm_context, session_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
