@@ -150,6 +150,21 @@ jobs:
           sleep 5s
           ./spdm_requester_emu >requester.log
 
+  Darwin_openssl_build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -DARCH=aarch64 -DTOOLCHAIN=CLANG -DTARGET=Release -DCRYPTO=openssl ..
+          make copy_sample_key
+          make -j`nproc`  
+
   VS2019_mbedtls_build:
     runs-on: windows-latest
     steps:
