@@ -163,7 +163,7 @@ jobs:
           cd build
           cmake -DARCH=aarch64 -DTOOLCHAIN=CLANG -DTARGET=Release -DCRYPTO=openssl ..
           make copy_sample_key
-          make -j`nproc`  
+          make -j1  
 
   VS2019_mbedtls_build:
     runs-on: windows-latest
