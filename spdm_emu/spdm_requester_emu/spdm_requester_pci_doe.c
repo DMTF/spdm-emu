@@ -10,6 +10,7 @@ void *m_pci_doe_context;
 #define DOE_DISCOVERY_VERSION 0
 
 extern uint8_t m_cxl_tsp_2nd_session_psk[CXL_TSP_2ND_SESSION_COUNT][CXL_TSP_2ND_SESSION_KEY_SIZE];
+uint8_t cxl_caps;
 
 libspdm_return_t do_cxl_tsp_2nd_session_via_spdm(void *spdm_context, size_t index);
 
@@ -348,7 +349,7 @@ libspdm_return_t pci_tdisp_process_session_message(void *spdm_context, uint32_t 
     return LIBSPDM_STATUS_SUCCESS;
 }
 
-libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t session_id)
+libspdm_return_t cxl_ide_km_process_session_message_setup(void *spdm_context, uint32_t session_id)
 {
     uint8_t max_port_index;
     libspdm_return_t status;
@@ -356,7 +357,6 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
     uint8_t dev_func_num;
     uint8_t bus_num;
     uint8_t segment;
-    uint8_t caps;
     uint32_t ide_reg_block[CXL_IDE_KM_IDE_CAP_REG_BLOCK_MAX_COUNT];
     uint32_t ide_reg_block_count;
     cxl_ide_km_aes_256_gcm_key_buffer_t key_buffer;
@@ -364,23 +364,23 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
     bool result;
     uint8_t iv_type;
 
-    caps = 0;
+    cxl_caps = 0;
     ide_reg_block_count = CXL_IDE_KM_IDE_CAP_REG_BLOCK_MAX_COUNT;
     status = cxl_ide_km_query (m_pci_doe_context, spdm_context, &session_id,
                                0, &dev_func_num, &bus_num, &segment, &max_port_index,
-                               &caps,
+                               &cxl_caps,
                                ide_reg_block, &ide_reg_block_count);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "max_port_index - 0x%02x\n", max_port_index));
-    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "caps - 0x%02x\n", caps));
+    LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "cxl_caps - 0x%02x\n", cxl_caps));
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "ide_reg_block:\n"));
     for (index = 0; index < ide_reg_block_count; index++) {
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "%04x: 0x%08x\n", index, ide_reg_block[index]));
     }
 
-    if ((caps & (CXL_IDE_KM_QUERY_RESP_IV_GEN_CAP | CXL_IDE_KM_QUERY_RESP_KEY_GEN_CAP)) != 0) {
+    if ((cxl_caps & (CXL_IDE_KM_QUERY_RESP_IV_GEN_CAP | CXL_IDE_KM_QUERY_RESP_KEY_GEN_CAP)) != 0) {
         status = cxl_ide_km_get_key(m_pci_doe_context, spdm_context, &session_id,
                                     0, CXL_IDE_KM_KEY_SUB_STREAM_CXL, 0,
                                     &key_buffer);
@@ -389,14 +389,14 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
         }
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "get_key\n"));
     }
-    if ((caps & CXL_IDE_KM_QUERY_RESP_KEY_GEN_CAP) == 0) {
+    if ((cxl_caps & CXL_IDE_KM_QUERY_RESP_KEY_GEN_CAP) == 0) {
         result = libspdm_get_random_number(sizeof(key_buffer.key), (void *)key_buffer.key);
         if (!result) {
             return LIBSPDM_STATUS_LOW_ENTROPY;
         }
     }
     iv_type = CXL_IDE_KM_KEY_IV_INITIAL;
-    if ((caps & CXL_IDE_KM_QUERY_RESP_IV_GEN_CAP) == 0) {
+    if ((cxl_caps & CXL_IDE_KM_QUERY_RESP_IV_GEN_CAP) == 0) {
         key_buffer.iv[0] = 0x80000000;
         key_buffer.iv[1] = 0;
         key_buffer.iv[2] = 1;
@@ -447,10 +447,17 @@ libspdm_return_t cxl_ide_km_process_session_message(void *spdm_context, uint32_t
     }
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "key_set_go TX\n"));
 
-    if ((caps & CXL_IDE_KM_QUERY_RESP_K_SET_STOP_CAP) != 0) {
+    return LIBSPDM_STATUS_SUCCESS;
+}
+
+libspdm_return_t cxl_ide_km_process_session_message_teardown(void *spdm_context, uint32_t session_id)
+{
+    libspdm_return_t status;
+
+    if ((cxl_caps & CXL_IDE_KM_QUERY_RESP_K_SET_STOP_CAP) != 0) {
         status = cxl_ide_km_key_set_stop (m_pci_doe_context, spdm_context, &session_id,
-                                        0, CXL_IDE_KM_KEY_DIRECTION_RX |
-                                        CXL_IDE_KM_KEY_SUB_STREAM_CXL, 0);
+                                          0, CXL_IDE_KM_KEY_DIRECTION_RX |
+                                          CXL_IDE_KM_KEY_SUB_STREAM_CXL, 0);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             return status;
         }
@@ -773,7 +780,7 @@ libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t se
         return status;
     }
 
-    status = cxl_ide_km_process_session_message (spdm_context, session_id);
+    status = cxl_ide_km_process_session_message_setup (spdm_context, session_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
@@ -784,6 +791,11 @@ libspdm_return_t pci_doe_process_session_message(void *spdm_context, uint32_t se
         return status;
     }
     is_first = false;
+
+    status = cxl_ide_km_process_session_message_teardown (spdm_context, session_id);
+    if (LIBSPDM_STATUS_IS_ERROR(status)) {
+        return status;
+    }
 
     return LIBSPDM_STATUS_SUCCESS;
 }
