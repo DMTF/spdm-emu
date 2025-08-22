@@ -421,7 +421,7 @@ void *spdm_client_init(void)
     }
     if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_INFO_CAP & responder_capabilities_flag) == 0) {
         m_exe_connection &= ~EXE_CONNECTION_SET_KEY_PAIR_INFO;
-        m_exe_session &= ~EXE_CONNECTION_SET_KEY_PAIR_INFO;
+        m_exe_session &= ~EXE_SESSION_SET_KEY_PAIR_INFO;
     }
 
     if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_EP_INFO_CAP_SIG & responder_capabilities_flag) == 0) {
