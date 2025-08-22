@@ -151,6 +151,7 @@ void *spdm_client_init(void)
     size_t scratch_buffer_size;
     uint32_t requester_capabilities_flag;
     uint32_t responder_capabilities_flag;
+    uint32_t max_spdm_msg_size;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -179,10 +180,22 @@ void *spdm_client_init(void)
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
                                     spdm_device_receive_message);
 
+    if (m_use_req_slot_id == 0xFF) {
+        m_use_requester_capability_flags |= SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP;
+        m_use_requester_capability_flags &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP;
+        m_use_requester_capability_flags &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP;
+    }
+    if (m_use_capability_flags != 0) {
+        m_use_requester_capability_flags = m_use_capability_flags;
+    }
+    max_spdm_msg_size = LIBSPDM_MAX_SPDM_MSG_SIZE;
+    if ((m_use_requester_capability_flags & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP) == 0) {
+        max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
+    }
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
             spdm_context,
-            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            max_spdm_msg_size,
             LIBSPDM_TRANSPORT_HEADER_SIZE,
             LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_mctp_encode_message,
@@ -190,7 +203,7 @@ void *spdm_client_init(void)
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         libspdm_register_transport_layer_func(
             spdm_context,
-            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            max_spdm_msg_size,
             LIBSPDM_TRANSPORT_HEADER_SIZE,
             LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_pci_doe_encode_message,
@@ -198,7 +211,7 @@ void *spdm_client_init(void)
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
         libspdm_register_transport_layer_func(
             spdm_context,
-            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            max_spdm_msg_size,
             LIBSPDM_TRANSPORT_HEADER_SIZE,
             LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_tcp_encode_message,
@@ -206,7 +219,7 @@ void *spdm_client_init(void)
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context,
-            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            max_spdm_msg_size,
             0,
             0,
             spdm_transport_none_encode_message,
@@ -272,15 +285,6 @@ void *spdm_client_init(void)
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                      &parameter, &data8, sizeof(data8));
     data32 = m_use_requester_capability_flags;
-    if (m_use_req_slot_id == 0xFF) {
-        data32 |= SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP;
-        data32 &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP;
-        data32 &= ~SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP;
-    }
-    if (m_use_capability_flags != 0) {
-        data32 = m_use_capability_flags;
-        m_use_requester_capability_flags = m_use_capability_flags;
-    }
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));
 
