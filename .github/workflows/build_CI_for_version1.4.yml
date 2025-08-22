@@ -1,4 +1,4 @@
-name: Version 1.2 with Certificates
+name: Version 1.4 with Certificates
 
 on:
   push:
@@ -53,9 +53,9 @@ jobs:
           else
               echo "port is used"
           fi
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu --ver 1.4 &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2 >requester.log
+          ./spdm_requester_emu --ver 1.4 >requester.log
 
   gcc_openssl_build:
     runs-on: ubuntu-latest
@@ -84,9 +84,9 @@ jobs:
           else
               echo "port is used"
           fi
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu --ver 1.4 &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2 >requester.log
+          ./spdm_requester_emu --ver 1.4 >requester.log
 
   VS2019_mbedtls_build:
     runs-on: windows-latest
@@ -111,9 +111,9 @@ jobs:
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu --ver 1.4 &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2
+          ./spdm_requester_emu --ver 1.4
 
   VS2019_openssl_build:
     runs-on: windows-latest
@@ -139,6 +139,6 @@ jobs:
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu --ver 1.4 &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2
+          ./spdm_requester_emu --ver 1.4
