@@ -37,6 +37,8 @@ bool libspdm_read_responder_public_certificate_chain(
     uint32_t base_hash_algo, uint32_t base_asym_algo, void **data,
     size_t *size, void **hash, size_t *hash_size);
 
+bool libspdm_get_responder_private_key_from_raw_data(uint32_t base_asym_algo, void **context);
+
 /* External*/
 
 void libspdm_dump_hex_str(const uint8_t *buffer, size_t buffer_size);
