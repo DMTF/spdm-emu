@@ -1,4 +1,4 @@
-name: Version 1.2 with Certificates
+name: Version latest with Certificates
 
 on:
   push:
@@ -53,9 +53,49 @@ jobs:
           else
               echo "port is used"
           fi
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu  &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2 >requester.log
+          ./spdm_requester_emu >requester.log
+
+          sleep 10s
+
+      - name: Responder_validator_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu &
+          sleep 5s
+          ./spdm_device_validator_sample
+      - name: Test_RECORD_TRANSCRIPT_DATA_consistent
+        # open LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT flag
+        # mkdir build1 folder, gen spdm_requester_emu.exe and spdm_responder_emu.exe
+        # check the log size and end of log to ensure that hashes/signatures over transcripts are consistent
+        run: |
+          sed -i '17a add_definitions(-DLIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT=1)' CMakeLists.txt
+
+          mkdir build1
+          cd build1
+          cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=mbedtls ..
+          make copy_sample_key
+          make -j`nproc`
+
+          cd bin
+          echo "requester (DATA_SUPPORT = 0) <=> responder (DATA_SUPPORT = 1)"
+          ./spdm_responder_emu &
+          sleep 5s
+          ./../../build/bin/spdm_requester_emu >requester.log
+
+          sleep 10s
+          echo "requester (DATA_SUPPORT = 1) <=> responder (DATA_SUPPORT = 0)"
+          ./../../build/bin/spdm_responder_emu &
+          sleep 5s
+          ./spdm_requester_emu >requester.log
+      - name: Emu_PCIDOE_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE
+          sleep 10s
 
   gcc_openssl_build:
     runs-on: ubuntu-latest
@@ -84,9 +124,49 @@ jobs:
           else
               echo "port is used"
           fi
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu  &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2 >requester.log
+          ./spdm_requester_emu >requester.log
+          sleep 10s
+
+      - name: Responder_validator_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu &
+          sleep 5s
+          ./spdm_device_validator_sample
+      - name: Test_RECORD_TRANSCRIPT_DATA_consistent
+        # open LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT flag
+        # mkdir build1 folder, gen spdm_requester_emu.exe and spdm_responder_emu.exe
+        # check the log size and the end of log to ensure that hashes/signatures over transcripts are consistent
+        run: |
+          sed -i '17a add_definitions(-DLIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT=1)' CMakeLists.txt
+
+          mkdir build1
+          cd build1
+          cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
+          make copy_sample_key
+          make -j`nproc`
+
+          cd bin
+          echo "requester (DATA_SUPPORT = 0) <=> responder (DATA_SUPPORT = 1)"
+          ./spdm_responder_emu &
+          sleep 5s
+          ./../../build/bin/spdm_requester_emu >requester.log
+
+          sleep 10s
+          echo "requester (DATA_SUPPORT = 1) <=> responder (DATA_SUPPORT = 0)"
+          ./../../build/bin/spdm_responder_emu &
+          sleep 5s
+          ./spdm_requester_emu >requester.log
+      - name: Emu_PCIDOE_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE
+          sleep 10s
+
 
   VS2019_mbedtls_build:
     runs-on: windows-latest
@@ -106,14 +186,28 @@ jobs:
           mkdir build
           cd build
           cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=mbedtls ..
-          nmake  copy_sample_key
+          nmake copy_sample_key
           nmake
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2
+          ./spdm_requester_emu
+          sleep 10s
+      - name: Responder_validator_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu &
+          sleep 5s
+          ./spdm_device_validator_sample
+      - name: Emu_PCIDOE_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE
+          sleep 10s
 
   VS2019_openssl_build:
     runs-on: windows-latest
@@ -134,11 +228,25 @@ jobs:
           mkdir build
           cd build
           cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -G"NMake Makefiles" -DARCH=x64 -DTOOLCHAIN=VS2019 -DTARGET=Release -DCRYPTO=openssl ..
-          nmake  copy_sample_key
+          nmake copy_sample_key
           nmake
       - name: Emu_Test
         run: |
           cd build/bin
-          ./spdm_responder_emu --ver 1.2 &
+          ./spdm_responder_emu &
           sleep 5s
-          ./spdm_requester_emu --ver 1.2
+          ./spdm_requester_emu
+          sleep 10s
+      - name: Responder_validator_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu &
+          sleep 5s
+          ./spdm_device_validator_sample
+      - name: Emu_PCIDOE_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE
+          sleep 10s

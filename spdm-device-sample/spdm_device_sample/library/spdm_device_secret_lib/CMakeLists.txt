@@ -13,8 +13,10 @@ include_directories(${SPDM_DEVICE_DIR}/include
 )
 
 set(src_spdm_device_secret_lib
-    lib.c
-    cert.c
+    meas.c
+    read_priv_key_raw_data.c
+    read_pub_cert.c
+    sign.c
 )
 
 add_library(spdm_device_secret_lib STATIC ${src_spdm_device_secret_lib})

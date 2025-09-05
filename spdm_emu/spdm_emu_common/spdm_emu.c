@@ -42,23 +42,27 @@ void print_usage(const char *name)
 {
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
     printf("   [--tcp_sub RI|NO_RI]\n");
-    printf("   [--ver 1.0|1.1|1.2|1.3]\n");
+    printf("   [--ver 1.0|1.1|1.2|1.3|1.4]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
     printf(
-        "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
+        "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]\n");
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--meas_spec DMTF]\n");
     printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--mel_spec DMTF]\n");
     printf(
-        "   [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
+        "   [--asym NONE|RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
     printf(
-        "   [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
+        "   [--req_asym NONE|RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
     printf(
-        "   [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
+        "   [--dhe NONE|FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
     printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
+    printf("   [--pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]\n");
+    printf("   [--req_pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]\n");
+    printf("   [--kem NONE|ML_KEM_512|ML_KEM_768|ML_KEM_1024]\n");
     printf("   [--key_schedule HMAC_HASH]\n");
     printf("   [--other_param OPAQUE_FMT_1|MULTI_KEY_CONN]\n");
+    printf("   [--pqc_first FALSE|TRUE]\n");
     printf(
         "   [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
     printf("   [--basic_mut_auth NO|BASIC]\n");
@@ -88,9 +92,9 @@ void print_usage(const char *name)
     printf(
         "   [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.\n");
     printf(
-        "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG is used for Requester.\n");
+        "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG,LARGE_RESP is used for Requester.\n");
     printf(
-        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO is used for Responder.\n");
+        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,LARGE_RESP is used for Responder.\n");
     printf("   [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.\n");
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
     printf(
@@ -102,6 +106,9 @@ void print_usage(const char *name)
     printf(
         "   [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.\n");
     printf("   [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.\n");
+    printf("   [--pqc_asym] is PQC asym algorithm. By default, ML_DSA_44,ML_DSA_65,ML_DSA_87 is used.\n");
+    printf("   [--req_pqc_asym] is requester PQC asym algorithm. By default, ML_DSA_44,ML_DSA_65,ML_DSA_87 is used.\n");
+    printf("   [--kem] is KEM algorithm. By default, ML_KEM_512,ML_KEM_768,ML_KEM_1024 is used.\n");
     printf("   [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.\n");
     printf("   [--other_param] is other parameter support. By default, OPAQUE_FMT_1,MULTI_KEY_CONN is used.\n");
     printf("           Above algorithms also support multiple flags. Please use ',' for them.\n");
@@ -109,6 +116,8 @@ void print_usage(const char *name)
     printf("           Please don't mix NIST algo with SMx algo.\n");
     printf(
         "   [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.\n");
+    printf(
+        "   [--pqc_first] is to control if the responder will use PQC at first, if both PQC and traditional algorithms are supported by the requester and the responder. By default, FALSE is used.\n");
     printf(
         "   [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.\n");
     printf(
@@ -218,6 +227,7 @@ value_string_entry_t m_version_value_string_table[] = {
     { SPDM_MESSAGE_VERSION_11, "1.1" },
     { SPDM_MESSAGE_VERSION_12, "1.2" },
     { SPDM_MESSAGE_VERSION_13, "1.3" },
+    { SPDM_MESSAGE_VERSION_14, "1.4" },
 };
 
 value_string_entry_t m_secured_message_version_value_string_table[] = {
@@ -246,6 +256,7 @@ value_string_entry_t m_spdm_requester_capabilities_string_table[] = {
     { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_EVENT_CAP, "EVENT" },
     { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP_ONLY, "MULTI_KEY_ONLY" },
     { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MULTI_KEY_CAP_NEG, "MULTI_KEY_NEG" },
+    { SPDM_GET_CAPABILITIES_REQUEST_FLAGS_LARGE_RESP_CAP, "LARGE_RESP" },
 };
 
 value_string_entry_t m_spdm_responder_capabilities_string_table[] = {
@@ -281,6 +292,8 @@ value_string_entry_t m_spdm_responder_capabilities_string_table[] = {
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MULTI_KEY_CAP_NEG, "MULTI_KEY_NEG" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_GET_KEY_PAIR_INFO_CAP, "GET_KEY_PAIR_INFO" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_INFO_CAP, "SET_KEY_PAIR_INFO" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_RESET_CAP, "SET_KEY_PAIR_RESET" },
+    { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_LARGE_RESP_CAP, "LARGE_RESP" },
 };
 
 value_string_entry_t m_hash_value_string_table[] = {
@@ -314,6 +327,7 @@ value_string_entry_t m_measurement_hash_value_string_table[] = {
 };
 
 value_string_entry_t m_asym_value_string_table[] = {
+    { 0, "NONE" },
     { SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_RSASSA_2048, "RSASSA_2048" },
     { SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_RSASSA_3072, "RSASSA_3072" },
     { SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_RSASSA_4096, "RSASSA_4096" },
@@ -332,6 +346,7 @@ value_string_entry_t m_asym_value_string_table[] = {
 };
 
 value_string_entry_t m_dhe_value_string_table[] = {
+    { 0, "NONE" },
     { SPDM_ALGORITHMS_DHE_NAMED_GROUP_FFDHE_2048, "FFDHE_2048" },
     { SPDM_ALGORITHMS_DHE_NAMED_GROUP_FFDHE_3072, "FFDHE_3072" },
     { SPDM_ALGORITHMS_DHE_NAMED_GROUP_FFDHE_4096, "FFDHE_4096" },
@@ -349,6 +364,32 @@ value_string_entry_t m_aead_value_string_table[] = {
     { SPDM_ALGORITHMS_AEAD_CIPHER_SUITE_AEAD_SM4_GCM, "SM4_128_GCM" },
 };
 
+value_string_entry_t m_pqc_asym_value_string_table[] = {
+    { 0, "NONE" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_44, "ML_DSA_44" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_65, "ML_DSA_65" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_ML_DSA_87, "ML_DSA_87" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHA2_128S, "SLH_DSA_SHA2_128S" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHAKE_128S, "SLH_DSA_SHAKE_128S" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHA2_128F, "SLH_DSA_SHA2_128F" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHAKE_128F, "SLH_DSA_SHAKE_128F" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHA2_192S, "SLH_DSA_SHA2_192S" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHAKE_192S, "SLH_DSA_SHAKE_192S" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHA2_192F, "SLH_DSA_SHA2_192F" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHAKE_192F, "SLH_DSA_SHAKE_192F" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHA2_256S, "SLH_DSA_SHA2_256S" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHAKE_256S, "SLH_DSA_SHAKE_256S" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHA2_256F, "SLH_DSA_SHA2_256F" },
+    { SPDM_ALGORITHMS_PQC_ASYM_ALGO_SLH_DSA_SHAKE_256F, "SLH_DSA_SHAKE_256F" },
+};
+
+value_string_entry_t m_kem_value_string_table[] = {
+    { 0, "NONE" },
+    { SPDM_ALGORITHMS_KEM_ALG_ML_KEM_512, "ML_KEM_512" },
+    { SPDM_ALGORITHMS_KEM_ALG_ML_KEM_768, "ML_KEM_768" },
+    { SPDM_ALGORITHMS_KEM_ALG_ML_KEM_1024, "ML_KEM_1024" },
+};
+
 value_string_entry_t m_key_schedule_value_string_table[] = {
     { SPDM_ALGORITHMS_KEY_SCHEDULE_HMAC_HASH, "HMAC_HASH" },
 };
@@ -356,6 +397,11 @@ value_string_entry_t m_key_schedule_value_string_table[] = {
 value_string_entry_t m_other_param_value_string_table[] = {
     { SPDM_ALGORITHMS_OPAQUE_DATA_FORMAT_1, "OPAQUE_FMT_1" },
     { SPDM_ALGORITHMS_MULTI_KEY_CONN, "MULTI_KEY_CONN" },
+};
+
+value_string_entry_t m_pqc_first_policy_string_table[] = {
+    { false, "FALSE" },
+    { true, "TRUE" },
 };
 
 value_string_entry_t m_basic_mut_auth_policy_string_table[] = {
@@ -884,6 +930,75 @@ void process_args(char *program_name, int argc, char *argv[])
             }
         }
 
+        if (strcmp(argv[0], "--pqc_asym") == 0) {
+            if (argc >= 2) {
+                if (!get_flags_from_name(
+                        m_pqc_asym_value_string_table,
+                        LIBSPDM_ARRAY_SIZE(
+                            m_pqc_asym_value_string_table),
+                        argv[1], &m_support_pqc_asym_algo)) {
+                    printf("invalid --pqc_asym %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                printf("pqc_asym - 0x%08x\n", m_support_pqc_asym_algo);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --pqc_asym\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--req_pqc_asym") == 0) {
+            if (argc >= 2) {
+                if (!get_flags_from_name(
+                        m_pqc_asym_value_string_table,
+                        LIBSPDM_ARRAY_SIZE(
+                            m_pqc_asym_value_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --req_pqc_asym %s\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_support_req_pqc_asym_algo = data32;
+                printf("req_pqc_asym - 0x%08x\n",
+                       m_support_req_pqc_asym_algo);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --req_pqc_asym\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--kem") == 0) {
+            if (argc >= 2) {
+                if (!get_flags_from_name(
+                        m_kem_value_string_table,
+                        LIBSPDM_ARRAY_SIZE(m_kem_value_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --kem %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_support_kem_algo = data32;
+                printf("kem - 0x%08x\n", m_support_kem_algo);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --kem\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
         if (strcmp(argv[0], "--key_schedule") == 0) {
             if (argc >= 2) {
                 if (!get_flags_from_name(
@@ -929,6 +1044,28 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --other_param\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--pqc_first") == 0) {
+            if (argc >= 2) {
+                if (!get_value_from_name(
+                        m_pqc_first_policy_string_table,
+                        LIBSPDM_ARRAY_SIZE(m_pqc_first_policy_string_table),
+                        argv[1], &data32)) {
+                    printf("invalid --pqc_first %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_support_pqc_first = (bool)data32;
+                printf("pqc_first - 0x%02x\n", m_support_pqc_first);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --pqc_first\n");
                 print_usage(program_name);
                 exit(0);
             }

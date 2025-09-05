@@ -47,6 +47,8 @@ extern uint32_t m_use_hash_algo;
 extern uint32_t m_use_measurement_hash_algo;
 extern uint32_t m_use_asym_algo;
 extern uint16_t m_use_req_asym_algo;
+extern uint32_t m_use_pqc_asym_algo;
+extern uint32_t m_use_req_pqc_asym_algo;
 
 extern uint8_t m_support_measurement_spec;
 extern uint8_t m_support_mel_spec;
@@ -58,6 +60,10 @@ extern uint16_t m_support_dhe_algo;
 extern uint16_t m_support_aead_algo;
 extern uint16_t m_support_key_schedule_algo;
 extern uint8_t m_support_other_params_support;
+extern uint32_t m_support_pqc_asym_algo;
+extern uint32_t m_support_req_pqc_asym_algo;
+extern uint32_t m_support_kem_algo;
+extern bool m_support_pqc_first;
 
 extern uint8_t m_session_policy;
 extern uint8_t m_end_session_attributes;
@@ -198,7 +204,27 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
  * If chunk is supported, it must be larger than DATA_TRANSFER_SIZE.
  * It matches MaxSPDMmsgSize in SPDM specification. */
 #ifndef LIBSPDM_MAX_SPDM_MSG_SIZE
+/* MLDSA - 0x8000, SLHDSA - 0x28000 */
+#if ((LIBSPDM_SLH_DSA_SHA2_128S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_128S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_128F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_128F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_192S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_192S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_192F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_192F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_256S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_256S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_256F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_256F_SUPPORT))
+#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x28000
+#elif ((LIBSPDM_ML_DSA_44_SUPPORT) || \
+    (LIBSPDM_ML_DSA_65_SUPPORT) || \
+    (LIBSPDM_ML_DSA_87_SUPPORT))
+#define LIBSPDM_MAX_SPDM_MSG_SIZE 0x8000
+#else
 #define LIBSPDM_MAX_SPDM_MSG_SIZE 0x1200
+#endif
 #endif
 
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */

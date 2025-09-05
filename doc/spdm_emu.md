@@ -6,20 +6,24 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
    ```
       spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE]
-         [--ver 1.0|1.1|1.2|1.3]
+         [--ver 1.0|1.1|1.2|1.3|1.4]
          [--sec_ver 1.0|1.1|1.2]
-         [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]
+         [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]
          [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
          [--meas_spec DMTF]
          [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
          [--mel_spec DMTF]
-         [--asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]
-         [--req_asym RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]
-         [--dhe FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]
+         [--asym NONE|RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]
+         [--req_asym NONE|RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]
+         [--dhe NONE|FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]
          [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]
+         [--pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]
+         [--req_pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]
+         [--kem NONE|ML_KEM_512|ML_KEM_768|ML_KEM_1024]
          [--key_schedule HMAC_HASH]
          [--other_param OPAQUE_FMT_1|MULTI_KEY_CONN]
-         [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]
+         [--pqc_first FALSE|TRUE]
+         [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]
          [--basic_mut_auth NO|BASIC]
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
          [--meas_sum NO|TCB|ALL]
@@ -42,8 +46,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--ver] is version. By default, all are used.
          [--sec_ver] is secured message version. By default, all are used.
          [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.
-                 By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG is used for Requester.
-                 By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO is used for Responder.
+                 By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG,LARGE_RESP is used for Requester.
+                 By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,LARGE_RESP is used for Responder.
          [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.
          [--meas_spec] is measurement hash spec. By default, DMTF is used.
          [--meas_hash] is measurement hash algorithm. By default, SHA_512,SHA_384,SHA_256 is used.
@@ -52,11 +56,15 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--req_asym] is requester asym algorithm. By default, RSAPSS_3072,RSAPSS_2048,RSASSA_3072,RSASSA_2048 is used.
          [--dhe] is DHE algorithm. By default, SECP_384_R1,SECP_256_R1,FFDHE_3072,FFDHE_2048 is used.
          [--aead] is AEAD algorithm. By default, AES_256_GCM,CHACHA20_POLY1305 is used.
+         [--pqc_asym] is PQC asym algorithm. By default, ML_DSA_44,ML_DSA_65,ML_DSA_87 is used.
+         [--req_pqc_asym] is requester PQC asym algorithm. By default, ML_DSA_44,ML_DSA_65,ML_DSA_87 is used.
+         [--kem] is KEM algorithm. By default, ML_KEM_512,ML_KEM_768,ML_KEM_1024 is used.
          [--key_schedule] is key schedule algorithm. By default, HMAC_HASH is used.
          [--other_param] is other parameter support. By default, OPAQUE_FMT_1,MULTI_KEY_CONN is used.
                  Above algorithms also support multiple flags. Please use ',' for them.
                  Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.
                  Please don't mix NIST algo with SMx algo.
+         [--pqc_first] is to control if the responder will use PQC at first, if both PQC and traditional algorithms are supported by the requester and the responder. By default, FALSE is used.
          [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.
          [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.
          [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.
