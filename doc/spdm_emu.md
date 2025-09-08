@@ -5,7 +5,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 ## Spdm OS tool user guide
 
    ```
-      spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE]
+      spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE|TCP|NONE]
+         [--tcp_sub RI|NO_RI]
          [--ver 1.0|1.1|1.2|1.3|1.4]
          [--sec_ver 1.0|1.1|1.2]
          [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]
@@ -43,6 +44,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
       NOTE:
          [--trans] is used to select transport layer message. By default, MCTP is used.
+         [--tcp_sub] is sub-option when transport layer is TCP. By default, NO_RI (No RoleInquiry) is used.
          [--ver] is version. By default, all are used.
          [--sec_ver] is secured message version. By default, all are used.
          [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.
