@@ -1,7 +1,7 @@
 /**
  *  Copyright Notice:
  *  Copyright 2021-2022 DMTF. All rights reserved.
- *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/libspdm/blob/main/LICENSE.md
+ *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
 /*ecp384 key for responder: https://lapo.it/asn1js/#MIG2AgEAMBAGByqGSM49AgEGBSuBBAAiBIGeMIGbAgEBBDA0-Tw5nC64l4QCjOWcy-HO6RXQ1KwbLt4cgtNmLhrK3K7dez84YVgB4Q3tfzUDpKKhZANiAASM-ISdEQdJyhzQtRG84084PPDFjXNap2N-X2JgfxBDNMhPLLxwj02i_U4DiRZJykBqkRgJfyfv5KYmGv3U0VfbWxt1BfkVnTM0vpC3XtcFuXOFHkrTAFt9EGi_T8rmOEw */
