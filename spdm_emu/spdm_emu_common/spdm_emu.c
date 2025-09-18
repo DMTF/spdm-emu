@@ -391,7 +391,7 @@ value_string_entry_t m_kem_value_string_table[] = {
 };
 
 value_string_entry_t m_key_schedule_value_string_table[] = {
-    { SPDM_ALGORITHMS_KEY_SCHEDULE_HMAC_HASH, "HMAC_HASH" },
+    { SPDM_ALGORITHMS_KEY_SCHEDULE_SPDM, "HMAC_HASH" },
 };
 
 value_string_entry_t m_other_param_value_string_table[] = {
