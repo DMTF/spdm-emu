@@ -43,6 +43,7 @@
  * @retval false signing fail.
  **/
 bool libspdm_responder_data_sign(
+    void *spdm_context,
     spdm_version_number_t spdm_version, uint8_t op_code,
     uint32_t base_asym_algo, uint32_t pqc_asym_algo,
     uint32_t base_hash_algo, bool is_data_hash,
