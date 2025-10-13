@@ -15,9 +15,14 @@ set(TOOLCHAIN ${TOOLCHAIN} CACHE STRING "Choose the toolchain of build: Windows:
 set(CMAKE_BUILD_TYPE ${TARGET} CACHE STRING "Choose the target of build: Debug Release" FORCE)
 set(CRYPTO ${CRYPTO} CACHE STRING "Choose the crypto of build: mbedtls openssl" FORCE)
 set(GCOV ${GCOV} CACHE STRING "Choose the target of Gcov: ON  OFF, and default is OFF" FORCE)
+set(DEVICE ${DEVICE} CACHE STRING "Choose the device of build: tpm sample" FORCE)
 
 if(NOT GCOV)
     set(GCOV "OFF")
+endif()
+
+if (NOT DEVICE)
+    set(DEVICE "sample")
 endif()
 
 set(SPDM_EMU_DIR ${PROJECT_SOURCE_DIR})
@@ -631,7 +636,7 @@ endif()
     add_subdirectory(${LIBSPDM_DIR}/os_stub/debuglib_null out/debuglib_null.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/rnglib out/rnglib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/malloclib out/malloclib.out)
-    add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample out/spdm_device_secret_lib_sample.out)
+    add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE} out/spdm_device_secret_lib_${DEVICE}.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/platform_lib out/platform_lib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_crypt_ext_lib out/spdm_crypt_ext_lib.out)
 
