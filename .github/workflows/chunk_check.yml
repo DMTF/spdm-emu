@@ -47,7 +47,7 @@ jobs:
           ./spdm_requester_emu >requester.log
           sleep 10s
 
-      - name: Enable_chunk(transfer size inconsistent)
+      - name: Build1
         run: |
           mkdir build1
           cd build1
@@ -55,17 +55,19 @@ jobs:
           make copy_sample_key
           make -j`nproc`
 
-          cd bin
+      - name: Enable_chunk_PCIDOE(transfer size inconsistent)
+        run: |
+          cd build1/bin
           echo "requester (transfer_size = 42) <=> responder (transfer_size = 0x1200)"
-          ./spdm_responder_emu &
+          ./spdm_responder_emu --trans PCI_DOE &
           sleep 5s
-          ./../../build/bin/spdm_requester_emu >requester.log
-
+          ./../../build/bin/spdm_requester_emu --trans PCI_DOE >requester.log
           sleep 10s
+
           echo "requester (transfer_size = 0x1200) <=> responder (transfer_size = 42)"
-          ./../../build/bin/spdm_responder_emu &
+          ./../../build/bin/spdm_responder_emu --trans PCI_DOE &
           sleep 5s
-          ./spdm_requester_emu >requester.log
+          ./spdm_requester_emu --trans PCI_DOE >requester.log
 
   gcc_openssl_build:
     runs-on: ubuntu-latest
@@ -81,7 +83,7 @@ jobs:
           cmake -E env CFLAGS="-DLIBSPDM_SENDER_BUFFER_SIZE=170 -DLIBSPDM_RECEIVER_BUFFER_SIZE=170 -DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
           make copy_sample_key
           make -j`nproc`
-      - name: Enable_chunk(transfer size consistent)
+      - name: Enable_chunk_PCIDOE(transfer size consistent)
         run: |
           cd build/bin
 
@@ -94,11 +96,12 @@ jobs:
           else
               echo "port is used"
           fi
-          ./spdm_responder_emu  &
+          ./spdm_responder_emu --trans PCI_DOE &
           sleep 5s
-          ./spdm_requester_emu >requester.log
+          ./spdm_requester_emu --trans PCI_DOE >requester.log
+          sleep 10s
 
-      - name: Enable_chunk(transfer size inconsistent)
+      - name: Build1
         run: |
           mkdir build1
           cd build1
@@ -106,13 +109,15 @@ jobs:
           make copy_sample_key
           make -j`nproc`
 
-          cd bin
+      - name: Enable_chunk(transfer size inconsistent)
+        run: |
+          cd build1/bin
           echo "requester (transfer_size = 42) <=> responder (transfer_size = 0x1200)"
           ./spdm_responder_emu &
           sleep 5s
           ./../../build/bin/spdm_requester_emu >requester.log
-
           sleep 10s
+
           echo "requester (transfer_size = 0x1200) <=> responder (transfer_size = 42)"
           ./../../build/bin/spdm_responder_emu &
           sleep 5s
@@ -144,6 +149,13 @@ jobs:
           ./spdm_responder_emu &
           sleep 5s
           ./spdm_requester_emu
+          sleep 10s
+      - name: Enable_chunk_PCIDOE
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE
 
   VS2019_openssl_build:
     runs-on: windows-latest
@@ -172,3 +184,10 @@ jobs:
           ./spdm_responder_emu &
           sleep 5s
           ./spdm_requester_emu
+          sleep 10s
+      - name: Enable_chunk_PCIDOE
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE
