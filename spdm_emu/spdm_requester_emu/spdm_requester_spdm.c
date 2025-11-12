@@ -127,6 +127,8 @@ void *spdm_client_init(void)
     void *spdm_context;
 #if LIBSPDM_FIPS_MODE
     void *fips_selftest_context;
+    void *fips_selftest_buffer;
+    size_t fips_selftest_buffer_size;
 #endif /*LIBSPDM_FIPS_MODE*/
     uint8_t index;
     libspdm_return_t status;
@@ -168,7 +170,15 @@ void *spdm_client_init(void)
         return NULL;
     }
     fips_selftest_context = m_fips_selftest_context;
-    libspdm_init_fips_selftest_context(fips_selftest_context);
+
+    fips_selftest_buffer_size = libspdm_get_fips_selftest_buffer_size();
+    fips_selftest_buffer = (void *)malloc(fips_selftest_buffer_size);
+    if (fips_selftest_buffer == NULL) {
+        return NULL;
+    }
+    libspdm_init_fips_selftest_context(fips_selftest_context,
+                                       fips_selftest_buffer_size,
+                                       fips_selftest_buffer);
 
     if (!libspdm_import_fips_selftest_context_to_spdm_context(
             spdm_context, fips_selftest_context,

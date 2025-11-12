@@ -124,6 +124,8 @@ void *spdm_server_init(void)
     void *spdm_context;
 #if LIBSPDM_FIPS_MODE
     void * fips_selftest_context;
+    void *fips_selftest_buffer;
+    size_t fips_selftest_buffer_size;
 #endif /*LIBSPDM_FIPS_MODE*/
     libspdm_data_parameter_t parameter;
     uint8_t data8;
@@ -150,7 +152,14 @@ void *spdm_server_init(void)
         return NULL;
     }
     fips_selftest_context = m_fips_selftest_context;
-    libspdm_init_fips_selftest_context(fips_selftest_context);
+    fips_selftest_buffer_size = libspdm_get_fips_selftest_buffer_size();
+    fips_selftest_buffer = (void *)malloc(fips_selftest_buffer_size);
+    if (fips_selftest_buffer == NULL) {
+        return NULL;
+    }
+    libspdm_init_fips_selftest_context(fips_selftest_context,
+                                       fips_selftest_buffer_size,
+                                       fips_selftest_buffer);
 
     if (!libspdm_import_fips_selftest_context_to_spdm_context(
             spdm_context, fips_selftest_context,
@@ -330,11 +339,6 @@ void *spdm_server_init(void)
 
     data8 = 0xF0;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_HEARTBEAT_PERIOD, &parameter,
-                     &data8, sizeof(data8));
-
-    /*total key pair info number*/
-    data8 = libspdm_read_total_key_pairs();
-    libspdm_set_data(spdm_context, LIBSPDM_DATA_TOTAL_KEY_PAIRS, &parameter,
                      &data8, sizeof(data8));
 
     libspdm_register_get_response_func(

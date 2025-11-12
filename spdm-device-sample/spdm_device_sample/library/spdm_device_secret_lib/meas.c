@@ -268,6 +268,8 @@ libspdm_return_t libspdm_measurement_collection(
     uint32_t measurement_hash_algo,
     uint8_t measurements_index,
     uint8_t request_attribute,
+    size_t request_context_size,
+    const void *request_context,
     uint8_t *content_changed,
     uint8_t *measurements_count,
     void *measurements,
@@ -520,6 +522,8 @@ bool libspdm_generate_measurement_summary_hash(
             measurement_hash_algo,
             0xFF, /* Get all measurements*/
             0,
+            0,
+            NULL,
             NULL,
             &device_measurement_count, device_measurement,
             &device_measurement_size);
@@ -627,6 +631,8 @@ bool libspdm_measurement_opaque_data(
     uint32_t measurement_hash_algo,
     uint8_t measurement_index,
     uint8_t request_attribute,
+    size_t request_context_size,
+    const void *request_context,
     void *opaque_data,
     size_t *opaque_data_size)
 {
