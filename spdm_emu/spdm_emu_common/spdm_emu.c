@@ -5,9 +5,11 @@
  **/
 
 #include "spdm_emu.h"
+#ifndef _MSC_VER
 #include <sys/un.h>
 #include <linux/mctp.h>
 #include <errno.h>
+#endif
 
 #define MCTP_MESSAGE_TYPE_SPDM 0x05
 /*
@@ -44,7 +46,11 @@ struct in_addr m_ip_address = { 0x0100007F };
 
 void print_usage(const char *name)
 {
+#ifndef _MSC_VER
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]\n", name);
+#else
+    printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
+#endif
     printf("   [--tcp_sub RI|NO_RI]\n");
     printf("   [--ver 1.0|1.1|1.2|1.3|1.4]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
@@ -60,7 +66,6 @@ void print_usage(const char *name)
         "   [--req_asym NONE|RSASSA_2048|RSASSA_3072|RSASSA_4096|RSAPSS_2048|RSAPSS_3072|RSAPSS_4096|ECDSA_P256|ECDSA_P384|ECDSA_P521|SM2_P256|EDDSA_25519|EDDSA_448]\n");
     printf(
         "   [--dhe NONE|FFDHE_2048|FFDHE_3072|FFDHE_4096|SECP_256_R1|SECP_384_R1|SECP_521_R1|SM2_P256]\n");
-    printf("   [--cmd GET_VERSION]\n");
     printf("   [--aead AES_128_GCM|AES_256_GCM|CHACHA20_POLY1305|SM4_128_GCM]\n");
     printf("   [--pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]\n");
     printf("   [--req_pqc_asym NONE|ML_DSA_44|ML_DSA_65|ML_DSA_87|SLH_DSA_SHA2_128S|SLH_DSA_SHAKE_128S|SLH_DSA_SHA2_128F|SLH_DSA_SHAKE_128F|SLH_DSA_SHA2_192S|SLH_DSA_SHAKE_192S|SLH_DSA_SHA2_192F|SLH_DSA_SHAKE_192F|SLH_DSA_SHA2_256S|SLH_DSA_SHAKE_256S|SLH_DSA_SHA2_256F|SLH_DSA_SHAKE_256F]\n");
@@ -220,7 +225,9 @@ value_string_entry_t m_transport_value_string_table[] = {
     { SOCKET_TRANSPORT_TYPE_MCTP, "MCTP" },
     { SOCKET_TRANSPORT_TYPE_PCI_DOE, "PCI_DOE" },
     { SOCKET_TRANSPORT_TYPE_TCP, "TCP"},
-    { SOCKET_TRANSPORT_TYPE_MCTP_KERNEL, "MCTP_KERNEL" },
+#ifndef _MSC_VER
+    { SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL, "MCTP_KERNEL" },
+#endif
 };
 
 value_string_entry_t m_tcp_subtype_string_table[] = {
@@ -497,10 +504,6 @@ value_string_entry_t m_exe_session_string_table[] = {
     { EXE_SESSION_GET_CSR, "GET_CSR" },
     { EXE_SESSION_APP, "APP" },
     { EXE_SESSION_EP_INFO, "EP_INFO" },
-};
-
-value_string_entry_t m_cmd_string_table[] = {
-    { 0x1, "GET_VERSION" },
 };
 
 bool get_value_from_name(const value_string_entry_t *table,
@@ -1435,29 +1438,7 @@ void process_args(char *program_name, int argc, char *argv[])
             }
         }
 
-        if (strcmp(argv[0], "--cmd") == 0) {
-            if (argc >= 2) {
-                if (!get_value_from_name(
-                        m_cmd_string_table,
-                        LIBSPDM_ARRAY_SIZE(m_cmd_string_table),
-                        argv[1], &data32)) {
-                    printf("invalid --slot_id %s\n",
-                           argv[1]);
-                    print_usage(program_name);
-                    exit(0);
-                }
-                m_send_single_spdm_cmd = (uint8_t)data32;
-                printf("spdm_cmd - 0x%02x\n", m_send_single_spdm_cmd);
-                argc -= 2;
-                argv += 2;
-                continue;
-            } else {
-                printf("invalid --spdm_cmd\n");
-                print_usage(program_name);
-                exit(0);
-            }
-        }
-
+#ifndef _MSC_VER
         if (strcmp(argv[0], "--eid") == 0) {
             m_use_eid = (uint8_t)atoi(argv[1]);
             if (argc >= 2 && m_use_eid < 256) {
@@ -1470,6 +1451,7 @@ void process_args(char *program_name, int argc, char *argv[])
                 exit(0);
             }
         }
+#endif
 
         printf("invalid %s\n", argv[0]);
         print_usage(program_name);
@@ -1492,7 +1474,8 @@ void process_args(char *program_name, int argc, char *argv[])
 bool init_client(SOCKET *sock, uint16_t port)
 {
     SOCKET client_socket;
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_KERNEL)
+#ifndef _MSC_VER
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL)
     {
         struct sockaddr_mctp addr = { 0 };
         int rc = -1;
@@ -1515,8 +1498,8 @@ bool init_client(SOCKET *sock, uint16_t port)
             printf("Failed to bind socket: RC=%d\n", rc);
             return false;
         }
-    } 
-    else {
+    } else {
+#endif
         struct sockaddr_in server_addr;
         int32_t ret_val;
 
@@ -1559,7 +1542,10 @@ bool init_client(SOCKET *sock, uint16_t port)
             closesocket(client_socket);
             return false;
         }
+#ifndef _MSC_VER
     }
+#endif
+
     printf("connect success!\n");
 
     *sock = client_socket;
