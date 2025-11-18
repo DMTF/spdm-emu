@@ -5,8 +5,10 @@
  **/
 
 #include "spdm_emu.h"
+#ifndef _MSC_VER
 #include <linux/mctp.h>
 #include <errno.h>
+#endif
 
 /* hack to add MCTP header for PCAP*/
 #include "industry_standard/mctp.h"
@@ -19,8 +21,10 @@ bool m_send_receive_buffer_acquired = false;
 uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 size_t m_send_receive_buffer_size;
 
+#ifndef _MSC_VER
 uint8_t m_use_eid = 0;
-uint8_t m_send_single_spdm_cmd = 0;
+#endif
+
 /**
  * Read number of bytes data in blocking mode.
  *
@@ -35,7 +39,8 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
 
     number_received = 0;
     while (number_received < number_of_bytes) {
-        if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_KERNEL) {
+#ifndef _MSC_VER
+        if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
             struct sockaddr_mctp addr = { 0 };
             socklen_t addrlen = sizeof(addr);
             result = recvfrom(socket, (char *)(buffer + number_received),
@@ -43,9 +48,12 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
                             (struct sockaddr *)&addr, &addrlen);
         }
         else {
+#endif
             result = recv(socket, (char *)(buffer + number_received),
                           number_of_bytes - number_received, 0);
+#ifndef _MSC_VER
         }
+#endif
         if (result == -1) {
 #ifdef _MSC_VER
             EMU_ERR("Receive error - 0x%x\n", WSAGetLastError());
@@ -90,7 +98,9 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
     uint32_t length;
     bool result;
 
-    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_KERNEL) {
+#ifndef _MSC_VER
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+#endif
         result = read_data32(socket, &length);
         if (!result) {
             return result;
@@ -114,6 +124,7 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
         if (!result) {
             return result;
         }
+#ifndef _MSC_VER
     } else {
         length = recv(socket, NULL, 0, MSG_PEEK | MSG_TRUNC);
         if (length == -1) {
@@ -133,6 +144,7 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
         buffer[0] = MCTP_MESSAGE_TYPE_SPDM;
         *bytes_received = length + 1;
     }
+#endif
     EMU_LOG("Platform port Receive buffer:\n    ");
     dump_data(buffer, *bytes_received);
     EMU_LOG("\n");
@@ -149,7 +161,9 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
     uint32_t transport_type;
     uint32_t bytes_received;
 
-    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_KERNEL) {
+#ifndef _MSC_VER
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+#endif
         result = read_data32(socket, &response);
         if (!result) {
             return result;
@@ -173,8 +187,9 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
             EMU_ERR("transport_type mismatch\n");
             return false;
         }
+#ifndef _MSC_VER
     }
-
+#endif
     bytes_received = 0;
     result = read_multiple_bytes(socket, receive_buffer, &bytes_received,
                                  (uint32_t)*bytes_to_receive);
@@ -226,10 +241,10 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
 
     number_sent = 0;
     while (number_sent < number_of_bytes) {
-        if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_KERNEL) {
-            /* MCTP kernel approach does not support send() syscall 
-             * sendto() is recommanded to send messages currently
-             * https://discord.com/channels/775381525260664832/775381525260664836/1161513903319158904 */
+#ifndef _MSC_VER
+        if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+            /* MCTP kernel approach does not support send() syscall *
+             * sendto() is recommanded to send messages currently.  */
             struct sockaddr_mctp addr = { 0 };
             addr.smctp_family = AF_MCTP;
             if (m_use_eid != 0)
@@ -240,11 +255,13 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
             result = sendto(socket, (char *)(buffer + number_sent),
                             number_of_bytes - number_sent, 0,
                             (struct sockaddr *)&addr, sizeof(addr));
-        }
-        else {
+        } else {
+#endif
             result = send(socket, (char *)(buffer + number_sent),
                           number_of_bytes - number_sent, 0);
+#ifndef _MSC_VER
         }
+#endif
         if (result == -1) {
 #ifdef _MSC_VER
             if (WSAGetLastError() == 0x2745) {
@@ -279,25 +296,33 @@ bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
 {
     bool result;
 
-    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_KERNEL)
+#ifndef _MSC_VER
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL)
     {
+#endif
         result = write_data32(socket, bytes_to_send);
         if (!result) {
             return result;
         }
+#ifndef _MSC_VER
     }
+#endif
     EMU_LOG("Platform port Transmit size: ");
     bytes_to_send = htonl(bytes_to_send);
     dump_data((uint8_t *)&bytes_to_send, sizeof(uint32_t));
     EMU_LOG("\n");
     bytes_to_send = htonl(bytes_to_send);
 
-    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_KERNEL)
+#ifndef _MSC_VER
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+#endif
         result = write_bytes(socket, buffer, bytes_to_send);
-    else {
+#ifndef _MSC_VER
+    } else {
         //mctp kernel do not need to send message type in the payload
         result = write_bytes(socket, buffer+1, bytes_to_send-1);
     }
+#endif
     if (!result) {
         return result;
     }
@@ -314,8 +339,10 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
     uint32_t request;
     uint32_t transport_type;
 
-    if(m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_KERNEL)
+#ifndef _MSC_VER
+    if(m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL)
     {
+#endif
         request = command;
         result = write_data32(socket, request);
         if (!result) {
@@ -333,7 +360,9 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
         transport_type = ntohl(m_use_transport_layer);
         dump_data((uint8_t *)&transport_type, sizeof(uint32_t));
         EMU_LOG("\n");
+#ifndef _MSC_VER
     }
+#endif
 
     result = write_multiple_bytes(socket, send_buffer,
                                   (uint32_t)bytes_to_send);
