@@ -18,7 +18,7 @@ jobs:
   arm_mbedtls_build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -37,7 +37,7 @@ jobs:
   VS2019_mbedtls_build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
         #ilammy/msvc-dev-cmd@v1 is GitHub Action for configuring Developer Command Prompt for Microsoft Visual Studio on Windows.
