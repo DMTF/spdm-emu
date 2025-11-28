@@ -5,6 +5,7 @@
  **/
 
 #include "spdm_requester_emu.h"
+#include "library/spdm_return_status.h"
 
 uint8_t m_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 
