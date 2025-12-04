@@ -15,15 +15,20 @@ set(TOOLCHAIN ${TOOLCHAIN} CACHE STRING "Choose the toolchain of build: Windows:
 set(CMAKE_BUILD_TYPE ${TARGET} CACHE STRING "Choose the target of build: Debug Release" FORCE)
 set(CRYPTO ${CRYPTO} CACHE STRING "Choose the crypto of build: mbedtls openssl" FORCE)
 set(GCOV ${GCOV} CACHE STRING "Choose the target of Gcov: ON  OFF, and default is OFF" FORCE)
+set(DEVICE ${DEVICE} CACHE STRING "Choose the test device: sample tpm, and default is sample" FORCE)
 
 if(NOT GCOV)
     set(GCOV "OFF")
 endif()
 
+if (NOT DEVICE)
+    set(DEVICE "sample")
+endif()
+
 set(SPDM_EMU_DIR ${PROJECT_SOURCE_DIR})
 set(LIBSPDM_DIR ${PROJECT_SOURCE_DIR}/libspdm)
-set(SPDM_RESPONDER_VALIDATOR_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator)
-set(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/common_test_framework)
+# set(SPDM_RESPONDER_VALIDATOR_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator)
+# set(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/common_test_framework)
 
 #
 # OpenSSL specific compiled libraries.
@@ -32,6 +37,7 @@ set(COMPILED_LIBCRYPTO_PATH ${COMPILED_LIBCRYPTO_PATH} CACHE STRING "Optionally 
 set(COMPILED_LIBSSL_PATH ${COMPILED_LIBSSL_PATH} CACHE STRING "Optionally provide a path to libssl" FORCE)
 
 message("CMAKE_GENERATOR = ${CMAKE_GENERATOR}")
+message("DEVICE = ${DEVICE}")
 
 if(ARCH STREQUAL "x64")
     message("ARCH = x64")
@@ -129,7 +135,7 @@ else()
 endif()
 
 if(ENABLE_BINARY_BUILD STREQUAL "1")
-    if(NOT CRYPTO STREQUAL "Openssl")
+    if(NOT CRYPTO STREQUAL "openssl")
         message(FATAL_ERROR "enabling binary build not supported for non-Openssl")
     endif()
 
@@ -632,6 +638,7 @@ endif()
     add_subdirectory(${LIBSPDM_DIR}/os_stub/rnglib out/rnglib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/malloclib out/malloclib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample out/spdm_device_secret_lib_sample.out)
+    add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_tpm out/spdm_device_secret_lib_tpm.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/platform_lib out/platform_lib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_crypt_ext_lib out/spdm_crypt_ext_lib.out)
 
@@ -657,9 +664,9 @@ endif()
     add_subdirectory(spdm_emu/spdm_requester_emu)
     add_subdirectory(spdm_emu/spdm_responder_emu)
 
-    add_subdirectory(${COMMON_TEST_FRAMEWORK_DIR}/library/common_test_utility_lib out/common_test_utility_lib.out)
-    add_subdirectory(${SPDM_RESPONDER_VALIDATOR_DIR}/library/spdm_responder_conformance_test_lib out/spdm_responder_conformance_test_lib.out)
-    add_subdirectory(spdm_emu/spdm_device_validator_sample)
+    # add_subdirectory(${COMMON_TEST_FRAMEWORK_DIR}/library/common_test_utility_lib out/common_test_utility_lib.out)
+    # add_subdirectory(${SPDM_RESPONDER_VALIDATOR_DIR}/library/spdm_responder_conformance_test_lib out/spdm_responder_conformance_test_lib.out)
+    # add_subdirectory(spdm_emu/spdm_device_validator_sample)
 
-    add_subdirectory(spdm_emu/spdm_device_attester_sample)
+    # add_subdirectory(spdm_emu/spdm_device_attester_sample)
     endif()
