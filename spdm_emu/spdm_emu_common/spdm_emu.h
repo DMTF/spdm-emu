@@ -199,6 +199,9 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
 #define LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE LIBSPDM_RECEIVER_BUFFER_SIZE
 #endif
 
+// chunk disable.
+#define LIBSPDM_MAX_SPDM_MSG_SIZE LIBSPDM_RECEIVER_BUFFER_SIZE
+
 /* Maximum size of a large SPDM message.
  * If chunk is unsupported, it must be same as DATA_TRANSFER_SIZE.
  * If chunk is supported, it must be larger than DATA_TRANSFER_SIZE.
