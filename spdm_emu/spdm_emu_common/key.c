@@ -65,7 +65,7 @@ uint32_t m_use_peer_capability_flags = 0;
  * 0
  * 1
  */
-uint8_t m_use_basic_mut_auth = 1;
+// uint8_t m_use_basic_mut_auth = 1;
 /*
  * 0
  * SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED,
