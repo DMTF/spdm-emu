@@ -1071,30 +1071,30 @@ void process_args(char *program_name, int argc, char *argv[])
             }
         }
 
-        if (strcmp(argv[0], "--basic_mut_auth") == 0) {
-            if (argc >= 2) {
-                if (!get_value_from_name(
-                        m_basic_mut_auth_policy_string_table,
-                        LIBSPDM_ARRAY_SIZE(
-                            m_basic_mut_auth_policy_string_table),
-                        argv[1], &data32)) {
-                    printf("invalid --basic_mut_auth %s\n",
-                           argv[1]);
-                    print_usage(program_name);
-                    exit(0);
-                }
-                m_use_basic_mut_auth = (uint8_t)data32;
-                printf("basic_mut_auth - 0x%02x\n",
-                       m_use_basic_mut_auth);
-                argc -= 2;
-                argv += 2;
-                continue;
-            } else {
-                printf("invalid --basic_mut_auth\n");
-                print_usage(program_name);
-                exit(0);
-            }
-        }
+        // if (strcmp(argv[0], "--basic_mut_auth") == 0) {
+        //     if (argc >= 2) {
+        //         if (!get_value_from_name(
+        //                 m_basic_mut_auth_policy_string_table,
+        //                 LIBSPDM_ARRAY_SIZE(
+        //                     m_basic_mut_auth_policy_string_table),
+        //                 argv[1], &data32)) {
+        //             printf("invalid --basic_mut_auth %s\n",
+        //                    argv[1]);
+        //             print_usage(program_name);
+        //             exit(0);
+        //         }
+        //         m_use_basic_mut_auth = (uint8_t)data32;
+        //         printf("basic_mut_auth - 0x%02x\n",
+        //                m_use_basic_mut_auth);
+        //         argc -= 2;
+        //         argv += 2;
+        //         continue;
+        //     } else {
+        //         printf("invalid --basic_mut_auth\n");
+        //         print_usage(program_name);
+        //         exit(0);
+        //     }
+        // }
 
         if (strcmp(argv[0], "--mut_auth") == 0) {
             if (argc >= 2) {
