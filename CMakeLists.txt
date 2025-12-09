@@ -11,7 +11,7 @@ message("#########################")
 
 set(CMAKE_GENERATOR ${CMAKE_GENERATOR} CACHE STRING "Choose the generator of cmake")
 set(ARCH ${ARCH} CACHE STRING "Choose the arch of build: ia32 x64 arm aarch64 riscv32 riscv64 arc" FORCE)
-set(TOOLCHAIN ${TOOLCHAIN} CACHE STRING "Choose the toolchain of build: Windows: VS2015 VS2019 VS2022 CLANG ARM_DS2022 LIBFUZZER Linux: GCC ARM_GCC AARCH64_GCC RISCV32_GCC RISCV64_GCC ARC_GCC ARM_DS2022 CLANG CBMC AFL KLEE LIBFUZZER" FORCE)
+set(TOOLCHAIN ${TOOLCHAIN} CACHE STRING "Choose the toolchain of build: Windows: VS2015 VS2019 VS2022 CLANG ARM_DS2022 LIBFUZZER Linux: GCC ARM_GCC AARCH64_GCC RISCV32_GCC RISCV64_GCC ARC_GCC ARM_DS2022 CLANG CBMC AFL KLEE LIBFUZZER NONE" FORCE)
 set(CMAKE_BUILD_TYPE ${TARGET} CACHE STRING "Choose the target of build: Debug Release" FORCE)
 set(CRYPTO ${CRYPTO} CACHE STRING "Choose the crypto of build: mbedtls openssl" FORCE)
 set(GCOV ${GCOV} CACHE STRING "Choose the target of Gcov: ON  OFF, and default is OFF" FORCE)
@@ -80,6 +80,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         message("TOOLCHAIN = ARC_GCC")
     elseif(TOOLCHAIN STREQUAL "NIOS2_GCC")
         message("TOOLCHAIN = NIOS2_GCC")
+    elseif(TOOLCHAIN STREQUAL "NONE")
+        message("TOOLCHAIN = NONE")
     else()
         message(FATAL_ERROR "Unkown TOOLCHAIN")
     endif()
@@ -129,8 +131,8 @@ else()
 endif()
 
 if(ENABLE_BINARY_BUILD STREQUAL "1")
-    if(NOT CRYPTO STREQUAL "Openssl")
-        message(FATAL_ERROR "enabling binary build not supported for non-Openssl")
+    if(NOT CRYPTO STREQUAL "openssl")
+        message(FATAL_ERROR "enabling binary build not supported for non-openssl")
     endif()
 
     if(NOT COMPILED_LIBCRYPTO_PATH)
@@ -407,6 +409,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         set(CMAKE_EXE_LINKER_FLAGS "")
 
         set(CMAKE_C_LINK_EXECUTABLE "")
+
+    elseif(TOOLCHAIN STREQUAL "NONE")
+        set(CMAKE_C_LINK_EXECUTABLE   "<CMAKE_C_COMPILER> <FLAGS> <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> -static -Wl,--start-group <LINK_LIBRARIES> -Wl,--end-group")
 
     endif()
 
