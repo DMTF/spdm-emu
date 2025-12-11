@@ -55,6 +55,21 @@
    make
    ```
 
+### Linux Builds inside build environments
+
+   If the toolchain is set to NONE then it will use the native toolchain of the
+   build environment. This is useful inside build environments such as Buildroot
+   or OpenEmbedded.
+
+   ```
+   cd spdm-emu
+   mkdir build
+   cd build
+   cmake -DARCH=<x64|ia32|arm|aarch64|riscv32|riscv64|arc> -DTOOLCHAIN=NONE -DTARGET=<Debug|Release> -DCRYPTO=<mbedtls|openssl> ..
+   make copy_sample_key
+   make
+   ```
+
 ## Run Test
 
 ### Run spdm_emu
