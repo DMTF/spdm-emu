@@ -1,0 +1,94 @@
+name: TPM CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  TPM2OPENSSL_TCTI: tabrmd:bus_name=com.intel.tss2.Tabrmd,bus_type=session
+  TPM2TOOLS_TCTI: tabrmd:bus_name=com.intel.tss2.Tabrmd,bus_type=session
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      
+      - name: Install requirements
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tpm2-openssl tpm2-tools \
+            swtpm swtpm-tools libtss2-dev libglib2.0-dev libcmocka-dev
+
+      - name: Build TPM2 abrmd
+        run: |
+          mkdir -p build/tpm2 && cd build/tpm2
+          wget https://github.com/tpm2-software/tpm2-abrmd/releases/download/3.0.0/tpm2-abrmd-3.0.0.tar.gz && \
+            tar -xf tpm2-abrmd-3.0.0.tar.gz
+          cd tpm2-abrmd-3.0.0
+          ./configure --enable-integration
+          make -j$(nproc)
+          sudo make install
+
+          mkdir -p $HOME/.config/systemd/user/
+          cat > $HOME/.config/systemd/user/swtpm.service << "EOF"
+          [Unit]
+          Description=TPM2.0 Simulator Server daemon
+          Before=tpm2-abrmd.service
+          [Service]
+          ExecStartPre=/usr/bin/mkdir -p /tmp/emulated_tpm
+          ExecStart=/usr/bin/swtpm socket --tpm2 --flags not-need-init --tpmstate dir=/tmp/emulated_tpm --server type=tcp,port=2321 --ctrl type=tcp,port=2322
+          Restart=always
+          Environment=PATH=/usr/bin:/usr/local/bin
+          [Install]
+          WantedBy=default.target
+          EOF
+
+          cat > $HOME/.config/systemd/user/tpm2-abrmd.service << "EOF"
+          [Unit]
+          Description=TPM2 Access Broker and Resource Management Daemon
+          # These settings are needed when using the device TCTI. If the
+          # TCP mssim is used then the settings should be commented out.
+          After=swtpm.service
+          Requires=swtpm.service
+
+          [Service]
+          Type=dbus
+          BusName=com.intel.tss2.Tabrmd
+          ExecStartPre=/bin/sleep 5
+          ExecStart=/usr/local/sbin/tpm2-abrmd --allow-root --session --tcti=swtpm:host=127.0.0.1,port=2321
+
+          [Install]
+          WantedBy=default.target
+          EOF
+
+      - name: Build
+        run: |
+          cmake -B build \
+            -DTOOLCHAIN=GCC \
+            -DCRYPTO=openssl \
+            -DARCH=x64 -DTARGET=Debug \
+            -DDEVICE=tpm
+          
+          cmake --build build -j`nproc`
+      
+      - name: Setup software tpm 
+        run: |
+          cd build/bin
+          systemctl start tpm2-abrmd --user
+          ../../script/setup-tpm.sh --cleanup
+      
+      - name: Emu_Test
+        run: |
+          cd build/bin
+
+          ./spdm_responder_emu &
+          sleep 5s
+          ./spdm_requester_emu > requester.log
+
+          sleep 10s

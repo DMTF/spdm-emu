@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_requester_emu
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
+                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/include
                     ${LIBSPDM_DIR}/os_stub
@@ -44,7 +44,7 @@ set(spdm_requester_emu_LIBRARY
     spdm_transport_pcidoe_lib
     spdm_transport_tcp_lib
     spdm_transport_none_lib
-    spdm_device_secret_lib_sample
+    spdm_device_secret_lib_${DEVICE}
     mctp_requester_lib
     pci_doe_requester_lib
     pci_ide_km_requester_lib
@@ -70,7 +70,7 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:spdm_transport_mctp_lib>
                    $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>
                    $<TARGET_OBJECTS:spdm_transport_tcp_lib>
-                   $<TARGET_OBJECTS:spdm_device_secret_lib_sample>
+                   $<TARGET_OBJECTS:spdm_device_secret_lib_${DEVICE}>
                    $<TARGET_OBJECTS:mctp_requester_lib>
                    $<TARGET_OBJECTS:pci_doe_requester_lib>
                    $<TARGET_OBJECTS:pci_ide_km_requester_lib>
