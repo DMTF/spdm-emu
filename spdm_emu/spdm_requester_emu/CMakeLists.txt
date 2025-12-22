@@ -83,3 +83,18 @@ else()
     add_executable(spdm_requester_emu ${src_spdm_requester_emu})
     target_link_libraries(spdm_requester_emu ${spdm_requester_emu_LIBRARY})
 endif()
+
+# Windows DLL path fix for OpenSSL shared library
+if(CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT TOOLCHAIN STREQUAL "NONE")
+    if(CRYPTO STREQUAL "openssl")
+        # Copy OpenSSL DLL to emu directory for runtime linking
+        if(TARGET openssllib)
+            add_custom_command(TARGET spdm_requester_emu POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:openssllib>
+                $<TARGET_FILE_DIR:spdm_requester_emu>
+                COMMENT "Copying OpenSSL DLL to emu directory"
+            )
+        endif()
+    endif()
+endif()
