@@ -628,11 +628,7 @@ void spdm_server_connection_state_callback(
                                  &data8, sizeof(data8));
 
                 data8 = m_use_basic_mut_auth;
-                parameter.additional_data[0] =
-                    m_use_req_slot_id; /* req_slot_id;*/
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_BASIC_MUT_AUTH_REQUESTED,
-                                 &parameter, &data8, sizeof(data8));
+                g_start_basic_mut_auth = m_use_basic_mut_auth == 1;
             }
         }
 

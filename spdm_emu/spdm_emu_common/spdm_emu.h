@@ -39,6 +39,7 @@ extern uint8_t m_use_slot_id;
 extern uint8_t m_use_slot_count;
 extern uint8_t m_use_req_slot_id;
 extern bool g_private_key_mode;
+extern bool g_start_basic_mut_auth;
 
 #define ENCAP_KEY_UPDATE 0x8000
 extern libspdm_key_update_action_t m_use_key_update_action;
@@ -225,6 +226,38 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
 #else
 #define LIBSPDM_MAX_SPDM_MSG_SIZE 0x1200
 #endif
+#endif
+
+#ifndef LIBSPDM_MAX_CERT_CHAIN_SIZE
+/* MLDSA - 0x8000, SLHDSA - 0x28000 */
+#if ((LIBSPDM_SLH_DSA_SHA2_128S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_128S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_128F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_128F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_192S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_192S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_192F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_192F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_256S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_256S_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHA2_256F_SUPPORT) || \
+    (LIBSPDM_SLH_DSA_SHAKE_256F_SUPPORT))
+#define LIBSPDM_MAX_CERT_CHAIN_SIZE 0x28000
+#elif ((LIBSPDM_ML_DSA_44_SUPPORT) || \
+    (LIBSPDM_ML_DSA_65_SUPPORT) || \
+    (LIBSPDM_ML_DSA_87_SUPPORT))
+#define LIBSPDM_MAX_CERT_CHAIN_SIZE 0x8000
+#else
+#define LIBSPDM_MAX_CERT_CHAIN_SIZE 0x1000
+#endif
+#endif /* LIBSPDM_MAX_CERT_CHAIN_SIZE */
+
+#ifndef LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE
+#define LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE 0x1000
+#endif
+
+#ifndef LIBSPDM_MAX_ENDPOINT_INFO_LENGTH
+#define LIBSPDM_MAX_ENDPOINT_INFO_LENGTH 1024
 #endif
 
 /* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
