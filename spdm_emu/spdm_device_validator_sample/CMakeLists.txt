@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
+                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/include
                     ${LIBSPDM_DIR}/os_stub
@@ -40,7 +40,7 @@ set(spdm_device_validator_sample_LIBRARY
     spdm_transport_pcidoe_lib
     spdm_transport_none_lib
     spdm_transport_tcp_lib
-    spdm_device_secret_lib_sample
+    spdm_device_secret_lib_${DEVICE}
     mctp_requester_lib
     pci_doe_requester_lib
     platform_lib
