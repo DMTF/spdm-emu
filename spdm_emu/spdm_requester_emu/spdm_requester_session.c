@@ -81,7 +81,7 @@ libspdm_return_t get_digest_cert_in_session(const uint32_t *session_id)
     if ((m_exe_session & EXE_SESSION_CERT) != 0) {
         if (m_use_slot_id != 0xFF) {
             status = libspdm_get_certificate_ex(
-                spdm_context, session_id, m_use_slot_id, &cert_chain_size, cert_chain, NULL, 0);
+                spdm_context, session_id, m_use_slot_id, 0, &cert_chain_size, cert_chain, NULL, 0);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 return status;
             }
