@@ -15,9 +15,16 @@ set(TOOLCHAIN ${TOOLCHAIN} CACHE STRING "Choose the toolchain of build: Windows:
 set(CMAKE_BUILD_TYPE ${TARGET} CACHE STRING "Choose the target of build: Debug Release" FORCE)
 set(CRYPTO ${CRYPTO} CACHE STRING "Choose the crypto of build: mbedtls openssl" FORCE)
 set(GCOV ${GCOV} CACHE STRING "Choose the target of Gcov: ON  OFF, and default is OFF" FORCE)
+set(DEVICE ${DEVICE} CACHE STRING "Choose the test device: sample tpm, and default is sample" FORCE)
+
+option(LIBSPDM_TPM_SUPPORT "Add TPM support in crypt_ext" OFF)
 
 if(NOT GCOV)
     set(GCOV "OFF")
+endif()
+
+if (NOT DEVICE)
+    set(DEVICE "sample")
 endif()
 
 set(SPDM_EMU_DIR ${PROJECT_SOURCE_DIR})
@@ -32,6 +39,7 @@ set(COMPILED_LIBCRYPTO_PATH ${COMPILED_LIBCRYPTO_PATH} CACHE STRING "Optionally 
 set(COMPILED_LIBSSL_PATH ${COMPILED_LIBSSL_PATH} CACHE STRING "Optionally provide a path to libssl" FORCE)
 
 message("CMAKE_GENERATOR = ${CMAKE_GENERATOR}")
+message("DEVICE = ${DEVICE}")
 
 if(ARCH STREQUAL "x64")
     message("ARCH = x64")
@@ -134,6 +142,14 @@ elseif(CRYPTO STREQUAL "openssl")
     message("CRYPTO = openssl")
 else()
     message(FATAL_ERROR "Unkown CRYPTO")
+endif()
+
+if (LIBSPDM_TPM_SUPPORT)
+    if (NOT CRYPTO STREQUAL "openssl")
+        message(FATAL_ERROR "${CRYPTO} does not support TPM")
+    endif ()
+    message(STATUS "crypt_ext tpm supported enabled")
+    add_definitions(-DLIBSPDM_TPM_SUPPORT=1)
 endif()
 
 if(ENABLE_BINARY_BUILD STREQUAL "1")
@@ -642,7 +658,7 @@ endif()
     add_subdirectory(${LIBSPDM_DIR}/os_stub/debuglib_null out/debuglib_null.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/rnglib out/rnglib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/malloclib out/malloclib.out)
-    add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample out/spdm_device_secret_lib_sample.out)
+    add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE} out/spdm_device_secret_lib_${DEVICE}.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/platform_lib out/platform_lib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_crypt_ext_lib out/spdm_crypt_ext_lib.out)
 

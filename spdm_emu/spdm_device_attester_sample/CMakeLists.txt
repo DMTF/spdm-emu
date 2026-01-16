@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
+                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/include
                     ${LIBSPDM_DIR}/os_stub
@@ -38,7 +38,7 @@ set(spdm_device_attester_sample_LIBRARY
     spdm_transport_pcidoe_lib
     spdm_transport_none_lib
     spdm_transport_tcp_lib
-    spdm_device_secret_lib_sample
+    spdm_device_secret_lib_${DEVICE}
     mctp_requester_lib
     pci_doe_requester_lib
     platform_lib
@@ -62,7 +62,7 @@ if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
                    $<TARGET_OBJECTS:spdm_transport_mctp_lib>
                    $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>
                    $<TARGET_OBJECTS:spdm_transport_tcp_lib>
-                   $<TARGET_OBJECTS:spdm_device_secret_lib_sample>
+                   $<TARGET_OBJECTS:spdm_device_secret_lib_${DEVICE}>
                    $<TARGET_OBJECTS:platform_lib>
                    $<TARGET_OBJECTS:spdm_responder_conformance_test_lib>
                    $<TARGET_OBJECTS:common_test_utility_lib>
