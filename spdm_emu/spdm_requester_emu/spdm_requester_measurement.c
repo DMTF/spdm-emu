@@ -97,14 +97,17 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
 
             requester_context[SPDM_REQ_CONTEXT_SIZE - 1] = index;
             /* get signature in last message only.*/
-            if (received_number_of_block == number_of_blocks - 1) {
-                if (need_sig) {
-                    request_attribute = m_use_measurement_attribute |
-                                        SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
-                } else {
-                    request_attribute = m_use_measurement_attribute;
-                }
-            }
+            request_attribute = m_use_measurement_attribute | 
+                SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
+                
+            // if (received_number_of_block == number_of_blocks - 1) {
+            //     if (need_sig) {
+            //         request_attribute = m_use_measurement_attribute |
+            //                             SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
+            //     } else {
+            //         request_attribute = m_use_measurement_attribute;
+            //     }
+            // }
             measurement_record_length = sizeof(measurement_record);
             status = libspdm_get_measurement_ex2(
                 spdm_context, session_id, request_attribute,
