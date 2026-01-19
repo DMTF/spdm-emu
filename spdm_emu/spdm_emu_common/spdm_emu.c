@@ -5,7 +5,13 @@
  **/
 
 #include "spdm_emu.h"
+#ifndef _MSC_VER
+#include <sys/un.h>
+#include <linux/mctp.h>
+#include <errno.h>
+#endif
 
+#define MCTP_MESSAGE_TYPE_SPDM 0x05
 /*
  * EXE_MODE_SHUTDOWN
  * EXE_MODE_CONTINUE
@@ -40,7 +46,11 @@ struct in_addr m_ip_address = { 0x0100007F };
 
 void print_usage(const char *name)
 {
+#ifndef _MSC_VER
+    printf("\n%s [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]\n", name);
+#else
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
+#endif
     printf("   [--tcp_sub RI|NO_RI]\n");
     printf("   [--ver 1.0|1.1|1.2|1.3|1.4]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
@@ -214,7 +224,10 @@ value_string_entry_t m_transport_value_string_table[] = {
     { SOCKET_TRANSPORT_TYPE_NONE, "NONE"},
     { SOCKET_TRANSPORT_TYPE_MCTP, "MCTP" },
     { SOCKET_TRANSPORT_TYPE_PCI_DOE, "PCI_DOE" },
-    { SOCKET_TRANSPORT_TYPE_TCP, "TCP"}
+    { SOCKET_TRANSPORT_TYPE_TCP, "TCP"},
+#ifndef _MSC_VER
+    { SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL, "MCTP_KERNEL" },
+#endif
 };
 
 value_string_entry_t m_tcp_subtype_string_table[] = {
@@ -1425,6 +1438,21 @@ void process_args(char *program_name, int argc, char *argv[])
             }
         }
 
+#ifndef _MSC_VER
+        if (strcmp(argv[0], "--eid") == 0) {
+            m_use_eid = (uint8_t)atoi(argv[1]);
+            if (argc >= 2 && m_use_eid < 256) {
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --eid\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+#endif
+
         printf("invalid %s\n", argv[0]);
         print_usage(program_name);
         exit(0);
@@ -1446,48 +1474,77 @@ void process_args(char *program_name, int argc, char *argv[])
 bool init_client(SOCKET *sock, uint16_t port)
 {
     SOCKET client_socket;
-    struct sockaddr_in server_addr;
-    int32_t ret_val;
+#ifndef _MSC_VER
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL)
+    {
+        struct sockaddr_mctp addr = { 0 };
+        int rc = -1;
+        client_socket = socket(AF_MCTP, SOCK_DGRAM, 0);
+        if (-1 == client_socket)
+        {
+            printf("Failed to create the socket : RC = %d\n", client_socket);
+            return false;
+        }
+
+        addr.smctp_family = AF_MCTP;
+        addr.smctp_network = MCTP_NET_ANY;
+        addr.smctp_addr.s_addr = MCTP_ADDR_ANY;
+        addr.smctp_type = MCTP_MESSAGE_TYPE_SPDM;
+        addr.smctp_tag = MCTP_TAG_OWNER;
+
+        rc = bind(client_socket, (struct sockaddr *)&addr, sizeof(addr));
+        if (rc)
+        {
+            printf("Failed to bind socket: RC=%d\n", rc);
+            return false;
+        }
+    } else {
+#endif
+        struct sockaddr_in server_addr;
+        int32_t ret_val;
 
 #ifdef _MSC_VER
-    WSADATA ws;
-    if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
-        printf("Init Windows socket Failed - %x\n", WSAGetLastError());
-        return false;
-    }
+        WSADATA ws;
+        if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
+            printf("Init Windows socket Failed - %x\n", WSAGetLastError());
+            return false;
+        }
 #endif
 
-    client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (client_socket == INVALID_SOCKET) {
-        printf("Create socket Failed - %x\n",
+        client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (client_socket == INVALID_SOCKET) {
+            printf("Create socket Failed - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+                   WSAGetLastError()
 #else
-               errno
+                   errno
 #endif
-               );
-        return false;
-    }
+                   );
+            return false;
+        }
 
-    server_addr.sin_family = AF_INET;
-    libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
-                     sizeof(struct in_addr));
-    server_addr.sin_port = htons(port);
-    libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
+        server_addr.sin_family = AF_INET;
+        libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
+                         sizeof(struct in_addr));
+        server_addr.sin_port = htons(port);
+        libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
 
-    ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
-                      sizeof(server_addr));
-    if (ret_val == SOCKET_ERROR) {
-        printf("Connect Error - %x\n",
+        ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
+                          sizeof(server_addr));
+        if (ret_val == SOCKET_ERROR) {
+            printf("Connect Error - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+                   WSAGetLastError()
 #else
-               errno
+                   errno
 #endif
-               );
-        closesocket(client_socket);
-        return false;
+                   );
+            closesocket(client_socket);
+            return false;
+        }
+#ifndef _MSC_VER
     }
+#endif
 
     printf("connect success!\n");
 
