@@ -243,13 +243,13 @@ void *spdm_server_init(void)
     }
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
-    requester_cert_chain_buffer = (void *)malloc(SPDM_MAX_CERTIFICATE_CHAIN_SIZE_14);
+    requester_cert_chain_buffer = (void *)malloc(SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
     if (requester_cert_chain_buffer == NULL)
     {
         return NULL;
     }
     libspdm_register_cert_chain_buffer(spdm_context, requester_cert_chain_buffer,
-                                       SPDM_MAX_CERTIFICATE_CHAIN_SIZE_14);
+                                       SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
 
     if (!libspdm_check_context(spdm_context))
     {
