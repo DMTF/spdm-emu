@@ -88,6 +88,28 @@ jobs:
           sleep 5s
           ./spdm_requester_emu --ver 1.1 >requester.log
 
+  Darwin_openssl_build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake -E env CFLAGS="-DLIBSPDM_DEBUG_LIBSPDM_ASSERT_CONFIG=3" cmake -DARCH=aarch64 -DTOOLCHAIN=CLANG -DTARGET=Release -DCRYPTO=openssl ..
+          cp -a ../libspdm/unit_test/sample_key/* bin/
+          make -j1
+
+      - name: Emu_Test
+        run: |
+          cd build/bin
+          ./spdm_responder_emu --ver 1.1 &
+          sleep 5s
+          ./spdm_requester_emu --ver 1.1
+
   VS2019_mbedtls_build:
     runs-on: windows-latest
     steps:
