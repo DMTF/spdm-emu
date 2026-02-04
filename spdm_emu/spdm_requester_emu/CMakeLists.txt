@@ -30,7 +30,7 @@ set(src_spdm_requester_emu
 
 set(spdm_requester_emu_LIBRARY
     memlib
-    debuglib
+    ${SPDM_DEBUG_LIB_NAME}
     spdm_requester_lib
     spdm_common_lib
     ${CRYPTO_LIB_PATHS}

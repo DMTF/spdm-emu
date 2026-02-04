@@ -26,7 +26,7 @@ set(src_spdm_responder_emu
 
 set(spdm_responder_emu_LIBRARY
     memlib
-    debuglib
+    ${SPDM_DEBUG_LIB_NAME}
     spdm_responder_lib
     spdm_common_lib
     ${CRYPTO_LIB_PATHS}
