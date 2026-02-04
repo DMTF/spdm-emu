@@ -122,6 +122,12 @@ else()
     message(FATAL_ERROR "Unkown build type")
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(SPDM_DEBUG_LIB_NAME debuglib_null)
+else()
+    set(SPDM_DEBUG_LIB_NAME debuglib)
+endif()
+
 if(CRYPTO STREQUAL "mbedtls")
     message("CRYPTO = mbedtls")
 elseif(CRYPTO STREQUAL "openssl")
