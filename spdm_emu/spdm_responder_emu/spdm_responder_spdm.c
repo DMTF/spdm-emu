@@ -386,6 +386,7 @@ void spdm_server_connection_state_callback(
     size_t root_cert_size;
     uint8_t index;
     spdm_version_number_t spdm_version;
+    bool requester_pub_key_needed;
 
     switch (connection_state) {
     case LIBSPDM_CONNECTION_STATE_NOT_STARTED:
@@ -465,6 +466,14 @@ void spdm_server_connection_state_callback(
         if ((m_use_requester_capability_flags &
              SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
             m_use_req_slot_id = 0xFF;
+        }
+
+        if (((m_use_requester_capability_flags &
+              SPDM_GET_CAPABILITIES_REQUEST_FLAGS_EP_INFO_CAP_SIG) != 0) ||
+            (m_use_mut_auth == SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED)) {
+            requester_pub_key_needed = true;
+        } else {
+            requester_pub_key_needed = false;
         }
 
         printf("slot_id - %x\n", m_use_slot_id);
@@ -591,13 +600,23 @@ void spdm_server_connection_state_callback(
                 res = libspdm_read_requester_root_public_certificate(
                     m_use_hash_algo, m_use_req_asym_algo, &data,
                     &data_size, &hash, &hash_size);
+                if (requester_pub_key_needed) {
+                    res = libspdm_read_requester_public_certificate_chain(
+                        m_use_hash_algo, m_use_req_asym_algo,
+                        &data1, &data1_size, NULL, NULL);
+                }
             }
             if (m_use_req_pqc_asym_algo != 0) {
                 res = libspdm_read_pqc_requester_root_public_certificate(
                     m_use_hash_algo, m_use_req_pqc_asym_algo, &data,
                     &data_size, &hash, &hash_size);
+                if (requester_pub_key_needed) {
+                    res = libspdm_read_pqc_requester_public_certificate_chain(
+                        m_use_hash_algo, m_use_req_pqc_asym_algo,
+                        &data1, &data1_size, NULL, NULL);
+                }
             }
-            if ((m_use_req_pqc_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
+            if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
                 if (res) {
                     libspdm_x509_get_cert_from_cert_chain(
                         (uint8_t *)data + sizeof(spdm_cert_chain_t) + hash_size,
@@ -610,6 +629,31 @@ void spdm_server_connection_state_callback(
                         LIBSPDM_DATA_PEER_PUBLIC_ROOT_CERT,
                         &parameter, (void *)root_cert, root_cert_size);
                     /* Do not free it.*/
+                    if (requester_pub_key_needed) {
+                        libspdm_zero_mem(&parameter, sizeof(parameter));
+                        parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+                        for (index = 0; index < m_use_slot_count; index++) {
+                            parameter.additional_data[0] = index;
+                            libspdm_set_data(spdm_context,
+                                             LIBSPDM_DATA_PEER_USED_CERT_CHAIN_BUFFER,
+                                             &parameter, data1, data1_size);
+                            data8 = (uint8_t)(0xB0 + index);
+                            libspdm_set_data(spdm_context,
+                                             LIBSPDM_DATA_PEER_KEY_PAIR_ID,
+                                             &parameter, &data8, sizeof(data8));
+                            data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                            libspdm_set_data(spdm_context,
+                                             LIBSPDM_DATA_PEER_CERT_INFO,
+                                             &parameter, &data8, sizeof(data8));
+                            data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE |
+                                     SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
+                                     SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
+                                     SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
+                            libspdm_set_data(spdm_context,
+                                             LIBSPDM_DATA_PEER_KEY_USAGE_BIT_MASK,
+                                             &parameter, &data16, sizeof(data16));
+                        }
+                    }
                 }
             }
         }
