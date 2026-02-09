@@ -626,6 +626,7 @@ void spdm_server_connection_state_callback(
                 libspdm_set_data(spdm_context,
                                  LIBSPDM_DATA_MUT_AUTH_REQUESTED, &parameter,
                                  &data8, sizeof(data8));
+                g_key_exchange_start_mut_auth = m_use_mut_auth;
 
                 data8 = m_use_basic_mut_auth;
                 g_start_basic_mut_auth = m_use_basic_mut_auth == 1;

@@ -40,6 +40,7 @@ extern uint8_t m_use_slot_count;
 extern uint8_t m_use_req_slot_id;
 extern bool g_private_key_mode;
 extern bool g_start_basic_mut_auth;
+extern uint8_t g_key_exchange_start_mut_auth;
 
 #define ENCAP_KEY_UPDATE 0x8000
 extern libspdm_key_update_action_t m_use_key_update_action;
