@@ -64,6 +64,44 @@
 
    Please refer to [spdm_emu](https://github.com/DMTF/spdm-emu/blob/main/doc/spdm_emu.md) for detail.
 
+## Systemd Service (Linux)
+
+On Linux systems with systemd, spdm_responder_emu can be installed as a system service. By default, it's disabled.
+
+### Build with systemd support
+```bash
+cmake -DENABLE_SYSTEMD=ON ...
+make
+sudo make install
+```
+
+### Service configuration
+
+The service file is installed to the systemd system unit directory (typically `/lib/systemd/system/`).
+
+Runtime arguments can be configured via environment file:
+```bash
+# /etc/default/spdm-responder-emu
+SPDM_RESPONDER_EMU_ARGS="--trans TCP"
+```
+
+### Service management
+```bash
+# Start the service
+sudo systemctl start spdm-responder-emu
+
+# Enable at boot
+sudo systemctl enable spdm-responder-emu
+
+# Check status
+sudo systemctl status spdm-responder-emu
+
+# View logs
+sudo journalctl -u spdm-responder-emu
+```
+
+**Note:** The service expects certificates in `/usr/share/spdm-emu/`. Ensure sample keys are installed before starting the service.
+
 ## Feature not implemented yet
 
 1) Please refer to [issues](https://github.com/DMTF/spdm-emu/issues) for detail

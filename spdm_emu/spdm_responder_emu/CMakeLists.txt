@@ -102,3 +102,29 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT TOOLCHAIN STREQUAL "NONE")
         endif()
     endif()
 endif()
+
+if(ENABLE_SYSTEMD)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SYSTEMD systemd)
+
+    if(SYSTEMD_FOUND)
+        execute_process(
+            COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemd_system_unit_dir systemd
+            OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+
+        if(NOT SYSTEMD_SYSTEM_UNIT_DIR)
+            set(SYSTEMD_SYSTEM_UNIT_DIR "/lib/systemd/system")
+        endif()
+
+        message(STATUS "systemd system unit directory: ${SYSTEMD_SYSTEM_UNIT_DIR}")
+
+        install(
+            FILES ${CMAKE_CURRENT_SOURCE_DIR}/spdm-responder-emu.service
+            DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR}
+        )
+    else()
+        message(WARNING "ENABLE_SYSTEMD is ON but systemd not found")
+    endif()
+endif()
