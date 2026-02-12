@@ -1,0 +1,57 @@
+name: TPM CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  TPM2OPENSSL_TCTI: swtpm:port=2321
+  TPM2TOOLS_TCTI: swtpm:port=2321
+  OPENSSL_MODULES: /usr/lib/x86_64-linux-gnu/ossl-modules/
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Install requirements
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tpm2-openssl tpm2-tools \
+            swtpm swtpm-tools libtss2-dev libglib2.0-dev
+
+      - name: Setup software TPM keys
+        run: |
+          mkdir -p build/bin && cd build/bin
+          ../../script/setup-tpm.sh \
+            --start-swtpm \
+            --cleanup \
+            --key-algorithm=ecc \
+            --hash-algorithm=256
+
+      - name: Build
+        run: |
+          cmake -B build \
+            -DTOOLCHAIN=GCC \
+            -DCRYPTO=openssl \
+            -DARCH=x64 -DTARGET=Debug \
+            -DLIBSPDM_TPM_SUPPORT=1 \
+            -DDEVICE=tpm
+
+          cmake --build build -j`nproc`
+
+      - name: Emu_Test
+        run: |
+          cd build/bin
+
+          ./spdm_responder_emu &
+          sleep 5s
+          ./spdm_requester_emu > requester.log
+
+          sleep 10s
