@@ -41,6 +41,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]
          [--pcap <PcapFileName>]
          [--priv_key_mode PEM|RAW]
+         [--verbose | -v]
 
       NOTE:
          [--trans] is used to select transport layer message. By default, MCTP is used.
@@ -126,6 +127,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  APP means send vendor defined message or application message in session.
          [--pcap] is used to generate PCAP dump file for offline analysis.
          [--priv_key_mode] is used to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.
+         [--verbose | -v] is used to enable verbose output. By default, only errors and essential messages are printed. When enabled, detailed platform transport traces and hex dumps are shown.
    ```
 
    Take spdm_requester_emu or spdm_responder_emu as an example, a user may use `spdm_requester_emu --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.

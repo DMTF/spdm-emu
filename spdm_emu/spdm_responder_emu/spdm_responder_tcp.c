@@ -29,17 +29,17 @@ bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
 
     if (status != LIBSPDM_STATUS_SUCCESS) {
         closesocket(responder_socket);
-        printf("Failed to encode Role-Inquiry message. Status: 0x%x\n", status);
+        EMU_ERR("Failed to encode Role-Inquiry message. Status: 0x%x\n", status);
         return false;
     }
 
     /* Send role_inquiry request */
-    printf("Press ENTER to send Role-Inquiry request...\n");
+    EMU_INFO("Press ENTER to send Role-Inquiry request...\n");
     getchar();
     result = write_bytes(responder_socket, role_inquiry_buf, (uint32_t)role_inquiry_size);
     if (!result) {
         closesocket(responder_socket);
-        printf("Error sending Role-Inquiry request.\n");
+        EMU_ERR("Error sending Role-Inquiry request.\n");
 #ifdef _MSC_VER
         WSACleanup();
 #endif

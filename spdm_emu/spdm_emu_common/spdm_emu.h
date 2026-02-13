@@ -41,6 +41,23 @@ extern uint8_t m_use_req_slot_id;
 extern bool g_private_key_mode;
 extern bool g_start_basic_mut_auth;
 extern uint8_t g_key_exchange_start_mut_auth;
+extern bool m_verbose;
+
+/*
+ * Logging macros for platform trace and error output.
+ *
+ * EMU_LOG:  Guarded by --verbose flag. Used for debug traces.
+ * EMU_INFO: Always prints to stdout. Used for informational status messages.
+ * EMU_ERR:  Always prints to stderr. Used for error conditions.
+ */
+#define EMU_LOG(fmt, ...) \
+    do { if (m_verbose) printf(fmt, ##__VA_ARGS__); } while (0)
+
+#define EMU_INFO(fmt, ...) \
+    printf(fmt, ##__VA_ARGS__)
+
+#define EMU_ERR(fmt, ...) \
+    fprintf(stderr, "ERROR: " fmt, ##__VA_ARGS__)
 
 #define ENCAP_KEY_UPDATE 0x8000
 extern libspdm_key_update_action_t m_use_key_update_action;

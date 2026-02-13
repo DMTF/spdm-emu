@@ -12,6 +12,8 @@
  */
 uint32_t m_exe_mode = EXE_MODE_SHUTDOWN;
 
+bool m_verbose = false;
+
 uint32_t m_exe_connection = (0 |
                              /* EXE_CONNECTION_VERSION_ONLY |*/
                              EXE_CONNECTION_DIGEST | EXE_CONNECTION_CERT |
@@ -81,6 +83,7 @@ void print_usage(const char *name)
     printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]\n");
     printf("   [--pcap <pcap_file_name>]\n");
     printf("   [--priv_key_mode PEM|RAW]\n");
+    printf("   [--verbose | -v]\n");
     printf("\n");
     printf("NOTE:\n");
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
@@ -203,6 +206,8 @@ void print_usage(const char *name)
     printf("   [--pcap] is used to generate PCAP dump file for offline analysis.\n");
     printf(
         "   [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.\n");
+    printf(
+        "   [--verbose | -v] enables additional traces. By default, traces are suppressed.\n");
 }
 
 typedef struct {
@@ -1423,6 +1428,13 @@ void process_args(char *program_name, int argc, char *argv[])
                 print_usage(program_name);
                 exit(0);
             }
+        }
+
+        if (strcmp(argv[0], "--verbose") == 0 || strcmp(argv[0], "-v") == 0) {
+            m_verbose = true;
+            argc--;
+            argv++;
+            continue;
         }
 
         printf("invalid %s\n", argv[0]);

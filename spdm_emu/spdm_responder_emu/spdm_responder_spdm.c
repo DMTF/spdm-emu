@@ -69,13 +69,11 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
     result = send_platform_data(m_server_socket, SOCKET_SPDM_COMMAND_NORMAL,
                                 response, (uint32_t)response_size);
     if (!result) {
-        printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+        EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
-               errno
+        EMU_ERR("send_platform_data Error - %x\n", errno);
 #endif
-               );
         return LIBSPDM_STATUS_SEND_FAIL;
     }
     return LIBSPDM_STATUS_SUCCESS;
@@ -94,13 +92,11 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
         receive_platform_data(m_server_socket, &m_command,
                               m_send_receive_buffer, &m_send_receive_buffer_size);
     if (!result) {
-        printf("receive_platform_data Error - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+        EMU_ERR("receive_platform_data Error - %x\n", WSAGetLastError());
 #else
-               errno
+        EMU_ERR("receive_platform_data Error - %x\n", errno);
 #endif
-               );
         return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
     if (m_command == SOCKET_SPDM_COMMAND_NORMAL) {
@@ -137,7 +133,7 @@ void *spdm_server_init(void)
     void *requester_cert_chain_buffer;
     uint32_t max_spdm_msg_size;
 
-    printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
+    EMU_LOG("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
     m_spdm_context = (void *)malloc(libspdm_get_context_size());
     if (m_spdm_context == NULL) {
@@ -476,8 +472,8 @@ void spdm_server_connection_state_callback(
             requester_pub_key_needed = false;
         }
 
-        printf("slot_id - %x\n", m_use_slot_id);
-        printf("req_slot_id - %x\n", m_use_req_slot_id);
+        EMU_LOG("slot_id - %x\n", m_use_slot_id);
+        EMU_LOG("req_slot_id - %x\n", m_use_req_slot_id);
 
         if (m_use_slot_id == 0xFF) {
             if (m_use_asym_algo != 0) {
@@ -751,7 +747,7 @@ void spdm_server_session_state_callback(void *spdm_context,
             libspdm_get_data(spdm_context,
                              LIBSPDM_DATA_SESSION_POLICY,
                              &parameter, &data8, &data_size);
-            printf("session policy - %x\n", data8);
+            EMU_LOG("session policy - %x\n", data8);
         }
         break;
 
@@ -773,14 +769,14 @@ libspdm_return_t spdm_get_endpoint_info_callback (
     uint32_t endpoint_info_size,
     const void *endpoint_info)
 {
-    printf("spdm_get_endpoint_info_callback\n");
-    printf("  subcode - 0x%x\n", subcode);
-    printf("  param2 - 0x%x\n", param2);
-    printf("  request_attributes - 0x%x\n", request_attributes);
-    printf("  endpoint_info_size - 0x%x\n", endpoint_info_size);
-    printf("  endpoint_info:");
+    EMU_LOG("spdm_get_endpoint_info_callback\n");
+    EMU_LOG("  subcode - 0x%x\n", subcode);
+    EMU_LOG("  param2 - 0x%x\n", param2);
+    EMU_LOG("  request_attributes - 0x%x\n", request_attributes);
+    EMU_LOG("  endpoint_info_size - 0x%x\n", endpoint_info_size);
+    EMU_LOG("  endpoint_info:");
     dump_data(endpoint_info, endpoint_info_size);
-    printf("\n");
+    EMU_LOG("\n");
 
     return LIBSPDM_STATUS_SUCCESS;
 }
