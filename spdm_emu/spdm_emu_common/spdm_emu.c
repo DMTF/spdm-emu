@@ -32,6 +32,10 @@ uint32_t m_exe_session =
 
 #define IP_ADDRESS "127.0.0.1"
 
+char m_ip_address_string[16] = "127.0.0.1";
+uint16_t m_custom_port = 0; /* 0 means use default */
+bool m_ip_explicitly_set = false; /* track if user explicitly set IP */
+
 #ifdef _MSC_VER
 struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
 #else
@@ -42,6 +46,8 @@ void print_usage(const char *name)
 {
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
     printf("   [--tcp_sub RI|NO_RI]\n");
+    printf("   [--ip <ip_address>]\n");
+    printf("   [--port <port_number>]\n");
     printf("   [--ver 1.0|1.1|1.2|1.3|1.4]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
     printf(
@@ -86,6 +92,14 @@ void print_usage(const char *name)
     printf("   [--trans] is used to select transport layer message. By default, MCTP is used.\n");
     printf(
         "   [--tcp_sub] is sub-option when transport layer is TCP. By default, NO_RI (No RoleInquiry) is used.\n");
+    printf(
+        "   [--ip] is the IPv4 address for the connection. By default, 127.0.0.1 is used.\n");
+    printf(
+        "           For Requester, it is the address to connect to.\n");
+    printf(
+        "           For Responder, it is the address to bind to. If not specified, the Responder binds to all interfaces.\n");
+    printf(
+        "   [--port] is the port number for the connection. By default, 2323 is used for MCTP/PCI_DOE and 4194 is used for TCP.\n");
     printf("   [--ver] is version. By default, all are used.\n");
     printf(
         "   [--sec_ver] is secured message version. By default, all are used.\n");
@@ -604,6 +618,45 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --tcp_sub\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--ip") == 0) {
+            if (argc >= 2) {
+                if (strlen(argv[1]) >= sizeof(m_ip_address_string)) {
+                    printf("invalid --ip %s (too long)\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                strcpy(m_ip_address_string, argv[1]);
+                m_ip_explicitly_set = true;
+                printf("ip - %s\n", m_ip_address_string);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --ip\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--port") == 0) {
+            if (argc >= 2) {
+                m_custom_port = (uint16_t)atoi(argv[1]);
+                if (m_custom_port == 0) {
+                    printf("invalid --port %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                printf("port - %d\n", m_custom_port);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --port\n");
                 print_usage(program_name);
                 exit(0);
             }
@@ -1443,10 +1496,23 @@ void process_args(char *program_name, int argc, char *argv[])
     return;
 }
 
+bool convert_ip_to_addr(const char *ip_string, struct in_addr *addr)
+{
+#ifdef _MSC_VER
+    /* Use inet_pton for Windows MSVC compatibility */
+    return (inet_pton(AF_INET, ip_string, addr) == 1);
+#else
+    /* Fallback to inet_addr for non-Windows platforms */
+    addr->s_addr = inet_addr(ip_string);
+    return (addr->s_addr != INADDR_NONE);
+#endif
+}
+
 bool init_client(SOCKET *sock, uint16_t port)
 {
     SOCKET client_socket;
     struct sockaddr_in server_addr;
+    struct in_addr ip_addr;
     int32_t ret_val;
 
 #ifdef _MSC_VER
@@ -1470,9 +1536,28 @@ bool init_client(SOCKET *sock, uint16_t port)
     }
 
     server_addr.sin_family = AF_INET;
-    libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
-                     sizeof(struct in_addr));
-    server_addr.sin_port = htons(port);
+    
+    /* Use custom IP if provided, otherwise use default */
+    if (strcmp(m_ip_address_string, "127.0.0.1") != 0) {
+        if (!convert_ip_to_addr(m_ip_address_string, &ip_addr)) {
+            printf("Invalid IP address: %s\n", m_ip_address_string);
+            closesocket(client_socket);
+            return false;
+        }
+        libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &ip_addr,
+                         sizeof(struct in_addr));
+    } else {
+        libspdm_copy_mem(&server_addr.sin_addr.s_addr, sizeof(struct in_addr), &m_ip_address,
+                         sizeof(struct in_addr));
+    }
+    
+    /* Use custom port if provided */
+    if (m_custom_port != 0) {
+        server_addr.sin_port = htons(m_custom_port);
+    } else {
+        server_addr.sin_port = htons(port);
+    }
+    
     libspdm_zero_mem(server_addr.sin_zero, sizeof(server_addr.sin_zero));
 
     ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
@@ -1543,6 +1628,22 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     libspdm_zero_mem(&my_address, sizeof(my_address));
     my_address.sin_port = htons((short)port_number);
     my_address.sin_family = AF_INET;
+    
+    /* Use custom IP if provided for server binding */
+    if (m_ip_explicitly_set) {
+        /* User explicitly set IP - bind to that specific address */
+        struct in_addr ip_addr;
+        if (!convert_ip_to_addr(m_ip_address_string, &ip_addr)) {
+            printf("Invalid IP address for binding: %s\n", m_ip_address_string);
+            closesocket(*listen_socket);
+            return false;
+        }
+        libspdm_copy_mem(&my_address.sin_addr.s_addr, sizeof(struct in_addr), &ip_addr,
+                         sizeof(struct in_addr));
+    } else {
+        /* No IP explicitly set - bind to all interfaces for maximum compatibility */
+        my_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
 
     res = bind(*listen_socket, (struct sockaddr *)&my_address,
                sizeof(my_address));
