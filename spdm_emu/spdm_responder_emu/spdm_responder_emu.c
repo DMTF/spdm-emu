@@ -276,11 +276,14 @@ int main(int argc, char *argv[])
     }
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
-        /* The IANA has assigned port number 4194 for SPDM */
-        result = platform_server_routine(TCP_SPDM_PLATFORM_PORT);
+        /* Use custom port if specified, otherwise default to 4194 for TCP */
+        const uint16_t port = (m_custom_port != 0) ? m_custom_port : TCP_SPDM_PLATFORM_PORT;
+        result = platform_server_routine(port);
     }
     else {
-        result = platform_server_routine(DEFAULT_SPDM_PLATFORM_PORT);
+        /* Use custom port if specified, otherwise default to 2323 for other transports */
+        const uint16_t port = (m_custom_port != 0) ? m_custom_port : DEFAULT_SPDM_PLATFORM_PORT;
+        result = platform_server_routine(port);
     }
 
     if (m_spdm_context != NULL) {

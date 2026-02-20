@@ -94,7 +94,9 @@ int main(int argc, char *argv[])
 
     process_args("spdm_device_attester_sample", argc, argv);
 
-    platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
+    /* Use custom port if provided, otherwise default to 2323 */
+    const uint16_t port = (m_custom_port != 0) ? m_custom_port : DEFAULT_SPDM_PLATFORM_PORT;
+    platform_client_routine(port);
     printf("Client stopped\n");
 
     close_pcap_packet_file();
