@@ -263,6 +263,7 @@ size_t libspdm_fill_measurement_device_mode_block (
 
 libspdm_return_t libspdm_measurement_collection(
     void *spdm_context,
+    const uint32_t *session_id,
     spdm_version_number_t spdm_version,
     uint8_t measurement_specification,
     uint32_t measurement_hash_algo,
@@ -518,6 +519,7 @@ bool libspdm_generate_measurement_summary_hash(
         device_measurement_size = sizeof(device_measurement);
         status = libspdm_measurement_collection(
             spdm_context,
+            NULL,
             spdm_version, measurement_specification,
             measurement_hash_algo,
             0xFF, /* Get all measurements*/
@@ -626,6 +628,7 @@ size_t libspdm_secret_lib_meas_opaque_data_size = 0x20;
 
 bool libspdm_measurement_opaque_data(
     void *spdm_context,
+    const uint32_t *session_id,
     spdm_version_number_t spdm_version,
     uint8_t measurement_specification,
     uint32_t measurement_hash_algo,
