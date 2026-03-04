@@ -113,14 +113,14 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
                                    m_use_slot_id, m_session_policy, &session_id,
                                    &heartbeat_period, measurement_hash);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
-        printf("libspdm_start_session - %x\n", (uint32_t)status);
+        EMU_ERR("libspdm_start_session - %x\n", (uint32_t)status);
         return status;
     }
 
     if ((m_exe_session & EXE_SESSION_APP) != 0) {
         status = do_app_session_via_spdm(session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("do_app_session_via_spdm - %x\n", (uint32_t)status);
+            EMU_ERR("do_app_session_via_spdm - %x\n", (uint32_t)status);
             return status;
         }
     }
@@ -128,7 +128,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     if ((m_exe_session & EXE_SESSION_HEARTBEAT) != 0) {
         status = libspdm_heartbeat(spdm_context, session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_heartbeat - %x\n", (uint32_t)status);
+            EMU_ERR("libspdm_heartbeat - %x\n", (uint32_t)status);
         }
     }
 
@@ -138,7 +138,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
             status =
                 libspdm_key_update(spdm_context, session_id, true);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                printf("libspdm_key_update - %x\n",
+                EMU_ERR("libspdm_key_update - %x\n",
                        (uint32_t)status);
             }
             break;
@@ -147,7 +147,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
             status = libspdm_key_update(spdm_context, session_id,
                                         false);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                printf("libspdm_key_update - %x\n",
+                EMU_ERR("libspdm_key_update - %x\n",
                        (uint32_t)status);
             }
             break;
@@ -159,13 +159,13 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, (const uint8_t *)&session_id,
                 sizeof(session_id), &response, &response_size, NULL);
             if (!result) {
-                printf("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE fail\n");
+                EMU_ERR("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE fail\n");
             } else {
 #if (LIBSPDM_ENABLE_CAPABILITY_MUT_AUTH_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)
                 status = libspdm_send_receive_encap_request(
                     spdm_context, &session_id);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                    printf("libspdm_send_receive_encap_request - libspdm_key_update - %x\n",
+                    EMU_ERR("libspdm_send_receive_encap_request - libspdm_key_update - %x\n",
                            (uint32_t)status);
                 }
 #endif
@@ -182,7 +182,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     if ((m_exe_session & EXE_SESSION_MEAS) != 0) {
         status = do_measurement_via_spdm(&session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("do_measurement_via_spdm - %x\n",
+            EMU_ERR("do_measurement_via_spdm - %x\n",
                    (uint32_t)status);
         }
     }
@@ -192,7 +192,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     if (((m_exe_session & EXE_SESSION_MEL) != 0) && (m_use_version >= SPDM_MESSAGE_VERSION_13)) {
         status = do_measurement_mel_via_spdm(&session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("do_measurement_mel_via_spdm - %x\n",
+            EMU_ERR("do_measurement_mel_via_spdm - %x\n",
                    (uint32_t)status);
         }
     }
@@ -203,7 +203,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         (m_use_version >= SPDM_MESSAGE_VERSION_13)) {
         status = do_get_endpoint_info_via_spdm(&session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("do_get_endpoint_info_via_spdm - %x\n",
+            EMU_ERR("do_get_endpoint_info_via_spdm - %x\n",
                    (uint32_t)status);
         }
 
@@ -214,12 +214,12 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
             SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
             0, &response, &response_size, NULL);
         if (!result) {
-            printf("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO fail\n");
+            EMU_ERR("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO fail\n");
         } else {
             status = libspdm_send_receive_encap_request(
                 spdm_context, &session_id);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                printf("libspdm_send_receive_encap_request - libspdm_get_endpoint_info - %x\n",
+                EMU_ERR("libspdm_send_receive_encap_request - libspdm_get_endpoint_info - %x\n",
                     (uint32_t)status);
             }
         }
@@ -232,7 +232,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         (m_use_version >= SPDM_MESSAGE_VERSION_13)) {
         status = do_get_key_pair_info_via_spdm(&session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("do_get_key_pair_info_via_spdm - %x\n",
+            EMU_ERR("do_get_key_pair_info_via_spdm - %x\n",
                    (uint32_t)status);
         }
     }
@@ -243,7 +243,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         (m_use_version >= SPDM_MESSAGE_VERSION_13)) {
         status = do_set_key_pair_info_via_spdm(&session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("do_set_key_pair_info_via_spdm - %x\n",
+            EMU_ERR("do_set_key_pair_info_via_spdm - %x\n",
                    (uint32_t)status);
         }
     }
@@ -252,7 +252,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
 #if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
     status = get_digest_cert_in_session(&session_id);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
-        printf("get_digest_cert_in_session - %x\n",
+        EMU_ERR("get_digest_cert_in_session - %x\n",
                (uint32_t)status);
     }
 #endif
@@ -260,7 +260,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     if (m_use_version >= SPDM_MESSAGE_VERSION_12) {
         status = do_certificate_provising_via_spdm(&session_id);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("do_certificate_provising_via_spdm - %x\n",
+            EMU_ERR("do_certificate_provising_via_spdm - %x\n",
                    (uint32_t)status);
             return status;
         }
@@ -270,7 +270,7 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
         status = libspdm_stop_session(spdm_context, session_id,
                                       m_end_session_attributes);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_stop_session - %x\n", (uint32_t)status);
+            EMU_ERR("libspdm_stop_session - %x\n", (uint32_t)status);
             return status;
         }
     }
@@ -342,7 +342,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
 #endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX*/
         }
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_get_csr - %x\n", (uint32_t)status);
+            EMU_ERR("libspdm_get_csr - %x\n", (uint32_t)status);
             return status;
         }
     }
@@ -390,7 +390,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     }
     if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
         if (!res) {
-            printf("set certificate :read_responder_public_certificate_chain fail!\n");
+            EMU_ERR("set certificate :read_responder_public_certificate_chain fail!\n");
             free(cert_chain_to_set);
             return LIBSPDM_STATUS_INVALID_CERT;
         }
@@ -410,7 +410,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
                                              cert_chain_to_set, cert_chain_size_to_set);
         }
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_set_certificate - %x\n",
+            EMU_ERR("libspdm_set_certificate - %x\n",
                    (uint32_t)status);
             free(cert_chain_to_set);
             return status;
@@ -435,7 +435,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
                 }
 
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
-                    printf("libspdm_set_certificate - %x\n",
+                    EMU_ERR("libspdm_set_certificate - %x\n",
                         (uint32_t)status);
                 }
 

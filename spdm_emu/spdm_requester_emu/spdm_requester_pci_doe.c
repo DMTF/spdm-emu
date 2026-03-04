@@ -30,7 +30,7 @@ libspdm_return_t pci_doe_init_requester()
 
     for (index = 0; index < data_object_protocol_size/sizeof(pci_doe_data_object_protocol_t);
          index++) {
-        printf("DOE(0x%x) VendorId-0x%04x, DataObjectType-0x%02x\n",
+        EMU_INFO("DOE(0x%x) VendorId-0x%04x, DataObjectType-0x%02x\n",
                index, data_object_protocol[index].vendor_id,
                data_object_protocol[index].data_object_type);
     }
@@ -740,20 +740,20 @@ libspdm_return_t do_cxl_tsp_2nd_session_via_spdm(void *spdm_context, size_t inde
                                    m_use_slot_id, m_session_policy, &session_id,
                                    &heartbeat_period, measurement_hash);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
-        printf("libspdm_start_session(2nd) - %x\n", (uint32_t)status);
+        EMU_ERR("libspdm_start_session(2nd) - %x\n", (uint32_t)status);
         return status;
     }
 
     status = cxl_tsp_process_session_message (spdm_context, session_id, LIB_CXL_TSP_SESSION_TYPE_SECONDARY);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
-        printf("do_app_session_via_spdm(2nd) - %x\n", (uint32_t)status);
+        EMU_ERR("do_app_session_via_spdm(2nd) - %x\n", (uint32_t)status);
         return status;
     }
 
     status = libspdm_stop_session(spdm_context, session_id,
                                   m_end_session_attributes);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
-        printf("libspdm_stop_session(2nd) - %x\n", (uint32_t)status);
+        EMU_ERR("libspdm_stop_session(2nd) - %x\n", (uint32_t)status);
         return status;
     }
 

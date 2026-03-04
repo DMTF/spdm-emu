@@ -24,26 +24,22 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
     result =
         send_platform_data(socket, command, send_buffer, bytes_to_send);
     if (!result) {
-        printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+        EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
-               errno
+        EMU_ERR("send_platform_data Error - %x\n", errno);
 #endif
-               );
         return result;
     }
 
     result = receive_platform_data(socket, response, receive_buffer,
                                    bytes_to_receive);
     if (!result) {
-        printf("receive_platform_data Error - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+        EMU_ERR("receive_platform_data Error - %x\n", WSAGetLastError());
 #else
-               errno
+        EMU_ERR("receive_platform_data Error - %x\n", errno);
 #endif
-               );
         return result;
     }
     return result;
@@ -58,13 +54,11 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
     result = send_platform_data(m_socket, SOCKET_SPDM_COMMAND_NORMAL,
                                 request, (uint32_t)request_size);
     if (!result) {
-        printf("send_platform_data Error - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+        EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
-               errno
+        EMU_ERR("send_platform_data Error - %x\n", errno);
 #endif
-               );
         return LIBSPDM_STATUS_SEND_FAIL;
     }
     return LIBSPDM_STATUS_SUCCESS;
@@ -81,13 +75,11 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
     result = receive_platform_data(m_socket, &command, *response,
                                    response_size);
     if (!result) {
-        printf("receive_platform_data Error - %x\n",
 #ifdef _MSC_VER
-               WSAGetLastError()
+        EMU_ERR("receive_platform_data Error - %x\n", WSAGetLastError());
 #else
-               errno
+        EMU_ERR("receive_platform_data Error - %x\n", errno);
 #endif
-               );
         return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
     return LIBSPDM_STATUS_SUCCESS;
@@ -155,7 +147,7 @@ void *spdm_client_init(void)
     uint32_t responder_capabilities_flag;
     uint32_t max_spdm_msg_size;
 
-    printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
+    EMU_LOG("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
     m_spdm_context = (void *)malloc(libspdm_get_context_size());
     if (m_spdm_context == NULL) {
@@ -341,7 +333,7 @@ void *spdm_client_init(void)
             spdm_context,
             (m_exe_connection & EXE_CONNECTION_VERSION_ONLY) != 0);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
-            printf("libspdm_init_connection - 0x%x\n", (uint32_t)status);
+            EMU_ERR("libspdm_init_connection - 0x%x\n", (uint32_t)status);
             free(m_spdm_context);
             m_spdm_context = NULL;
             return NULL;
@@ -486,8 +478,8 @@ void *spdm_client_init(void)
         m_exe_session &= ~EXE_SESSION_EP_INFO;
     }
 
-    printf("slot_id - %x\n", m_use_slot_id);
-    printf("req_slot_id - %x\n", m_use_req_slot_id);
+    EMU_LOG("slot_id - %x\n", m_use_slot_id);
+    EMU_LOG("req_slot_id - %x\n", m_use_req_slot_id);
 
     if (m_use_slot_id == 0xFF) {
         if (m_use_asym_algo != 0) {
@@ -505,7 +497,7 @@ void *spdm_client_init(void)
                                  &parameter, data, data_size);
                 /* Do not free it.*/
             } else {
-                printf("read_responder_public_key fail!\n");
+                EMU_ERR("read_responder_public_key fail!\n");
                 free(m_spdm_context);
                 m_spdm_context = NULL;
                 return NULL;
@@ -537,7 +529,7 @@ void *spdm_client_init(void)
                                 &parameter, (void *)root_cert, root_cert_size);
                 /* Do not free it.*/
             } else {
-                printf("read_responder_root_public_certificate fail!\n");
+                EMU_ERR("read_responder_root_public_certificate fail!\n");
                 free(m_spdm_context);
                 m_spdm_context = NULL;
                 return NULL;
@@ -570,7 +562,7 @@ void *spdm_client_init(void)
                                 &parameter, (void *)root_cert1, root_cert1_size);
                 /* Do not free it.*/
             } else {
-                printf("read_responder_root_public_certificate fail!\n");
+                EMU_ERR("read_responder_root_public_certificate fail!\n");
                 free(m_spdm_context);
                 m_spdm_context = NULL;
                 return NULL;
@@ -594,7 +586,7 @@ void *spdm_client_init(void)
                                  &parameter, data, data_size);
                 /* Do not free it.*/
             } else {
-                printf("read_requester_public_key fail!\n");
+                EMU_ERR("read_requester_public_key fail!\n");
                 free(m_spdm_context);
                 m_spdm_context = NULL;
                 return NULL;
@@ -641,7 +633,7 @@ void *spdm_client_init(void)
                 }
                 /* do not free it*/
             } else {
-                printf("read_requester_public_certificate_chain fail!\n");
+                EMU_ERR("read_requester_public_certificate_chain fail!\n");
                 free(m_spdm_context);
                 m_spdm_context = NULL;
                 return NULL;

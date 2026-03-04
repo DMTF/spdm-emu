@@ -33,14 +33,13 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
     while (number_received < number_of_bytes) {
         result = recv(socket, (char *)(buffer + number_received),
                       number_of_bytes - number_received, 0);
-        if (result == -1) {
-            printf("Receive error - 0x%x\n",
+        if (result == -1)
+        {
 #ifdef _MSC_VER
-                   WSAGetLastError()
+            EMU_ERR("Receive error - 0x%x\n", WSAGetLastError());
 #else
-                   errno
+            EMU_ERR("Receive error - 0x%x\n", errno);
 #endif
-                   );
             return false;
         }
         if (result == 0) {
@@ -83,16 +82,16 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
     if (!result) {
         return result;
     }
-    printf("Platform port Receive size: ");
+    EMU_LOG("Platform port Receive size: ");
     length = ntohl(length);
     dump_data((uint8_t *)&length, sizeof(uint32_t));
-    printf("\n");
+    EMU_LOG("\n");
     length = ntohl(length);
 
     *bytes_received = length;
     if (*bytes_received > max_buffer_length) {
-        printf("buffer too small (0x%x). Expected - 0x%x\n",
-               max_buffer_length, *bytes_received);
+        EMU_ERR("buffer too small (0x%x). Expected - 0x%x\n",
+                max_buffer_length, *bytes_received);
         return false;
     }
     if (length == 0) {
@@ -102,9 +101,9 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
     if (!result) {
         return result;
     }
-    printf("Platform port Receive buffer:\n    ");
+    EMU_LOG("Platform port Receive buffer:\n    ");
     dump_data(buffer, length);
-    printf("\n");
+    EMU_LOG("\n");
 
     return true;
 }
@@ -123,22 +122,22 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
         return result;
     }
     *command = response;
-    printf("Platform port Receive command: ");
+    EMU_LOG("Platform port Receive command: ");
     response = ntohl(response);
     dump_data((uint8_t *)&response, sizeof(uint32_t));
-    printf("\n");
+    EMU_LOG("\n");
 
     result = read_data32(socket, &transport_type);
     if (!result) {
         return result;
     }
-    printf("Platform port Receive transport_type: ");
+    EMU_LOG("Platform port Receive transport_type: ");
     transport_type = ntohl(transport_type);
     dump_data((uint8_t *)&transport_type, sizeof(uint32_t));
-    printf("\n");
+    EMU_LOG("\n");
     transport_type = ntohl(transport_type);
     if (transport_type != m_use_transport_layer) {
-        printf("transport_type mismatch\n");
+        EMU_ERR("transport_type mismatch\n");
         return false;
     }
 
@@ -198,18 +197,12 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
         if (result == -1) {
 #ifdef _MSC_VER
             if (WSAGetLastError() == 0x2745) {
-                printf("Client disconnected\n");
+                EMU_ERR("Client disconnected\n");
             } else {
-#endif
-            printf("Send error - 0x%x\n",
-#ifdef _MSC_VER
-                   WSAGetLastError()
+                EMU_ERR("Send error - 0x%x\n", WSAGetLastError());
+            }
 #else
-                   errno
-#endif
-                   );
-#ifdef _MSC_VER
-        }
+            EMU_ERR("Send error - 0x%x\n", errno);
 #endif
             return false;
         }
@@ -239,19 +232,19 @@ bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
     if (!result) {
         return result;
     }
-    printf("Platform port Transmit size: ");
+    EMU_LOG("Platform port Transmit size: ");
     bytes_to_send = htonl(bytes_to_send);
     dump_data((uint8_t *)&bytes_to_send, sizeof(uint32_t));
-    printf("\n");
+    EMU_LOG("\n");
     bytes_to_send = htonl(bytes_to_send);
 
     result = write_bytes(socket, buffer, bytes_to_send);
     if (!result) {
         return result;
     }
-    printf("Platform port Transmit buffer:\n    ");
+    EMU_LOG("Platform port Transmit buffer:\n    ");
     dump_data(buffer, bytes_to_send);
-    printf("\n");
+    EMU_LOG("\n");
     return true;
 }
 
@@ -267,19 +260,19 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
     if (!result) {
         return result;
     }
-    printf("Platform port Transmit command: ");
+    EMU_LOG("Platform port Transmit command: ");
     request = htonl(request);
     dump_data((uint8_t *)&request, sizeof(uint32_t));
-    printf("\n");
+    EMU_LOG("\n");
 
     result = write_data32(socket, m_use_transport_layer);
     if (!result) {
         return result;
     }
-    printf("Platform port Transmit transport_type: ");
+    EMU_LOG("Platform port Transmit transport_type: ");
     transport_type = ntohl(m_use_transport_layer);
     dump_data((uint8_t *)&transport_type, sizeof(uint32_t));
-    printf("\n");
+    EMU_LOG("\n");
 
     result = write_multiple_bytes(socket, send_buffer,
                                   (uint32_t)bytes_to_send);

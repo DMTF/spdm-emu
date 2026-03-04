@@ -20,7 +20,7 @@ void dump_data(const uint8_t *buffer, size_t buffer_size)
     size_t index;
 
     for (index = 0; index < buffer_size; index++) {
-        printf("%02x ", buffer[index]);
+        EMU_LOG("%02x ", buffer[index]);
     }
 }
 
