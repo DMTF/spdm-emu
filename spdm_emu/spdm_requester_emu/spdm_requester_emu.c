@@ -294,11 +294,14 @@ int main(int argc, char *argv[])
     process_args("spdm_requester_emu", argc, argv);
 
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP) {
-        /* Port number 4194 for SPDM */
-        result = platform_client_routine(TCP_SPDM_PLATFORM_PORT);
+        /* Use custom port if specified, otherwise default to 4194 for TCP */
+        const uint16_t port = (m_custom_port != 0) ? m_custom_port : TCP_SPDM_PLATFORM_PORT;
+        result = platform_client_routine(port);
     }
     else {
-        result = platform_client_routine(DEFAULT_SPDM_PLATFORM_PORT);
+        /* Use custom port if specified, otherwise default to 2323 for other transports */
+        const uint16_t port = (m_custom_port != 0) ? m_custom_port : DEFAULT_SPDM_PLATFORM_PORT;
+        result = platform_client_routine(port);
     }
 
     printf("Client stopped\n");
