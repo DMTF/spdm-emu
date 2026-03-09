@@ -27,6 +27,8 @@ libspdm_return_t do_get_key_pair_info_via_spdm(const uint32_t *session_id)
     uint16_t current_key_usage;
     uint32_t asym_algo_capabilities;
     uint32_t current_asym_algo;
+    uint32_t pqc_asym_algo_capabilities;
+    uint32_t current_pqc_asym_algo;
     uint16_t public_key_info_len;
     uint8_t assoc_cert_slot_mask;
     uint8_t public_key_info[SPDM_MAX_PUBLIC_KEY_INFO_LEN];
@@ -43,6 +45,8 @@ libspdm_return_t do_get_key_pair_info_via_spdm(const uint32_t *session_id)
                                        &current_key_usage,
                                        &asym_algo_capabilities,
                                        &current_asym_algo,
+                                       &pqc_asym_algo_capabilities,
+                                       &current_pqc_asym_algo,
                                        &assoc_cert_slot_mask,
                                        &public_key_info_len,
                                        public_key_info);
@@ -73,6 +77,7 @@ libspdm_return_t do_set_key_pair_info_via_spdm(const uint32_t *session_id)
     uint8_t operation;
     uint16_t desired_key_usage;
     uint32_t desired_asym_algo;
+    uint32_t desired_pqc_asym_algo;
     uint8_t desired_assoc_cert_slot_mask;
 
     spdm_context = m_spdm_context;
@@ -82,12 +87,14 @@ libspdm_return_t do_set_key_pair_info_via_spdm(const uint32_t *session_id)
     operation = SPDM_SET_KEY_PAIR_INFO_CHANGE_OPERATION;
     desired_key_usage = 0;
     desired_asym_algo = 0;
+    desired_pqc_asym_algo = 0;
     desired_assoc_cert_slot_mask = 0;
 
     status = libspdm_set_key_pair_info(spdm_context, session_id,
                                        key_pair_id, operation,
                                        desired_key_usage,
                                        desired_asym_algo,
+                                       desired_pqc_asym_algo,
                                        desired_assoc_cert_slot_mask);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
@@ -97,12 +104,14 @@ libspdm_return_t do_set_key_pair_info_via_spdm(const uint32_t *session_id)
     operation = SPDM_SET_KEY_PAIR_INFO_ERASE_OPERATION;
     desired_key_usage = 0;
     desired_asym_algo = 0;
+    desired_pqc_asym_algo = 0;
     desired_assoc_cert_slot_mask = 0;
 
     status = libspdm_set_key_pair_info(spdm_context, session_id,
                                        key_pair_id, operation,
                                        desired_key_usage,
                                        desired_asym_algo,
+                                       desired_pqc_asym_algo,
                                        desired_assoc_cert_slot_mask);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
