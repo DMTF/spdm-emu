@@ -19,6 +19,7 @@ option(ENABLE_SYSTEMD "Install systemd service file" OFF)
 set(DEVICE ${DEVICE} CACHE STRING "Choose the test device: sample tpm, and default is sample" FORCE)
 
 option(LIBSPDM_TPM_SUPPORT "Add TPM support in crypt_ext" OFF)
+option(USE_SYSTEM_LIBSPDM "Use system provided libspdm" OFF)
 
 if(NOT GCOV)
     set(GCOV "OFF")
@@ -29,9 +30,23 @@ if (NOT DEVICE)
 endif()
 
 set(SPDM_EMU_DIR ${PROJECT_SOURCE_DIR})
-set(LIBSPDM_DIR ${PROJECT_SOURCE_DIR}/libspdm)
 set(SPDM_RESPONDER_VALIDATOR_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator)
 set(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/common_test_framework)
+
+if (USE_SYSTEM_LIBSPDM)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(LIBSPDM REQUIRED libspdm)
+  pkg_get_variable(_LIBSPDM_INCLUDE_PATH libspdm includedir)
+  include_directories(
+    "${_LIBSPDM_INCLUDE_PATH}/include"
+  )
+else (USE_SYSTEM_LIBSPDM)
+  set(LIBSPDM_DIR "${PROJECT_SOURCE_DIR}/libspdm")
+  include_directories(
+    "${LIBSPDM_DIR}/include"
+    "${LIBSPDM_DIR}/os_stub/include"
+  )
+endif (USE_SYSTEM_LIBSPDM)
 
 #
 # OpenSSL specific compiled libraries.
@@ -632,19 +647,20 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
                        COMMAND xcopy /y /s ${SRC} ${DEST})
 endif()
 
-if(CRYPTO STREQUAL "mbedtls")
-    add_subdirectory(${LIBSPDM_DIR}/os_stub/cryptlib_mbedtls out/cryptlib_mbedtls.out)
-elseif(CRYPTO STREQUAL "openssl")
-    add_subdirectory(${LIBSPDM_DIR}/os_stub/cryptlib_openssl out/cryptlib_openssl.out)
-endif()
+if (NOT USE_SYSTEM_LIBSPDM)
+  if(CRYPTO STREQUAL "mbedtls")
+      add_subdirectory(${LIBSPDM_DIR}/os_stub/cryptlib_mbedtls out/cryptlib_mbedtls.out)
+  elseif(CRYPTO STREQUAL "openssl")
+      add_subdirectory(${LIBSPDM_DIR}/os_stub/cryptlib_openssl out/cryptlib_openssl.out)
+  endif()
 
-if(NOT ENABLE_BINARY_BUILD STREQUAL "1")
-    if(CRYPTO STREQUAL "mbedtls")
-        add_subdirectory(${LIBSPDM_DIR}/os_stub/mbedtlslib out/mbedtlslib.out)
-    elseif(CRYPTO STREQUAL "openssl")
-        add_subdirectory(${LIBSPDM_DIR}/os_stub/openssllib out/openssllib.out)
-    endif()
-endif()
+  if(NOT ENABLE_BINARY_BUILD STREQUAL "1")
+      if(CRYPTO STREQUAL "mbedtls")
+          add_subdirectory(${LIBSPDM_DIR}/os_stub/mbedtlslib out/mbedtlslib.out)
+      elseif(CRYPTO STREQUAL "openssl")
+          add_subdirectory(${LIBSPDM_DIR}/os_stub/openssllib out/openssllib.out)
+      endif()
+  endif()
 
     add_subdirectory(${LIBSPDM_DIR}/library/spdm_common_lib out/spdm_common_lib.out)
     add_subdirectory(${LIBSPDM_DIR}/library/spdm_requester_lib out/spdm_requester_lib.out)
@@ -662,6 +678,7 @@ endif()
     add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE} out/spdm_device_secret_lib_${DEVICE}.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/platform_lib out/platform_lib.out)
     add_subdirectory(${LIBSPDM_DIR}/os_stub/spdm_crypt_ext_lib out/spdm_crypt_ext_lib.out)
+endif (NOT USE_SYSTEM_LIBSPDM)
 
     add_subdirectory(library/spdm_transport_none_lib)
     add_subdirectory(library/mctp_requester_lib)

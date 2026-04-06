@@ -770,6 +770,11 @@ endif()
 add_compile_options(-DLIBSPDM_CONFIG="${PROJECT_SOURCE_DIR}/include/spdm_lib_config.h")
 add_compile_options(-UMBEDTLS_CONFIG_FILE -DMBEDTLS_CONFIG_FILE="${PROJECT_SOURCE_DIR}/include/mbedtls/config.h")
 
+include_directories(
+  ${LIBSPDM_DIR}/include
+  ${LIBSPDM_DIR}/os_stub/include
+)
+
     if(CRYPTO STREQUAL "mbedtls")
         add_subdirectory(${LIBSPDM_DIR}/os_stub/cryptlib_mbedtls out/cryptlib_mbedtls.lib)
     elseif(CRYPTO STREQUAL "openssl")
