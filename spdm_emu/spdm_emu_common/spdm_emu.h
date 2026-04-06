@@ -10,7 +10,7 @@
 #include "hal/base.h"
 #include "hal/library/memlib.h"
 #include "library/spdm_common_lib.h"
-#include "spdm_device_secret_lib_internal.h"
+#include "internal/libspdm_device_secret_lib.h"
 
 #include "os_include.h"
 #include "stdio.h"
