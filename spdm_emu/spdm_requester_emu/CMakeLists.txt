@@ -28,7 +28,12 @@ set(src_spdm_requester_emu
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
-set(spdm_requester_emu_LIBRARY
+if (USE_SYSTEM_LIBSPDM)
+  message("LIBSPDM_LIBRARIES: ${LIBSPDM_LIBRARIES}")
+  add_executable(spdm_requester_emu ${src_spdm_requester_emu})
+  target_link_libraries(spdm_requester_emu PRIVATE
+else (USE_SYSTEM_LIBSPDM)
+  set(spdm_requester_emu_LIBRARY
     memlib
     ${SPDM_DEBUG_LIB_NAME}
     spdm_requester_lib
@@ -51,8 +56,9 @@ set(spdm_requester_emu_LIBRARY
     pci_tdisp_requester_lib
     cxl_ide_km_requester_lib
     cxl_tsp_requester_lib
-    platform_lib
-)
+    spdm_transport_none_lib
+    ${LIBSPDM_LIBRARIES}
+  )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
     add_executable(spdm_requester_emu
@@ -84,17 +90,18 @@ else()
     target_link_libraries(spdm_requester_emu ${spdm_requester_emu_LIBRARY})
 endif()
 
-# Windows DLL path fix for OpenSSL shared library
-if(CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT TOOLCHAIN STREQUAL "NONE")
-    if(CRYPTO STREQUAL "openssl")
-        # Copy OpenSSL DLL to emu directory for runtime linking
-        if(TARGET openssllib)
-            add_custom_command(TARGET spdm_requester_emu POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:openssllib>
-                $<TARGET_FILE_DIR:spdm_requester_emu>
-                COMMENT "Copying OpenSSL DLL to emu directory"
-            )
-        endif()
-    endif()
-endif()
+  # Windows DLL path fix for OpenSSL shared library
+  if(CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT TOOLCHAIN STREQUAL "NONE")
+      if(CRYPTO STREQUAL "openssl")
+          # Copy OpenSSL DLL to emu directory for runtime linking
+          if(TARGET openssllib)
+              add_custom_command(TARGET spdm_requester_emu POST_BUILD
+                  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                  $<TARGET_FILE:openssllib>
+                  $<TARGET_FILE_DIR:spdm_requester_emu>
+                  COMMENT "Copying OpenSSL DLL to emu directory"
+              )
+          endif()
+      endif()
+  endif()
+endif(USE_SYSTEM_LIBSPDM)

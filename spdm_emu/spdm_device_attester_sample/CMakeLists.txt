@@ -22,29 +22,39 @@ set(src_spdm_device_attester_sample
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
-set(spdm_device_attester_sample_LIBRARY
-    memlib
-    debuglib_null
-    spdm_requester_lib
-    spdm_common_lib
-    ${CRYPTO_LIB_PATHS}
-    rnglib
-    cryptlib_${CRYPTO}
-    malloclib
-    spdm_crypt_lib
-    spdm_crypt_ext_lib
-    spdm_secured_message_lib
-    spdm_transport_mctp_lib
-    spdm_transport_pcidoe_lib
+if (USE_SYSTEM_LIBSPDM)
+  add_executable(spdm_device_attester_sample ${src_spdm_device_attester_sample})
+  target_link_libraries(spdm_device_attester_sample PRIVATE
     spdm_transport_none_lib
-    spdm_transport_tcp_lib
-    spdm_device_secret_lib_${DEVICE}
-    mctp_requester_lib
     pci_doe_requester_lib
-    platform_lib
     spdm_responder_conformance_test_lib
     common_test_utility_lib
-)
+    ${LIBSPDM_LIBRARIES}
+  )
+else (USE_SYSTEM_LIBSPDM)
+  set(spdm_device_attester_sample_LIBRARY
+      memlib
+      debuglib_null
+      spdm_requester_lib
+      spdm_common_lib
+      ${CRYPTO_LIB_PATHS}
+      rnglib
+      cryptlib_${CRYPTO}
+      malloclib
+      spdm_crypt_lib
+      spdm_crypt_ext_lib
+      spdm_secured_message_lib
+      spdm_transport_mctp_lib
+      spdm_transport_pcidoe_lib
+      spdm_transport_none_lib
+      spdm_transport_tcp_lib
+      spdm_device_secret_lib_sample
+      mctp_requester_lib
+      pci_doe_requester_lib
+      platform_lib
+      spdm_responder_conformance_test_lib
+      common_test_utility_lib
+  )
 
 if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
     add_executable(spdm_device_attester_sample
