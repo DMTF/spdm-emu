@@ -22,6 +22,15 @@
 
    Download and install [LLVM9](http://releases.llvm.org/download.html#9.0.0). Ensure LLVM9 executable directory is in PATH environment variable.
 
+### Optional: TPM Support
+
+TPM-backed SPDM flows require additional dependencies.
+
+**Required packages**
+- swtpm (for software TPM emulation)
+- tpm2-tools
+- OpenSSL with TPM provider support
+
 ## Build
 
 ### Git Submodule
@@ -54,6 +63,26 @@
    make copy_sample_key
    make
    ```
+
+### Optional: Enable TPM Support
+
+To build spdm-emu with TPM-backed device secret support:
+
+```
+  -DDEVICE=tpm
+  -DLIBSPDM_TPM_SUPPORT=ON
+```
+
+### TPM Setup (Optional)
+
+A helper script is provided to initialize a software TPM:
+
+```
+cd build/bin
+../../scripts/setup-tpm.sh --cleanup --start-swtpm
+```
+
+Please refer to [spdm_emu](https://github.com/DMTF/spdm-emu/blob/main/doc/tpm.md) for detail.
 
 ## Run Test
 
@@ -110,4 +139,3 @@ sudo journalctl -u spdm-responder-emu
 This package is only the sample code to show the concept.
 It does not have a full validation such as robustness functional test and fuzzing test. It does not meet the production quality yet.
 Any codes including the API definition, the libary and the drivers are subject to change.
-

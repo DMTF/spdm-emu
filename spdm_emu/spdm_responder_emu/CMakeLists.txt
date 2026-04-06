@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_emu
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
+                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
                     ${LIBSPDM_DIR}/include
                     ${LIBSPDM_DIR}/os_stub/include
                     ${LIBSPDM_DIR}/os_stub
@@ -28,19 +28,6 @@ if (USE_SYSTEM_LIBSPDM)
   message("LIBSPDM_LIBRARIES: ${LIBSPDM_LIBRARIES}")
   add_executable(spdm_responder_emu ${src_spdm_responder_emu})
   target_link_libraries(spdm_responder_emu PRIVATE
-    mctp_responder_lib
-    pci_doe_responder_lib
-    pci_ide_km_responder_lib
-    pci_ide_km_device_lib_sample
-    pci_tdisp_responder_lib
-    pci_tdisp_device_lib_sample
-    cxl_ide_km_responder_lib
-    cxl_ide_km_device_lib_sample
-    cxl_tsp_responder_lib
-    cxl_tsp_device_lib_sample
-    spdm_transport_none_lib
-    ${LIBSPDM_LIBRARIES}
-  )
 else (USE_SYSTEM_LIBSPDM)
   set(spdm_responder_emu_LIBRARY
       memlib
@@ -58,7 +45,7 @@ else (USE_SYSTEM_LIBSPDM)
       spdm_transport_pcidoe_lib
       spdm_transport_tcp_lib
       spdm_transport_none_lib
-      spdm_device_secret_lib_sample
+      spdm_device_secret_lib_${DEVICE}
       mctp_responder_lib
       pci_doe_responder_lib
       pci_ide_km_responder_lib
@@ -69,59 +56,60 @@ else (USE_SYSTEM_LIBSPDM)
       cxl_ide_km_device_lib_sample
       cxl_tsp_responder_lib
       cxl_tsp_device_lib_sample
-      platform_lib
-  )
+      spdm_transport_none_lib
+      ${LIBSPDM_LIBRARIES}
+    )
 
   if((TOOLCHAIN STREQUAL "KLEE") OR (TOOLCHAIN STREQUAL "CBMC"))
       add_executable(spdm_responder_emu
-                    ${src_spdm_responder_emu}
-                    $<TARGET_OBJECTS:memlib>
-                    $<TARGET_OBJECTS:debuglib>
-                    $<TARGET_OBJECTS:spdm_responder_lib>
-                    $<TARGET_OBJECTS:spdm_common_lib>
-                    $<TARGET_OBJECTS:${CRYPTO_LIB_PATHS}>
-                    $<TARGET_OBJECTS:rnglib>
-                    $<TARGET_OBJECTS:cryptlib_${CRYPTO}>
-                    $<TARGET_OBJECTS:malloclib>
-                    $<TARGET_OBJECTS:spdm_crypt_lib>
-                    $<TARGET_OBJECTS:spdm_secured_message_lib>
-                    $<TARGET_OBJECTS:spdm_transport_mctp_lib>
-                    $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>
-                    $<TARGET_OBJECTS:spdm_transport_tcp_lib>
-                    $<TARGET_OBJECTS:spdm_device_secret_lib_sample>
-                    $<TARGET_OBJECTS:mctp_responder_lib>
-                    $<TARGET_OBJECTS:pci_doe_responder_lib>
-                    $<TARGET_OBJECTS:pci_ide_km_responder_lib>
-                    $<TARGET_OBJECTS:pci_ide_km_device_lib_sample>
-                    $<TARGET_OBJECTS:pci_tdisp_responder_lib>
-                    $<TARGET_OBJECTS:pci_tdisp_device_lib_sample>
-                    $<TARGET_OBJECTS:cxl_ide_km_responder_lib>
-                    $<TARGET_OBJECTS:cxl_ide_km_device_lib_sample>
-                    $<TARGET_OBJECTS:cxl_tsp_responder_lib>
-                    $<TARGET_OBJECTS:cxl_tsp_device_lib_sample>
-                    $<TARGET_OBJECTS:platform_lib>
+                     ${src_spdm_responder_emu}
+                     $<TARGET_OBJECTS:memlib>
+                     $<TARGET_OBJECTS:debuglib>
+                     $<TARGET_OBJECTS:spdm_responder_lib>
+                     $<TARGET_OBJECTS:spdm_common_lib>
+                     $<TARGET_OBJECTS:${CRYPTO_LIB_PATHS}>
+                     $<TARGET_OBJECTS:rnglib>
+                     $<TARGET_OBJECTS:cryptlib_${CRYPTO}>
+                     $<TARGET_OBJECTS:malloclib>
+                     $<TARGET_OBJECTS:spdm_crypt_lib>
+                     $<TARGET_OBJECTS:spdm_secured_message_lib>
+                     $<TARGET_OBJECTS:spdm_transport_mctp_lib>
+                     $<TARGET_OBJECTS:spdm_transport_pcidoe_lib>
+                     $<TARGET_OBJECTS:spdm_transport_tcp_lib>
+                     $<TARGET_OBJECTS:spdm_device_secret_lib_${DEVICE}>
+                     $<TARGET_OBJECTS:mctp_responder_lib>
+                     $<TARGET_OBJECTS:pci_doe_responder_lib>
+                     $<TARGET_OBJECTS:pci_ide_km_responder_lib>
+                     $<TARGET_OBJECTS:pci_ide_km_device_lib_sample>
+                     $<TARGET_OBJECTS:pci_tdisp_responder_lib>
+                     $<TARGET_OBJECTS:pci_tdisp_device_lib_sample>
+                     $<TARGET_OBJECTS:cxl_ide_km_responder_lib>
+                     $<TARGET_OBJECTS:cxl_ide_km_device_lib_sample>
+                     $<TARGET_OBJECTS:cxl_tsp_responder_lib>
+                     $<TARGET_OBJECTS:cxl_tsp_device_lib_sample>
+                     $<TARGET_OBJECTS:platform_lib>
       )
   else()
       add_executable(spdm_responder_emu ${src_spdm_responder_emu})
       target_link_libraries(spdm_responder_emu ${spdm_responder_emu_LIBRARY})
   endif()
-endif()
 
 
-# Windows DLL path fix for OpenSSL shared library
-if(CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT TOOLCHAIN STREQUAL "NONE")
-    if(CRYPTO STREQUAL "openssl")
-        # Copy OpenSSL DLL to emu directory for runtime linking
-        if(TARGET openssllib)
-            add_custom_command(TARGET spdm_responder_emu POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:openssllib>
-                $<TARGET_FILE_DIR:spdm_responder_emu>
-                COMMENT "Copying OpenSSL DLL to emu directory"
-            )
-        endif()
-    endif()
-endif()
+  # Windows DLL path fix for OpenSSL shared library
+  if(CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT TOOLCHAIN STREQUAL "NONE")
+      if(CRYPTO STREQUAL "openssl")
+          # Copy OpenSSL DLL to emu directory for runtime linking
+          if(TARGET openssllib)
+              add_custom_command(TARGET spdm_responder_emu POST_BUILD
+                  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                  $<TARGET_FILE:openssllib>
+                  $<TARGET_FILE_DIR:spdm_responder_emu>
+                  COMMENT "Copying OpenSSL DLL to emu directory"
+              )
+          endif()
+      endif()
+  endif()
+endif(USE_SYSTEM_LIBSPDM)
 
 if(ENABLE_SYSTEMD)
     find_package(PkgConfig REQUIRED)
