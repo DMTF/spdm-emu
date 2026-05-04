@@ -14,8 +14,8 @@
 
 #include "hal/library/cryptlib.h"
 #include "library/spdm_crypt_lib.h"
-#include "spdm_crypt_ext_lib/spdm_crypt_ext_lib.h"
-#include "spdm_crypt_ext_lib/cryptlib_ext.h"
+#include "library/spdm_crypt_ext_lib.h"
+#include "hal/library/cryptlib_ext.h"
 #include "hal/library/responder/asymsignlib.h"
 #include "hal/library/responder/csrlib.h"
 #include "hal/library/responder/measlib.h"
