@@ -5,6 +5,11 @@
  **/
 
 #include "spdm_requester_emu.h"
+#ifndef _MSC_VER
+#include <sys/un.h>
+#include <linux/mctp.h>
+#include <errno.h>
+#endif
 
 uint8_t m_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 
@@ -90,7 +95,11 @@ bool platform_client_routine(uint16_t port_number)
         m_socket = platform_socket;
     }
 
-    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE) {
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE
+#ifndef _MSC_VER
+        && m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL
+#endif
+       ) {
         response_size = sizeof(m_receive_buffer);
         result = communicate_platform_data(
             m_socket,
@@ -253,11 +262,17 @@ bool platform_client_routine(uint16_t port_number)
     result = true;
 done:
     response_size = 0;
-    if (!communicate_platform_data(
-            m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
-            NULL, 0, &response, &response_size, NULL)) {
-            return false;
-        }
+#ifndef _MSC_VER
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+#endif
+        if (!communicate_platform_data(
+                m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
+                NULL, 0, &response, &response_size, NULL)) {
+                return false;
+            }
+#ifndef _MSC_VER
+    }
+#endif
 
     if (m_spdm_context != NULL) {
 #if LIBSPDM_FIPS_MODE
