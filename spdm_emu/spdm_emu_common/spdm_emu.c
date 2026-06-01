@@ -635,7 +635,8 @@ void process_args(char *program_name, int argc, char *argv[])
                     print_usage(program_name);
                     exit(0);
                 }
-                strcpy(m_ip_address_string, argv[1]);
+                strncpy(m_ip_address_string, argv[1], sizeof(m_ip_address_string) - 1);
+                m_ip_address_string[sizeof(m_ip_address_string) - 1] = '\0';
                 m_ip_explicitly_set = true;
                 printf("ip - %s\n", m_ip_address_string);
                 argc -= 2;
