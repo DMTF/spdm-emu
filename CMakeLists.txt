@@ -622,6 +622,12 @@ elseif((TOOLCHAIN STREQUAL "VS2019") OR (TOOLCHAIN STREQUAL "VS2022"))
     endif()
 endif()
 
+include_directories(
+    ${LIBSPDM_DIR}/include
+    ${LIBSPDM_DIR}/os_stub/include
+    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_sample
+)
+
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
