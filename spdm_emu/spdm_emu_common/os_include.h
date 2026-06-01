@@ -32,8 +32,14 @@
 #pragma warning(default : 4115)
 #pragma warning(default : 4201)
 
+#elif defined(__MINGW32__) || defined(__MINGW64__)
+/* MinGW GCC on Windows */
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+
 #else
-/* GCC*/
+/* GCC on Linux/POSIX */
 #include "stdio.h"
 #include "stdlib.h"
 #include "unistd.h"
