@@ -38,7 +38,7 @@ char m_ip_address_string[16] = "127.0.0.1";
 uint16_t m_custom_port = 0; /* 0 means use default */
 bool m_ip_explicitly_set = false; /* track if user explicitly set IP */
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
 #else
 struct in_addr m_ip_address = { 0x0100007F };
@@ -1510,7 +1510,7 @@ void process_args(char *program_name, int argc, char *argv[])
 
 bool convert_ip_to_addr(const char *ip_string, struct in_addr *addr)
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
     /* Use inet_pton for Windows MSVC compatibility */
     return (inet_pton(AF_INET, ip_string, addr) == 1);
 #else
@@ -1527,7 +1527,7 @@ bool init_client(SOCKET *sock, uint16_t port)
     struct in_addr ip_addr;
     int32_t ret_val;
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     WSADATA ws;
     if (WSAStartup(MAKEWORD(2, 2), &ws) != 0) {
         printf("Init Windows socket Failed - %x\n", WSAGetLastError());
@@ -1538,7 +1538,7 @@ bool init_client(SOCKET *sock, uint16_t port)
     client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_socket == INVALID_SOCKET) {
         printf("Create socket Failed - %x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -1576,7 +1576,7 @@ bool init_client(SOCKET *sock, uint16_t port)
                       sizeof(server_addr));
     if (ret_val == SOCKET_ERROR) {
         printf("Connect Error - %x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -1598,7 +1598,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     int32_t res;
 
     /* Initialize Winsock*/
-#ifdef _MSC_VER
+#ifdef _WIN32
     WSADATA ws;
     res = WSAStartup(MAKEWORD(2, 2), &ws);
     if (res != 0) {
@@ -1610,7 +1610,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     *listen_socket = socket(PF_INET, SOCK_STREAM, 0);
     if (INVALID_SOCKET == *listen_socket) {
         printf("Cannot create server listen socket.  Error is 0x%x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -1627,7 +1627,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
      * responder to bind to this port even if it is still in the TIME_WAIT state.*/
     if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
         printf("Cannot configure server listen socket.  Error is 0x%x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -1661,7 +1661,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
                sizeof(my_address));
     if (res == SOCKET_ERROR) {
         printf("Bind error.  Error is 0x%x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -1674,7 +1674,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     res = listen(*listen_socket, 3);
     if (res == SOCKET_ERROR) {
         printf("Listen error.  Error is 0x%x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
