@@ -104,14 +104,10 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
     return true;
 }
 
-bool receive_platform_data(const SOCKET socket, uint32_t *command,
-                           uint8_t *receive_buffer,
-                           size_t *bytes_to_receive)
+bool receive_platform_command(const SOCKET socket, uint32_t *command)
 {
     bool result;
     uint32_t response;
-    uint32_t transport_type;
-    uint32_t bytes_received;
 
     result = read_data32(socket, &response);
     if (!result) {
@@ -123,19 +119,33 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
     dump_data((uint8_t *)&response, sizeof(uint32_t));
     EMU_LOG("\n");
 
-    result = read_data32(socket, &transport_type);
+    return true;
+}
+
+bool receive_platform_transport_type(const SOCKET socket,
+                                     uint32_t *transport_type)
+{
+    bool result;
+
+    result = read_data32(socket, transport_type);
     if (!result) {
         return result;
     }
     EMU_LOG("Platform port Receive transport_type: ");
-    transport_type = ntohl(transport_type);
-    dump_data((uint8_t *)&transport_type, sizeof(uint32_t));
+    *transport_type = ntohl(*transport_type);
+    dump_data((uint8_t *)transport_type, sizeof(uint32_t));
     EMU_LOG("\n");
-    transport_type = ntohl(transport_type);
-    if (transport_type != m_use_transport_layer) {
-        EMU_ERR("transport_type mismatch\n");
-        return false;
-    }
+    *transport_type = ntohl(*transport_type);
+
+    return true;
+}
+
+bool receive_platform_data(const SOCKET socket, uint32_t *command,
+                           uint8_t *receive_buffer,
+                           size_t *bytes_to_receive)
+{
+    bool result;
+    uint32_t bytes_received;
 
     bytes_received = 0;
     result = read_multiple_bytes(socket, receive_buffer, &bytes_received,

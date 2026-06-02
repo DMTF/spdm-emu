@@ -29,8 +29,25 @@ bool platform_server(const SOCKET socket)
     uint8_t response[LIBPCIDOE_MAX_NON_SPDM_MESSAGE_SIZE];
     size_t response_size;
     uint32_t session_id;
+    uint32_t transport_type;
 
     while (true) {
+        result = receive_platform_command(socket, &m_command);
+        if (!result) {
+            EMU_ERR("Platform port Receive command Error - %x\n", socket_errno());
+            return false;
+        }
+
+        result = receive_platform_transport_type(socket, &transport_type);
+        if (!result) {
+            EMU_ERR("Platform port Receive transport_type Error - %x\n", socket_errno());
+            return false;
+        }
+        if (transport_type != m_use_transport_layer) {
+            EMU_ERR("transport_type mismatch\n");
+            return false;
+        }
+
         status = libspdm_responder_dispatch_message(m_spdm_context);
         if (status == LIBSPDM_STATUS_SUCCESS) {
             /* success dispatch SPDM message*/
