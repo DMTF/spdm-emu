@@ -61,6 +61,23 @@ uint32_t m_use_responder_capability_flags =
 
 uint32_t m_use_capability_flags = 0;
 uint32_t m_use_peer_capability_flags = 0;
+
+/* Extended capability flags (GET_CAPABILITIES ExtendedFlags) selected with --ext_cap (this
+ * endpoint) and --peer_ext_cap (the peer). Unlike --cap, the empty selection "NO" is the encoded
+ * value 0, which is indistinguishable from "not specified" by a non-zero test, yet "NO" must be
+ * able to override a non-zero default (such as the Responder's SLOT_MGMT). The matching *_set
+ * flag therefore records whether the option was given on the command line. */
+uint16_t m_use_ext_capability_flags = 0;
+bool m_use_ext_capability_flags_set = false;
+uint16_t m_use_peer_ext_capability_flags = 0;
+bool m_use_peer_ext_capability_flags_set = false;
+
+/* The Requester advertises no extended capabilities by default. */
+uint16_t m_use_requester_capability_ext_flags = 0;
+
+/* The Responder advertises SLOT_MGMT_CAP by default. */
+uint16_t m_use_responder_capability_ext_flags =
+    SPDM_GET_CAPABILITIES_EXTENDED_RESPONSE_FLAGS_SLOT_MGMT_CAP;
 /*
  * 0
  * 1

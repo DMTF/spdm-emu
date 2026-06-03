@@ -12,6 +12,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--ver 1.0|1.1|1.2|1.3|1.4]
          [--sec_ver 1.0|1.1|1.2]
          [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]
+         [--ext_cap NO|SLOT_MGMT]
          [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
          [--meas_spec DMTF]
          [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]
@@ -27,6 +28,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--other_param OPAQUE_FMT_1|MULTI_KEY_CONN]
          [--pqc_first FALSE|TRUE]
          [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]
+         [--peer_ext_cap NO|SLOT_MGMT]
          [--basic_mut_auth NO|BASIC]
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
          [--meas_sum NO|TCB|ALL]
@@ -39,8 +41,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
-         [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO]
-         [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]
+         [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SLOT_MGMT]
+         [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SLOT_MGMT|APP]
          [--pcap <PcapFileName>]
          [--priv_key_mode PEM|RAW]
          [--verbose | -v]
@@ -57,6 +59,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.
                  By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG,LARGE_RESP is used for Requester.
                  By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,LARGE_RESP is used for Responder.
+         [--ext_cap] is the extended capability flags this endpoint advertises. NO selects an empty set. By default, NO is used for Requester, and SLOT_MGMT is used for Responder (when built with SLOT_MGMT_CAP).
          [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.
          [--meas_spec] is measurement hash spec. By default, DMTF is used.
          [--meas_hash] is measurement hash algorithm. By default, SHA_512,SHA_384,SHA_256 is used.
@@ -75,6 +78,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  Please don't mix NIST algo with SMx algo.
          [--pqc_first] is to control if the responder will use PQC at first, if both PQC and traditional algorithms are supported by the requester and the responder. By default, FALSE is used.
          [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.
+         [--peer_ext_cap] is the extended capability flags for the peer. It is used only when --exe_conn has VER_ONLY.
          [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.
          [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.
          [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.
@@ -99,7 +103,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.
                  SHUTDOWN means the requester asks the responder to stop.
                  CONTINUE means the requester asks the responder to preserve the current SPDM context.
-         [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT, GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO.
+         [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT, GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO,SLOT_MGMT.
                  VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.
                      The version for responder must be provisioned from ver.
                      The capabilities for local and peer are from cap|peer_cap.
@@ -115,7 +119,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command.
                  SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command.
                  EP_INFO means send GET_ENDPOINT_INFO command.
-         [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO,APP.
+                 SLOT_MGMT means send SLOT_MANAGEMENT command.
+         [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO,SLOT_MGMT,APP.
                  KEY_EX means to setup KEY_EXCHANGE session.
                  PSK means to setup PSK_EXCHANGE session.
                  NO_END means to not send END_SESSION.
@@ -130,6 +135,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command in session.
                  SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command in session.
                  EP_INFO means send GET_ENDPOINT_INFO command in session.
+                 SLOT_MGMT means send SLOT_MANAGEMENT command in session.
                  APP means send vendor defined message or application message in session.
          [--pcap] is used to generate PCAP dump file for offline analysis.
          [--priv_key_mode] is used to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.

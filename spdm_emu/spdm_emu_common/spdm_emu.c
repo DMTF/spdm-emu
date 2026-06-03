@@ -20,7 +20,7 @@ uint32_t m_exe_connection = (0 |
                              EXE_CONNECTION_CHAL | EXE_CONNECTION_MEAS | EXE_CONNECTION_MEL |
                              EXE_CONNECTION_SET_CERT | EXE_CONNECTION_GET_CSR |
                              EXE_CONNECTION_GET_KEY_PAIR_INFO | EXE_CONNECTION_SET_KEY_PAIR_INFO |
-                             EXE_CONNECTION_EP_INFO | 0);
+                             EXE_CONNECTION_EP_INFO | EXE_CONNECTION_SLOT_MGMT | 0);
 
 uint32_t m_exe_session =
     (0 | EXE_SESSION_KEY_EX | EXE_SESSION_PSK |
@@ -30,7 +30,7 @@ uint32_t m_exe_session =
      EXE_SESSION_SET_CERT | EXE_SESSION_GET_CSR |
      EXE_SESSION_GET_KEY_PAIR_INFO | EXE_SESSION_SET_KEY_PAIR_INFO |
      EXE_SESSION_DIGEST | EXE_SESSION_CERT | EXE_SESSION_APP |
-     EXE_SESSION_EP_INFO | 0);
+     EXE_SESSION_EP_INFO | EXE_SESSION_SLOT_MGMT | 0);
 
 #define IP_ADDRESS "127.0.0.1"
 
@@ -54,6 +54,7 @@ void print_usage(const char *name)
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
     printf(
         "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]\n");
+    printf("   [--ext_cap NO|SLOT_MGMT]\n");
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
     printf("   [--meas_spec DMTF]\n");
     printf("   [--meas_hash RAW_BIT|SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
@@ -73,6 +74,7 @@ void print_usage(const char *name)
     printf("   [--pqc_first FALSE|TRUE]\n");
     printf(
         "   [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
+    printf("   [--peer_ext_cap NO|SLOT_MGMT]\n");
     printf("   [--basic_mut_auth NO|BASIC]\n");
     printf("   [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]\n");
     printf("   [--meas_sum NO|TCB|ALL]\n");
@@ -85,8 +87,8 @@ void print_usage(const char *name)
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
-    printf("   [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO]\n");
-    printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]\n");
+    printf("   [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SLOT_MGMT]\n");
+    printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SLOT_MGMT|APP]\n");
     printf("   [--pcap <pcap_file_name>]\n");
     printf("   [--priv_key_mode PEM|RAW]\n");
     printf("   [--verbose | -v]\n");
@@ -112,6 +114,8 @@ void print_usage(const char *name)
         "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG,LARGE_RESP is used for Requester.\n");
     printf(
         "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,LARGE_RESP is used for Responder.\n");
+    printf(
+        "   [--ext_cap] is the extended capability flags this endpoint advertises. NO selects an empty set. By default, NO is used for Requester, and SLOT_MGMT is used for Responder (when built with SLOT_MGMT_CAP).\n");
     printf("   [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.\n");
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
     printf(
@@ -133,6 +137,8 @@ void print_usage(const char *name)
     printf("           Please don't mix NIST algo with SMx algo.\n");
     printf(
         "   [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.\n");
+    printf(
+        "   [--peer_ext_cap] is the extended capability flags for the peer. It is used only when --exe_conn has VER_ONLY.\n");
     printf(
         "   [--pqc_first] is to control if the responder will use PQC at first, if both PQC and traditional algorithms are supported by the requester and the responder. By default, FALSE is used.\n");
     printf(
@@ -182,7 +188,7 @@ void print_usage(const char *name)
     printf(
         "           CONTINUE means the requester asks the responder to preserve the current SPDM context.\n");
     printf(
-        "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO.\n");
+        "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO,SLOT_MGMT.\n");
     printf(
         "           VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.\n");
     printf("               The version for responder must be provisioned from ver.\n");
@@ -200,8 +206,9 @@ void print_usage(const char *name)
     printf("           GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command.\n");
     printf("           SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command.\n");
     printf("           EP_INFO means send GET_ENDPOINT_INFO command.\n");
+    printf("           SLOT_MGMT means send SLOT_MANAGEMENT command.\n");
     printf(
-        "   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO,APP.\n");
+        "   [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO,SLOT_MGMT,APP.\n");
     printf("           KEY_EX means to setup KEY_EXCHANGE session.\n");
     printf("           PSK means to setup PSK_EXCHANGE session.\n");
     printf("           NO_END means to not send END_SESSION.\n");
@@ -216,6 +223,7 @@ void print_usage(const char *name)
     printf("           GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command in session.\n");
     printf("           SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command in session.\n");
     printf("           EP_INFO means send GET_ENDPOINT_INFO command in session.\n");
+    printf("           SLOT_MGMT means send SLOT_MANAGEMENT command in session.\n");
     printf("           APP means send vendor defined message or application message in session.\n");
     printf("   [--pcap] is used to generate PCAP dump file for offline analysis.\n");
     printf(
@@ -313,6 +321,14 @@ value_string_entry_t m_spdm_responder_capabilities_string_table[] = {
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_INFO_CAP, "SET_KEY_PAIR_INFO" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_SET_KEY_PAIR_RESET_CAP, "SET_KEY_PAIR_RESET" },
     { SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_LARGE_RESP_CAP, "LARGE_RESP" },
+};
+
+/* Extended capability flags (GET_CAPABILITIES ExtendedFlags). "NO" selects an empty set, which
+ * is also the encoded value 0, so callers distinguish "specified" from "not specified" with a
+ * separate sentinel rather than by comparing against 0. */
+value_string_entry_t m_spdm_capabilities_ext_string_table[] = {
+    { 0, "NO" },
+    { SPDM_GET_CAPABILITIES_EXTENDED_RESPONSE_FLAGS_SLOT_MGMT_CAP, "SLOT_MGMT" },
 };
 
 value_string_entry_t m_hash_value_string_table[] = {
@@ -492,6 +508,7 @@ value_string_entry_t m_exe_connection_string_table[] = {
     { EXE_CONNECTION_GET_KEY_PAIR_INFO, "GET_KEY_PAIR_INFO" },
     { EXE_CONNECTION_SET_KEY_PAIR_INFO, "SET_KEY_PAIR_INFO" },
     { EXE_CONNECTION_EP_INFO, "EP_INFO" },
+    { EXE_CONNECTION_SLOT_MGMT, "SLOT_MGMT" },
 };
 
 value_string_entry_t m_exe_session_string_table[] = {
@@ -510,6 +527,7 @@ value_string_entry_t m_exe_session_string_table[] = {
     { EXE_SESSION_GET_CSR, "GET_CSR" },
     { EXE_SESSION_APP, "APP" },
     { EXE_SESSION_EP_INFO, "EP_INFO" },
+    { EXE_SESSION_SLOT_MGMT, "SLOT_MGMT" },
 };
 
 bool get_value_from_name(const value_string_entry_t *table,
@@ -795,6 +813,60 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --peer_cap\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--ext_cap") == 0) {
+            if (argc >= 2) {
+                uint32_t ext_flags;
+
+                if (!get_flags_from_name(
+                        m_spdm_capabilities_ext_string_table,
+                        LIBSPDM_ARRAY_SIZE(
+                            m_spdm_capabilities_ext_string_table),
+                        argv[1], &ext_flags)) {
+                    printf("invalid --ext_cap %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_ext_capability_flags = (uint16_t)ext_flags;
+                m_use_ext_capability_flags_set = true;
+                printf("ext_cap - 0x%04x\n",
+                       m_use_ext_capability_flags);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --ext_cap\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--peer_ext_cap") == 0) {
+            if (argc >= 2) {
+                uint32_t ext_flags;
+
+                if (!get_flags_from_name(
+                        m_spdm_capabilities_ext_string_table,
+                        LIBSPDM_ARRAY_SIZE(
+                            m_spdm_capabilities_ext_string_table),
+                        argv[1], &ext_flags)) {
+                    printf("invalid --peer_ext_cap %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_peer_ext_capability_flags = (uint16_t)ext_flags;
+                m_use_peer_ext_capability_flags_set = true;
+                printf("peer_ext_cap - 0x%04x\n",
+                       m_use_peer_ext_capability_flags);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --peer_ext_cap\n");
                 print_usage(program_name);
                 exit(0);
             }

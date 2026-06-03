@@ -15,6 +15,7 @@ set(src_spdm_requester_emu
     spdm_requester_endpoint_info.c
     spdm_requester_measurement.c
     spdm_requester_key_pair_info.c
+    spdm_requester_slot_management.c
     spdm_requester_session.c
     spdm_requester_pci_doe.c
     spdm_requester_mctp.c
