@@ -10,7 +10,7 @@
 #include "hal/base.h"
 #include "industry_standard/spdm.h"
 
-#define SPDM_NEGOTIATED_STATE_STRUCT_VERSION 1
+#define SPDM_NEGOTIATED_STATE_STRUCT_VERSION 2
 
 #pragma pack(1)
 typedef struct {
@@ -20,6 +20,8 @@ typedef struct {
     uint32_t requester_cap_flags;
     uint8_t responder_cap_ct_exponent;
     uint32_t responder_cap_flags;
+    uint16_t requester_cap_ext_flags;
+    uint16_t responder_cap_ext_flags;
     uint8_t measurement_spec;
     uint8_t other_params_support;
     uint8_t mel_spec;

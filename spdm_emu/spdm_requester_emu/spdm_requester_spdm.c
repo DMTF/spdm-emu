@@ -190,6 +190,12 @@ void *spdm_client_init(void)
     if (m_use_capability_flags != 0) {
         m_use_requester_capability_flags = m_use_capability_flags;
     }
+    /* --ext_cap overrides the Requester's advertised extended capability flags, mirroring
+     * how --cap overrides m_use_requester_capability_flags. The *_set flag is used (not a
+     * non-zero test) so that "NO" can clear a non-default advertisement. */
+    if (m_use_ext_capability_flags_set) {
+        m_use_requester_capability_ext_flags = m_use_ext_capability_flags;
+    }
     max_spdm_msg_size = LIBSPDM_MAX_SPDM_MSG_SIZE;
     if ((m_use_requester_capability_flags & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP) == 0) {
         max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
@@ -289,6 +295,10 @@ void *spdm_client_init(void)
     data32 = m_use_requester_capability_flags;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));
+
+    data16 = m_use_requester_capability_ext_flags;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS, &parameter,
+                     &data16, sizeof(data16));
 
     data8 = m_support_measurement_spec;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
@@ -429,6 +439,25 @@ void *spdm_client_init(void)
     if ((SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_EP_INFO_CAP_SIG & responder_capabilities_flag) == 0) {
         m_exe_connection &= ~EXE_CONNECTION_EP_INFO;
         m_exe_session &= ~EXE_SESSION_EP_INFO;
+    }
+
+    {
+        /*get the responder's negotiated extended capability flags*/
+        uint16_t responder_ext_capabilities_flag;
+
+        libspdm_zero_mem(&parameter, sizeof(parameter));
+        parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+        data_size = sizeof(responder_ext_capabilities_flag);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS, &parameter,
+                         &responder_ext_capabilities_flag, &data_size);
+
+        /* Only send SLOT_MANAGEMENT when the Responder negotiated SLOT_MGMT_CAP, just as the
+         * other SubCodes above are gated on the negotiated capabilities. */
+        if ((responder_ext_capabilities_flag &
+             SPDM_GET_CAPABILITIES_EXTENDED_RESPONSE_FLAGS_SLOT_MGMT_CAP) == 0) {
+            m_exe_connection &= ~EXE_CONNECTION_SLOT_MGMT;
+            m_exe_session &= ~EXE_SESSION_SLOT_MGMT;
+        }
     }
 
     data_size = sizeof(data32);

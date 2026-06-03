@@ -69,6 +69,34 @@ libspdm_return_t spdm_provision_psk_version_only(void *spdm_context,
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));
 
+    /* Provision the peer's extended capability flags, mirroring the CAPABILITY_FLAGS logic
+     * above. --ext_cap overrides this endpoint's own extended flags; --peer_ext_cap overrides
+     * the peer's. The *_set flags are used (not a non-zero test) so "NO" can clear a default. */
+    if (m_use_ext_capability_flags_set) {
+        if (is_requester) {
+            m_use_requester_capability_ext_flags = m_use_ext_capability_flags;
+        } else {
+            m_use_responder_capability_ext_flags = m_use_ext_capability_flags;
+        }
+    }
+    if (is_requester) {
+        /* set responder's extended cap for requester */
+        data16 = m_use_responder_capability_ext_flags;
+        if (m_use_peer_ext_capability_flags_set) {
+            data16 = m_use_peer_ext_capability_flags;
+            m_use_responder_capability_ext_flags = m_use_peer_ext_capability_flags;
+        }
+    } else {
+        /* set requester's extended cap for responder */
+        data16 = m_use_requester_capability_ext_flags;
+        if (m_use_peer_ext_capability_flags_set) {
+            data16 = m_use_peer_ext_capability_flags;
+            m_use_requester_capability_ext_flags = m_use_peer_ext_capability_flags;
+        }
+    }
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS, &parameter,
+                     &data16, sizeof(data16));
+
     if (!libspdm_onehot0(m_support_measurement_spec)) {
         printf("measurement_spec has more bit set - 0x%02x\n", m_support_measurement_spec);
         return LIBSPDM_STATUS_UNSUPPORTED_CAP;
@@ -228,6 +256,8 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
     } else {
         m_use_capability_flags = negotiated_state.responder_cap_flags;
     }
+    m_use_requester_capability_ext_flags = negotiated_state.requester_cap_ext_flags;
+    m_use_responder_capability_ext_flags = negotiated_state.responder_cap_ext_flags;
     m_support_measurement_spec = negotiated_state.measurement_spec;
     m_support_measurement_hash_algo =
         negotiated_state.measurement_hash_algo;
@@ -262,6 +292,14 @@ libspdm_return_t spdm_load_negotiated_state(void *spdm_context,
     }
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));
+
+    if (is_requester) {
+        data16 = negotiated_state.responder_cap_ext_flags;
+    } else {
+        data16 = negotiated_state.requester_cap_ext_flags;
+    }
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS, &parameter,
+                     &data16, sizeof(data16));
 
     data8 = m_support_measurement_spec;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,
@@ -368,6 +406,10 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
         libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                          &parameter, &data8, &data_size);
         negotiated_state.requester_cap_ct_exponent = data8;
+        data_size = sizeof(data16);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS,
+                         &parameter, &data16, &data_size);
+        negotiated_state.requester_cap_ext_flags = data16;
     } else {
         data_size = sizeof(data32);
         libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
@@ -377,6 +419,10 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
         libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                          &parameter, &data8, &data_size);
         negotiated_state.responder_cap_ct_exponent = data8;
+        data_size = sizeof(data16);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS,
+                         &parameter, &data16, &data_size);
+        negotiated_state.responder_cap_ext_flags = data16;
     }
 
 
@@ -408,6 +454,10 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
         libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                          &parameter, &data8, &data_size);
         negotiated_state.responder_cap_ct_exponent = data8;
+        data_size = sizeof(data16);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS,
+                         &parameter, &data16, &data_size);
+        negotiated_state.responder_cap_ext_flags = data16;
     } else {
         data_size = sizeof(data32);
         libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
@@ -417,6 +467,10 @@ libspdm_return_t spdm_save_negotiated_state(void *spdm_context,
         libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                          &parameter, &data8, &data_size);
         negotiated_state.requester_cap_ct_exponent = data8;
+        data_size = sizeof(data16);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS,
+                         &parameter, &data16, &data_size);
+        negotiated_state.requester_cap_ext_flags = data16;
     }
 
     data_size = sizeof(vca_buffer);
