@@ -14,9 +14,7 @@ bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
 
     result = init_client(&responder_socket, port_number);
     if (!result) {
-#ifdef _WIN32
-        WSACleanup();
-#endif
+        socket_cleanup();
         return false;
     }
 
@@ -40,9 +38,7 @@ bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
     if (!result) {
         closesocket(responder_socket);
         EMU_ERR("Error sending Role-Inquiry request.\n");
-#ifdef _WIN32
-        WSACleanup();
-#endif
+        socket_cleanup();
         return false;
     }
 

@@ -1538,13 +1538,7 @@ bool init_client(SOCKET *sock, uint16_t port)
 
     client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_socket == INVALID_SOCKET) {
-        printf("Create socket Failed - %x\n",
-#ifdef _WIN32
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
+        printf("Create socket Failed - %x\n", socket_errno());
         return false;
     }
 
@@ -1576,13 +1570,7 @@ bool init_client(SOCKET *sock, uint16_t port)
     ret_val = connect(client_socket, (struct sockaddr *)&server_addr,
                       sizeof(server_addr));
     if (ret_val == SOCKET_ERROR) {
-        printf("Connect Error - %x\n",
-#ifdef _WIN32
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
+        printf("Connect Error - %x\n", socket_errno());
         closesocket(client_socket);
         return false;
     }
@@ -1610,13 +1598,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 
     *listen_socket = socket(PF_INET, SOCK_STREAM, 0);
     if (INVALID_SOCKET == *listen_socket) {
-        printf("Cannot create server listen socket.  Error is 0x%x\n",
-#ifdef _WIN32
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
+        printf("Cannot create server listen socket.  Error is 0x%x\n", socket_errno());
         return false;
     }
 
@@ -1627,13 +1609,7 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
      * To prevent this SO_REUSEADDR is applied to the socket which allows the
      * responder to bind to this port even if it is still in the TIME_WAIT state.*/
     if (setsockopt(*listen_socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
-        printf("Cannot configure server listen socket.  Error is 0x%x\n",
-#ifdef _WIN32
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
+        printf("Cannot configure server listen socket.  Error is 0x%x\n", socket_errno());
         closesocket(*listen_socket);
         return false;
     }
@@ -1661,26 +1637,14 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     res = bind(*listen_socket, (struct sockaddr *)&my_address,
                sizeof(my_address));
     if (res == SOCKET_ERROR) {
-        printf("Bind error.  Error is 0x%x\n",
-#ifdef _WIN32
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
+        printf("Bind error.  Error is 0x%x\n", socket_errno());
         closesocket(*listen_socket);
         return false;
     }
 
     res = listen(*listen_socket, 3);
     if (res == SOCKET_ERROR) {
-        printf("Listen error.  Error is 0x%x\n",
-#ifdef _WIN32
-               WSAGetLastError()
-#else
-               errno
-#endif
-               );
+        printf("Listen error.  Error is 0x%x\n", socket_errno());
         closesocket(*listen_socket);
         return false;
     }
