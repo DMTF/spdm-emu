@@ -7,6 +7,14 @@
 #ifndef __SPDM_TEST_COMMAND_H__
 #define __SPDM_TEST_COMMAND_H__
 
+#ifdef _WIN32
+#define socket_errno() WSAGetLastError()
+#define socket_cleanup()  WSACleanup()
+#else
+#define socket_errno() errno
+#define socket_cleanup()  do {} while (0)
+#endif
+
 #define DEFAULT_SPDM_PLATFORM_PORT 2323
 #define TCP_SPDM_PLATFORM_PORT 4194
 

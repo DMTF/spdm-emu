@@ -35,11 +35,7 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
                       number_of_bytes - number_received, 0);
         if (result == -1)
         {
-#ifdef _WIN32
-            EMU_ERR("Receive error - 0x%x\n", WSAGetLastError());
-#else
-            EMU_ERR("Receive error - 0x%x\n", errno);
-#endif
+            EMU_ERR("Receive error - 0x%x\n", socket_errno());
             return false;
         }
         if (result == 0) {
@@ -198,12 +194,10 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
 #ifdef _WIN32
             if (WSAGetLastError() == 0x2745) {
                 EMU_ERR("Client disconnected\n");
-            } else {
-                EMU_ERR("Send error - 0x%x\n", WSAGetLastError());
+                return false;
             }
-#else
-            EMU_ERR("Send error - 0x%x\n", errno);
 #endif
+            EMU_ERR("Send error - 0x%x\n", socket_errno());
             return false;
         }
         number_sent += result;

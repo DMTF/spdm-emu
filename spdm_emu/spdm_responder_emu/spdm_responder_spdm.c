@@ -69,11 +69,7 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
     result = send_platform_data(m_server_socket, SOCKET_SPDM_COMMAND_NORMAL,
                                 response, (uint32_t)response_size);
     if (!result) {
-#ifdef _WIN32
-        EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-        EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+        EMU_ERR("send_platform_data Error - %x\n", socket_errno());
         return LIBSPDM_STATUS_SEND_FAIL;
     }
     return LIBSPDM_STATUS_SUCCESS;
@@ -92,11 +88,7 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
         receive_platform_data(m_server_socket, &m_command,
                               m_send_receive_buffer, &m_send_receive_buffer_size);
     if (!result) {
-#ifdef _WIN32
-        EMU_ERR("receive_platform_data Error - %x\n", WSAGetLastError());
-#else
-        EMU_ERR("receive_platform_data Error - %x\n", errno);
-#endif
+        EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
         return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
     if (m_command == SOCKET_SPDM_COMMAND_NORMAL) {
