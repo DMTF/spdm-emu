@@ -50,7 +50,7 @@ bool platform_server(const SOCKET socket)
                                         (uint8_t *)"Server Hello!",
                                         sizeof("Server Hello!"));
             if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
                 EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
                 EMU_ERR("send_platform_data Error - %x\n", errno);
@@ -72,7 +72,7 @@ bool platform_server(const SOCKET socket)
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, NULL,
                 0);
             if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
                 EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
                 EMU_ERR("send_platform_data Error - %x\n", errno);
@@ -90,7 +90,7 @@ bool platform_server(const SOCKET socket)
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
                 0);
             if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
                 EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
                 EMU_ERR("send_platform_data Error - %x\n", errno);
@@ -104,7 +104,7 @@ bool platform_server(const SOCKET socket)
             result = send_platform_data(
                 socket, SOCKET_SPDM_COMMAND_SHUTDOWN, NULL, 0);
             if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
                 EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
                 EMU_ERR("send_platform_data Error - %x\n", errno);
@@ -118,7 +118,7 @@ bool platform_server(const SOCKET socket)
             result = send_platform_data(
                 socket, SOCKET_SPDM_COMMAND_CONTINUE, NULL, 0);
             if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
                 EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
                 EMU_ERR("send_platform_data Error - %x\n", errno);
@@ -144,7 +144,7 @@ bool platform_server(const SOCKET socket)
                     socket, SOCKET_SPDM_COMMAND_NORMAL,
                     response, response_size);
                 if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
                     EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
                     EMU_ERR("send_platform_data Error - %x\n", errno);
@@ -163,7 +163,7 @@ bool platform_server(const SOCKET socket)
             result = send_platform_data(
                 socket, SOCKET_SPDM_COMMAND_UNKOWN, NULL, 0);
             if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
                 EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
 #else
                 EMU_ERR("send_platform_data Error - %x\n", errno);
@@ -195,7 +195,7 @@ bool platform_server_routine(uint16_t port_number)
         result = create_socket(port_number, &responder_socket);
         if (!result) {
             EMU_ERR("Create platform service socket fail\n");
-#ifdef _MSC_VER
+#ifdef _WIN32
             WSACleanup();
 #endif
             return false;
@@ -213,12 +213,12 @@ bool platform_server_routine(uint16_t port_number)
                        (socklen_t *)&length);
             if (m_server_socket == INVALID_SOCKET) {
                 closesocket(responder_socket);
-#ifdef _MSC_VER
+#ifdef _WIN32
                 EMU_ERR("Accept error.  Error is 0x%x\n", WSAGetLastError());
 #else
                 EMU_ERR("Accept error.  Error is 0x%x\n", errno);
 #endif
-#ifdef _MSC_VER
+#ifdef _WIN32
                 WSACleanup();
 #endif
                 return false;
@@ -230,7 +230,7 @@ bool platform_server_routine(uint16_t port_number)
     } while (continue_serving);
 
     closesocket(responder_socket);
-#ifdef _MSC_VER
+#ifdef _WIN32
     WSACleanup();
 #endif
     return true;

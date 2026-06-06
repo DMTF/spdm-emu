@@ -18,7 +18,7 @@ SOCKET CreateSocketAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
     result = create_socket(port_number, &requester_socket);
     if (!result) {
         EMU_ERR("Create platform service socket failed\n");
-#ifdef _MSC_VER
+#ifdef _WIN32
         WSACleanup();
 #endif
         return INVALID_SOCKET;
@@ -30,12 +30,12 @@ SOCKET CreateSocketAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
                              (socklen_t *)&length);
     if (incoming_socket == INVALID_SOCKET) {
         closesocket(requester_socket);
-#ifdef _MSC_VER
+#ifdef _WIN32
         EMU_ERR("Accept error. Error: 0x%x\n", WSAGetLastError());
 #else
         EMU_ERR("Accept error. Error: 0x%x\n", errno);
 #endif
-#ifdef _MSC_VER
+#ifdef _WIN32
         WSACleanup();
 #endif
         return INVALID_SOCKET;
@@ -50,7 +50,7 @@ SOCKET CreateSocketAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
         closesocket(requester_socket);
         closesocket(incoming_socket);
         EMU_ERR("Failed to read Role-Inquiry data\n");
-#ifdef _MSC_VER
+#ifdef _WIN32
         WSACleanup();
 #endif
         return INVALID_SOCKET;
@@ -65,7 +65,7 @@ SOCKET CreateSocketAndRoleInquiry(SOCKET *sock, uint16_t port_number) {
         closesocket(requester_socket);
         closesocket(incoming_socket);
         EMU_ERR("Invalid or unexpected Role-Inquiry message. Status: 0x%x\n", status);
-#ifdef _MSC_VER
+#ifdef _WIN32
         WSACleanup();
 #endif
         return INVALID_SOCKET;
