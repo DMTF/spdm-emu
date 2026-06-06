@@ -22,7 +22,7 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
         send_platform_data(socket, command, send_buffer, bytes_to_send);
     if (!result) {
         printf("send_platform_data Error - %x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -35,7 +35,7 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
                                    bytes_to_receive);
     if (!result) {
         printf("receive_platform_data Error - %x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -56,7 +56,7 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
                                 request, (uint32_t)request_size);
     if (!result) {
         printf("send_platform_data Error - %x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno
@@ -79,7 +79,7 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
                                    response_size);
     if (!result) {
         printf("receive_platform_data Error - %x\n",
-#ifdef _MSC_VER
+#ifdef _WIN32
                WSAGetLastError()
 #else
                errno

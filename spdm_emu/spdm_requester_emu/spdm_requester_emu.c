@@ -70,7 +70,7 @@ bool platform_client_routine(uint16_t port_number)
         m_socket = CreateSocketAndRoleInquiry(&platform_socket, port_number);
         if (m_socket == INVALID_SOCKET) {
             EMU_ERR("Create platform service socket fail\n");
-#ifdef _MSC_VER
+#ifdef _WIN32
             WSACleanup();
 #endif
             return false;
@@ -81,7 +81,7 @@ bool platform_client_routine(uint16_t port_number)
     else {
         result = init_client(&platform_socket, port_number);
         if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
             WSACleanup();
 #endif
             return false;
@@ -278,7 +278,7 @@ done:
         closesocket(m_socket);
     }
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     WSACleanup();
 #endif
 

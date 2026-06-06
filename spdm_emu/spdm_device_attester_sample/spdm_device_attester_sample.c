@@ -33,7 +33,7 @@ bool platform_client_routine(uint16_t port_number)
 
     result = init_client(&platform_socket, port_number);
     if (!result) {
-#ifdef _MSC_VER
+#ifdef _WIN32
         WSACleanup();
 #endif
         return false;
@@ -80,7 +80,7 @@ done:
 
     closesocket(platform_socket);
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     WSACleanup();
 #endif
 
