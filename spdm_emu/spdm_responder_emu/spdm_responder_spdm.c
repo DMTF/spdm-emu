@@ -91,7 +91,8 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
         EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
         return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
-    if (m_command == SOCKET_SPDM_COMMAND_NORMAL) {
+    if (m_command == SOCKET_SPDM_COMMAND_NORMAL ||
+        m_command == SOCKET_SPDM_COMMAND_DECAP_TDISP) {
 
         /* Cache the message in case it is not for SPDM.*/
 

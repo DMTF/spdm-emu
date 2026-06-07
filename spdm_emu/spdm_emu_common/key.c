@@ -8,6 +8,7 @@
 
 uint8_t m_use_version = 0;
 uint8_t m_use_secured_message_version = 0;
+bool m_decap_tdisp = false;
 uint32_t m_use_requester_capability_flags =
     (0 |
      SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP | /* conflict with SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP */

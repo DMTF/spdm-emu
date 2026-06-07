@@ -28,8 +28,8 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
         return result;
     }
 
-    result = receive_platform_data(socket, response, receive_buffer,
-                                   bytes_to_receive);
+    result = receive_platform_message(socket, response, receive_buffer,
+                                      bytes_to_receive);
     if (!result) {
         EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
         return result;
@@ -60,8 +60,8 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
     bool result;
     uint32_t command;
 
-    result = receive_platform_data(m_socket, &command, *response,
-                                   response_size);
+    result = receive_platform_message(m_socket, &command, *response,
+                                      response_size);
     if (!result) {
         EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
         return LIBSPDM_STATUS_RECEIVE_FAIL;

@@ -186,6 +186,35 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
 }
 
 /**
+ * Receive a full platform message: the socket command, the transport type,
+ * and the payload.
+ **/
+bool receive_platform_message(const SOCKET socket, uint32_t *command,
+                              uint8_t *receive_buffer,
+                              size_t *bytes_to_receive)
+{
+    bool result;
+    uint32_t transport_type;
+
+    result = receive_platform_command(socket, command);
+    if (!result) {
+        return result;
+    }
+
+    result = receive_platform_transport_type(socket, &transport_type);
+    if (!result) {
+        return result;
+    }
+    if (transport_type != m_use_transport_layer) {
+        EMU_ERR("transport_type mismatch\n");
+        return false;
+    }
+
+    return receive_platform_data(socket, command, receive_buffer,
+                                 bytes_to_receive);
+}
+
+/**
  * Write number of bytes data in blocking mode.
  *
  * This function will return if data is written, or socket error.

@@ -28,6 +28,7 @@ extern uint16_t m_custom_port;
 extern bool m_ip_explicitly_set;
 extern uint8_t m_use_version;
 extern uint8_t m_use_secured_message_version;
+extern bool m_decap_tdisp;
 extern uint32_t m_use_requester_capability_flags;
 extern uint32_t m_use_responder_capability_flags;
 extern uint32_t m_use_capability_flags;
@@ -143,6 +144,10 @@ bool receive_platform_transport_type(SOCKET socket, uint32_t *transport_type);
 bool receive_platform_data(SOCKET socket, uint32_t *command,
                            uint8_t *receive_buffer,
                            size_t *bytes_to_receive);
+
+bool receive_platform_message(SOCKET socket, uint32_t *command,
+                              uint8_t *receive_buffer,
+                              size_t *bytes_to_receive);
 
 
 libspdm_return_t spdm_device_acquire_sender_buffer (
