@@ -52,6 +52,7 @@ void print_usage(const char *name)
     printf("   [--port <port_number>]\n");
     printf("   [--ver 1.0|1.1|1.2|1.3|1.4]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
+    printf("   [--decap_tdisp\n");
     printf(
         "   [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]\n");
     printf("   [--hash SHA_256|SHA_384|SHA_512|SHA3_256|SHA3_384|SHA3_512|SM3_256]\n");
@@ -106,6 +107,8 @@ void print_usage(const char *name)
     printf("   [--ver] is version. By default, all are used.\n");
     printf(
         "   [--sec_ver] is secured message version. By default, all are used.\n");
+    printf(
+        "   [--decap_tdisp] is used to additionally expose TDISP directly, without SPDM encapsulation. This option is useful for emulated devices that need to know the TDISP state.\n");
     printf(
         "   [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.\n");
     printf(
@@ -714,6 +717,13 @@ void process_args(char *program_name, int argc, char *argv[])
                 print_usage(program_name);
                 exit(0);
             }
+        }
+
+        if (strcmp(argv[0], "--decap_tdisp") == 0) {
+            m_decap_tdisp = true;
+            argc -= 1;
+            argv += 1;
+            continue;
         }
 
         if (strcmp(argv[0], "--cap") == 0) {

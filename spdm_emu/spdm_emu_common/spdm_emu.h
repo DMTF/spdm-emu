@@ -28,6 +28,7 @@ extern uint16_t m_custom_port;
 extern bool m_ip_explicitly_set;
 extern uint8_t m_use_version;
 extern uint8_t m_use_secured_message_version;
+extern bool m_decap_tdisp;
 extern uint32_t m_use_requester_capability_flags;
 extern uint32_t m_use_responder_capability_flags;
 extern uint32_t m_use_capability_flags;

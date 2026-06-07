@@ -28,6 +28,8 @@ bool platform_server(const SOCKET socket)
     libspdm_return_t status;
     uint8_t response[LIBPCIDOE_MAX_NON_SPDM_MESSAGE_SIZE];
     size_t response_size;
+    uint8_t tdisp_response[LIBTDISP_MAX_MESSAGE_SIZE];
+    size_t tdisp_response_size;
     uint32_t session_id;
     uint32_t transport_type;
 
@@ -43,23 +45,39 @@ bool platform_server(const SOCKET socket)
             EMU_ERR("Platform port Receive transport_type Error - %x\n", socket_errno());
             return false;
         }
-        if (transport_type != m_use_transport_layer) {
+        if (!m_decap_tdisp && transport_type != m_use_transport_layer) {
             EMU_ERR("transport_type mismatch\n");
             return false;
         }
 
-        status = libspdm_responder_dispatch_message(m_spdm_context);
-        if (status == LIBSPDM_STATUS_SUCCESS) {
-            /* success dispatch SPDM message*/
+        if (m_command == SOCKET_SPDM_COMMAND_DECAP_TDISP) {
+            /*
+	     * Drain the payload outside of the SPDM handler and then handle
+	     * it directly.
+	     */
+            m_send_receive_buffer_size = sizeof(m_send_receive_buffer);
+            result = receive_platform_data(socket, &m_command,
+                                           m_send_receive_buffer,
+                                           &m_send_receive_buffer_size);
+	    if (!result) {
+                EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
+                return true;
+            }
+        } else { /* Dispatch to the SPDM handler. */
+            status = libspdm_responder_dispatch_message(m_spdm_context);
+            if (status == LIBSPDM_STATUS_SUCCESS) {
+                /* success dispatch SPDM message*/
+            }
+            if ((status == LIBSPDM_STATUS_SEND_FAIL) ||
+                (status == LIBSPDM_STATUS_RECEIVE_FAIL)) {
+                EMU_ERR("Server Critical Error - STOP\n");
+                return false;
+            }
+            if (status != LIBSPDM_STATUS_UNSUPPORTED_CAP) {
+                continue;
+            }
         }
-        if ((status == LIBSPDM_STATUS_SEND_FAIL) ||
-            (status == LIBSPDM_STATUS_RECEIVE_FAIL)) {
-            EMU_ERR("Server Critical Error - STOP\n");
-            return false;
-        }
-        if (status != LIBSPDM_STATUS_UNSUPPORTED_CAP) {
-            continue;
-        }
+
         switch (m_command) {
         case SOCKET_SPDM_COMMAND_TEST:
             result = send_platform_data(socket,
@@ -146,6 +164,30 @@ bool platform_server(const SOCKET socket)
                 }
             } else {
                 /* unknown message*/
+                return true;
+            }
+            break;
+
+        case SOCKET_SPDM_COMMAND_DECAP_TDISP:
+            if (!m_decap_tdisp) {
+                return true;
+            }
+            tdisp_response_size = sizeof(tdisp_response);
+            status = pci_tdisp_get_response(m_pci_doe_context,
+                                            NULL,   /* No SPDM context */
+                                            NULL,   /* No SPDM session ID */
+                                            m_send_receive_buffer,
+                                            m_send_receive_buffer_size,
+                                            tdisp_response,
+                                            &tdisp_response_size);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                return true;
+            }
+
+            result = send_platform_data(socket, SOCKET_SPDM_COMMAND_NORMAL,
+                                        tdisp_response, tdisp_response_size);
+            if (!result) {
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
             break;
