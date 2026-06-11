@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2025 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -307,10 +307,8 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     uint8_t csr_form_get[LIBSPDM_MAX_CSR_SIZE];
     size_t csr_len;
     size_t data_size;
-#if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX
     uint8_t key_pair_id;
     uint8_t request_attribute;
-#endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX*/
 #endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP*/
 
     libspdm_return_t status;
@@ -328,19 +326,18 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
         libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_RSP, &parameter,
                          &multi_key_conn_rsp, &data_size);
 
+        /* In a multi-key connection the request shall carry a KeyPairID and a certificate model;
+         * otherwise both shall be 0 (the pre-1.3 GET_CSR behavior). The merged libspdm_get_csr
+         * carries the SPDM 1.3 parameters directly. */
         if (!multi_key_conn_rsp) {
-            status = libspdm_get_csr(spdm_context, NULL, NULL, 0, NULL, 0, csr_form_get,
-                                     &csr_len);
+            request_attribute = 0;
+            key_pair_id = 0;
         } else {
-#if LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX
             request_attribute = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
             key_pair_id = 1;
-            status = libspdm_get_csr_ex(spdm_context, NULL, NULL, 0, NULL, 0, csr_form_get,
-                                        &csr_len, request_attribute, key_pair_id, NULL);
-#else
-            return LIBSPDM_STATUS_UNSUPPORTED_CAP;
-#endif /*LIBSPDM_ENABLE_CAPABILITY_CSR_CAP_EX*/
         }
+        status = libspdm_get_csr(spdm_context, NULL, NULL, 0, NULL, 0, csr_form_get,
+                                 &csr_len, request_attribute, key_pair_id, NULL);
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             EMU_ERR("libspdm_get_csr - %x\n", (uint32_t)status);
             return status;
