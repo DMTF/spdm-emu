@@ -181,6 +181,12 @@ void *spdm_server_init(void)
     if (m_use_capability_flags != 0) {
         m_use_responder_capability_flags = m_use_capability_flags;
     }
+    /* --ext_cap overrides the Responder's advertised extended capability flags, mirroring
+     * how --cap overrides m_use_responder_capability_flags. The *_set flag is used (not a
+     * non-zero test) so that "NO" can clear the default SLOT_MGMT advertisement. */
+    if (m_use_ext_capability_flags_set) {
+        m_use_responder_capability_ext_flags = m_use_ext_capability_flags;
+    }
     max_spdm_msg_size = LIBSPDM_MAX_SPDM_MSG_SIZE;
     if ((m_use_responder_capability_flags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHUNK_CAP) == 0) {
         max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
@@ -288,6 +294,10 @@ void *spdm_server_init(void)
     data32 = m_use_responder_capability_flags;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));
+
+    data16 = m_use_responder_capability_ext_flags;
+    libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_EXT_FLAGS, &parameter,
+                     &data16, sizeof(data16));
 
     data8 = m_support_measurement_spec;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_MEASUREMENT_SPEC, &parameter,

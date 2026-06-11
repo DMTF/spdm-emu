@@ -50,6 +50,10 @@ libspdm_return_t do_get_key_pair_info_via_spdm(const uint32_t *session_id);
 libspdm_return_t do_set_key_pair_info_via_spdm(const uint32_t *session_id);
 #endif /*LIBSPDM_ENABLE_CAPABILITY_SET_KEY_PAIR_INFO_CAP*/
 
+#if LIBSPDM_ENABLE_CAPABILITY_SLOT_MGMT_CAP
+libspdm_return_t do_slot_management_via_spdm(const uint32_t *session_id);
+#endif /*LIBSPDM_ENABLE_CAPABILITY_SLOT_MGMT_CAP*/
+
 #if (LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)
 libspdm_return_t do_authentication_via_spdm(void);
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_CERT_CAP && LIBSPDM_ENABLE_CAPABILITY_CHAL_CAP)*/
@@ -201,6 +205,18 @@ bool platform_client_routine(uint16_t port_number)
         }
     }
 #endif /* LIBSPDM_ENABLE_CAPABILITY_SET_KEY_PAIR_INFO_CAP */
+
+#if LIBSPDM_ENABLE_CAPABILITY_SLOT_MGMT_CAP
+    if (((m_exe_connection & EXE_CONNECTION_SLOT_MGMT) != 0) &&
+        (m_use_version >= SPDM_MESSAGE_VERSION_14)) {
+        status = do_slot_management_via_spdm(NULL);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            EMU_ERR("do_slot_management_via_spdm - %x\n",
+                   (uint32_t)status);
+            goto done;
+        }
+    }
+#endif /* LIBSPDM_ENABLE_CAPABILITY_SLOT_MGMT_CAP */
 
     /* when use --trans NONE, skip secure session  */
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
