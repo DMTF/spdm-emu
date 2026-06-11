@@ -24,22 +24,14 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
     result =
         send_platform_data(socket, command, send_buffer, bytes_to_send);
     if (!result) {
-#ifdef _MSC_VER
-        EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-        EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+        EMU_ERR("send_platform_data Error - %x\n", socket_errno());
         return result;
     }
 
     result = receive_platform_data(socket, response, receive_buffer,
                                    bytes_to_receive);
     if (!result) {
-#ifdef _MSC_VER
-        EMU_ERR("receive_platform_data Error - %x\n", WSAGetLastError());
-#else
-        EMU_ERR("receive_platform_data Error - %x\n", errno);
-#endif
+        EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
         return result;
     }
     return result;
@@ -54,11 +46,7 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
     result = send_platform_data(m_socket, SOCKET_SPDM_COMMAND_NORMAL,
                                 request, (uint32_t)request_size);
     if (!result) {
-#ifdef _MSC_VER
-        EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-        EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+        EMU_ERR("send_platform_data Error - %x\n", socket_errno());
         return LIBSPDM_STATUS_SEND_FAIL;
     }
     return LIBSPDM_STATUS_SUCCESS;
@@ -75,11 +63,7 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
     result = receive_platform_data(m_socket, &command, *response,
                                    response_size);
     if (!result) {
-#ifdef _MSC_VER
-        EMU_ERR("receive_platform_data Error - %x\n", WSAGetLastError());
-#else
-        EMU_ERR("receive_platform_data Error - %x\n", errno);
-#endif
+        EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
         return LIBSPDM_STATUS_RECEIVE_FAIL;
     }
     return LIBSPDM_STATUS_SUCCESS;

@@ -28,21 +28,56 @@ bool platform_server(const SOCKET socket)
     libspdm_return_t status;
     uint8_t response[LIBPCIDOE_MAX_NON_SPDM_MESSAGE_SIZE];
     size_t response_size;
+    uint8_t tdisp_response[LIBTDISP_MAX_MESSAGE_SIZE];
+    size_t tdisp_response_size;
     uint32_t session_id;
+    uint32_t transport_type;
 
     while (true) {
-        status = libspdm_responder_dispatch_message(m_spdm_context);
-        if (status == LIBSPDM_STATUS_SUCCESS) {
-            /* success dispatch SPDM message*/
-        }
-        if ((status == LIBSPDM_STATUS_SEND_FAIL) ||
-            (status == LIBSPDM_STATUS_RECEIVE_FAIL)) {
-            EMU_ERR("Server Critical Error - STOP\n");
+        result = receive_platform_command(socket, &m_command);
+        if (!result) {
+            EMU_ERR("Platform port Receive command Error - %x\n", socket_errno());
             return false;
         }
-        if (status != LIBSPDM_STATUS_UNSUPPORTED_CAP) {
-            continue;
+
+        result = receive_platform_transport_type(socket, &transport_type);
+        if (!result) {
+            EMU_ERR("Platform port Receive transport_type Error - %x\n", socket_errno());
+            return false;
         }
+        if (!m_decap_tdisp && transport_type != m_use_transport_layer) {
+            EMU_ERR("transport_type mismatch\n");
+            return false;
+        }
+
+        if (m_command == SOCKET_SPDM_COMMAND_DECAP_TDISP) {
+            /*
+	     * Drain the payload outside of the SPDM handler and then handle
+	     * it directly.
+	     */
+            m_send_receive_buffer_size = sizeof(m_send_receive_buffer);
+            result = receive_platform_data(socket, &m_command,
+                                           m_send_receive_buffer,
+                                           &m_send_receive_buffer_size);
+	    if (!result) {
+                EMU_ERR("receive_platform_data Error - %x\n", socket_errno());
+                return true;
+            }
+        } else { /* Dispatch to the SPDM handler. */
+            status = libspdm_responder_dispatch_message(m_spdm_context);
+            if (status == LIBSPDM_STATUS_SUCCESS) {
+                /* success dispatch SPDM message*/
+            }
+            if ((status == LIBSPDM_STATUS_SEND_FAIL) ||
+                (status == LIBSPDM_STATUS_RECEIVE_FAIL)) {
+                EMU_ERR("Server Critical Error - STOP\n");
+                return false;
+            }
+            if (status != LIBSPDM_STATUS_UNSUPPORTED_CAP) {
+                continue;
+            }
+        }
+
         switch (m_command) {
         case SOCKET_SPDM_COMMAND_TEST:
             result = send_platform_data(socket,
@@ -50,11 +85,7 @@ bool platform_server(const SOCKET socket)
                                         (uint8_t *)"Server Hello!",
                                         sizeof("Server Hello!"));
             if (!result) {
-#ifdef _MSC_VER
-                EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-                EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
             break;
@@ -72,11 +103,7 @@ bool platform_server(const SOCKET socket)
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, NULL,
                 0);
             if (!result) {
-#ifdef _MSC_VER
-                EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-                EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
 #endif
@@ -90,11 +117,7 @@ bool platform_server(const SOCKET socket)
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
                 0);
             if (!result) {
-#ifdef _MSC_VER
-                EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-                EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)*/
@@ -104,11 +127,7 @@ bool platform_server(const SOCKET socket)
             result = send_platform_data(
                 socket, SOCKET_SPDM_COMMAND_SHUTDOWN, NULL, 0);
             if (!result) {
-#ifdef _MSC_VER
-                EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-                EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
             return false;
@@ -118,11 +137,7 @@ bool platform_server(const SOCKET socket)
             result = send_platform_data(
                 socket, SOCKET_SPDM_COMMAND_CONTINUE, NULL, 0);
             if (!result) {
-#ifdef _MSC_VER
-                EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-                EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
             return true;
@@ -144,15 +159,35 @@ bool platform_server(const SOCKET socket)
                     socket, SOCKET_SPDM_COMMAND_NORMAL,
                     response, response_size);
                 if (!result) {
-#ifdef _MSC_VER
-                    EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-                    EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+                    EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                     return true;
                 }
             } else {
                 /* unknown message*/
+                return true;
+            }
+            break;
+
+        case SOCKET_SPDM_COMMAND_DECAP_TDISP:
+            if (!m_decap_tdisp) {
+                return true;
+            }
+            tdisp_response_size = sizeof(tdisp_response);
+            status = pci_tdisp_get_response(m_pci_doe_context,
+                                            NULL,   /* No SPDM context */
+                                            NULL,   /* No SPDM session ID */
+                                            m_send_receive_buffer,
+                                            m_send_receive_buffer_size,
+                                            tdisp_response,
+                                            &tdisp_response_size);
+            if (LIBSPDM_STATUS_IS_ERROR(status)) {
+                return true;
+            }
+
+            result = send_platform_data(socket, SOCKET_SPDM_COMMAND_NORMAL,
+                                        tdisp_response, tdisp_response_size);
+            if (!result) {
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
             break;
@@ -163,11 +198,7 @@ bool platform_server(const SOCKET socket)
             result = send_platform_data(
                 socket, SOCKET_SPDM_COMMAND_UNKOWN, NULL, 0);
             if (!result) {
-#ifdef _MSC_VER
-                EMU_ERR("send_platform_data Error - %x\n", WSAGetLastError());
-#else
-                EMU_ERR("send_platform_data Error - %x\n", errno);
-#endif
+                EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
             return true;
@@ -195,9 +226,7 @@ bool platform_server_routine(uint16_t port_number)
         result = create_socket(port_number, &responder_socket);
         if (!result) {
             EMU_ERR("Create platform service socket fail\n");
-#ifdef _MSC_VER
-            WSACleanup();
-#endif
+            socket_cleanup();
             return false;
         }
     }
@@ -213,14 +242,8 @@ bool platform_server_routine(uint16_t port_number)
                        (socklen_t *)&length);
             if (m_server_socket == INVALID_SOCKET) {
                 closesocket(responder_socket);
-#ifdef _MSC_VER
-                EMU_ERR("Accept error.  Error is 0x%x\n", WSAGetLastError());
-#else
-                EMU_ERR("Accept error.  Error is 0x%x\n", errno);
-#endif
-#ifdef _MSC_VER
-                WSACleanup();
-#endif
+                EMU_ERR("Accept error.  Error is 0x%x\n", socket_errno());
+                socket_cleanup();
                 return false;
             }
         }
@@ -230,9 +253,7 @@ bool platform_server_routine(uint16_t port_number)
     } while (continue_serving);
 
     closesocket(responder_socket);
-#ifdef _MSC_VER
-    WSACleanup();
-#endif
+    socket_cleanup();
     return true;
 }
 
