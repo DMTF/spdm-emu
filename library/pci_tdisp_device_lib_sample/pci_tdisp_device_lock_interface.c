@@ -11,6 +11,10 @@
 #include "library/spdm_transport_pcidoe_lib.h"
 #include "library/pci_tdisp_device_lib.h"
 
+#ifdef TDISP_DEVICE_INTERFACE_REPORT_JSON_SUPPORT
+#include "pci_tdisp_device_interface_report_json.h"
+#endif
+
 #define MMIO_RANGE_COUNT 4
 #define DEVICE_INFO_LEN  16
 
@@ -74,6 +78,19 @@ libtdisp_error_code_t pci_tdisp_device_lock_interface (const void *pci_doe_conte
     interface_context->tdi_state = PCI_TDISP_INTERFACE_STATE_CONFIG_LOCKED;
 
     /* generate the report */
+
+#ifdef TDISP_DEVICE_INTERFACE_REPORT_JSON_SUPPORT
+    /*
+     * Prefer a device interface report loaded from a JSON file and fall back to
+     * the hardcoded defaults below if it cannot be loaded.
+     */
+    if (pci_tdisp_device_interface_report_load_from_json (
+            interface_context->interface_report,
+            sizeof(interface_context->interface_report),
+            &interface_context->interface_report_size)) {
+        return PCI_TDISP_ERROR_CODE_SUCCESS;
+    }
+#endif
 
     interface_report = (void *)interface_context->interface_report;
     interface_context->interface_report_size =

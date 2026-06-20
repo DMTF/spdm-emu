@@ -1,0 +1,13 @@
+{
+    "interface_info": 3,
+    "msi_x_message_control": 0,
+    "lnr_control": 0,
+    "tph_control": 0,
+    "mmio_ranges": [
+        { "first_page": 0,         "number_of_pages": 1, "range_attributes": 4, "range_id": 1 },
+        { "first_page": 32768,     "number_of_pages": 4, "range_attributes": 8, "range_id": 2 },
+        { "first_page": "0x10000", "number_of_pages": 8, "range_attributes": 8, "range_id": 3 },
+        { "first_page": "0x20000", "number_of_pages": 8, "range_attributes": 8, "range_id": 4 }
+    ],
+    "device_specific_info": "tdisp_dev_emu"
+}
