@@ -32,6 +32,16 @@ extern uint32_t m_use_requester_capability_flags;
 extern uint32_t m_use_responder_capability_flags;
 extern uint32_t m_use_capability_flags;
 extern uint32_t m_use_peer_capability_flags;
+extern uint16_t m_use_requester_capability_ext_flags;
+extern uint16_t m_use_responder_capability_ext_flags;
+/* Extended capability flags selected with --ext_cap (this endpoint's advertised extended flags)
+ * and --peer_ext_cap (the peer's). Because the empty selection "NO" is the encoded value 0 yet
+ * must still override a non-zero default, the matching *_set flag records whether the option was
+ * given on the command line. */
+extern uint16_t m_use_ext_capability_flags;
+extern bool m_use_ext_capability_flags_set;
+extern uint16_t m_use_peer_ext_capability_flags;
+extern bool m_use_peer_ext_capability_flags_set;
 
 extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;
@@ -108,6 +118,7 @@ extern uint32_t m_exe_mode;
 #define EXE_CONNECTION_GET_KEY_PAIR_INFO 0x100
 #define EXE_CONNECTION_SET_KEY_PAIR_INFO 0x200
 #define EXE_CONNECTION_EP_INFO 0x400
+#define EXE_CONNECTION_SLOT_MGMT 0x800
 extern uint32_t m_exe_connection;
 
 #define EXE_SESSION_KEY_EX 0x1
@@ -125,6 +136,7 @@ extern uint32_t m_exe_connection;
 #define EXE_SESSION_GET_KEY_PAIR_INFO 0x1000
 #define EXE_SESSION_SET_KEY_PAIR_INFO 0x2000
 #define EXE_SESSION_EP_INFO 0x4000
+#define EXE_SESSION_SLOT_MGMT 0x8000
 extern uint32_t m_exe_session;
 
 void libspdm_dump_hex_str(const uint8_t *buffer, size_t buffer_size);
