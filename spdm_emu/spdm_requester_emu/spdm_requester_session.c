@@ -414,11 +414,28 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
         }
     }
 
-    /*set_certificate for slot_id:1 in secure session*/
+    /*set_certificate for slot_id:m_other_slot_id in secure session*/
     if (session_id != NULL) {
         if ((m_exe_session & EXE_SESSION_SET_CERT) != 0) {
             if (m_other_slot_id != 0) {
                 slot_id = m_other_slot_id;
+
+                /* m_other_slot_id may be a slot whose leaf key differs from slot 0 (e.g. slot 4 in
+                 * the multi-key example uses end_responder4). Provision that slot with its OWN
+                 * certificate chain: a current libspdm refreshes the live served chain on
+                 * SET_CERTIFICATE, so writing the slot-0 chain here would leave the served cert
+                 * inconsistent with the slot's signing key and break the next KEY_EXCHANGE. */
+                free(cert_chain_to_set);
+                cert_chain_to_set = NULL;
+                cert_chain_size_to_set = 0;
+                res = libspdm_read_responder_public_certificate_chain_per_slot(
+                    slot_id, m_use_hash_algo, m_use_asym_algo,
+                    &cert_chain_to_set, &cert_chain_size_to_set, NULL, NULL);
+                if (!res) {
+                    EMU_ERR("set certificate :read_responder_public_certificate_chain_per_slot "
+                            "fail!\n");
+                    return LIBSPDM_STATUS_INVALID_CERT;
+                }
 
                 if (multi_key_conn_rsp) {
                     status = libspdm_set_certificate_ex(
