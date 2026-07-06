@@ -20,6 +20,7 @@ set(DEVICE ${DEVICE} CACHE STRING "Choose the test device: sample tpm, and defau
 
 option(LIBSPDM_TPM_SUPPORT "Add TPM support in crypt_ext" OFF)
 option(USE_SYSTEM_LIBSPDM "Use system provided libspdm" OFF)
+option(BUILD_VALIDATOR_SAMPLES "Build SPDM validator and attester samples (requires SPDM-Responder-Validator submodule)" ON)
 
 if(NOT GCOV)
     set(GCOV "OFF")
@@ -30,8 +31,11 @@ if (NOT DEVICE)
 endif()
 
 set(SPDM_EMU_DIR ${PROJECT_SOURCE_DIR})
-set(SPDM_RESPONDER_VALIDATOR_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator)
-set(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/common_test_framework)
+
+if(BUILD_VALIDATOR_SAMPLES)
+    set(SPDM_RESPONDER_VALIDATOR_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator)
+    set(COMMON_TEST_FRAMEWORK_DIR ${PROJECT_SOURCE_DIR}/SPDM-Responder-Validator/common_test_framework)
+endif()
 
 if (USE_SYSTEM_LIBSPDM)
   find_package(PkgConfig REQUIRED)
@@ -728,9 +732,10 @@ endif (NOT USE_SYSTEM_LIBSPDM)
     add_subdirectory(spdm_emu/spdm_requester_emu)
     add_subdirectory(spdm_emu/spdm_responder_emu)
 
-    add_subdirectory(${COMMON_TEST_FRAMEWORK_DIR}/library/common_test_utility_lib out/common_test_utility_lib.out)
-    add_subdirectory(${SPDM_RESPONDER_VALIDATOR_DIR}/library/spdm_responder_conformance_test_lib out/spdm_responder_conformance_test_lib.out)
-    add_subdirectory(spdm_emu/spdm_device_validator_sample)
-
-    add_subdirectory(spdm_emu/spdm_device_attester_sample)
+    if(BUILD_VALIDATOR_SAMPLES)
+        add_subdirectory(${COMMON_TEST_FRAMEWORK_DIR}/library/common_test_utility_lib out/common_test_utility_lib.out)
+        add_subdirectory(${SPDM_RESPONDER_VALIDATOR_DIR}/library/spdm_responder_conformance_test_lib out/spdm_responder_conformance_test_lib.out)
+        add_subdirectory(spdm_emu/spdm_device_validator_sample)
+        add_subdirectory(spdm_emu/spdm_device_attester_sample)
+    endif()
     endif()

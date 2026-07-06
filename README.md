@@ -64,6 +64,16 @@ TPM-backed SPDM flows require additional dependencies.
    make
    ```
 
+### Optional: Use System libspdm
+
+By default, spdm-emu builds libspdm from the submodule. To use a system-installed libspdm instead:
+
+```
+  -DUSE_SYSTEM_LIBSPDM=ON
+```
+
+This requires libspdm to be installed and available via pkg-config.
+
 ### Optional: Enable TPM Support
 
 To build spdm-emu with TPM-backed device secret support:
@@ -72,6 +82,30 @@ To build spdm-emu with TPM-backed device secret support:
   -DDEVICE=tpm
   -DLIBSPDM_TPM_SUPPORT=ON
 ```
+
+### Optional: Build SPDM Validator Samples
+
+The SPDM-Responder-Validator submodule provides conformance testing tools (`spdm_device_validator_sample` and `spdm_device_attester_sample`). These are **enabled by default** and require the SPDM-Responder-Validator submodule to be initialized.
+
+**To build with validator samples (default):**
+```bash
+# Ensure the SPDM-Responder-Validator submodule is initialized
+git submodule update --init SPDM-Responder-Validator
+
+cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl ..
+make
+# Builds: spdm_requester_emu, spdm_responder_emu, spdm_device_validator_sample, spdm_device_attester_sample
+```
+
+**To build without validator samples:**
+```bash
+# No need to initialize the SPDM-Responder-Validator submodule
+cmake -DARCH=x64 -DTOOLCHAIN=GCC -DTARGET=Release -DCRYPTO=openssl -DBUILD_VALIDATOR_SAMPLES=OFF ..
+make
+# Builds: spdm_requester_emu, spdm_responder_emu
+```
+
+**Note:** The validator samples are primarily used for SPDM responder conformance testing and are not required for basic SPDM emulator functionality. Disable them with `-DBUILD_VALIDATOR_SAMPLES=OFF` (e.g. in submodule-free build environments like Yocto).
 
 ### TPM Setup (Optional)
 
