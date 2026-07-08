@@ -47,6 +47,18 @@ jobs:
           ./spdm_requester_emu >requester.log
           sleep 10s
 
+      - name: Enable_chunk_SupportedAlgorithms_PCIDOE(transfer size consistent)
+        run: |
+          cd build/bin
+          # DataTransferSize is 42 (RECEIVER_BUFFER_SIZE 170 - transport 128), so the
+          # SupportedAlgorithms-bearing CAPABILITIES response is transferred via chunking.
+          # Run the full connection (SUPPORTED_ALGO plus the default connection steps) and the
+          # default session flow so the whole transcript runs on top of the chunked CAPABILITIES.
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE --exe_conn SUPPORTED_ALGO,DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO >requester.log
+          sleep 10s
+
       - name: Build1
         run: |
           mkdir build1
@@ -99,6 +111,18 @@ jobs:
           ./spdm_responder_emu --trans PCI_DOE &
           sleep 5s
           ./spdm_requester_emu --trans PCI_DOE >requester.log
+          sleep 10s
+
+      - name: Enable_chunk_SupportedAlgorithms_PCIDOE(transfer size consistent)
+        run: |
+          cd build/bin
+          # DataTransferSize is 42 (RECEIVER_BUFFER_SIZE 170 - transport 128), so the
+          # SupportedAlgorithms-bearing CAPABILITIES response is transferred via chunking.
+          # Run the full connection (SUPPORTED_ALGO plus the default connection steps) and the
+          # default session flow so the whole transcript runs on top of the chunked CAPABILITIES.
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE --exe_conn SUPPORTED_ALGO,DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO >requester.log
           sleep 10s
 
       - name: Build1
@@ -156,6 +180,16 @@ jobs:
           ./spdm_responder_emu --trans PCI_DOE &
           sleep 5s
           ./spdm_requester_emu --trans PCI_DOE
+      - name: Enable_chunk_SupportedAlgorithms_PCIDOE(transfer size consistent)
+        run: |
+          cd build/bin
+          # DataTransferSize is 42 (RECEIVER_BUFFER_SIZE 170 - transport 128), so the
+          # SupportedAlgorithms-bearing CAPABILITIES response is transferred via chunking.
+          # Run the full connection (SUPPORTED_ALGO plus the default connection steps) and the
+          # default session flow so the whole transcript runs on top of the chunked CAPABILITIES.
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE --exe_conn SUPPORTED_ALGO,DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO
 
   VS2019_openssl_build:
     runs-on: windows-latest
@@ -191,3 +225,13 @@ jobs:
           ./spdm_responder_emu --trans PCI_DOE &
           sleep 5s
           ./spdm_requester_emu --trans PCI_DOE
+      - name: Enable_chunk_SupportedAlgorithms_PCIDOE(transfer size consistent)
+        run: |
+          cd build/bin
+          # DataTransferSize is 42 (RECEIVER_BUFFER_SIZE 170 - transport 128), so the
+          # SupportedAlgorithms-bearing CAPABILITIES response is transferred via chunking.
+          # Run the full connection (SUPPORTED_ALGO plus the default connection steps) and the
+          # default session flow so the whole transcript runs on top of the chunked CAPABILITIES.
+          ./spdm_responder_emu --trans PCI_DOE &
+          sleep 5s
+          ./spdm_requester_emu --trans PCI_DOE --exe_conn SUPPORTED_ALGO,DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO

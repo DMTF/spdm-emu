@@ -86,7 +86,7 @@ void print_usage(const char *name)
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
-    printf("   [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO]\n");
+    printf("   [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SUPPORTED_ALGO]\n");
     printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]\n");
     printf("   [--pcap <pcap_file_name>]\n");
     printf("   [--priv_key_mode PEM|RAW]\n");
@@ -495,6 +495,7 @@ value_string_entry_t m_exe_connection_string_table[] = {
     { EXE_CONNECTION_GET_KEY_PAIR_INFO, "GET_KEY_PAIR_INFO" },
     { EXE_CONNECTION_SET_KEY_PAIR_INFO, "SET_KEY_PAIR_INFO" },
     { EXE_CONNECTION_EP_INFO, "EP_INFO" },
+    { EXE_CONNECTION_SUPPORTED_ALGO, "SUPPORTED_ALGO" },
 };
 
 value_string_entry_t m_exe_session_string_table[] = {
@@ -565,6 +566,135 @@ bool get_flags_from_name(const value_string_entry_t *table,
 done:
     free(local_name);
     return ret;
+}
+
+/* Print the names of every bit set in "flags", looked up in "table". Bits without a
+ * matching table entry are printed as their raw hex value. Prints "NONE" if no bit is set. */
+static void dump_flag_names(const value_string_entry_t *table, size_t entry_count,
+                            uint32_t flags)
+{
+    size_t index;
+    uint32_t remaining;
+    bool first;
+
+    if (flags == 0) {
+        printf("NONE");
+        return;
+    }
+
+    remaining = flags;
+    first = true;
+    for (index = 0; index < entry_count; index++) {
+        if (table[index].value != 0 &&
+            (flags & table[index].value) == table[index].value) {
+            printf("%s%s", first ? "" : ",", table[index].name);
+            first = false;
+            remaining &= ~table[index].value;
+        }
+    }
+    if (remaining != 0) {
+        printf("%s0x%08x", first ? "" : ",", remaining);
+    }
+}
+
+void dump_supported_algorithms(const void *buffer, size_t buffer_size)
+{
+    const spdm_supported_algorithms_block_t *block;
+    const spdm_negotiate_algorithms_common_struct_table_t *alg_struct;
+    size_t index;
+
+    if (buffer_size < sizeof(spdm_supported_algorithms_block_t)) {
+        printf("SupportedAlgorithms: truncated (%u bytes)\n", (uint32_t)buffer_size);
+        return;
+    }
+    block = buffer;
+
+    printf("SupportedAlgorithms:\n");
+    printf("  AlgStructCount        - %d\n", block->param1);
+    printf("  Length                - %d\n", block->length);
+    printf("  MeasurementSpec       - ");
+    dump_flag_names(m_measurement_spec_value_string_table,
+                    LIBSPDM_ARRAY_SIZE(m_measurement_spec_value_string_table),
+                    block->measurement_specification);
+    printf("\n");
+    printf("  OtherParams           - ");
+    dump_flag_names(m_other_param_value_string_table,
+                    LIBSPDM_ARRAY_SIZE(m_other_param_value_string_table),
+                    block->other_params_support);
+    printf("\n");
+    printf("  BaseAsymAlgo          - ");
+    dump_flag_names(m_asym_value_string_table,
+                    LIBSPDM_ARRAY_SIZE(m_asym_value_string_table),
+                    block->base_asym_algo);
+    printf("\n");
+    printf("  BaseHashAlgo          - ");
+    dump_flag_names(m_hash_value_string_table,
+                    LIBSPDM_ARRAY_SIZE(m_hash_value_string_table),
+                    block->base_hash_algo);
+    printf("\n");
+    printf("  PqcAsymAlgo           - ");
+    dump_flag_names(m_pqc_asym_value_string_table,
+                    LIBSPDM_ARRAY_SIZE(m_pqc_asym_value_string_table),
+                    block->pqc_asym_algo);
+    printf("\n");
+    printf("  MelSpec               - ");
+    dump_flag_names(m_mel_spec_value_string_table,
+                    LIBSPDM_ARRAY_SIZE(m_mel_spec_value_string_table),
+                    block->mel_specification);
+    printf("\n");
+
+    alg_struct = (const spdm_negotiate_algorithms_common_struct_table_t *)(block + 1);
+    for (index = 0; index < block->param1; index++) {
+        /* Bounds-check each fixed-size AlgStruct table against the buffer. */
+        if ((const uint8_t *)(&alg_struct[index + 1]) >
+            ((const uint8_t *)buffer + buffer_size)) {
+            printf("  AlgStruct[%u]           - truncated\n", (uint32_t)index);
+            break;
+        }
+        switch (alg_struct[index].alg_type) {
+        case SPDM_NEGOTIATE_ALGORITHMS_STRUCT_TABLE_ALG_TYPE_DHE:
+            printf("  DHE                   - ");
+            dump_flag_names(m_dhe_value_string_table,
+                            LIBSPDM_ARRAY_SIZE(m_dhe_value_string_table),
+                            alg_struct[index].alg_supported);
+            break;
+        case SPDM_NEGOTIATE_ALGORITHMS_STRUCT_TABLE_ALG_TYPE_AEAD:
+            printf("  AEAD                  - ");
+            dump_flag_names(m_aead_value_string_table,
+                            LIBSPDM_ARRAY_SIZE(m_aead_value_string_table),
+                            alg_struct[index].alg_supported);
+            break;
+        case SPDM_NEGOTIATE_ALGORITHMS_STRUCT_TABLE_ALG_TYPE_REQ_BASE_ASYM_ALG:
+            printf("  ReqBaseAsymAlg        - ");
+            dump_flag_names(m_asym_value_string_table,
+                            LIBSPDM_ARRAY_SIZE(m_asym_value_string_table),
+                            alg_struct[index].alg_supported);
+            break;
+        case SPDM_NEGOTIATE_ALGORITHMS_STRUCT_TABLE_ALG_TYPE_KEY_SCHEDULE:
+            printf("  KeySchedule           - ");
+            dump_flag_names(m_key_schedule_value_string_table,
+                            LIBSPDM_ARRAY_SIZE(m_key_schedule_value_string_table),
+                            alg_struct[index].alg_supported);
+            break;
+        case SPDM_NEGOTIATE_ALGORITHMS_STRUCT_TABLE_ALG_TYPE_REQ_PQC_ASYM_ALG:
+            printf("  ReqPqcAsymAlg         - ");
+            dump_flag_names(m_pqc_asym_value_string_table,
+                            LIBSPDM_ARRAY_SIZE(m_pqc_asym_value_string_table),
+                            alg_struct[index].alg_supported);
+            break;
+        case SPDM_NEGOTIATE_ALGORITHMS_STRUCT_TABLE_ALG_TYPE_KEM_ALG:
+            printf("  KEM                   - ");
+            dump_flag_names(m_kem_value_string_table,
+                            LIBSPDM_ARRAY_SIZE(m_kem_value_string_table),
+                            alg_struct[index].alg_supported);
+            break;
+        default:
+            printf("  AlgType(0x%02x)          - 0x%04x",
+                   alg_struct[index].alg_type, alg_struct[index].alg_supported);
+            break;
+        }
+        printf("\n");
+    }
 }
 
 void process_args(char *program_name, int argc, char *argv[])

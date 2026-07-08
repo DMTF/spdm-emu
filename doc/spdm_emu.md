@@ -39,7 +39,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
-         [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO]
+         [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SUPPORTED_ALGO]
          [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]
          [--pcap <PcapFileName>]
          [--priv_key_mode PEM|RAW]
@@ -115,6 +115,9 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  GET_KEY_PAIR_INFO means send GET_KEY_PAIR_INFO command.
                  SET_KEY_PAIR_INFO means send SET_KEY_PAIR_INFO command.
                  EP_INFO means send GET_ENDPOINT_INFO command.
+                 SUPPORTED_ALGO means request the Responder's SupportedAlgorithms block
+                     (DSP0274 1.3, GET_CAPABILITIES Param1[0] set) and print it, before
+                     continuing with the rest of the connection. Requires CHUNK_CAP on both sides.
          [--exe_session] is used to control the SPDM session. By default, it is KEY_EX,PSK,KEY_UPDATE,HEARTBEAT,MEAS,MEL,DIGEST,CERT,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO,APP.
                  KEY_EX means to setup KEY_EXCHANGE session.
                  PSK means to setup PSK_EXCHANGE session.

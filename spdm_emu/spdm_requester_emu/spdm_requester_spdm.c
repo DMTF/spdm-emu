@@ -6,6 +6,11 @@
 
 #include "spdm_requester_emu.h"
 
+/* Internal libspdm API (declared in internal/libspdm_requester_lib.h, which cannot be
+ * included here without conflicting definitions); used by the SUPPORTED_ALGO probe to
+ * complete the VERSION/CAPABILITIES/ALGORITHMS sequence without repeating GET_VERSION. */
+libspdm_return_t libspdm_negotiate_algorithms(void *spdm_context);
+
 void *m_spdm_context;
 #if LIBSPDM_FIPS_MODE
 void *m_fips_selftest_context;
@@ -311,7 +316,36 @@ void *spdm_client_init(void)
     libspdm_set_data(spdm_context, LIBSPDM_DATA_KEM_ALG, &parameter,
                      &data32, sizeof(data32));
 
-    if (m_load_state_file_name == NULL) {
+    if ((m_exe_connection & EXE_CONNECTION_SUPPORTED_ALGO) != 0) {
+        /* Retrieve and print the Responder's SupportedAlgorithms block (GET_VERSION +
+         * GET_CAPABILITIES with Param1[0] set), then complete the same VERSION/CAPABILITIES/
+         * ALGORITHMS sequence with NEGOTIATE_ALGORITHMS. This reuses the one transcript
+         * already built by the block query; it is not reset or repeated. */
+        uint8_t supported_algs_buffer[LIBSPDM_MAX_SPDM_MSG_SIZE];
+        size_t supported_algs_length = sizeof(supported_algs_buffer);
+        uint8_t supported_algs_version = 0;
+
+        status = libspdm_get_supported_algorithms(
+            spdm_context, &supported_algs_length, supported_algs_buffer,
+            &supported_algs_version);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            EMU_ERR("libspdm_get_supported_algorithms - 0x%x\n", (uint32_t)status);
+            free(m_spdm_context);
+            m_spdm_context = NULL;
+            return NULL;
+        }
+        printf("SupportedAlgorithms: SPDM version 0x%02x, %d bytes\n",
+               supported_algs_version, (uint32_t)supported_algs_length);
+        dump_supported_algorithms(supported_algs_buffer, supported_algs_length);
+
+        status = libspdm_negotiate_algorithms(spdm_context);
+        if (LIBSPDM_STATUS_IS_ERROR(status)) {
+            EMU_ERR("libspdm_negotiate_algorithms - 0x%x\n", (uint32_t)status);
+            free(m_spdm_context);
+            m_spdm_context = NULL;
+            return NULL;
+        }
+    } else if (m_load_state_file_name == NULL) {
         /* Skip if state is loaded*/
         status = libspdm_init_connection(
             spdm_context,

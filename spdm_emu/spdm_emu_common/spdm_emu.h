@@ -109,6 +109,7 @@ extern uint32_t m_exe_mode;
 #define EXE_CONNECTION_GET_KEY_PAIR_INFO 0x100
 #define EXE_CONNECTION_SET_KEY_PAIR_INFO 0x200
 #define EXE_CONNECTION_EP_INFO 0x400
+#define EXE_CONNECTION_SUPPORTED_ALGO 0x800
 extern uint32_t m_exe_connection;
 
 #define EXE_SESSION_KEY_EX 0x1
@@ -176,6 +177,8 @@ void append_pcap_packet_data(const void *header, size_t header_size,
                              const void *data, size_t size);
 
 void process_args(char *program_name, int argc, char *argv[]);
+
+void dump_supported_algorithms(const void *buffer, size_t buffer_size);
 
 bool create_socket(uint16_t port_number, SOCKET *listen_socket);
 
