@@ -3,13 +3,18 @@ cmake_minimum_required(VERSION 3.5)
 include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_test_client
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
-                    ${LIBSPDM_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/include
-                    ${LIBSPDM_DIR}/os_stub
                     ${SPDM_RESPONDER_VALIDATOR_DIR}/include
                     ${COMMON_TEST_FRAMEWORK_DIR}/include
 )
+
+if(NOT USE_SYSTEM_LIBSPDM)
+    include_directories(
+        ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
+        ${LIBSPDM_DIR}/include
+        ${LIBSPDM_DIR}/os_stub/include
+        ${LIBSPDM_DIR}/os_stub
+    )
+endif()
 
 set(src_spdm_device_validator_sample
     spdm_device_validator_sample.c

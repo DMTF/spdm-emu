@@ -3,11 +3,16 @@ cmake_minimum_required(VERSION 3.5)
 include_directories(${PROJECT_SOURCE_DIR}/spdm_emu/spdm_responder_emu
                     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common
                     ${PROJECT_SOURCE_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
-                    ${LIBSPDM_DIR}/include
-                    ${LIBSPDM_DIR}/os_stub/include
-                    ${LIBSPDM_DIR}/os_stub
 )
+
+if(NOT USE_SYSTEM_LIBSPDM)
+    include_directories(
+        ${LIBSPDM_DIR}/os_stub/spdm_device_secret_lib_${DEVICE}
+        ${LIBSPDM_DIR}/include
+        ${LIBSPDM_DIR}/os_stub/include
+        ${LIBSPDM_DIR}/os_stub
+    )
+endif()
 
 set(src_spdm_responder_emu
     spdm_responder_spdm.c

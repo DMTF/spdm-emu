@@ -185,6 +185,7 @@ libspdm_return_t do_measurement_via_spdm(const uint32_t *session_id)
     return LIBSPDM_STATUS_SUCCESS;
 }
 
+#if LIBSPDM_ENABLE_CAPABILITY_MEL_CAP
 /**
  * This function executes SPDM measurement MEL.
  *
@@ -220,5 +221,6 @@ libspdm_return_t do_measurement_mel_via_spdm(const uint32_t *session_id)
 
     return LIBSPDM_STATUS_SUCCESS;
 }
+#endif /*LIBSPDM_ENABLE_CAPABILITY_MEL_CAP*/
 
 #endif /*LIBSPDM_ENABLE_CAPABILITY_MEAS_CAP*/
