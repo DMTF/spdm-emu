@@ -5,10 +5,12 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 ## Spdm OS tool user guide
 
    ```
-      spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE|TCP|NONE]
+      spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]
          [--tcp_sub RI|NO_RI]
          [--ip <ip_address>]
          [--port <port_number>]
+         [--eid <MCTP endpoint identifier>]
+         [--net <MCTP network identifier>]
          [--ver 1.0|1.1|1.2|1.3|1.4]
          [--sec_ver 1.0|1.1|1.2]
          [--cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]
@@ -47,11 +49,22 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
 
       NOTE:
          [--trans] is used to select transport layer message. By default, MCTP is used.
+                 MCTP_KERNEL uses the Linux kernel AF_MCTP socket (CONFIG_MCTP) instead of
+                 the emulated TCP-based transport. Selecting MCTP_KERNEL on non-Linux
+                 platforms is rejected at runtime.
          [--tcp_sub] is sub-option when transport layer is TCP. By default, NO_RI (No RoleInquiry) is used.
          [--ip] is the IPv4 address for the connection. By default, 127.0.0.1 is used.
                  For Requester, it is the address to connect to.
                  For Responder, it is the address to bind to. If not specified, the Responder binds to all interfaces.
          [--port] is the port number for the connection. By default, 2323 is used for MCTP/PCI_DOE and 4194 is used for TCP.
+         [--eid] is the MCTP Endpoint Identifier used with MCTP_KERNEL transport (Linux only).
+                 For Requester, it is the destination EID of the remote SPDM responder.
+                 Valid unicast range: 1~254. EID 0x00 (Null) and 0xFF (Broadcast) are rejected.
+                 Defined in DMTF DSP0236.
+         [--net] is the MCTP network identifier used with MCTP_KERNEL transport (Linux only).
+                 Selects the target MCTP network when multiple networks coexist on the same host.
+                 By default, MCTP_NET_ANY (0) is used and the kernel selects the network automatically.
+                 Defined in DMTF DSP0236.
          [--ver] is version. By default, all are used.
          [--sec_ver] is secured message version. By default, all are used.
          [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.

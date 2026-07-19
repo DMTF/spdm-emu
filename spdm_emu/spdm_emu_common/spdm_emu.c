@@ -49,12 +49,12 @@ struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
 struct in_addr m_ip_address = { 0x0100007F };
 #endif
 
-#ifndef _MSC_VER
 /*
  * MCTP Endpoint ID of the remote peer (requester: destination; responder: own
  * EID to bind to, or 0 / MCTP_ADDR_ANY for any).  EID 0x00 is the Null EID
  * (DSP0236 §8.2) and is not valid as a unicast destination address; the
  * requester must supply a valid EID via --eid.
+ * Parsed on all platforms; only used when MCTP_KERNEL transport is active.
  */
 uint8_t m_use_eid = 0;
 
@@ -63,24 +63,18 @@ uint8_t m_use_eid = 0;
  * the OS picks the correct network automatically when only one network is
  * present.  Use --net to target a specific network when multiple MCTP
  * networks are routed on the same host.
+ * Parsed on all platforms; only used when MCTP_KERNEL transport is active.
  */
 uint32_t m_use_net = MCTP_NET_ANY;
-#endif
 
 void print_usage(const char *name)
 {
-#ifndef _MSC_VER
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]\n", name);
-#else
-    printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
-#endif
     printf("   [--tcp_sub RI|NO_RI]\n");
     printf("   [--ip <ip_address>]\n");
     printf("   [--port <port_number>]\n");
-#ifndef _MSC_VER
-    printf("   [--eid <endpoint_id>]  (MCTP_KERNEL: destination EID, 1-254)\n");
+    printf("   [--eid <endpoint_id>]  (MCTP_KERNEL: destination EID, 1~254)\n");
     printf("   [--net <network_id>]   (MCTP_KERNEL: MCTP network, default any)\n");
-#endif
     printf("   [--ver 1.0|1.1|1.2|1.3|1.4]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
     printf("   [--decap_tdisp\n");
@@ -268,9 +262,7 @@ value_string_entry_t m_transport_value_string_table[] = {
     { SOCKET_TRANSPORT_TYPE_MCTP, "MCTP" },
     { SOCKET_TRANSPORT_TYPE_PCI_DOE, "PCI_DOE" },
     { SOCKET_TRANSPORT_TYPE_TCP, "TCP"},
-#ifndef _MSC_VER
     { SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL, "MCTP_KERNEL" },
-#endif
 };
 
 value_string_entry_t m_tcp_subtype_string_table[] = {
@@ -763,6 +755,13 @@ void process_args(char *program_name, int argc, char *argv[])
                     exit(0);
                 }
                 printf("trans - 0x%x\n", m_use_transport_layer);
+#ifdef _MSC_VER
+                if (m_use_transport_layer ==
+                        SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+                    printf("MCTP_KERNEL transport is only supported on Linux.\n");
+                    exit(0);
+                }
+#endif
                 argc -= 2;
                 argv += 2;
                 continue;
@@ -1665,7 +1664,6 @@ void process_args(char *program_name, int argc, char *argv[])
             continue;
         }
 
-#ifndef _MSC_VER
         if (strcmp(argv[0], "--eid") == 0) {
             if (argc >= 2) {
                 long val = strtol(argv[1], NULL, 0);
@@ -1711,7 +1709,6 @@ void process_args(char *program_name, int argc, char *argv[])
                 exit(0);
             }
         }
-#endif
 
         printf("invalid %s\n", argv[0]);
         print_usage(program_name);

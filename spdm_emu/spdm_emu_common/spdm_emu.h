@@ -27,11 +27,10 @@ extern uint32_t m_use_tcp_role_inquiry;
 extern char m_ip_address_string[16];
 extern uint16_t m_custom_port;
 extern bool m_ip_explicitly_set;
-#ifndef _MSC_VER
-/* MCTP kernel transport: destination/bind EID and network (Linux only) */
+/* MCTP kernel transport: destination/bind EID and network.
+ * Parsed on all platforms; effective only on Linux with MCTP_KERNEL transport. */
 extern uint8_t m_use_eid;
 extern uint32_t m_use_net;
-#endif
 extern uint8_t m_use_version;
 extern uint8_t m_use_secured_message_version;
 extern bool m_decap_tdisp;

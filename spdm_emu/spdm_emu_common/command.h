@@ -30,12 +30,17 @@
 #define SOCKET_TRANSPORT_TYPE_MCTP 0x01
 #define SOCKET_TRANSPORT_TYPE_PCI_DOE 0x02
 #define SOCKET_TRANSPORT_TYPE_TCP 0x03
-#ifndef _MSC_VER
-/* Linux kernel AF_MCTP socket transport (not available on Windows) */
+/* Linux kernel AF_MCTP socket transport.
+ * Selecting this transport on non-Linux platforms is rejected at runtime. */
 #define SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL 0x04
 
+#ifndef _MSC_VER
 /* MCTP message type for SPDM (DMTF DSP0239) */
 #define MCTP_MESSAGE_TYPE_SPDM 0x05
+/* Fallback when linux/mctp.h is not available - value is never used on Windows
+ * because the transport is rejected at runtime before any MCTP socket call. */
+#else
+#define MCTP_NET_ANY 0
 #endif
 
 #define SOCKET_TCP_NO_ROLE_INQUIRY 0x00
