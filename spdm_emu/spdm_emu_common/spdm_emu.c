@@ -6,6 +6,11 @@
 
 #include "spdm_emu.h"
 
+#ifndef _MSC_VER
+#include <linux/mctp.h>
+#include <errno.h>
+#endif
+
 /*
  * EXE_MODE_SHUTDOWN
  * EXE_MODE_CONTINUE
@@ -44,12 +49,38 @@ struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
 struct in_addr m_ip_address = { 0x0100007F };
 #endif
 
+#ifndef _MSC_VER
+/*
+ * MCTP Endpoint ID of the remote peer (requester: destination; responder: own
+ * EID to bind to, or 0 / MCTP_ADDR_ANY for any).  EID 0x00 is the Null EID
+ * (DSP0236 §8.2) and is not valid as a unicast destination address; the
+ * requester must supply a valid EID via --eid.
+ */
+uint8_t m_use_eid = 0;
+
+/*
+ * MCTP network identifier (DSP0236 §8.2).  Defaults to MCTP_NET_ANY so that
+ * the OS picks the correct network automatically when only one network is
+ * present.  Use --net to target a specific network when multiple MCTP
+ * networks are routed on the same host.
+ */
+uint32_t m_use_net = MCTP_NET_ANY;
+#endif
+
 void print_usage(const char *name)
 {
+#ifndef _MSC_VER
+    printf("\n%s [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]\n", name);
+#else
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|NONE]\n", name);
+#endif
     printf("   [--tcp_sub RI|NO_RI]\n");
     printf("   [--ip <ip_address>]\n");
     printf("   [--port <port_number>]\n");
+#ifndef _MSC_VER
+    printf("   [--eid <endpoint_id>]  (MCTP_KERNEL: destination EID, 1-254)\n");
+    printf("   [--net <network_id>]   (MCTP_KERNEL: MCTP network, default any)\n");
+#endif
     printf("   [--ver 1.0|1.1|1.2|1.3|1.4]\n");
     printf("   [--sec_ver 1.0|1.1|1.2]\n");
     printf("   [--decap_tdisp\n");
@@ -236,7 +267,10 @@ value_string_entry_t m_transport_value_string_table[] = {
     { SOCKET_TRANSPORT_TYPE_NONE, "NONE"},
     { SOCKET_TRANSPORT_TYPE_MCTP, "MCTP" },
     { SOCKET_TRANSPORT_TYPE_PCI_DOE, "PCI_DOE" },
-    { SOCKET_TRANSPORT_TYPE_TCP, "TCP"}
+    { SOCKET_TRANSPORT_TYPE_TCP, "TCP"},
+#ifndef _MSC_VER
+    { SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL, "MCTP_KERNEL" },
+#endif
 };
 
 value_string_entry_t m_tcp_subtype_string_table[] = {
@@ -1631,6 +1665,54 @@ void process_args(char *program_name, int argc, char *argv[])
             continue;
         }
 
+#ifndef _MSC_VER
+        if (strcmp(argv[0], "--eid") == 0) {
+            if (argc >= 2) {
+                long val = strtol(argv[1], NULL, 0);
+                /*
+                 * EID 0x00 is the Null EID (DSP0236 §8.2) - not usable as a
+                 * unicast destination.  EID 0xFF is the broadcast EID.
+                 * Valid unicast EIDs are 0x01..0xFE.
+                 */
+                if (val < 0x01 || val > 0xFE) {
+                    printf("invalid --eid %s (valid unicast range: 1-254)\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_eid = (uint8_t)val;
+                printf("eid - 0x%02x\n", m_use_eid);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --eid\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--net") == 0) {
+            if (argc >= 2) {
+                long val = strtol(argv[1], NULL, 0);
+                if (val < 0) {
+                    printf("invalid --net %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_net = (uint32_t)val;
+                printf("net - %u\n", m_use_net);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --net\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+#endif
+
         printf("invalid %s\n", argv[0]);
         print_usage(program_name);
         exit(0);
@@ -1664,6 +1746,40 @@ bool convert_ip_to_addr(const char *ip_string, struct in_addr *addr)
 bool init_client(SOCKET *sock, uint16_t port)
 {
     SOCKET client_socket;
+
+#ifndef _MSC_VER
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+        /*
+         * Create an AF_MCTP datagram socket for the SPDM requester.
+         *
+         * The requester does NOT call bind().  When sendto() is issued with
+         * MCTP_TAG_OWNER the kernel allocates a message tag and records the
+         * (src_eid, dst_eid, tag) tuple so that the corresponding response is
+         * delivered back to this socket automatically.  Binding here would
+         * compete with a responder that has already bound the same
+         * (network, MCTP_ADDR_ANY, type) tuple and cause EADDRINUSE.
+         *
+         * m_use_eid must be a valid unicast EID (1-254, per DSP0236 §8.2).
+         */
+        if (m_use_eid == 0) {
+            printf("MCTP_KERNEL transport requires a destination EID. "
+                   "Use --eid <1-254>.\n");
+            return false;
+        }
+
+        client_socket = socket(AF_MCTP, SOCK_DGRAM, 0);
+        if (client_socket == INVALID_SOCKET) {
+            printf("Create MCTP socket failed - %d\n", errno);
+            return false;
+        }
+
+        printf("MCTP socket created (dst EID 0x%02x, net %u)\n",
+               m_use_eid, m_use_net);
+        *sock = client_socket;
+        return true;
+    }
+#endif
+
     struct sockaddr_in server_addr;
     struct in_addr ip_addr;
     int32_t ret_val;
@@ -1720,6 +1836,53 @@ bool init_client(SOCKET *sock, uint16_t port)
     *sock = client_socket;
     return true;
 }
+
+#ifndef _MSC_VER
+/**
+ * Create and bind an AF_MCTP datagram socket for the SPDM responder.
+ *
+ * The socket is bound to (m_use_net, MCTP_ADDR_ANY, MCTP_MESSAGE_TYPE_SPDM)
+ * so it receives all incoming SPDM messages regardless of the local EID.
+ * If m_use_net is MCTP_NET_ANY the kernel selects the network automatically.
+ *
+ * The port parameter is ignored (MCTP has no port concept); it is kept for
+ * signature compatibility with create_socket().
+ **/
+bool create_mctp_kernel_socket(uint16_t port_number, SOCKET *mctp_socket)
+{
+    (void)port_number;
+
+    SOCKET s = socket(AF_MCTP, SOCK_DGRAM, 0);
+    if (s == INVALID_SOCKET) {
+        printf("Create MCTP socket failed - %d\n", errno);
+        return false;
+    }
+
+    struct sockaddr_mctp addr = { 0 };
+    addr.smctp_family  = AF_MCTP;
+    addr.smctp_network = m_use_net;
+    /*
+     * Bind to MCTP_ADDR_ANY so the responder receives requests sent to any
+     * local EID.  Binding to a specific EID requires that EID to be assigned
+     * to a local interface by the MCTP daemon; using MCTP_ADDR_ANY avoids
+     * that prerequisite and is the common deployment pattern.
+     */
+    addr.smctp_addr.s_addr = MCTP_ADDR_ANY;
+    addr.smctp_type = MCTP_MESSAGE_TYPE_SPDM;
+
+    int rc = bind(s, (struct sockaddr *)&addr, sizeof(addr));
+    if (rc == -1) {
+        printf("MCTP bind failed - %s\n", strerror(errno));
+        closesocket(s);
+        return false;
+    }
+
+    printf("MCTP responder socket bound (net %u, type 0x%02x)\n",
+           m_use_net, MCTP_MESSAGE_TYPE_SPDM);
+    *mctp_socket = s;
+    return true;
+}
+#endif
 
 bool create_socket(uint16_t port_number, SOCKET *listen_socket)
 {

@@ -30,6 +30,13 @@
 #define SOCKET_TRANSPORT_TYPE_MCTP 0x01
 #define SOCKET_TRANSPORT_TYPE_PCI_DOE 0x02
 #define SOCKET_TRANSPORT_TYPE_TCP 0x03
+#ifndef _MSC_VER
+/* Linux kernel AF_MCTP socket transport (not available on Windows) */
+#define SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL 0x04
+
+/* MCTP message type for SPDM (DMTF DSP0239) */
+#define MCTP_MESSAGE_TYPE_SPDM 0x05
+#endif
 
 #define SOCKET_TCP_NO_ROLE_INQUIRY 0x00
 #define SOCKET_TCP_ROLE_INQUIRY 0x01

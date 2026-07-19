@@ -222,6 +222,26 @@ bool platform_server_routine(uint16_t port_number)
         }
         m_server_socket = responder_socket;
     }
+#ifndef _MSC_VER
+    else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+        /*
+         * The Linux kernel MCTP stack uses SOCK_DGRAM - there is no listen()
+         * or accept().  Create a single bound socket and serve requests in a
+         * loop until the SPDM session ends or an error occurs.
+         */
+        result = create_mctp_kernel_socket(port_number, &responder_socket);
+        if (!result) {
+            EMU_ERR("Create MCTP kernel socket fail\n");
+            return false;
+        }
+        m_server_socket = responder_socket;
+        do {
+            continue_serving = platform_server(m_server_socket);
+        } while (continue_serving);
+        closesocket(m_server_socket);
+        return true;
+    }
+#endif
     else {
         result = create_socket(port_number, &responder_socket);
         if (!result) {

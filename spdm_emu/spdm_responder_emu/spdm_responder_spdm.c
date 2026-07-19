@@ -178,7 +178,11 @@ void *spdm_server_init(void)
     if ((m_use_responder_capability_flags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHUNK_CAP) == 0) {
         max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
     }
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP
+#ifndef _MSC_VER
+        || m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL
+#endif
+       ) {
         libspdm_register_transport_layer_func(
             spdm_context,
             max_spdm_msg_size,
