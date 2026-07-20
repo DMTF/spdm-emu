@@ -1770,6 +1770,12 @@ bool init_client(SOCKET *sock, uint16_t port)
             return false;
         }
 
+        /*
+         * Edge case: new socket; discard any peer address left over from a
+         * previous session so write_bytes starts in the requester state.
+         */
+        mctp_kernel_reset_peer_addr();
+
         printf("MCTP socket created (dst EID 0x%02x, net %u)\n",
                m_use_eid, m_use_net);
         *sock = client_socket;

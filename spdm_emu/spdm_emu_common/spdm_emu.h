@@ -189,6 +189,8 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket);
 
 #ifndef _MSC_VER
 bool create_mctp_kernel_socket(uint16_t port_number, SOCKET *mctp_socket);
+/* Reset stored MCTP peer address; call when opening a new MCTP socket. */
+void mctp_kernel_reset_peer_addr(void);
 #endif
 
 bool init_client(SOCKET *sock, uint16_t port);

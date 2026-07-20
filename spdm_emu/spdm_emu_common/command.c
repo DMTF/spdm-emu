@@ -34,6 +34,14 @@ size_t m_send_receive_buffer_size;
  */
 static struct sockaddr_mctp m_mctp_recv_addr;
 static bool m_mctp_recv_addr_valid = false;
+
+/* Reset the stored peer address.  Call when opening a new socket so that
+ * write_bytes() starts in the requester state rather than reusing leftover
+ * state from a previous session. */
+void mctp_kernel_reset_peer_addr(void)
+{
+    m_mctp_recv_addr_valid = false;
+}
 #endif
 
 /**
@@ -130,7 +138,21 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
         rc = recvfrom(socket, (char *)(buffer + 1), max_buffer_length - 1, 0,
                       (struct sockaddr *)&addr, &addrlen);
         if (rc < 0) {
+            /*
+             * Edge case: recvfrom error.  Invalidate any previously stored
+             * peer address so write_bytes does not reuse stale state.
+             */
+            m_mctp_recv_addr_valid = false;
             EMU_ERR("MCTP recvfrom error: %s\n", strerror(errno));
+            return false;
+        }
+        if (rc == 0) {
+            /*
+             * Edge case: empty datagram.  The peer address captured from a
+             * zero-length recvfrom() is not meaningful for a reply.
+             */
+            m_mctp_recv_addr_valid = false;
+            EMU_ERR("MCTP recvfrom: empty datagram\n");
             return false;
         }
 
@@ -319,45 +341,73 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
     uint32_t number_sent;
 
     number_sent = 0;
-    while (number_sent < number_of_bytes) {
 #ifndef _MSC_VER
-        if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-            struct sockaddr_mctp addr = { 0 };
-            addr.smctp_family = AF_MCTP;
-            addr.smctp_type = MCTP_MESSAGE_TYPE_SPDM;
+    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+        /*
+         * Capture the role (responder vs. requester) once before the send
+         * loop.  Evaluating m_mctp_recv_addr_valid inside the loop would
+         * produce inconsistent addresses across iterations if the flag were
+         * cleared mid-loop.
+         */
+        bool is_responder_reply = (m_mctp_recv_addr_valid &&
+                                   (m_mctp_recv_addr.smctp_tag & MCTP_TAG_OWNER));
+        struct sockaddr_mctp addr = { 0 };
+        addr.smctp_family = AF_MCTP;
+        addr.smctp_type = MCTP_MESSAGE_TYPE_SPDM;
 
-            if (m_mctp_recv_addr_valid &&
-                (m_mctp_recv_addr.smctp_tag & MCTP_TAG_OWNER)) {
-                /*
-                 * The last received message carried MCTP_TAG_OWNER, meaning
-                 * the remote peer owns the tag.  We are the responder; reply
-                 * to the requester using the same network, EID, and tag value
-                 * but with MCTP_TAG_OWNER cleared (DSP0236 §8.17).
-                 */
-                addr.smctp_network = m_mctp_recv_addr.smctp_network;
-                addr.smctp_addr.s_addr = m_mctp_recv_addr.smctp_addr.s_addr;
-                addr.smctp_tag = m_mctp_recv_addr.smctp_tag & MCTP_TAG_MASK;
-            } else {
-                /*
-                 * We are the requester initiating a new transaction.  Set
-                 * MCTP_TAG_OWNER so the kernel allocates a tag and routes the
-                 * response back to this socket (DSP0236 §8.17).
-                 */
-                addr.smctp_network = m_use_net;
-                addr.smctp_addr.s_addr = m_use_eid;
-                addr.smctp_tag = MCTP_TAG_OWNER;
-            }
+        if (is_responder_reply) {
+            /*
+             * The last received message carried MCTP_TAG_OWNER, meaning
+             * the remote peer owns the tag.  We are the responder; reply
+             * to the requester using the same network, EID, and tag value
+             * but with MCTP_TAG_OWNER cleared (DSP0236 §8.17).
+             */
+            addr.smctp_network = m_mctp_recv_addr.smctp_network;
+            addr.smctp_addr.s_addr = m_mctp_recv_addr.smctp_addr.s_addr;
+            addr.smctp_tag = m_mctp_recv_addr.smctp_tag & MCTP_TAG_MASK;
+        } else {
+            /*
+             * We are the requester initiating a new transaction.  Set
+             * MCTP_TAG_OWNER so the kernel allocates a tag and routes the
+             * response back to this socket (DSP0236 §8.17).
+             */
+            addr.smctp_network = m_use_net;
+            addr.smctp_addr.s_addr = m_use_eid;
+            addr.smctp_tag = MCTP_TAG_OWNER;
+        }
 
+        while (number_sent < number_of_bytes) {
             result = sendto(socket, (char *)(buffer + number_sent),
                             number_of_bytes - number_sent, 0,
                             (struct sockaddr *)&addr, sizeof(addr));
-        } else {
-#endif
-            result = send(socket, (char *)(buffer + number_sent),
-                          number_of_bytes - number_sent, 0);
-#ifndef _MSC_VER
+            if (result == -1) {
+                /*
+                 * Edge case: send failure.  Clear the valid flag so the
+                 * next write_bytes does not reuse a stale peer address.
+                 */
+                if (is_responder_reply)
+                    m_mctp_recv_addr_valid = false;
+                EMU_ERR("Send error - 0x%x\n", socket_errno());
+                return false;
+            }
+            number_sent += result;
         }
+
+        /*
+         * Edge case: reply sent successfully.  The MCTP message tag is now
+         * consumed by the kernel.  Reset the valid flag so write_bytes
+         * cannot accidentally reuse this peer address before the next
+         * recvfrom() delivers a fresh request.
+         */
+        if (is_responder_reply)
+            m_mctp_recv_addr_valid = false;
+
+        return true;
+    }
 #endif
+    while (number_sent < number_of_bytes) {
+        result = send(socket, (char *)(buffer + number_sent),
+                      number_of_bytes - number_sent, 0);
         if (result == -1) {
 #ifdef _WIN32
             if (WSAGetLastError() == 0x2745) {
