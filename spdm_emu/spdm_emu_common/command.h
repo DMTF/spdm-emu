@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2025 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -34,14 +34,40 @@
  * Selecting this transport on non-Linux platforms is rejected at runtime. */
 #define SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL 0x04
 
-#ifndef _MSC_VER
 /* MCTP message type for SPDM (DMTF DSP0239) */
 #define MCTP_MESSAGE_TYPE_SPDM 0x05
-/* Fallback when linux/mctp.h is not available - value is never used on Windows
- * because the transport is rejected at runtime before any MCTP socket call. */
-#else
+/* MCTP "any network" identifier (DSP0236 Table 14). Also defined by
+ * <linux/mctp.h> as 0 on Linux; defining it here lets non-MCTP-kernel code
+ * (e.g. default --net value) reference it without pulling in kernel headers. */
 #define MCTP_NET_ANY 0
-#endif
+
+/**
+ * Platform IO abstraction (strategy / vtable pattern).
+ *
+ * command.c selects the right implementation at startup based on the chosen
+ * transport.  Adding a new transport only requires providing a new ops struct
+ * and registering it — command.c itself needs no changes.
+ *
+ * recv_command:        Read (or synthesise) the out-of-band SPDM command word.
+ * recv_transport_type: Read (or synthesise) the transport-type word.
+ * recv_payload:        Read a complete SPDM payload into buf.
+ * send_payload:        Send a complete SPDM payload (command is PCAP-only).
+ */
+typedef struct {
+    bool (*recv_command)(SOCKET socket, uint32_t *command);
+    bool (*recv_transport_type)(SOCKET socket, uint32_t *transport_type);
+    bool (*recv_payload)(SOCKET socket, uint8_t *buf,
+                         uint32_t *bytes_received, uint32_t max_bytes);
+    bool (*send_payload)(SOCKET socket, uint32_t command,
+                         const uint8_t *buf, uint32_t bytes_to_send);
+} spdm_emu_io_ops_t;
+
+/**
+ * Register the active IO ops.  Call once per socket lifetime before the
+ * first send/receive operation.  Defaults to the socket (TCP/MCTP/PCI_DOE)
+ * implementation when not called.
+ */
+void spdm_emu_io_ops_register(const spdm_emu_io_ops_t *ops);
 
 #define SOCKET_TCP_NO_ROLE_INQUIRY 0x00
 #define SOCKET_TCP_ROLE_INQUIRY 0x01

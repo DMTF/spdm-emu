@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2025 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -222,7 +222,6 @@ bool platform_server_routine(uint16_t port_number)
         }
         m_server_socket = responder_socket;
     }
-#ifndef _MSC_VER
     else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
         /*
          * The Linux kernel MCTP stack uses SOCK_DGRAM - there is no listen()
@@ -241,7 +240,6 @@ bool platform_server_routine(uint16_t port_number)
         closesocket(m_server_socket);
         return true;
     }
-#endif
     else {
         result = create_socket(port_number, &responder_socket);
         if (!result) {

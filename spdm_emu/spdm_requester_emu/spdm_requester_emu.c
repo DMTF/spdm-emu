@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2025 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -76,6 +76,15 @@ bool platform_client_routine(uint16_t port_number)
 
         EMU_LOG("Continuing with SPDM flow...\n");
     }
+    else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+        result = init_mctp_kernel_client(&platform_socket);
+        if (!result) {
+            socket_cleanup();
+            return false;
+        }
+
+        m_socket = platform_socket;
+    }
     else {
         result = init_client(&platform_socket, port_number);
         if (!result) {
@@ -87,10 +96,7 @@ bool platform_client_routine(uint16_t port_number)
     }
 
     if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE
-#ifndef _MSC_VER
-        && m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL
-#endif
-       ) {
+        && m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
         response_size = sizeof(m_receive_buffer);
         result = communicate_platform_data(
             m_socket,
@@ -253,17 +259,13 @@ bool platform_client_routine(uint16_t port_number)
     result = true;
 done:
     response_size = 0;
-#ifndef _MSC_VER
     if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-#endif
         if (!communicate_platform_data(
                 m_socket, SOCKET_SPDM_COMMAND_SHUTDOWN - m_exe_mode,
                 NULL, 0, &response, &response_size, NULL)) {
             return false;
         }
-#ifndef _MSC_VER
     }
-#endif
 
     if (m_spdm_context != NULL) {
 #if LIBSPDM_FIPS_MODE

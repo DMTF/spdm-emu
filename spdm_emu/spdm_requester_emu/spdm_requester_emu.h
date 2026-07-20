@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2025 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -27,5 +27,23 @@
 #include "spdm_emu.h"
 
 extern uint8_t m_other_slot_id;
+
+/**
+ * Create an AF_MCTP SOCK_DGRAM socket for the SPDM requester (Linux kernel
+ * MCTP stack).  See spdm_requester_linux_mctp.c for details.
+ *
+ * On non-Linux platforms this is a stub that reports the transport is
+ * unsupported, so call sites need no compile-time guard.
+ */
+#ifdef __linux__
+bool init_mctp_kernel_client(SOCKET *sock);
+#else
+static inline bool init_mctp_kernel_client(SOCKET *sock)
+{
+    (void)sock;
+    printf("MCTP_KERNEL transport is only supported on Linux.\n");
+    return false;
+}
+#endif
 
 #endif

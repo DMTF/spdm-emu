@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -184,10 +184,7 @@ void *spdm_client_init(void)
         max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
     }
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP
-#ifndef _MSC_VER
-        || m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL
-#endif
-       ) {
+        || m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
         libspdm_register_transport_layer_func(
             spdm_context,
             max_spdm_msg_size,

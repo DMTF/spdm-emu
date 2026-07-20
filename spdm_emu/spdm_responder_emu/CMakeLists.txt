@@ -29,6 +29,14 @@ set(src_spdm_responder_emu
     ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/support.c
 )
 
+# Linux kernel AF_MCTP socket transport is Linux-specific; only build it there.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND src_spdm_responder_emu
+        spdm_responder_linux_mctp.c
+        ${PROJECT_SOURCE_DIR}/spdm_emu/spdm_emu_common/spdm_emu_mctp_kernel.c
+    )
+endif()
+
 if (USE_SYSTEM_LIBSPDM)
   message("LIBSPDM_LIBRARIES: ${LIBSPDM_LIBRARIES}")
   add_executable(spdm_responder_emu ${src_spdm_responder_emu})

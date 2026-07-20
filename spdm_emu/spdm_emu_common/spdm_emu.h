@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2025 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -186,12 +186,6 @@ void process_args(char *program_name, int argc, char *argv[]);
 void dump_supported_algorithms(const void *buffer, size_t buffer_size);
 
 bool create_socket(uint16_t port_number, SOCKET *listen_socket);
-
-#ifndef _MSC_VER
-bool create_mctp_kernel_socket(uint16_t port_number, SOCKET *mctp_socket);
-/* Reset stored MCTP peer address; call when opening a new MCTP socket. */
-void mctp_kernel_reset_peer_addr(void);
-#endif
 
 bool init_client(SOCKET *sock, uint16_t port);
 

@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2025 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -8,11 +8,6 @@
 
 /* hack to add MCTP header for PCAP*/
 #include "industry_standard/mctp.h"
-
-#ifndef _MSC_VER
-#include <linux/mctp.h>
-#include <errno.h>
-#endif
 
 uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
 
@@ -22,27 +17,36 @@ bool m_send_receive_buffer_acquired = false;
 uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 size_t m_send_receive_buffer_size;
 
-#ifndef _MSC_VER
-/*
- * Peer address captured by the last recvfrom() on an AF_MCTP socket.
- *
- * The responder reads this after receiving a request; the tag field retains
- * MCTP_TAG_OWNER so write_bytes() can detect the direction and reply
- * correctly (TO cleared).  The requester overwrites it with the responder's
- * address on each response but re-builds the destination from m_use_eid /
- * m_use_net on every new outgoing request (MCTP_TAG_OWNER set).
- */
-static struct sockaddr_mctp m_mctp_recv_addr;
-static bool m_mctp_recv_addr_valid = false;
+/* Forward declarations for the default (socket-framed) IO ops - see the
+ * spdm_emu_io_ops_t vtable declared in command.h. */
+static bool default_recv_command(SOCKET socket, uint32_t *command);
+static bool default_recv_transport_type(SOCKET socket, uint32_t *transport_type);
+static bool default_recv_payload(SOCKET socket, uint8_t *buffer,
+                                 uint32_t *bytes_received,
+                                 uint32_t max_buffer_length);
+static bool default_send_payload(SOCKET socket, uint32_t command,
+                                 const uint8_t *buffer,
+                                 uint32_t bytes_to_send);
 
-/* Reset the stored peer address.  Call when opening a new socket so that
- * write_bytes() starts in the requester state rather than reusing leftover
- * state from a previous session. */
-void mctp_kernel_reset_peer_addr(void)
+static const spdm_emu_io_ops_t default_socket_io_ops = {
+    default_recv_command,
+    default_recv_transport_type,
+    default_recv_payload,
+    default_send_payload,
+};
+
+/*
+ * Active IO ops.  Defaults to the built-in socket (TCP/MCTP/PCI_DOE) framing
+ * implementation.  A platform-specific transport (e.g. the Linux kernel
+ * AF_MCTP socket) registers its own ops via spdm_emu_io_ops_register()
+ * before its first send/receive call.
+ */
+static const spdm_emu_io_ops_t *g_io_ops = &default_socket_io_ops;
+
+void spdm_emu_io_ops_register(const spdm_emu_io_ops_t *ops)
 {
-    m_mctp_recv_addr_valid = false;
+    g_io_ops = (ops != NULL) ? ops : &default_socket_io_ops;
 }
-#endif
 
 /**
  * Read number of bytes data in blocking mode.
@@ -58,24 +62,8 @@ bool read_bytes(const SOCKET socket, uint8_t *buffer,
 
     number_received = 0;
     while (number_received < number_of_bytes) {
-#ifndef _MSC_VER
-        if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-            struct sockaddr_mctp addr;
-            socklen_t addrlen = sizeof(addr);
-            result = recvfrom(socket, (char *)(buffer + number_received),
-                              number_of_bytes - number_received, 0,
-                              (struct sockaddr *)&addr, &addrlen);
-            if (result > 0) {
-                m_mctp_recv_addr = addr;
-                m_mctp_recv_addr_valid = true;
-            }
-        } else {
-#endif
-            result = recv(socket, (char *)(buffer + number_received),
-                          number_of_bytes - number_received, 0);
-#ifndef _MSC_VER
-        }
-#endif
+        result = recv(socket, (char *)(buffer + number_received),
+                      number_of_bytes - number_received, 0);
         if (result == -1) {
             EMU_ERR("Receive error - 0x%x\n", socket_errno());
             return false;
@@ -113,62 +101,21 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
                          uint32_t *bytes_received,
                          uint32_t max_buffer_length)
 {
+    return g_io_ops->recv_payload(socket, buffer, bytes_received,
+                                  max_buffer_length);
+}
+
+/**
+ * Default (socket-framed) recv_payload implementation: a 4-byte big-endian
+ * length prefix followed by the payload.  Used by TCP, MCTP (TCP-emulated),
+ * and PCI_DOE transports.
+ **/
+static bool default_recv_payload(const SOCKET socket, uint8_t *buffer,
+                                 uint32_t *bytes_received,
+                                 uint32_t max_buffer_length)
+{
     uint32_t length;
     bool result;
-
-#ifndef _MSC_VER
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-        /*
-         * The Linux kernel AF_MCTP socket delivers one complete MCTP message
-         * per recvfrom() call.  The message type byte is carried in
-         * sockaddr_mctp.smctp_type by the kernel and is NOT present in the
-         * payload.  libspdm's MCTP transport layer, however, expects buffer[0]
-         * to be the IC+MessageType byte (0x05 for SPDM).  We therefore receive
-         * into buffer+1 and prepend the type byte ourselves.
-         */
-        struct sockaddr_mctp addr;
-        socklen_t addrlen = sizeof(addr);
-        int32_t rc;
-
-        if (max_buffer_length < 2) {
-            EMU_ERR("buffer too small for MCTP receive\n");
-            return false;
-        }
-
-        rc = recvfrom(socket, (char *)(buffer + 1), max_buffer_length - 1, 0,
-                      (struct sockaddr *)&addr, &addrlen);
-        if (rc < 0) {
-            /*
-             * Edge case: recvfrom error.  Invalidate any previously stored
-             * peer address so write_bytes does not reuse stale state.
-             */
-            m_mctp_recv_addr_valid = false;
-            EMU_ERR("MCTP recvfrom error: %s\n", strerror(errno));
-            return false;
-        }
-        if (rc == 0) {
-            /*
-             * Edge case: empty datagram.  The peer address captured from a
-             * zero-length recvfrom() is not meaningful for a reply.
-             */
-            m_mctp_recv_addr_valid = false;
-            EMU_ERR("MCTP recvfrom: empty datagram\n");
-            return false;
-        }
-
-        m_mctp_recv_addr = addr;
-        m_mctp_recv_addr_valid = true;
-
-        /* Prepend the message type byte expected by the MCTP transport layer. */
-        buffer[0] = MCTP_MESSAGE_TYPE_SPDM;
-        *bytes_received = (uint32_t)rc + 1;
-
-        EMU_LOG("Platform port Receive buffer (MCTP kernel):\n    ");
-        dump_data(buffer, *bytes_received);
-        EMU_LOG("\n");
-        return true;
-    }
-#endif
 
     result = read_data32(socket, &length);
     if (!result) {
@@ -202,20 +149,16 @@ bool read_multiple_bytes(const SOCKET socket, uint8_t *buffer,
 
 bool receive_platform_command(const SOCKET socket, uint32_t *command)
 {
+    return g_io_ops->recv_command(socket, command);
+}
+
+/**
+ * Default recv_command implementation: reads the out-of-band command word.
+ **/
+static bool default_recv_command(const SOCKET socket, uint32_t *command)
+{
     bool result;
     uint32_t response;
-
-#ifndef _MSC_VER
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-        /*
-         * The Linux kernel MCTP socket carries no out-of-band command or
-         * transport-type framing.  Synthesise SOCKET_SPDM_COMMAND_NORMAL so
-         * the responder loop unconditionally dispatches each incoming message.
-         */
-        *command = SOCKET_SPDM_COMMAND_NORMAL;
-        return true;
-    }
-#endif
 
     result = read_data32(socket, &response);
     if (!result) {
@@ -233,14 +176,17 @@ bool receive_platform_command(const SOCKET socket, uint32_t *command)
 bool receive_platform_transport_type(const SOCKET socket,
                                      uint32_t *transport_type)
 {
-    bool result;
+    return g_io_ops->recv_transport_type(socket, transport_type);
+}
 
-#ifndef _MSC_VER
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-        *transport_type = SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL;
-        return true;
-    }
-#endif
+/**
+ * Default recv_transport_type implementation: reads the out-of-band
+ * transport-type word.
+ **/
+static bool default_recv_transport_type(const SOCKET socket,
+                                        uint32_t *transport_type)
+{
+    bool result;
 
     result = read_data32(socket, transport_type);
     if (!result) {
@@ -341,70 +287,6 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
     uint32_t number_sent;
 
     number_sent = 0;
-#ifndef _MSC_VER
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-        /*
-         * Capture the role (responder vs. requester) once before the send
-         * loop.  Evaluating m_mctp_recv_addr_valid inside the loop would
-         * produce inconsistent addresses across iterations if the flag were
-         * cleared mid-loop.
-         */
-        bool is_responder_reply = (m_mctp_recv_addr_valid &&
-                                   (m_mctp_recv_addr.smctp_tag & MCTP_TAG_OWNER));
-        struct sockaddr_mctp addr = { 0 };
-        addr.smctp_family = AF_MCTP;
-        addr.smctp_type = MCTP_MESSAGE_TYPE_SPDM;
-
-        if (is_responder_reply) {
-            /*
-             * The last received message carried MCTP_TAG_OWNER, meaning
-             * the remote peer owns the tag.  We are the responder; reply
-             * to the requester using the same network, EID, and tag value
-             * but with MCTP_TAG_OWNER cleared (DSP0236 §8.17).
-             */
-            addr.smctp_network = m_mctp_recv_addr.smctp_network;
-            addr.smctp_addr.s_addr = m_mctp_recv_addr.smctp_addr.s_addr;
-            addr.smctp_tag = m_mctp_recv_addr.smctp_tag & MCTP_TAG_MASK;
-        } else {
-            /*
-             * We are the requester initiating a new transaction.  Set
-             * MCTP_TAG_OWNER so the kernel allocates a tag and routes the
-             * response back to this socket (DSP0236 §8.17).
-             */
-            addr.smctp_network = m_use_net;
-            addr.smctp_addr.s_addr = m_use_eid;
-            addr.smctp_tag = MCTP_TAG_OWNER;
-        }
-
-        while (number_sent < number_of_bytes) {
-            result = sendto(socket, (char *)(buffer + number_sent),
-                            number_of_bytes - number_sent, 0,
-                            (struct sockaddr *)&addr, sizeof(addr));
-            if (result == -1) {
-                /*
-                 * Edge case: send failure.  Clear the valid flag so the
-                 * next write_bytes does not reuse a stale peer address.
-                 */
-                if (is_responder_reply)
-                    m_mctp_recv_addr_valid = false;
-                EMU_ERR("Send error - 0x%x\n", socket_errno());
-                return false;
-            }
-            number_sent += result;
-        }
-
-        /*
-         * Edge case: reply sent successfully.  The MCTP message tag is now
-         * consumed by the kernel.  Reset the valid flag so write_bytes
-         * cannot accidentally reuse this peer address before the next
-         * recvfrom() delivers a fresh request.
-         */
-        if (is_responder_reply)
-            m_mctp_recv_addr_valid = false;
-
-        return true;
-    }
-#endif
     while (number_sent < number_of_bytes) {
         result = send(socket, (char *)(buffer + number_sent),
                       number_of_bytes - number_sent, 0);
@@ -440,29 +322,6 @@ bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
 {
     bool result;
 
-#ifndef _MSC_VER
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-        /*
-         * The Linux kernel AF_MCTP socket carries no length prefix.
-         * buffer[0] is the IC+MessageType byte added by the MCTP transport
-         * layer; the kernel encodes the message type in sockaddr_mctp.smctp_type,
-         * so we skip it when handing the payload to the kernel.
-         * A 1-byte buffer (type byte only, empty SPDM body) results in a
-         * 0-byte sendto which is valid for session control messages.
-         */
-        if (bytes_to_send == 0) {
-            EMU_ERR("MCTP send: zero-length buffer\n");
-            return false;
-        }
-        EMU_LOG("Platform port Transmit buffer (MCTP kernel):\n    ");
-        dump_data(buffer, bytes_to_send);
-        EMU_LOG("\n");
-        /* Strip the leading IC+MessageType byte before passing to the kernel. */
-        result = write_bytes(socket, buffer + 1, bytes_to_send - 1);
-        return result;
-    }
-#endif
-
     result = write_data32(socket, bytes_to_send);
     if (!result) {
         return result;
@@ -483,33 +342,18 @@ bool write_multiple_bytes(const SOCKET socket, const uint8_t *buffer,
     return true;
 }
 
-bool send_platform_data(const SOCKET socket, uint32_t command,
-                        const uint8_t *send_buffer, size_t bytes_to_send)
+/**
+ * Default send_payload implementation: writes the out-of-band command and
+ * transport-type words followed by the length-prefixed payload.  Used by
+ * TCP, MCTP (TCP-emulated), and PCI_DOE transports.
+ **/
+static bool default_send_payload(const SOCKET socket, uint32_t command,
+                                 const uint8_t *buffer,
+                                 uint32_t bytes_to_send)
 {
     bool result;
     uint32_t request;
     uint32_t transport_type;
-
-#ifndef _MSC_VER
-    if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
-        /* No command/transport_type framing over the kernel MCTP socket. */
-        result = write_multiple_bytes(socket, send_buffer,
-                                      (uint32_t)bytes_to_send);
-        if (!result) {
-            return result;
-        }
-        if (command == SOCKET_SPDM_COMMAND_NORMAL) {
-            mctp_header_t mctp_header;
-            mctp_header.header_version = 0;
-            mctp_header.destination_id = m_use_eid;
-            mctp_header.source_id = 0;
-            mctp_header.message_tag = 0xC0;
-            append_pcap_packet_data(&mctp_header, sizeof(mctp_header),
-                                    send_buffer, bytes_to_send);
-        }
-        return true;
-    }
-#endif
 
     request = command;
     result = write_data32(socket, request);
@@ -530,8 +374,16 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
     dump_data((uint8_t *)&transport_type, sizeof(uint32_t));
     EMU_LOG("\n");
 
-    result = write_multiple_bytes(socket, send_buffer,
-                                  (uint32_t)bytes_to_send);
+    return write_multiple_bytes(socket, buffer, bytes_to_send);
+}
+
+bool send_platform_data(const SOCKET socket, uint32_t command,
+                        const uint8_t *send_buffer, size_t bytes_to_send)
+{
+    bool result;
+
+    result = g_io_ops->send_payload(socket, command, send_buffer,
+                                    (uint32_t)bytes_to_send);
     if (!result) {
         return result;
     }
@@ -548,6 +400,20 @@ bool send_platform_data(const SOCKET socket, uint32_t command,
             mctp_header_t mctp_header;
             mctp_header.header_version = 0;
             mctp_header.destination_id = 0;
+            mctp_header.source_id = 0;
+            mctp_header.message_tag = 0xC0;
+            append_pcap_packet_data(&mctp_header,
+                                    sizeof(mctp_header),
+                                    send_buffer, bytes_to_send);
+        } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
+
+            /* Append mctp_header_t for PCAP, using the configured
+             * destination EID (the Linux kernel MCTP socket does not carry
+             * this framing itself - see send_payload). */
+
+            mctp_header_t mctp_header;
+            mctp_header.header_version = 0;
+            mctp_header.destination_id = m_use_eid;
             mctp_header.source_id = 0;
             mctp_header.message_tag = 0xC0;
             append_pcap_packet_data(&mctp_header,
