@@ -633,7 +633,8 @@ void *spdm_client_init(void)
                     libspdm_set_data(spdm_context,
                                      LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
                                      &parameter, data, data_size);
-                    data8 = (uint8_t)(0xB0 + index);
+                    /* Valid contiguous 1-based KeyPairID (1..TotalKeyPairs). */
+                    data8 = (uint8_t)(index + 1);
                     libspdm_set_data(spdm_context,
                                      LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
                                      &parameter, &data8, sizeof(data8));
