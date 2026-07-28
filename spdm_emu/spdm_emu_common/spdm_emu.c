@@ -4,7 +4,17 @@
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
+/* The CMake build uses -std=c99, under which glibc hides getifaddrs() and the
+   IFF_* flags. Request them explicitly, before any header is pulled in. */
+#ifndef _WIN32
+#define _DEFAULT_SOURCE
+#endif
+
 #include "spdm_emu.h"
+
+#ifndef _WIN32
+#include <ifaddrs.h>
+#endif
 
 /*
  * EXE_MODE_SHUTDOWN
@@ -37,6 +47,7 @@ uint32_t m_exe_session =
 char m_ip_address_string[16] = "127.0.0.1";
 uint16_t m_custom_port = 0; /* 0 means use default */
 bool m_ip_explicitly_set = false; /* track if user explicitly set IP */
+char m_bind_interface[SPDM_EMU_IFNAMSIZ] = ""; /* empty means no interface was requested */
 
 #ifdef _WIN32
 struct in_addr m_ip_address = { { { 127, 0, 0, 1 } } };
@@ -67,6 +78,7 @@ void print_usage(const char *name)
     printf("\n%s [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]\n", name);
     printf("   [--tcp_sub RI|NO_RI]\n");
     printf("   [--ip <ip_address>]\n");
+    printf("   [--iface <interface_name>]\n");
     printf("   [--port <port_number>]\n");
     printf("   [--eid <endpoint_id>]  (MCTP_KERNEL: destination EID, 1~254)\n");
     printf("   [--net <network_id>]   (MCTP_KERNEL: MCTP network, default any)\n");
@@ -805,6 +817,26 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --ip\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--iface") == 0) {
+            if (argc >= 2) {
+                if (argv[1][0] == '\0' || strlen(argv[1]) >= sizeof(m_bind_interface)) {
+                    printf("invalid --iface %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                strncpy(m_bind_interface, argv[1], sizeof(m_bind_interface) - 1);
+                m_bind_interface[sizeof(m_bind_interface) - 1] = '\0';
+                printf("iface - %s\n", m_bind_interface);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --iface\n");
                 print_usage(program_name);
                 exit(0);
             }
@@ -1710,6 +1742,24 @@ void process_args(char *program_name, int argc, char *argv[])
         exit(0);
     }
 
+    if (m_bind_interface[0] != '\0') {
+        /* --iface selects a local address to bind to.  For the Requester --ip is
+         * the remote address to connect to, and no local address is bound at all,
+         * so there is nothing for --iface to select. */
+        if (strcmp(program_name, "spdm_requester_emu") == 0) {
+            printf("ERROR: --iface applies to the Responder only\n");
+            print_usage(program_name);
+            exit(0);
+        }
+        /* --iface and --ip both select the address the Responder binds to.
+         * Accepting both would mean silently honouring one and ignoring the
+         * other, so reject the combination rather than defining a precedence. */
+        if (m_ip_explicitly_set) {
+            printf("ERROR: --iface and --ip are mutually exclusive\n");
+            print_usage(program_name);
+            exit(0);
+        }
+    }
 
     /* Open PCAP file as last option, after the user indicates transport type.*/
 
@@ -1732,6 +1782,56 @@ bool convert_ip_to_addr(const char *ip_string, struct in_addr *addr)
     /* Fallback to inet_addr for non-Windows platforms */
     addr->s_addr = inet_addr(ip_string);
     return (addr->s_addr != INADDR_NONE);
+#endif
+}
+
+/**
+ * Look up the current IPv4 address of a named network interface.
+ *
+ * The address is resolved at startup rather than baked into the command line so
+ * that a DHCP-assigned address can change across reboots without the static
+ * service arguments needing to be rewritten.
+ *
+ * @param  if_name  Interface name, for example "eth0".
+ * @param  addr     Receives the interface address on success.
+ *
+ * @retval true   The interface exists, is up, and has an IPv4 address.
+ * @retval false  No usable IPv4 address was found.
+ **/
+bool get_interface_ipv4(const char *if_name, struct in_addr *addr)
+{
+#ifdef _WIN32
+    printf("--iface is not supported on this platform, use --ip instead\n");
+    return false;
+#else
+    struct ifaddrs *if_list;
+    struct ifaddrs *if_entry;
+    bool found = false;
+
+    if (getifaddrs(&if_list) != 0) {
+        printf("Cannot enumerate network interfaces.  Error is %d\n", errno);
+        return false;
+    }
+
+    for (if_entry = if_list; if_entry != NULL; if_entry = if_entry->ifa_next) {
+        if (if_entry->ifa_addr == NULL || if_entry->ifa_addr->sa_family != AF_INET) {
+            continue;
+        }
+        if (strcmp(if_entry->ifa_name, if_name) != 0) {
+            continue;
+        }
+        if ((if_entry->ifa_flags & IFF_UP) == 0) {
+            continue;
+        }
+        libspdm_copy_mem(addr, sizeof(struct in_addr),
+                         &((struct sockaddr_in *)if_entry->ifa_addr)->sin_addr,
+                         sizeof(struct in_addr));
+        found = true;
+        break;
+    }
+
+    freeifaddrs(if_list);
+    return found;
 #endif
 }
 
@@ -1833,8 +1933,25 @@ bool create_socket(uint16_t port_number, SOCKET *listen_socket)
     my_address.sin_port = htons((short)port_number);
     my_address.sin_family = AF_INET;
     
-    /* Use custom IP if provided for server binding */
-    if (m_ip_explicitly_set) {
+    /* Bind to the address currently assigned to the requested interface, so that
+     * the IP address does not have to be known when the service arguments are
+     * written.  --iface and --ip are mutually exclusive, rejected in process_args. */
+    if (m_bind_interface[0] != '\0') {
+        struct in_addr if_addr;
+        char if_addr_string[INET_ADDRSTRLEN];
+
+        if (!get_interface_ipv4(m_bind_interface, &if_addr)) {
+            printf("No IPv4 address on interface %s (is it up yet?)\n", m_bind_interface);
+            closesocket(*listen_socket);
+            return false;
+        }
+        libspdm_copy_mem(&my_address.sin_addr.s_addr, sizeof(struct in_addr), &if_addr,
+                         sizeof(struct in_addr));
+        if (inet_ntop(AF_INET, &if_addr, if_addr_string, sizeof(if_addr_string)) != NULL) {
+            printf("Binding to %s:%d on interface %s\n", if_addr_string, port_number,
+                   m_bind_interface);
+        }
+    } else if (m_ip_explicitly_set) {
         /* User explicitly set IP - bind to that specific address */
         struct in_addr ip_addr;
         if (!convert_ip_to_addr(m_ip_address_string, &ip_addr)) {

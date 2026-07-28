@@ -27,6 +27,19 @@ extern uint32_t m_use_tcp_role_inquiry;
 extern char m_ip_address_string[16];
 extern uint16_t m_custom_port;
 extern bool m_ip_explicitly_set;
+#ifndef _WIN32
+#include <net/if.h>
+#endif
+/* Buffer size for an interface name.  IFNAMSIZ is a BSD alias that glibc hides
+ * under _DEFAULT_SOURCE at -std=c99, so only the sources defining it would see
+ * the same size; IF_NAMESIZE is the POSIX spelling and is always visible.
+ * Windows has neither, hence the literal fallback. */
+#ifdef IF_NAMESIZE
+#define SPDM_EMU_IFNAMSIZ IF_NAMESIZE
+#else
+#define SPDM_EMU_IFNAMSIZ 16
+#endif
+extern char m_bind_interface[SPDM_EMU_IFNAMSIZ];
 /* MCTP kernel transport: destination/bind EID and network.
  * Parsed on all platforms; effective only on Linux with MCTP_KERNEL transport. */
 extern uint8_t m_use_eid;
@@ -186,6 +199,8 @@ void process_args(char *program_name, int argc, char *argv[]);
 void dump_supported_algorithms(const void *buffer, size_t buffer_size);
 
 bool create_socket(uint16_t port_number, SOCKET *listen_socket);
+
+bool get_interface_ipv4(const char *if_name, struct in_addr *addr);
 
 bool init_client(SOCKET *sock, uint16_t port);
 

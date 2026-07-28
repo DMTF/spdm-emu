@@ -8,6 +8,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
       spdm_requester_emu|spdm_responder_emu [--trans MCTP|PCI_DOE|TCP|MCTP_KERNEL|NONE]
          [--tcp_sub RI|NO_RI]
          [--ip <ip_address>]
+         [--iface <interface_name>]
          [--port <port_number>]
          [--eid <MCTP endpoint identifier>]
          [--net <MCTP network identifier>]
@@ -56,6 +57,16 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--ip] is the IPv4 address for the connection. By default, 127.0.0.1 is used.
                  For Requester, it is the address to connect to.
                  For Responder, it is the address to bind to. If not specified, the Responder binds to all interfaces.
+         [--iface] is the name of a network interface, such as eth0. It applies to the Responder only,
+                 and the Requester rejects it.
+                 The Responder resolves the IPv4 address currently assigned to that interface and binds to it.
+                 The address is resolved at startup, so a DHCP-assigned address can change across reboots
+                 without the command line needing to be updated. This is useful when the Responder runs as a
+                 service whose arguments come from a static configuration file.
+                 It is mutually exclusive with --ip. If neither is given, the Responder binds to all interfaces.
+                 If the interface has no IPv4 address yet, the bind fails and the Responder exits with a
+                 non-zero status, which lets a service manager retry until the network is up.
+                 It is not supported on Windows, where --ip should be used instead.
          [--port] is the port number for the connection. By default, 2323 is used for MCTP/PCI_DOE and 4194 is used for TCP.
          [--eid] is the MCTP Endpoint Identifier used with MCTP_KERNEL transport (Linux only).
                  For Requester, it is the destination EID of the remote SPDM responder.
@@ -155,6 +166,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
    Take spdm_requester_emu or spdm_responder_emu as an example, a user may use `spdm_requester_emu --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
 
    To test PCI_DOE, a user may use `spdm_requester_emu --trans PCI_DOE --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu  --trans PCI_DOE --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
+
+   To have the Responder listen on a specific interface instead of all interfaces, a user may use `spdm_responder_emu --trans TCP --iface eth0 --port 4194`. The Responder then binds to the address currently assigned to eth0 rather than to 0.0.0.0.
 
    [spdm_dump](https://github.com/DMTF/spdm-dump/blob/main/doc/spdm_dump.md) tool can be used to parse the pcap file for offline analysis.
 
