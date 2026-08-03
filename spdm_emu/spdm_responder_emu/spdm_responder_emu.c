@@ -196,7 +196,7 @@ bool platform_server(const SOCKET socket)
             EMU_ERR("Unrecognized platform interface command %x\n",
                     m_command);
             result = send_platform_data(
-                socket, SOCKET_SPDM_COMMAND_UNKOWN, NULL, 0);
+                socket, SOCKET_SPDM_COMMAND_UNKNOWN, NULL, 0);
             if (!result) {
                 EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
