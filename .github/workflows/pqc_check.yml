@@ -53,10 +53,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-        #ilammy/msvc-dev-cmd@v1 is GitHub Action for configuring Developer Command Prompt for Microsoft Visual Studio on Windows.
+        #TheMrMilchmann/setup-msvc-dev@v4 is GitHub Action for configuring Developer Command Prompt for Microsoft Visual Studio on Windows.
         #This sets up the environment for compiling C/C++ code from command line.
       - name: Add msbuild to PATH
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
 
