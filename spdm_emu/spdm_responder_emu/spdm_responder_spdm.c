@@ -16,6 +16,15 @@ extern uint32_t m_command;
 
 extern SOCKET m_server_socket;
 
+extern bool m_send_key_update;
+extern bool m_send_get_endpoint_info;
+
+/* Buffer for the Requester's certificate chain, passed to
+ * libspdm_get_encap_request_get_certificate. It must outlive the handler call,
+ * as libspdm accumulates the chain into it across several messages. */
+static void *m_requester_cert_chain_buffer;
+static void *m_requester_endpoint_info_buffer;
+
 /**
  * Notify the session state to a session APP.
  *
@@ -36,29 +45,20 @@ void spdm_server_session_state_callback(void *spdm_context,
 void spdm_server_connection_state_callback(
     void *spdm_context, libspdm_connection_state_t connection_state);
 
-/**
- * Encapsulate Get Endpoint Info Callback Function.
- *
- * @param spdm_context       A pointer to the SPDM context.
- * @param subcode            The subcode of the GET_ENDPOINT_INFO request.
- * @param param2             Bit [7:4]. Reserved.
- *                           Bit [3:0]. SlotID.
- * @param request_attributes The request attributes of the GET_ENDPOINT_INFO request.
- * @param endpoint_info_size The size in bytes of the endpoint_info buffer.
- * @param endpoint_info      A pointer to the buffer to store the endpoint information.
- */
-libspdm_return_t spdm_get_endpoint_info_callback (
-    void *spdm_context,
-    uint8_t subcode,
-    uint8_t param2,
-    uint8_t request_attributes,
-    uint32_t endpoint_info_size,
-    const void *endpoint_info);
-
 libspdm_return_t spdm_get_response_vendor_defined_request(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     size_t request_size, const void *request, size_t *response_size,
     void *response);
+
+static libspdm_return_t spdm_encap_flow_handler(
+    void *spdm_context,
+    const uint32_t *session_id,
+    libspdm_encap_flow_type_t encap_flow_type,
+    uint8_t last_request_code,
+    uint8_t error_code,
+    bool *terminate_flow,
+    size_t *encap_request_size,
+    void *encap_request);
 
 libspdm_return_t spdm_device_send_message(void *spdm_context,
                                           size_t response_size, const void *response,
@@ -123,7 +123,6 @@ void *spdm_server_init(void)
     spdm_version_number_t spdm_version;
     libspdm_return_t status;
     size_t scratch_buffer_size;
-    void *requester_cert_chain_buffer;
     uint32_t max_spdm_msg_size;
 
     EMU_LOG("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
@@ -233,13 +232,17 @@ void *spdm_server_init(void)
     }
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
-    requester_cert_chain_buffer = (void *)malloc(SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
-    if (requester_cert_chain_buffer == NULL)
+    m_requester_cert_chain_buffer = (void *)malloc(SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
+    if (m_requester_cert_chain_buffer == NULL)
     {
         return NULL;
     }
-    libspdm_register_cert_chain_buffer(spdm_context, requester_cert_chain_buffer,
-                                       SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
+
+    m_requester_endpoint_info_buffer = (void *)malloc(LIBSPDM_MAX_ENDPOINT_INFO_LENGTH);
+    if (m_requester_endpoint_info_buffer == NULL)
+    {
+        return NULL;
+    }
 
     if (!libspdm_check_context(spdm_context))
     {
@@ -334,9 +337,6 @@ void *spdm_server_init(void)
     libspdm_register_get_response_func(
         spdm_context, spdm_get_response_vendor_defined_request);
 
-    libspdm_register_get_endpoint_info_callback_func(
-        spdm_context, spdm_get_endpoint_info_callback);
-
     libspdm_register_session_state_callback_func(
         spdm_context, spdm_server_session_state_callback);
     libspdm_register_connection_state_callback_func(
@@ -347,6 +347,8 @@ void *spdm_server_init(void)
         spdm_server_connection_state_callback(
             spdm_context, LIBSPDM_CONNECTION_STATE_NEGOTIATED);
     }
+
+    libspdm_register_encap_flow_handler(spdm_context, spdm_encap_flow_handler);
 
     return m_spdm_context;
 }
@@ -720,17 +722,10 @@ void spdm_server_connection_state_callback(
                     /* 0xFF slot is only allowed in */
                     m_use_mut_auth = SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED;
                 }
-                data8 = m_use_mut_auth;
-                libspdm_zero_mem(&parameter, sizeof(parameter));
-                parameter.additional_data[0] =
-                    m_use_req_slot_id; /* req_slot_id;*/
-                libspdm_set_data(spdm_context,
-                                 LIBSPDM_DATA_MUT_AUTH_REQUESTED, &parameter,
-                                 &data8, sizeof(data8));
                 g_key_exchange_start_mut_auth = m_use_mut_auth;
+                g_key_exchange_req_slot_id = m_use_req_slot_id;
 
-                data8 = m_use_basic_mut_auth;
-                g_start_basic_mut_auth = m_use_basic_mut_auth == 1;
+                g_start_basic_mut_auth = (m_use_basic_mut_auth == 1);
             }
         } else {
             /* Requester did not declare MUT_AUTH_CAP: do not offer mutual auth,
@@ -837,22 +832,149 @@ void spdm_server_session_state_callback(void *spdm_context,
     }
 }
 
-libspdm_return_t spdm_get_endpoint_info_callback (
+static libspdm_return_t spdm_encap_flow_handler(
     void *spdm_context,
-    uint8_t subcode,
-    uint8_t param2,
-    uint8_t request_attributes,
-    uint32_t endpoint_info_size,
-    const void *endpoint_info)
+    const uint32_t *session_id,
+    libspdm_encap_flow_type_t encap_flow_type,
+    uint8_t last_request_code,
+    uint8_t error_code,
+    bool *terminate_flow,
+    size_t *encap_request_size,
+    void *encap_request)
 {
-    EMU_LOG("spdm_get_endpoint_info_callback\n");
-    EMU_LOG("  subcode - 0x%x\n", subcode);
-    EMU_LOG("  param2 - 0x%x\n", param2);
-    EMU_LOG("  request_attributes - 0x%x\n", request_attributes);
-    EMU_LOG("  endpoint_info_size - 0x%x\n", endpoint_info_size);
-    EMU_LOG("  endpoint_info:");
-    dump_data(endpoint_info, endpoint_info_size);
-    EMU_LOG("\n");
+    static uint8_t basic_mut_auth_counter = 0;
+    static uint8_t sess_mut_auth_counter = 0;
+
+    EMU_LOG("spdm_encap_flow_handler()\n");
+    EMU_LOG("  session_id - ");
+    if (session_id == NULL) {
+        EMU_LOG("NULL\n");
+    } else {
+        EMU_LOG("0x%x\n", *session_id);
+    }
+    EMU_LOG("  encap_flow_type - %d\n", encap_flow_type);
+    EMU_LOG("  last_request_code - 0x%x\n", last_request_code);
+    EMU_LOG("  error_code - 0x%x\n", error_code);
+
+    if (error_code != 0) {
+        /* The Requester returned an encapsulated ERROR, so the flow ends here. Reset the
+         * counters so that a later flow starts from the beginning. */
+        EMU_LOG("  Requester returned encapsulated ERROR, terminating flow\n");
+        basic_mut_auth_counter = 0;
+        sess_mut_auth_counter = 0;
+        *terminate_flow = true;
+        *encap_request_size = 0;
+
+        return LIBSPDM_STATUS_SUCCESS;
+    }
+
+    if (last_request_code == SPDM_GET_CERTIFICATE) {
+        size_t cert_chain_size = 0;
+
+        if (libspdm_get_encap_payload_size(spdm_context, session_id, &cert_chain_size) ==
+            LIBSPDM_STATUS_SUCCESS) {
+            EMU_LOG("  retrieved cert_chain_size - 0x%x\n", (uint32_t)cert_chain_size);
+        }
+    }
+
+    if (last_request_code == SPDM_GET_ENDPOINT_INFO) {
+        size_t endpoint_info_size = 0;
+
+        if (libspdm_get_encap_payload_size(spdm_context, session_id, &endpoint_info_size) ==
+            LIBSPDM_STATUS_SUCCESS) {
+            EMU_LOG("  retrieved endpoint_info_size - 0x%x\n", (uint32_t)endpoint_info_size);
+            EMU_LOG("  endpoint_info:");
+            dump_data(m_requester_endpoint_info_buffer, endpoint_info_size);
+            EMU_LOG("\n");
+        }
+    }
+
+    *terminate_flow = false;
+
+    switch (encap_flow_type) {
+    case LIBSPDM_ENCAP_FLOW_BASIC_MUT_AUTH:
+        switch (basic_mut_auth_counter) {
+        case 0:
+            basic_mut_auth_counter++;
+
+            return libspdm_get_encap_request_get_digests(
+                spdm_context, session_id, encap_request_size, encap_request);
+        case 1:
+            basic_mut_auth_counter++;
+
+            return libspdm_get_encap_request_get_certificate(
+                spdm_context, session_id, 0, SPDM_MAX_CERTIFICATE_CHAIN_SIZE,
+                m_requester_cert_chain_buffer, encap_request_size, encap_request);
+        default:
+            /* CHALLENGE is the last request of this flow. libspdm terminates the flow itself once
+             * the Requester delivers CHALLENGE_AUTH, so this handler is not called again. */
+            basic_mut_auth_counter = 0;
+
+            return libspdm_get_encap_request_challenge(
+                spdm_context, 0, NULL, encap_request_size, encap_request);
+        }
+    case LIBSPDM_ENCAP_FLOW_SESS_MUT_AUTH:
+        switch (sess_mut_auth_counter) {
+        case 0:
+            sess_mut_auth_counter++;
+
+            return libspdm_get_encap_request_get_digests(
+                spdm_context, session_id, encap_request_size, encap_request);
+        case 1:
+            sess_mut_auth_counter++;
+
+            return libspdm_get_encap_request_get_certificate(
+                spdm_context, session_id, 0, SPDM_MAX_CERTIFICATE_CHAIN_SIZE,
+                m_requester_cert_chain_buffer, encap_request_size, encap_request);
+        default:
+            /* The Requester's certificate chain has been retrieved, so end the flow. libspdm
+             * designates m_use_req_slot_id in the final ENCAPSULATED_RESPONSE_ACK. */
+            sess_mut_auth_counter = 0;
+            break;
+        }
+        break;
+    case LIBSPDM_ENCAP_FLOW_GENERAL:
+        if (m_send_key_update) {
+            m_send_key_update = false;
+
+            return libspdm_get_encap_request_key_update(
+                spdm_context, *session_id, SPDM_KEY_UPDATE_OPERATIONS_UPDATE_KEY,
+                encap_request_size, encap_request);
+        } else if (m_send_get_endpoint_info) {
+            uint8_t request_attributes = 0;
+            libspdm_data_parameter_t parameter;
+            uint32_t requester_flags;
+            size_t data_size;
+
+            m_send_get_endpoint_info = false;
+
+            libspdm_zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+            requester_flags = 0;
+            data_size = sizeof(requester_flags);
+            libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                             &requester_flags, &data_size);
+
+            if ((requester_flags & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_EP_INFO_CAP_SIG) != 0) {
+                request_attributes =
+                    SPDM_GET_ENDPOINT_INFO_REQUEST_ATTRIBUTE_SIGNATURE_REQUESTED;
+            }
+
+            return libspdm_get_encap_request_get_endpoint_info(
+                spdm_context, session_id,
+                SPDM_GET_ENDPOINT_INFO_REQUEST_SUBCODE_DEVICE_CLASS_IDENTIFIER, 0,
+                request_attributes, LIBSPDM_MAX_ENDPOINT_INFO_LENGTH,
+                m_requester_endpoint_info_buffer, encap_request_size, encap_request);
+        }
+        break;
+    default:
+        break;
+    }
+
+    /* No encapsulated request to send, so end the flow. encap_request_size is still the size of
+     * the buffer that libspdm offered, so it must be cleared. */
+    *terminate_flow = true;
+    *encap_request_size = 0;
 
     return LIBSPDM_STATUS_SUCCESS;
 }

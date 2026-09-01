@@ -20,6 +20,9 @@ extern void *m_pci_doe_context;
 void *spdm_server_init(void);
 libspdm_return_t pci_doe_init_responder ();
 
+bool m_send_key_update = false;
+bool m_send_get_endpoint_info = false;
+
 bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number);
 
 bool platform_server(const SOCKET socket)
@@ -97,7 +100,7 @@ bool platform_server(const SOCKET socket)
             } else {
                 session_id = 0;
             }
-            libspdm_init_key_update_encap_state_with_session(m_spdm_context, session_id);
+
             result = send_platform_data(
                 socket,
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_KEY_UPDATE, NULL,
@@ -106,12 +109,12 @@ bool platform_server(const SOCKET socket)
                 EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
+            m_send_key_update = true;
 #endif
             break;
 
         case SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO:
 #if (LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)
-            libspdm_init_get_endpoint_info_encap_state(m_spdm_context, LIBSPDM_INVALID_SESSION_ID);
             result = send_platform_data(
                 socket,
                 SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
@@ -120,7 +123,9 @@ bool platform_server(const SOCKET socket)
                 EMU_ERR("send_platform_data Error - %x\n", socket_errno());
                 return true;
             }
+            m_send_get_endpoint_info = true;
 #endif /*(LIBSPDM_ENABLE_CAPABILITY_ENDPOINT_INFO_CAP) || (LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP)*/
+
             break;
 
         case SOCKET_SPDM_COMMAND_SHUTDOWN:

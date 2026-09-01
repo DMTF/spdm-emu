@@ -63,6 +63,7 @@ extern uint8_t m_use_req_slot_id;
 extern bool g_private_key_mode;
 extern bool g_start_basic_mut_auth;
 extern uint8_t g_key_exchange_start_mut_auth;
+extern uint8_t g_key_exchange_req_slot_id;
 extern bool m_verbose;
 
 /*
