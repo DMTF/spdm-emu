@@ -697,13 +697,21 @@ void spdm_server_connection_state_callback(
             }
         }
 
-        if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
+        libspdm_zero_mem(&parameter, sizeof(parameter));
+        parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+        data_size = sizeof(data32);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                         &data32, &data_size);
+
+        if (((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) &&
+            ((data32 & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MUT_AUTH_CAP) != 0)) {
             if (res) {
                 if (m_use_req_slot_id == 0xFF) {
                     /* 0xFF slot is only allowed in */
                     m_use_mut_auth = SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED;
                 }
                 data8 = m_use_mut_auth;
+                libspdm_zero_mem(&parameter, sizeof(parameter));
                 parameter.additional_data[0] =
                     m_use_req_slot_id; /* req_slot_id;*/
                 libspdm_set_data(spdm_context,
@@ -714,6 +722,11 @@ void spdm_server_connection_state_callback(
                 data8 = m_use_basic_mut_auth;
                 g_start_basic_mut_auth = m_use_basic_mut_auth == 1;
             }
+        } else {
+            /* Requester did not declare MUT_AUTH_CAP: do not offer mutual auth,
+             * and clear any stale state left over from a prior connection. */
+            g_key_exchange_start_mut_auth = 0;
+            g_start_basic_mut_auth = false;
         }
 
         libspdm_zero_mem(&parameter, sizeof(parameter));
