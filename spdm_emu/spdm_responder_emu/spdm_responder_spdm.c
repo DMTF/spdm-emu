@@ -566,19 +566,28 @@ void spdm_server_connection_state_callback(
                      * slots 0/1 use that algorithm's primary key pair, slot 4 its secondary
                      * (resolved by libspdm_get_key_pair_id_by_slot). */
                     static const uint8_t populated_slot_id[] = { 0, 1, 4 };
-                    void *slot_data[] = { data, data1, data4 };
-                    size_t slot_data_size[] = { data_size, data1_size, data4_size };
+                    void *slot_data[3];
+                    size_t slot_data_size[3];
                     size_t slot_index;
+                    size_t multi_key_data_size;
 
                     libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
-                    data_size = sizeof(multi_key_conn_rsp);
+                    multi_key_data_size = sizeof(multi_key_conn_rsp);
                     multi_key_conn_rsp = false;
                     libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_RSP, &parameter,
-                                     &multi_key_conn_rsp, &data_size);
-                    /* slot 4 (the distinct-key example) is only valid in a multi-key connection. */
-                    populated_slot_count = multi_key_conn_rsp ?
-                                           (uint8_t)LIBSPDM_ARRAY_SIZE(populated_slot_id) : 2;
+                                     &multi_key_conn_rsp, &multi_key_data_size);
+                    /* slot 4 (the distinct-key example) is provisioned only when this
+                     * connection is multi-key; otherwise its cert chain data is empty,
+                     * so a long-lived responder never carries slot 4 over from an
+                     * earlier multi-key connection into a later non-multi-key one. */
+                    slot_data[0] = data;
+                    slot_data[1] = data1;
+                    slot_data[2] = multi_key_conn_rsp ? data4 : NULL;
+                    slot_data_size[0] = data_size;
+                    slot_data_size[1] = data1_size;
+                    slot_data_size[2] = multi_key_conn_rsp ? data4_size : 0;
+                    populated_slot_count = (uint8_t)LIBSPDM_ARRAY_SIZE(populated_slot_id);
 
                     libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
