@@ -22,6 +22,12 @@
  */
 uint32_t m_exe_mode = EXE_MODE_SHUTDOWN;
 
+/*
+ * SERVE_MODE_ONESHOT
+ * SERVE_MODE_PERSIST
+ */
+uint32_t m_serve_mode = SERVE_MODE_ONESHOT;
+
 bool m_verbose = false;
 
 uint32_t m_exe_connection = (0 |
@@ -118,6 +124,7 @@ void print_usage(const char *name)
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
+    printf("   [--serve_mode ONESHOT|PERSIST]\n");
     printf("   [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SUPPORTED_ALGO]\n");
     printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]\n");
     printf("   [--pcap <pcap_file_name>]\n");
@@ -216,6 +223,19 @@ void print_usage(const char *name)
     printf("           SHUTDOWN means the requester asks the responder to stop.\n");
     printf(
         "           CONTINUE means the requester asks the responder to preserve the current SPDM context.\n");
+    printf(
+        "   [--serve_mode] is used to control the Responder's serving lifetime. It applies to the Responder only.\n");
+    printf("           By default, it is ONESHOT.\n");
+    printf(
+        "           ONESHOT means the Responder exits once the connection ends, however it ends.\n");
+    printf(
+        "           PERSIST means the Responder keeps listening and waits for the next Requester when a\n");
+    printf(
+        "               connection drops, so a restarting Requester does not take the Responder down.\n");
+    printf(
+        "               An explicit shutdown request from the Requester still stops the Responder.\n");
+    printf(
+        "               It cannot be combined with [--tcp_sub RI], which does not listen for connections.\n");
     printf(
         "   [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO.\n");
     printf(
@@ -513,6 +533,11 @@ value_string_entry_t m_slot_count_string_table[] = {
 value_string_entry_t m_exe_mode_string_table[] = {
     { EXE_MODE_SHUTDOWN, "SHUTDOWN" },
     { EXE_MODE_CONTINUE, "CONTINUE" },
+};
+
+value_string_entry_t m_serve_mode_string_table[] = {
+    { SERVE_MODE_ONESHOT, "ONESHOT" },
+    { SERVE_MODE_PERSIST, "PERSIST" },
 };
 
 value_string_entry_t m_exe_connection_string_table[] = {
@@ -1599,6 +1624,28 @@ void process_args(char *program_name, int argc, char *argv[])
             }
         }
 
+        if (strcmp(argv[0], "--serve_mode") == 0) {
+            if (argc >= 2) {
+                if (!get_value_from_name(
+                        m_serve_mode_string_table,
+                        LIBSPDM_ARRAY_SIZE(m_serve_mode_string_table),
+                        argv[1], &m_serve_mode)) {
+                    printf("invalid --serve_mode %s\n",
+                           argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                printf("serve_mode - 0x%08x\n", m_serve_mode);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --serve_mode\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
         if (strcmp(argv[0], "--exe_conn") == 0) {
             if (argc >= 2) {
                 if (!get_flags_from_name(
@@ -1756,6 +1803,25 @@ void process_args(char *program_name, int argc, char *argv[])
          * other, so reject the combination rather than defining a precedence. */
         if (m_ip_explicitly_set) {
             printf("ERROR: --iface and --ip are mutually exclusive\n");
+            print_usage(program_name);
+            exit(0);
+        }
+    }
+
+    if (m_serve_mode != SERVE_MODE_ONESHOT) {
+        /* PERSIST governs what the responder does when a connection drops. The
+         * requester never listens for connections, so it has nothing to serve
+         * persistently. */
+        if (strcmp(program_name, "spdm_requester_emu") == 0) {
+            printf("ERROR: --serve_mode applies to the Responder only\n");
+            print_usage(program_name);
+            exit(0);
+        }
+        /* With TCP RoleInquiry the responder connects out instead of listening,
+         * so there is no accept() to return to once a connection ends. */
+        if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_TCP &&
+            m_use_tcp_role_inquiry == SOCKET_TCP_ROLE_INQUIRY) {
+            printf("ERROR: --serve_mode PERSIST and --tcp_sub RI are mutually exclusive\n");
             print_usage(program_name);
             exit(0);
         }

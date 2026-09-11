@@ -42,6 +42,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
+         [--serve_mode ONESHOT|PERSIST]
          [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SUPPORTED_ALGO]
          [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]
          [--pcap <PcapFileName>]
@@ -123,6 +124,16 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--exe_mode] is used to control the execution mode. By default, it is SHUTDOWN.
                  SHUTDOWN means the requester asks the responder to stop.
                  CONTINUE means the requester asks the responder to preserve the current SPDM context.
+         [--serve_mode] is used to control the Responder's serving lifetime. It applies to the Responder only.
+                 By default, it is ONESHOT.
+                 ONESHOT means the Responder exits once the connection ends, however it ends. A Requester
+                         that disconnects, restarts, or dies therefore takes the Responder down with it.
+                 PERSIST means the Responder closes that connection, keeps its listening socket open and
+                         waits for the next Requester. A Requester may then be restarted freely.
+                         An explicit shutdown request from the Requester still stops the Responder.
+                         The SPDM context is reused; its connection and session state are reset when
+                         the next Requester sends GET_VERSION.
+                         It cannot be combined with [--tcp_sub RI], which connects out instead of listening.
          [--exe_conn] is used to control the SPDM connection. By default, it is DIGEST,CERT,CHAL,MEAS,MEL,GET_CSR,SET_CERT, GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO.
                  VER_ONLY means REQUESTER does not send GET_CAPABILITIES/NEGOTIATE_ALGORITHMS. It is used for quick symmetric authentication with PSK.
                      The version for responder must be provisioned from ver.
@@ -168,6 +179,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
    To test PCI_DOE, a user may use `spdm_requester_emu --trans PCI_DOE --pcap SpdmRequester.pcap > SpdmRequester.log` or `spdm_responder_emu  --trans PCI_DOE --pcap SpdmResponder.pcap > SpdmResponder.log` to get the PCAP file and the log file.
 
    To have the Responder listen on a specific interface instead of all interfaces, a user may use `spdm_responder_emu --trans TCP --iface eth0 --port 4194`. The Responder then binds to the address currently assigned to eth0 rather than to 0.0.0.0.
+
+   To keep the Responder available across Requester restarts, a user may use `spdm_responder_emu --trans TCP --port 4194 --serve_mode PERSIST`. Without it the Responder exits as soon as the Requester disconnects, which is the historical behaviour.
 
    [spdm_dump](https://github.com/DMTF/spdm-dump/blob/main/doc/spdm_dump.md) tool can be used to parse the pcap file for offline analysis.
 

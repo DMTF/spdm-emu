@@ -116,6 +116,10 @@ extern char *m_save_state_file_name;
 #define EXE_MODE_CONTINUE 1
 extern uint32_t m_exe_mode;
 
+#define SERVE_MODE_ONESHOT 0
+#define SERVE_MODE_PERSIST 1
+extern uint32_t m_serve_mode;
+
 #define EXE_CONNECTION_VERSION_ONLY 0x1
 #define EXE_CONNECTION_DIGEST 0x2
 #define EXE_CONNECTION_CERT 0x4
