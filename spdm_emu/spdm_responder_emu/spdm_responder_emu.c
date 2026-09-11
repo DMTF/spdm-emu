@@ -6,6 +6,8 @@
 
 #include "spdm_responder_emu.h"
 
+#include <signal.h>
+
 uint32_t m_command;
 
 SOCKET m_server_socket;
@@ -25,6 +27,15 @@ bool m_send_get_endpoint_info = false;
 
 bool InitConnectionAndRoleInquiry(SOCKET *sock, uint16_t port_number);
 
+/* This peer's connection is over: either it closed, or the socket broke, or the
+ * framing did not make sense. In ONESHOT that ends the process, as it always
+ * has. In PERSIST the caller closes this socket and goes back to accept() for
+ * the next Requester. */
+static bool end_connection(void)
+{
+    return (m_serve_mode == SERVE_MODE_PERSIST);
+}
+
 bool platform_server(const SOCKET socket)
 {
     bool result;
@@ -40,17 +51,17 @@ bool platform_server(const SOCKET socket)
         result = receive_platform_command(socket, &m_command);
         if (!result) {
             EMU_ERR("Platform port Receive command Error - %x\n", socket_errno());
-            return false;
+            return end_connection();
         }
 
         result = receive_platform_transport_type(socket, &transport_type);
         if (!result) {
             EMU_ERR("Platform port Receive transport_type Error - %x\n", socket_errno());
-            return false;
+            return end_connection();
         }
         if (!m_decap_tdisp && transport_type != m_use_transport_layer) {
             EMU_ERR("transport_type mismatch\n");
-            return false;
+            return end_connection();
         }
 
         if (m_command == SOCKET_SPDM_COMMAND_DECAP_TDISP) {
@@ -74,7 +85,7 @@ bool platform_server(const SOCKET socket)
             if ((status == LIBSPDM_STATUS_SEND_FAIL) ||
                 (status == LIBSPDM_STATUS_RECEIVE_FAIL)) {
                 EMU_ERR("Server Critical Error - STOP\n");
-                return false;
+                return end_connection();
             }
             if (status != LIBSPDM_STATUS_UNSUPPORTED_CAP) {
                 continue;
@@ -297,6 +308,15 @@ int main(int argc, char *argv[])
     srand((unsigned int)time(NULL));
 
     process_args("spdm_responder_emu", argc, argv);
+
+#ifdef SIGPIPE
+    if (m_serve_mode == SERVE_MODE_PERSIST) {
+        /* Ignore SIGPIPE in PERSIST so a dead requester yields EPIPE instead of
+         * terminating the responder, allowing it to recover and accept() again.
+         * Keep default SIGPIPE behavior in ONESHOT for compatibility. */
+        signal(SIGPIPE, SIG_IGN);
+    }
+#endif /*SIGPIPE*/
     EMU_LOG("%s version 0.1\n", "spdm_responder_emu");
 
     m_spdm_context = spdm_server_init();
