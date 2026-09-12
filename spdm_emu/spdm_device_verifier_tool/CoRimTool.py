@@ -206,10 +206,11 @@ def VerifySignedCbor(FilePath, Key, Algorithm, Payload):
         with open(Key, 'rb') as f:
             key = VerifyingKey.from_pem(f.read()).to_string()
 
-        cose_key = EC2Key(crv='P_256', d=key)
+        cose_key = EC2Key(crv='P_256', x=key[:len(key) // 2], y=key[len(key) // 2:])
         cose_msg.key = cose_key
 
-        cose_msg.verify_signature(Algorithm)
+        if not cose_msg.verify_signature(Algorithm):
+            raise ValueError('signature does not verify')
     except Exception:
         print("Signature verification failed")
         exit()
