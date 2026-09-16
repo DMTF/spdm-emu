@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/usr/share/spdm-emu
-EnvironmentFile=-/etc/default/spdm-responder-emu
+EnvironmentFile=-/usr/share/spdm-emu/spdm-responder-emu
 ExecStart=/usr/bin/spdm_responder_emu $SPDM_RESPONDER_EMU_ARGS
 Restart=on-failure
 RestartSec=5
