@@ -144,7 +144,7 @@ void *spdm_client_init(void)
 
     libspdm_register_device_buffer_func(spdm_context,
                                         LIBSPDM_SENDER_BUFFER_SIZE,
-                                        LIBSPDM_RECEIVER_BUFFER_SIZE,
+                                        spdm_emu_get_receiver_buffer_size(),
                                         spdm_device_acquire_sender_buffer,
                                         spdm_device_release_sender_buffer,
                                         spdm_device_acquire_receiver_buffer,

@@ -51,6 +51,7 @@ extern uint32_t m_use_requester_capability_flags;
 extern uint32_t m_use_responder_capability_flags;
 extern uint32_t m_use_capability_flags;
 extern uint32_t m_use_peer_capability_flags;
+extern uint32_t m_use_data_transfer_size;
 
 extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;
@@ -200,6 +201,8 @@ void append_pcap_packet_data(const void *header, size_t header_size,
                              const void *data, size_t size);
 
 void process_args(char *program_name, int argc, char *argv[]);
+
+uint32_t spdm_emu_get_receiver_buffer_size(void);
 
 void dump_supported_algorithms(const void *buffer, size_t buffer_size);
 
