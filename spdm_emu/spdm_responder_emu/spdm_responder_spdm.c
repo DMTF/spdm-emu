@@ -124,6 +124,7 @@ void *spdm_server_init(void)
     libspdm_return_t status;
     size_t scratch_buffer_size;
     uint32_t max_spdm_msg_size;
+    uint32_t sender_buffer_size;
 
     EMU_LOG("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -173,9 +174,16 @@ void *spdm_server_init(void)
     if (m_use_capability_flags != 0) {
         m_use_responder_capability_flags = m_use_capability_flags;
     }
+    sender_buffer_size = LIBSPDM_SENDER_BUFFER_SIZE;
     max_spdm_msg_size = LIBSPDM_MAX_SPDM_MSG_SIZE;
     if ((m_use_responder_capability_flags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHUNK_CAP) == 0) {
         max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
+        if (m_use_data_transfer_size != 0) {
+            /* Without chunking, MaxSPDMmsgSize must equal DataTransferSize,
+             * and no message larger than that can be sent either. */
+            max_spdm_msg_size = m_use_data_transfer_size;
+            sender_buffer_size = spdm_emu_get_receiver_buffer_size();
+        }
     }
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP
         || m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
@@ -216,8 +224,8 @@ void *spdm_server_init(void)
         return NULL;
     }
     libspdm_register_device_buffer_func(spdm_context,
-                                        LIBSPDM_SENDER_BUFFER_SIZE,
-                                        LIBSPDM_RECEIVER_BUFFER_SIZE,
+                                        sender_buffer_size,
+                                        spdm_emu_get_receiver_buffer_size(),
                                         spdm_device_acquire_sender_buffer,
                                         spdm_device_release_sender_buffer,
                                         spdm_device_acquire_receiver_buffer,
