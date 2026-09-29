@@ -178,7 +178,7 @@ def translate_data(output, input):
                             output[AllMapDict[actual_key]] = cbor2.CBORTag(ComidCborTags[tag_type], input[key])
                         except Exception:
                             print("No '_' found in key as separator with tag")
-                            exit()
+                            exit(1)
                     else:
                         output[AllMapDict[key]] = input[key]
     elif isinstance(input, list):
@@ -213,7 +213,7 @@ def VerifySignedCbor(FilePath, Key, Algorithm, Payload):
             raise ValueError('signature does not verify')
     except Exception:
         print("Signature verification failed")
-        exit()
+        exit(1)
 
     with open(Payload, 'wb') as f:
         f.write(cbor_data.value.value.value[2])
