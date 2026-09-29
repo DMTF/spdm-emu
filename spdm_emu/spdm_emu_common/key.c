@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -62,6 +62,8 @@ uint32_t m_use_responder_capability_flags =
 
 uint32_t m_use_capability_flags = 0;
 uint32_t m_use_peer_capability_flags = 0;
+/* 0 means the DataTransferSize derived from LIBSPDM_RECEIVER_BUFFER_SIZE. */
+uint32_t m_use_data_transfer_size = 0;
 /*
  * 0
  * 1
