@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -13,19 +13,28 @@ extern void *m_spdm_context;
 #define LIBSPDM_MAX_MEASUREMENT_EXTENSION_LOG_SIZE 0x1000
 
 /**
- * This function executes SPDM measurement and extend to TPM.
+ * This function sends GET_MEASUREMENTS and receives MEASUREMENTS for the measurement
+ * operation selected by --meas_op, using a caller-provided MeasurementRecord buffer.
  *
  * @param[in]  spdm_context            The SPDM context for the device.
+ * @param[in]  session_id              The session ID of the secured session, or NULL to
+ *                                     send the requests outside of a session.
+ * @param[out] measurement_record      The buffer that receives each MeasurementRecord.
+ * @param[in]  measurement_record_size The size in bytes of measurement_record.
+ *
+ * @retval LIBSPDM_STATUS_SUCCESS      All measurement requests completed successfully.
+ * @return Other                       The libspdm status of the failing GET_MEASUREMENTS.
  **/
-libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
-                                                   const uint32_t *session_id)
+static libspdm_return_t send_receive_get_measurement(void *spdm_context,
+                                                     const uint32_t *session_id,
+                                                     uint8_t *measurement_record,
+                                                     uint32_t measurement_record_size)
 {
     libspdm_return_t status;
     uint8_t number_of_blocks;
     uint8_t number_of_block;
     uint8_t received_number_of_block;
     uint32_t measurement_record_length;
-    uint8_t measurement_record[LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE];
     uint8_t index;
     uint8_t request_attribute;
     uint32_t data32;
@@ -60,7 +69,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
         } else {
             request_attribute = 0;
         }
-        measurement_record_length = sizeof(measurement_record);
+        measurement_record_length = measurement_record_size;
         status = libspdm_get_measurement_ex2(
             spdm_context, session_id, request_attribute,
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS,
@@ -105,7 +114,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
                     request_attribute = m_use_measurement_attribute;
                 }
             }
-            measurement_record_length = sizeof(measurement_record);
+            measurement_record_length = measurement_record_size;
             status = libspdm_get_measurement_ex2(
                 spdm_context, session_id, request_attribute,
                 index, m_use_slot_id & 0xF, requester_context, NULL, &number_of_block,
@@ -149,7 +158,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
                         request_attribute = m_use_measurement_attribute;
                     }
                 }
-                measurement_record_length = sizeof(measurement_record);
+                measurement_record_length = measurement_record_size;
                 status = libspdm_get_measurement_ex2(
                     spdm_context, session_id, request_attribute,
                     index, m_use_slot_id & 0xF, requester_context, NULL, &number_of_block,
@@ -164,6 +173,55 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
     }
 
     return LIBSPDM_STATUS_SUCCESS;
+}
+
+/**
+ * This function executes SPDM measurement and extend to TPM.
+ *
+ * The MeasurementRecord buffer is allocated on the heap with a size of the larger of
+ * LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE and the local MaxSPDMmsgSize (--max_spdm_msg_size),
+ * so a single measurement larger than LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE can be received.
+ *
+ * @param[in]  spdm_context            The SPDM context for the device.
+ * @param[in]  session_id              The session ID of the secured session, or NULL to
+ *                                     send the requests outside of a session.
+ *
+ * @retval LIBSPDM_STATUS_SUCCESS      All measurement requests completed successfully.
+ * @retval LIBSPDM_STATUS_ACQUIRE_FAIL The MeasurementRecord buffer cannot be allocated.
+ * @return Other                       The libspdm status of the failing GET_MEASUREMENTS.
+ **/
+libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
+                                                   const uint32_t *session_id)
+{
+    libspdm_return_t status;
+    libspdm_data_parameter_t parameter;
+    uint32_t max_spdm_msg_size;
+    size_t data_size;
+    uint32_t measurement_record_size;
+    uint8_t *measurement_record;
+
+    /* A MeasurementRecord can be as large as the MEASUREMENTS message, which is
+     * bounded by the local MaxSPDMmsgSize, so a single measurement larger than
+     * LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE can be received too. */
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+    max_spdm_msg_size = 0;
+    data_size = sizeof(max_spdm_msg_size);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_MAX_SPDM_MSG_SIZE, &parameter,
+                     &max_spdm_msg_size, &data_size);
+    measurement_record_size = LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE;
+    if (max_spdm_msg_size > measurement_record_size) {
+        measurement_record_size = max_spdm_msg_size;
+    }
+    measurement_record = (uint8_t *)malloc(measurement_record_size);
+    if (measurement_record == NULL) {
+        return LIBSPDM_STATUS_ACQUIRE_FAIL;
+    }
+
+    status = send_receive_get_measurement(spdm_context, session_id,
+                                          measurement_record, measurement_record_size);
+    free(measurement_record);
+    return status;
 }
 
 /**
