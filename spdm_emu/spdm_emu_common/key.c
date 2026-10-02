@@ -64,6 +64,8 @@ uint32_t m_use_capability_flags = 0;
 uint32_t m_use_peer_capability_flags = 0;
 /* 0 means the DataTransferSize derived from LIBSPDM_RECEIVER_BUFFER_SIZE. */
 uint32_t m_use_data_transfer_size = 0;
+/* 0 means LIBSPDM_MAX_SPDM_MSG_SIZE, or DataTransferSize without CHUNK_CAP. */
+uint32_t m_use_max_spdm_msg_size = 0;
 /*
  * 0
  * 1
