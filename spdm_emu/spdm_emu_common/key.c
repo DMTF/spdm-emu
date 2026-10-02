@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -62,6 +62,10 @@ uint32_t m_use_responder_capability_flags =
 
 uint32_t m_use_capability_flags = 0;
 uint32_t m_use_peer_capability_flags = 0;
+/* Size of the Requester's certificate chain buffer. 0 means LIBSPDM_MAX_CERT_CHAIN_SIZE. */
+uint32_t m_use_cert_buf_size = 0;
+/* Length requested in each GET_CERTIFICATE. 0 means as much as MaxSPDMmsgSize allows. */
+uint32_t m_use_cert_block_len = 0;
 /*
  * 0
  * 1

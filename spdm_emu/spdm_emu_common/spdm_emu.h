@@ -51,6 +51,8 @@ extern uint32_t m_use_requester_capability_flags;
 extern uint32_t m_use_responder_capability_flags;
 extern uint32_t m_use_capability_flags;
 extern uint32_t m_use_peer_capability_flags;
+extern uint32_t m_use_cert_buf_size;
+extern uint32_t m_use_cert_block_len;
 
 extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;
@@ -309,6 +311,10 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
 #define LIBSPDM_MAX_CERT_CHAIN_SIZE 0x1000
 #endif
 #endif /* LIBSPDM_MAX_CERT_CHAIN_SIZE */
+
+/* Upper bound of --cert_buf. It is not an SPDM limit; it keeps the emulator from
+ * allocating excessive memory. */
+#define SPDM_EMU_MAX_CERT_BUF_SIZE 0x1000000
 
 #ifndef LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE
 #define LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE 0x1000
