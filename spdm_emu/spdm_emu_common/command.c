@@ -14,8 +14,29 @@ uint32_t m_use_transport_layer = SOCKET_TRANSPORT_TYPE_MCTP;
 uint32_t m_use_tcp_role_inquiry = SOCKET_TCP_NO_ROLE_INQUIRY;
 
 bool m_send_receive_buffer_acquired = false;
-uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
+static uint8_t m_default_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
+uint8_t *m_send_receive_buffer = m_default_send_receive_buffer;
+size_t m_send_receive_buffer_capacity = sizeof(m_default_send_receive_buffer);
 size_t m_send_receive_buffer_size;
+
+bool spdm_emu_init_send_receive_buffer(size_t buffer_size)
+{
+    uint8_t *buffer;
+
+    if (buffer_size <= m_send_receive_buffer_capacity) {
+        return true;
+    }
+    buffer = (uint8_t *)malloc(buffer_size);
+    if (buffer == NULL) {
+        return false;
+    }
+    if (m_send_receive_buffer != m_default_send_receive_buffer) {
+        free(m_send_receive_buffer);
+    }
+    m_send_receive_buffer = buffer;
+    m_send_receive_buffer_capacity = buffer_size;
+    return true;
+}
 
 /* Forward declarations for the default (socket-framed) IO ops - see the
  * spdm_emu_io_ops_t vtable declared in command.h. */
@@ -434,7 +455,7 @@ libspdm_return_t spdm_device_acquire_sender_buffer (
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
     *msg_buf_ptr = m_send_receive_buffer;
-    libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
+    libspdm_zero_mem (m_send_receive_buffer, m_send_receive_buffer_capacity);
     m_send_receive_buffer_acquired = true;
     return LIBSPDM_STATUS_SUCCESS;
 }
@@ -453,7 +474,7 @@ libspdm_return_t spdm_device_acquire_receiver_buffer (
 {
     LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
     *msg_buf_ptr = m_send_receive_buffer;
-    libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
+    libspdm_zero_mem (m_send_receive_buffer, m_send_receive_buffer_capacity);
     m_send_receive_buffer_acquired = true;
     return LIBSPDM_STATUS_SUCCESS;
 }
