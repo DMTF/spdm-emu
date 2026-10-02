@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -62,6 +62,10 @@ uint32_t m_use_responder_capability_flags =
 
 uint32_t m_use_capability_flags = 0;
 uint32_t m_use_peer_capability_flags = 0;
+/* CTExponent advertised in GET_CAPABILITIES/CAPABILITIES. */
+uint8_t m_use_ct_exponent = 0;
+/* Round-trip time in microseconds. 0 means no response timeout is enforced. */
+uint64_t m_use_rtt_us = 0;
 /*
  * 0
  * 1
