@@ -6,6 +6,10 @@
 
 #include "spdm_emu.h"
 
+#ifndef _WIN32
+#include <sys/select.h>
+#endif
+
 /* hack to add MCTP header for PCAP*/
 #include "industry_standard/mctp.h"
 
@@ -244,6 +248,38 @@ bool receive_platform_data(const SOCKET socket, uint32_t *command,
     }
 
     return result;
+}
+
+/**
+ * Wait until the socket has data to read.
+ *
+ * @param  timeout_us  The timeout in microseconds. 0 means wait indefinitely.
+ *
+ * @retval true   The socket is readable, or timeout_us is 0.
+ * @retval false  The timeout expired, or select() failed.
+ **/
+bool wait_for_socket_readable(const SOCKET socket, uint64_t timeout_us)
+{
+    fd_set read_fds;
+    struct timeval tv;
+    int result;
+
+    if (timeout_us == 0) {
+        return true;
+    }
+
+    FD_ZERO(&read_fds);
+    FD_SET(socket, &read_fds);
+    tv.tv_sec = (long)(timeout_us / 1000000);
+    tv.tv_usec = (long)(timeout_us % 1000000);
+
+    /* nfds is ignored on Windows. */
+    result = select((int)(socket + 1), &read_fds, NULL, NULL, &tv);
+    if (result < 0) {
+        EMU_ERR("select Error - %x\n", socket_errno());
+        return false;
+    }
+    return result > 0;
 }
 
 /**
