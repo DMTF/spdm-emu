@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -89,8 +89,10 @@ uint8_t m_use_measurement_summary_hash_type =
 uint8_t m_use_measurement_operation =
     SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_TOTAL_NUMBER_OF_MEASUREMENTS;
 /*
- * 0
+ * 0, or a combination of
+ * SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE
  * SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_RAW_BIT_STREAM_REQUESTED
+ * SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_NEW_MEASUREMENT_REQUESTED
  */
 uint8_t m_use_measurement_attribute = 0;
 uint8_t m_use_slot_id = 0;
