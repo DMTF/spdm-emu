@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -28,7 +28,9 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
     uint8_t measurement_record[LIBSPDM_MAX_MEASUREMENT_RECORD_SIZE];
     uint8_t index;
     uint8_t request_attribute;
+    uint8_t base_attribute;
     uint32_t data32;
+    spdm_version_number_t spdm_version;
     size_t data_size;
     bool need_sig;
     libspdm_data_parameter_t parameter;
@@ -48,6 +50,25 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
         need_sig = true;
     }
 
+    base_attribute = m_use_measurement_attribute;
+    if (!need_sig &&
+        ((base_attribute & SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE) != 0)) {
+        EMU_ERR("--meas_att SIG is requested, but the Responder does not support MEAS_SIG\n");
+        return LIBSPDM_STATUS_INVALID_PARAMETER;
+    }
+
+    /* NewMeasurementRequested is reserved before SPDM 1.3. */
+    data_size = sizeof(spdm_version);
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
+                     &spdm_version, &data_size);
+    if (((base_attribute &
+          SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_NEW_MEASUREMENT_REQUESTED) != 0) &&
+        ((spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT) < SPDM_MESSAGE_VERSION_13)) {
+        EMU_INFO("--meas_att NEW is ignored, it requires SPDM 1.3 or above\n");
+        base_attribute &=
+            (uint8_t)~SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_NEW_MEASUREMENT_REQUESTED;
+    }
+
     if (m_use_measurement_operation ==
         SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS) {
 
@@ -55,10 +76,10 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
         requester_context[SPDM_REQ_CONTEXT_SIZE - 1] =
             SPDM_GET_MEASUREMENTS_REQUEST_MEASUREMENT_OPERATION_ALL_MEASUREMENTS;
         if (need_sig) {
-            request_attribute =
-                SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
+            request_attribute = base_attribute |
+                                SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
         } else {
-            request_attribute = 0;
+            request_attribute = base_attribute;
         }
         measurement_record_length = sizeof(measurement_record);
         status = libspdm_get_measurement_ex2(
@@ -71,7 +92,7 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
             return status;
         }
     } else {
-        request_attribute = m_use_measurement_attribute;
+        request_attribute = base_attribute;
 
         /* 1. query the total number of measurements available.*/
         requester_context[SPDM_REQ_CONTEXT_SIZE - 1] =
@@ -99,10 +120,10 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
             /* get signature in last message only.*/
             if (received_number_of_block == number_of_blocks - 1) {
                 if (need_sig) {
-                    request_attribute = m_use_measurement_attribute |
+                    request_attribute = base_attribute |
                                         SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
                 } else {
-                    request_attribute = m_use_measurement_attribute;
+                    request_attribute = base_attribute;
                 }
             }
             measurement_record_length = sizeof(measurement_record);
@@ -143,10 +164,10 @@ libspdm_return_t spdm_send_receive_get_measurement(void *spdm_context,
                 /* get signature in last message only.*/
                 if (received_number_of_block == number_of_blocks - 1) {
                     if (need_sig) {
-                        request_attribute = m_use_measurement_attribute |
+                        request_attribute = base_attribute |
                                             SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
                     } else {
-                        request_attribute = m_use_measurement_attribute;
+                        request_attribute = base_attribute;
                     }
                 }
                 measurement_record_length = sizeof(measurement_record);
