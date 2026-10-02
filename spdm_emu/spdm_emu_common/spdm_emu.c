@@ -128,6 +128,7 @@ void print_usage(const char *name)
     printf("   [--exe_conn VER_ONLY|VCA|DIGEST|CERT|CHAL|MEAS|MEL|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|SUPPORTED_ALGO]\n");
     printf("   [--exe_session KEY_EX|PSK|NO_END|KEY_UPDATE|HEARTBEAT|MEAS|MEL|DIGEST|CERT|GET_CSR|SET_CERT|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|EP_INFO|APP]\n");
     printf("   [--data_transfer_size <bytes>]\n");
+    printf("   [--max_spdm_msg_size <bytes>]\n");
     printf("   [--pcap <pcap_file_name>]\n");
     printf("   [--priv_key_mode PEM|RAW]\n");
     printf("   [--verbose | -v]\n");
@@ -275,8 +276,17 @@ void print_usage(const char *name)
     printf("           APP means send vendor defined message or application message in session.\n");
     printf("   [--data_transfer_size] is the DataTransferSize this endpoint advertises, from %u to %u.\n",
            (unsigned int)SPDM_MIN_DATA_TRANSFER_SIZE_VERSION_12,
+           (unsigned int)SPDM_EMU_MAX_BUFFER_SIZE);
+    printf("           By default, it is derived from the receiver buffer size (%u).\n",
            (unsigned int)LIBSPDM_DATA_TRANSFER_SIZE);
-    printf("           By default, it is derived from the receiver buffer size. It can only be lowered.\n");
+    printf("           A larger value lets a large message, such as MEASUREMENTS, be sent without chunking.\n");
+    printf("   [--max_spdm_msg_size] is the MaxSPDMmsgSize this endpoint advertises, from %u to %u.\n",
+           (unsigned int)SPDM_MIN_DATA_TRANSFER_SIZE_VERSION_12,
+           (unsigned int)SPDM_EMU_MAX_BUFFER_SIZE);
+    printf("           By default, it is %u with CHUNK capability, or raised to DataTransferSize if that is larger.\n",
+           (unsigned int)LIBSPDM_MAX_SPDM_MSG_SIZE);
+    printf("           With CHUNK capability, it shall be greater than or equal to DataTransferSize.\n");
+    printf("           Without CHUNK capability, it always equals DataTransferSize, so it cannot be set.\n");
     printf("   [--pcap] is used to generate PCAP dump file for offline analysis.\n");
     printf(
         "   [--priv_key_mode] is uesed to confirm private key mode with LIBSPDM_PRIVATE_KEY_USE_PEM.\n");
@@ -774,6 +784,64 @@ uint32_t spdm_emu_get_receiver_buffer_size(void)
         return m_use_data_transfer_size;
     }
     return m_use_data_transfer_size + LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
+}
+
+static uint32_t spdm_emu_max_u32(uint32_t a, uint32_t b)
+{
+    return (a > b) ? a : b;
+}
+
+/* Without chunking no message can be larger than DataTransferSize, so the sender
+ * buffer follows the receiver buffer. A DataTransferSize above the build's sender
+ * buffer also enlarges it, so that the endpoint can send a message of that size
+ * in one piece too. */
+uint32_t spdm_emu_get_sender_buffer_size(bool chunk_cap)
+{
+    if (m_use_data_transfer_size == 0) {
+        return LIBSPDM_SENDER_BUFFER_SIZE;
+    }
+    if (!chunk_cap || (m_use_data_transfer_size > LIBSPDM_SENDER_DATA_TRANSFER_SIZE)) {
+        return spdm_emu_get_receiver_buffer_size();
+    }
+    return LIBSPDM_SENDER_BUFFER_SIZE;
+}
+
+/* Returns the MaxSPDMmsgSize to register, or 0 if --max_spdm_msg_size conflicts with
+ * DataTransferSize. DSP0274 requires MaxSPDMmsgSize to equal DataTransferSize without
+ * CHUNK_CAP, and to be at least DataTransferSize with it. */
+uint32_t spdm_emu_get_max_spdm_msg_size(bool chunk_cap)
+{
+    uint32_t data_transfer_size;
+    uint32_t sender_data_transfer_size;
+
+    data_transfer_size = spdm_emu_get_receiver_buffer_size();
+    sender_data_transfer_size = spdm_emu_get_sender_buffer_size(chunk_cap);
+    if (m_use_transport_layer != SOCKET_TRANSPORT_TYPE_NONE) {
+        data_transfer_size -= LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
+        sender_data_transfer_size -= LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
+    }
+
+    if (!chunk_cap) {
+        if ((m_use_max_spdm_msg_size != 0) && (m_use_max_spdm_msg_size != data_transfer_size)) {
+            EMU_ERR("--max_spdm_msg_size (%u) must equal DataTransferSize (%u) without CHUNK_CAP\n",
+                    m_use_max_spdm_msg_size, data_transfer_size);
+            return 0;
+        }
+        return data_transfer_size;
+    }
+
+    if (m_use_max_spdm_msg_size != 0) {
+        if ((m_use_max_spdm_msg_size < data_transfer_size) ||
+            (m_use_max_spdm_msg_size < sender_data_transfer_size)) {
+            EMU_ERR("--max_spdm_msg_size (%u) must be greater than or equal to DataTransferSize (%u)\n",
+                    m_use_max_spdm_msg_size,
+                    spdm_emu_max_u32(data_transfer_size, sender_data_transfer_size));
+            return 0;
+        }
+        return m_use_max_spdm_msg_size;
+    }
+    return spdm_emu_max_u32(LIBSPDM_MAX_SPDM_MSG_SIZE,
+                            spdm_emu_max_u32(data_transfer_size, sender_data_transfer_size));
 }
 
 void process_args(char *program_name, int argc, char *argv[])
@@ -1721,7 +1789,7 @@ void process_args(char *program_name, int argc, char *argv[])
                 value = strtoul(argv[1], &end, 0);
                 if ((end == argv[1]) || (*end != '\0') ||
                     (value < SPDM_MIN_DATA_TRANSFER_SIZE_VERSION_12) ||
-                    (value > LIBSPDM_DATA_TRANSFER_SIZE)) {
+                    (value > SPDM_EMU_MAX_BUFFER_SIZE)) {
                     printf("invalid --data_transfer_size %s\n", argv[1]);
                     print_usage(program_name);
                     exit(0);
@@ -1733,6 +1801,31 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --data_transfer_size\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--max_spdm_msg_size") == 0) {
+            if (argc >= 2) {
+                char *end;
+                unsigned long value;
+
+                value = strtoul(argv[1], &end, 0);
+                if ((end == argv[1]) || (*end != '\0') || (argv[1][0] == '-') ||
+                    (value < SPDM_MIN_DATA_TRANSFER_SIZE_VERSION_12) ||
+                    (value > SPDM_EMU_MAX_BUFFER_SIZE)) {
+                    printf("invalid --max_spdm_msg_size %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_max_spdm_msg_size = (uint32_t)value;
+                printf("max_spdm_msg_size - 0x%08x\n", m_use_max_spdm_msg_size);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --max_spdm_msg_size\n");
                 print_usage(program_name);
                 exit(0);
             }
@@ -1871,6 +1964,12 @@ void process_args(char *program_name, int argc, char *argv[])
             print_usage(program_name);
             exit(0);
         }
+    }
+
+    /* The send/receive buffer is sized after the transport type is known. */
+    if (!spdm_emu_init_send_receive_buffer(spdm_emu_get_receiver_buffer_size())) {
+        printf("ERROR: cannot allocate the send/receive buffer\n");
+        exit(0);
     }
 
     /* Open PCAP file as last option, after the user indicates transport type.*/

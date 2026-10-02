@@ -69,7 +69,7 @@ bool platform_server(const SOCKET socket)
              * Drain the payload outside of the SPDM handler and then handle
              * it directly.
              */
-            m_send_receive_buffer_size = sizeof(m_send_receive_buffer);
+            m_send_receive_buffer_size = m_send_receive_buffer_capacity;
             result = receive_platform_data(socket, &m_command,
                                            m_send_receive_buffer,
                                            &m_send_receive_buffer_size);

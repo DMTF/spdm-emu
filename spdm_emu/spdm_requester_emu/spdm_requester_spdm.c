@@ -136,6 +136,7 @@ void *spdm_client_init(void)
     uint32_t responder_capabilities_flag;
     uint32_t max_spdm_msg_size;
     uint32_t sender_buffer_size;
+    bool chunk_cap;
 
     EMU_LOG("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -180,16 +181,13 @@ void *spdm_client_init(void)
     if (m_use_capability_flags != 0) {
         m_use_requester_capability_flags = m_use_capability_flags;
     }
-    sender_buffer_size = LIBSPDM_SENDER_BUFFER_SIZE;
-    max_spdm_msg_size = LIBSPDM_MAX_SPDM_MSG_SIZE;
-    if ((m_use_requester_capability_flags & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP) == 0) {
-        max_spdm_msg_size = LIBSPDM_RECEIVER_BUFFER_SIZE - LIBSPDM_TRANSPORT_ADDITIONAL_SIZE;
-        if (m_use_data_transfer_size != 0) {
-            /* Without chunking, MaxSPDMmsgSize must equal DataTransferSize,
-             * and no message larger than that can be sent either. */
-            max_spdm_msg_size = m_use_data_transfer_size;
-            sender_buffer_size = spdm_emu_get_receiver_buffer_size();
-        }
+    chunk_cap = (m_use_requester_capability_flags & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP) != 0;
+    sender_buffer_size = spdm_emu_get_sender_buffer_size(chunk_cap);
+    max_spdm_msg_size = spdm_emu_get_max_spdm_msg_size(chunk_cap);
+    if (max_spdm_msg_size == 0) {
+        free(m_spdm_context);
+        m_spdm_context = NULL;
+        return NULL;
     }
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP
         || m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {

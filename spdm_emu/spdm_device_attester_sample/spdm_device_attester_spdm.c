@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -104,6 +104,7 @@ void *spdm_client_init(void)
     uint16_t data16;
     uint32_t data32;
     size_t scratch_buffer_size;
+    uint32_t max_spdm_msg_size;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -117,10 +118,17 @@ void *spdm_client_init(void)
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
                                     spdm_device_receive_message);
 
+    max_spdm_msg_size = spdm_emu_get_max_spdm_msg_size(true);
+    if (max_spdm_msg_size == 0) {
+        free(m_spdm_context);
+        m_spdm_context = NULL;
+        return NULL;
+    }
+
     if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_MCTP) {
         libspdm_register_transport_layer_func(
             spdm_context,
-            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            max_spdm_msg_size,
             LIBSPDM_TRANSPORT_HEADER_SIZE,
             LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_mctp_encode_message,
@@ -128,7 +136,7 @@ void *spdm_client_init(void)
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_PCI_DOE) {
         libspdm_register_transport_layer_func(
             spdm_context,
-            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            max_spdm_msg_size,
             LIBSPDM_TRANSPORT_HEADER_SIZE,
             LIBSPDM_TRANSPORT_TAIL_SIZE,
             libspdm_transport_pci_doe_encode_message,
@@ -136,7 +144,7 @@ void *spdm_client_init(void)
     } else if (m_use_transport_layer == SOCKET_TRANSPORT_TYPE_NONE) {
         libspdm_register_transport_layer_func(
             spdm_context,
-            LIBSPDM_MAX_SPDM_MSG_SIZE,
+            max_spdm_msg_size,
             0,
             0,
             spdm_transport_none_encode_message,
@@ -148,7 +156,7 @@ void *spdm_client_init(void)
     }
 
     libspdm_register_device_buffer_func(spdm_context,
-                                        LIBSPDM_SENDER_BUFFER_SIZE,
+                                        spdm_emu_get_sender_buffer_size(true),
                                         spdm_emu_get_receiver_buffer_size(),
                                         spdm_device_acquire_sender_buffer,
                                         spdm_device_release_sender_buffer,
