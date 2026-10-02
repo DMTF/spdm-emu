@@ -39,6 +39,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--slot_id <0~7|0xFF>]
          [--slot_count <1~8>]
          [--req_slot_id <0~7|0xFF>]
+         [--cert_buf <bytes>]
+         [--cert_block_len <bytes>]
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
@@ -109,6 +111,11 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--slot_id] is to select the responder slot ID in GET_MEASUREMENT, CHALLENGE_AUTH and KEY_EXCHANGE. By default, 0 is used.
          [--req_slot_id] is to select the requester slot ID in KEY_EXCHANGE_RSP and FINISH. By default, 0 is used.
                  0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.
+         [--cert_buf] is the size of the Requester's buffer for a certificate chain, from 1 to 0x1000000. By default, LIBSPDM_MAX_CERT_CHAIN_SIZE is used.
+                It applies to the Requester only. Increase it to retrieve a large certificate chain (such as a PQC chain).
+         [--cert_block_len] is the Length requested in each GET_CERTIFICATE. It applies to the Requester only.
+                By default, 0 is used: each request asks for as much as MaxSPDMmsgSize allows.
+                A value above 0xFFFF requires SPDM 1.4 and the Responder's LARGE_RESP capability.
          [--slot_count] is to select the local slot count. By default, 3 is used. And the slot store cert chain continuously in emu.
          [--save_state] is to save the current negotiated state to a write-only file.
                  The requester and responder will save state after GET_VERSION/GET_CAPABILITIES /NEGOTIATE_ALGORITHMS.

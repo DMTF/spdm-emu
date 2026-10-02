@@ -64,12 +64,10 @@ libspdm_return_t get_digest_cert_in_session(const uint32_t *session_id)
     uint8_t total_digest_buffer[LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
     size_t cert_chain_size;
-    uint8_t cert_chain[LIBSPDM_MAX_CERT_CHAIN_SIZE];
+    uint8_t *cert_chain;
 
     spdm_context = m_spdm_context;
     libspdm_zero_mem(total_digest_buffer, sizeof(total_digest_buffer));
-    cert_chain_size = sizeof(cert_chain);
-    libspdm_zero_mem(cert_chain, sizeof(cert_chain));
     libspdm_zero_mem(measurement_hash, sizeof(measurement_hash));
 
     if ((m_exe_session & EXE_SESSION_DIGEST) != 0) {
@@ -80,8 +78,16 @@ libspdm_return_t get_digest_cert_in_session(const uint32_t *session_id)
     }
     if ((m_exe_session & EXE_SESSION_CERT) != 0) {
         if (m_use_slot_id != 0xFF) {
+            cert_chain_size = (m_use_cert_buf_size != 0) ? m_use_cert_buf_size :
+                              LIBSPDM_MAX_CERT_CHAIN_SIZE;
+            cert_chain = (uint8_t *)calloc(1, cert_chain_size);
+            if (cert_chain == NULL) {
+                return LIBSPDM_STATUS_ACQUIRE_FAIL;
+            }
             status = libspdm_get_certificate_ex(
-                spdm_context, session_id, m_use_slot_id, 0, &cert_chain_size, cert_chain, NULL, 0);
+                spdm_context, session_id, m_use_slot_id, m_use_cert_block_len,
+                &cert_chain_size, cert_chain, NULL, 0);
+            free(cert_chain);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 return status;
             }

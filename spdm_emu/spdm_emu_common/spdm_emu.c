@@ -121,6 +121,8 @@ void print_usage(const char *name)
     printf("   [--slot_id <0~7|0xFF>]\n");
     printf("   [--slot_count <1~8>]\n");
     printf("   [--req_slot_id <0~7|0xFF>]\n");
+    printf("   [--cert_buf <bytes>]\n");
+    printf("   [--cert_block_len <bytes>]\n");
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
@@ -197,6 +199,18 @@ void print_usage(const char *name)
         "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
     printf(
         "           0xFF must be used to if PUB_KEY_ID is set. No GET_DIGEST/GET_CERTIFICATE is sent.\n");
+    printf(
+        "   [--cert_buf] is the size of the Requester's buffer for a certificate chain, from 1 to %u.\n",
+        (unsigned int)SPDM_EMU_MAX_CERT_BUF_SIZE);
+    printf(
+        "           By default, LIBSPDM_MAX_CERT_CHAIN_SIZE (%u) is used. It applies to the Requester only.\n",
+        (unsigned int)LIBSPDM_MAX_CERT_CHAIN_SIZE);
+    printf(
+        "   [--cert_block_len] is the Length requested in each GET_CERTIFICATE. It applies to the Requester only.\n");
+    printf(
+        "           By default, 0 is used: each request asks for as much as MaxSPDMmsgSize allows.\n");
+    printf(
+        "           A value above 0xFFFF requires SPDM 1.4 and the Responder's LARGE_RESP capability.\n");
     printf(
         "   [--slot_count] is to select the local slot count. By default, 3 is used.  And the slot store cert chain continuously in emu.\n");
     printf("   [--save_state] is to save the current negotiated state to a write-only file.\n");
@@ -1571,6 +1585,54 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --req_slot_id\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--cert_buf") == 0) {
+            if (argc >= 2) {
+                char *end;
+                unsigned long value;
+
+                value = strtoul(argv[1], &end, 0);
+                if ((end == argv[1]) || (*end != '\0') || (argv[1][0] == '-') ||
+                    (value == 0) || (value > SPDM_EMU_MAX_CERT_BUF_SIZE)) {
+                    printf("invalid --cert_buf %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_cert_buf_size = (uint32_t)value;
+                printf("cert_buf - 0x%08x\n", m_use_cert_buf_size);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --cert_buf\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--cert_block_len") == 0) {
+            if (argc >= 2) {
+                char *end;
+                unsigned long long value;
+
+                value = strtoull(argv[1], &end, 0);
+                if ((end == argv[1]) || (*end != '\0') || (argv[1][0] == '-') ||
+                    (value > UINT32_MAX)) {
+                    printf("invalid --cert_block_len %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_cert_block_len = (uint32_t)value;
+                printf("cert_block_len - 0x%08x\n", m_use_cert_block_len);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --cert_block_len\n");
                 print_usage(program_name);
                 exit(0);
             }
