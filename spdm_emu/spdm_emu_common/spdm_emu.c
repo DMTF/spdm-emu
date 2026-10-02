@@ -116,7 +116,7 @@ void print_usage(const char *name)
     printf("   [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]\n");
     printf("   [--meas_sum NO|TCB|ALL]\n");
     printf("   [--meas_op ONE_BY_ONE|ALL]\n");
-    printf("   [--meas_att HASH|RAW]\n");
+    printf("   [--meas_att HASH|RAW|SIG|NEW]\n");
     printf("   [--key_upd REQ|ALL|RSP]\n");
     printf("   [--slot_id <0~7|0xFF>]\n");
     printf("   [--slot_count <1~8>]\n");
@@ -187,6 +187,16 @@ void print_usage(const char *name)
         "   [--meas_op] is the measurement operation in GET_MEASUREMEMT. By default, ONE_BY_ONE is used.\n");
     printf(
         "   [--meas_att] is the measurement attribute in GET_MEASUREMEMT. By default, HASH is used.\n");
+    printf(
+        "           Multiple flags can be set together. Please use ',' for them, e.g. RAW,SIG,NEW.\n");
+    printf("           HASH means request measurement digests.\n");
+    printf("           RAW means request raw bit stream (RawBitStreamRequested).\n");
+    printf(
+        "           SIG means request a signature (SignatureRequested) in every GET_MEASUREMENTS.\n");
+    printf(
+        "               Without SIG, a signature is requested in the last GET_MEASUREMENTS only, if the Responder supports MEAS_SIG.\n");
+    printf(
+        "           NEW means request a new measurement (NewMeasurementRequested). It is sent with SPDM 1.3 and above only.\n");
     printf(
         "   [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.\n");
     printf(
@@ -511,6 +521,10 @@ value_string_entry_t m_measurement_attribute_string_table[] = {
       "HASH" },
     { SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_RAW_BIT_STREAM_REQUESTED,
       "RAW" },
+    { SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE,
+      "SIG" },
+    { SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_NEW_MEASUREMENT_REQUESTED,
+      "NEW" },
 };
 
 value_string_entry_t m_key_update_action_string_table[] = {
@@ -1457,7 +1471,7 @@ void process_args(char *program_name, int argc, char *argv[])
 
         if (strcmp(argv[0], "--meas_att") == 0) {
             if (argc >= 2) {
-                if (!get_value_from_name(
+                if (!get_flags_from_name(
                         m_measurement_attribute_string_table,
                         LIBSPDM_ARRAY_SIZE(
                             m_measurement_attribute_string_table),
