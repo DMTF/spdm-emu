@@ -23,7 +23,11 @@
  *   command/response: 4 bytes (big endian)
  *   transport_type: 4 bytes (big endian)
  *   PayloadSize (excluding command and PayloadSize): 4 bytes (big endian)
- *   payload (SPDM message, starting from SPDM_HEADER): PayloadSize (little endian)*/
+ *   payload (as encoded by the transport layer in transport_type): PayloadSize (little endian)
+ *     NONE:    the message itself, with no transport header
+ *     MCTP:    the MCTP message type (1 byte) first; there is no MCTP transport header
+ *     PCI_DOE: the DOE data object header (8 bytes) first
+ *     TCP:     the DSP0287 binding header (4 bytes) first*/
 
 
 #define SOCKET_TRANSPORT_TYPE_NONE 0x00
