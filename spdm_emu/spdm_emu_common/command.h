@@ -50,7 +50,7 @@
  *
  * command.c selects the right implementation at startup based on the chosen
  * transport.  Adding a new transport only requires providing a new ops struct
- * and registering it — command.c itself needs no changes.
+ * and registering it.
  *
  * recv_command:        Read (or synthesise) the out-of-band SPDM command word.
  * recv_transport_type: Read (or synthesise) the transport-type word.
