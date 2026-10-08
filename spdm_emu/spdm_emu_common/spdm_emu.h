@@ -51,6 +51,8 @@ extern uint32_t m_use_requester_capability_flags;
 extern uint32_t m_use_responder_capability_flags;
 extern uint32_t m_use_capability_flags;
 extern uint32_t m_use_peer_capability_flags;
+extern uint32_t m_use_data_transfer_size;
+extern uint32_t m_use_max_spdm_msg_size;
 
 extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;
@@ -201,6 +203,14 @@ void append_pcap_packet_data(const void *header, size_t header_size,
 
 void process_args(char *program_name, int argc, char *argv[]);
 
+uint32_t spdm_emu_get_receiver_buffer_size(void);
+
+uint32_t spdm_emu_get_sender_buffer_size(bool chunk_cap);
+
+uint32_t spdm_emu_get_max_spdm_msg_size(bool chunk_cap);
+
+bool spdm_emu_init_send_receive_buffer(size_t buffer_size);
+
 void dump_supported_algorithms(const void *buffer, size_t buffer_size);
 
 bool create_socket(uint16_t port_number, SOCKET *listen_socket);
@@ -318,8 +328,15 @@ bool write_bytes(const SOCKET socket, const uint8_t *buffer,
 #define LIBSPDM_MAX_ENDPOINT_INFO_LENGTH 1024
 #endif
 
-/* expose it because the responder/requester may use it to send/receive other message such as DOE discovery */
-extern uint8_t m_send_receive_buffer[LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
+/* Upper bound of --data_transfer_size and --max_spdm_msg_size. It is not an SPDM
+ * limit; it keeps the emulator from allocating excessive memory. */
+#define SPDM_EMU_MAX_BUFFER_SIZE 0x100000
+
+/* expose it because the responder/requester may use it to send/receive other message such as DOE discovery.
+ * It holds at least LIBSPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE bytes, and is enlarged by
+ * spdm_emu_init_send_receive_buffer() for a larger --data_transfer_size. */
+extern uint8_t *m_send_receive_buffer;
+extern size_t m_send_receive_buffer_capacity;
 extern size_t m_send_receive_buffer_size;
 
 #ifndef LIBSPDM_MAX_CSR_SIZE
