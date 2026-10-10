@@ -110,6 +110,8 @@ void print_usage(const char *name)
     printf("   [--key_schedule HMAC_HASH]\n");
     printf("   [--other_param OPAQUE_FMT_1|MULTI_KEY_CONN]\n");
     printf("   [--pqc_first FALSE|TRUE]\n");
+    printf("   [--ct_exponent <0~255>]\n");
+    printf("   [--rtt <microseconds>]\n");
     printf(
         "   [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO]\n");
     printf("   [--basic_mut_auth NO|BASIC]\n");
@@ -177,6 +179,23 @@ void print_usage(const char *name)
         "   [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.\n");
     printf(
         "   [--pqc_first] is to control if the responder will use PQC at first, if both PQC and traditional algorithms are supported by the requester and the responder. By default, FALSE is used.\n");
+    printf(
+        "   [--ct_exponent] is the CTExponent advertised in GET_CAPABILITIES/CAPABILITIES. By default, 0 is used.\n");
+    printf(
+        "           CT = 2^CTExponent microseconds is the time the endpoint needs to generate a cryptographic response.\n");
+    printf(
+        "           libspdm peers reject a value above 31; a larger value is only for negative testing.\n");
+    printf(
+        "           A Responder using slow algorithms, such as SLH_DSA, needs a large value to give the Requester enough time.\n");
+    printf(
+        "   [--rtt] is the round-trip time in microseconds, up to %u. It applies to the Requester only.\n",
+        (unsigned int)UINT32_MAX);
+    printf(
+        "           When it is set, the Requester fails a request whose response does not arrive in time:\n");
+    printf(
+        "           RTT + ST1 for a request without cryptographic processing, RTT + 2^CTExponent of the Responder otherwise.\n");
+    printf(
+        "           By default, 0 is used, and the Requester waits for each response indefinitely.\n");
     printf(
         "   [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.\n");
     printf(
@@ -1350,6 +1369,54 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --pqc_first\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--ct_exponent") == 0) {
+            if (argc >= 2) {
+                char *end;
+                unsigned long value;
+
+                value = strtoul(argv[1], &end, 0);
+                if ((end == argv[1]) || (*end != '\0') || (argv[1][0] == '-') ||
+                    (value > UINT8_MAX)) {
+                    printf("invalid --ct_exponent %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_ct_exponent = (uint8_t)value;
+                printf("ct_exponent - 0x%02x\n", m_use_ct_exponent);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --ct_exponent\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--rtt") == 0) {
+            if (argc >= 2) {
+                char *end;
+                unsigned long long value;
+
+                value = strtoull(argv[1], &end, 0);
+                if ((end == argv[1]) || (*end != '\0') || (argv[1][0] == '-') ||
+                    (value > UINT32_MAX)) {
+                    printf("invalid --rtt %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_rtt_us = (uint64_t)value;
+                printf("rtt - %llu us\n", (unsigned long long)m_use_rtt_us);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --rtt\n");
                 print_usage(program_name);
                 exit(0);
             }

@@ -18,6 +18,45 @@ void *m_fips_selftest_context;
 void *m_scratch_buffer;
 SOCKET m_socket;
 
+/* Upper bound to wait for a response that missed the --rtt timeout. */
+#define SPDM_EMU_LATE_RESPONSE_WAIT_US 60000000
+
+/* Set when a response missed the --rtt timeout. The Responder still sends it, so it
+ * must be consumed before the next request, or it would be taken as the next response. */
+static bool m_late_response_pending = false;
+static size_t m_late_response_capacity = 0;
+
+static bool discard_late_response(void)
+{
+    uint8_t *buffer;
+    size_t size;
+    uint32_t command;
+    bool result;
+
+    if (!m_late_response_pending) {
+        return true;
+    }
+    m_late_response_pending = false;
+
+    if (!wait_for_socket_readable(m_socket, SPDM_EMU_LATE_RESPONSE_WAIT_US)) {
+        EMU_ERR("the late response did not arrive\n");
+        return false;
+    }
+    size = m_late_response_capacity;
+    buffer = (uint8_t *)malloc(size);
+    if (buffer == NULL) {
+        return false;
+    }
+    result = receive_platform_message(m_socket, &command, buffer, &size);
+    free(buffer);
+    if (!result) {
+        EMU_ERR("failed to discard the late response\n");
+        return false;
+    }
+    EMU_INFO("discarded a late response (0x%x bytes)\n", (uint32_t)size);
+    return true;
+}
+
 bool communicate_platform_data(SOCKET socket, uint32_t command,
                                const uint8_t *send_buffer, size_t bytes_to_send,
                                uint32_t *response,
@@ -25,6 +64,10 @@ bool communicate_platform_data(SOCKET socket, uint32_t command,
                                uint8_t *receive_buffer)
 {
     bool result;
+
+    if (!discard_late_response()) {
+        return false;
+    }
 
     result =
         send_platform_data(socket, command, send_buffer, bytes_to_send);
@@ -48,6 +91,10 @@ libspdm_return_t spdm_device_send_message(void *spdm_context,
 {
     bool result;
 
+    if (!discard_late_response()) {
+        return LIBSPDM_STATUS_SEND_FAIL;
+    }
+
     result = send_platform_data(m_socket, SOCKET_SPDM_COMMAND_NORMAL,
                                 request, (uint32_t)request_size);
     if (!result) {
@@ -64,6 +111,14 @@ libspdm_return_t spdm_device_receive_message(void *spdm_context,
 {
     bool result;
     uint32_t command;
+
+    /* libspdm computes the timeout from RTT, so it is only enforced when --rtt is set. */
+    if ((m_use_rtt_us != 0) && !wait_for_socket_readable(m_socket, timeout)) {
+        EMU_ERR("no response within the timeout (%llu us)\n", (unsigned long long)timeout);
+        m_late_response_pending = true;
+        m_late_response_capacity = *response_size;
+        return LIBSPDM_STATUS_RECEIVE_FAIL;
+    }
 
     result = receive_platform_message(m_socket, &command, *response,
                                       response_size);
@@ -122,6 +177,7 @@ void *spdm_client_init(void)
     uint8_t data8;
     uint16_t data16;
     uint32_t data32;
+    uint64_t data64;
     void *hash;
     void *hash1;
     size_t hash_size;
@@ -273,9 +329,14 @@ void *spdm_client_init(void)
     libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
-    data8 = 0;
+    data8 = m_use_ct_exponent;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                      &parameter, &data8, sizeof(data8));
+    if (m_use_rtt_us != 0) {
+        data64 = m_use_rtt_us;
+        libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_RTT_US,
+                         &parameter, &data64, sizeof(data64));
+    }
     data32 = m_use_requester_capability_flags;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));

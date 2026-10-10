@@ -29,6 +29,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--key_schedule HMAC_HASH]
          [--other_param OPAQUE_FMT_1|MULTI_KEY_CONN]
          [--pqc_first FALSE|TRUE]
+         [--ct_exponent <0~255>]
+         [--rtt <microseconds>]
          [--peer_cap CACHE|CERT|CHAL|MEAS_NO_SIG|MEAS_SIG|MEAS_FRESH|ENCRYPT|MAC|MUT_AUTH|KEY_EX|PSK|PSK_WITH_CONTEXT|ENCAP|HBEAT|KEY_UPD|HANDSHAKE_IN_CLEAR|PUB_KEY_ID|CHUNK|ALIAS_CERT|SET_CERT|CSR|CERT_INSTALL_RESET|EP_INFO_NO_SIG|EP_INFO_SIG|MEL|EVENT|MULTI_KEY_ONLY|MULTI_KEY_NEG|GET_KEY_PAIR_INFO|SET_KEY_PAIR_INFO|SET_KEY_PAIR_RESET|LARGE_RESP]
          [--basic_mut_auth NO|BASIC]
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
@@ -99,6 +101,14 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
                  Not all the algorithms are supported, especially SHA3, EDDSA, and SMx.
                  Please don't mix NIST algo with SMx algo.
          [--pqc_first] is to control if the responder will use PQC at first, if both PQC and traditional algorithms are supported by the requester and the responder. By default, FALSE is used.
+         [--ct_exponent] is the CTExponent advertised in GET_CAPABILITIES/CAPABILITIES. By default, 0 is used.
+                 CT = 2^CTExponent microseconds is the time the endpoint needs to generate a cryptographic response.
+                 libspdm peers reject a value above 31; a larger value is only for negative testing.
+                 A Responder using slow algorithms, such as SLH_DSA, needs a large value to give the Requester enough time.
+         [--rtt] is the round-trip time in microseconds, up to 4294967295. It applies to the Requester only.
+                 When it is set, the Requester fails a request whose response does not arrive in time:
+                 RTT + ST1 for a request without cryptographic processing, RTT + 2^CTExponent of the Responder otherwise.
+                 By default, 0 is used, and the Requester waits for each response indefinitely.
          [--peer_cap] is capability flags for the peer. It is used only when --exe_conn has VER_ONLY.
          [--basic_mut_auth] is the basic mutual authentication policy. BASIC is used in CHALLENGE_AUTH. By default, BASIC is used.
          [--mut_auth] is the mutual authentication policy. WO_ENCAP, W_ENCAP or DIGESTS is used in KEY_EXCHANGE_RSP. By default, W_ENCAP is used.
