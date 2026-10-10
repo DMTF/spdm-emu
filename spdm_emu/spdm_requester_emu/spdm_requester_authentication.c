@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -60,23 +60,26 @@ spdm_authentication(void *context, uint8_t *slot_mask,
     if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
         if (slot_id != 0xFF) {
             if (slot_id == 0) {
-                status = libspdm_get_certificate(
-                    context, NULL, 0, cert_chain_size, cert_chain);
+                status = libspdm_get_certificate_ex(
+                    context, NULL, 0,
+                    m_use_cert_block_len, cert_chain_size, cert_chain, NULL, NULL);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     return status;
                 }
                 if (m_other_slot_id != 0) {
                     *cert_chain_size = cert_chain_buffer_size;
                     libspdm_zero_mem(cert_chain, cert_chain_buffer_size);
-                    status = libspdm_get_certificate(
-                        context, NULL, m_other_slot_id, cert_chain_size, cert_chain);
+                    status = libspdm_get_certificate_ex(
+                        context, NULL, m_other_slot_id,
+                        m_use_cert_block_len, cert_chain_size, cert_chain, NULL, NULL);
                     if (LIBSPDM_STATUS_IS_ERROR(status)) {
                         return status;
                     }
                 }
             } else {
-                status = libspdm_get_certificate(
-                    context, NULL, slot_id, cert_chain_size, cert_chain);
+                status = libspdm_get_certificate_ex(
+                    context, NULL, slot_id,
+                    m_use_cert_block_len, cert_chain_size, cert_chain, NULL, NULL);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     return status;
                 }
@@ -104,8 +107,9 @@ spdm_authentication(void *context, uint8_t *slot_mask,
     if ((m_exe_connection & EXE_CONNECTION_CERT) != 0) {
         if (slot_id != 0xFF) {
             *cert_chain_size = cert_chain_buffer_size;
-            status = libspdm_get_certificate(
-                context, NULL, slot_id, cert_chain_size, cert_chain);
+            status = libspdm_get_certificate_ex(
+                context, NULL, slot_id,
+                    m_use_cert_block_len, cert_chain_size, cert_chain, NULL, NULL);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 return status;
             }
@@ -136,19 +140,25 @@ libspdm_return_t do_authentication_via_spdm(void)
     uint8_t total_digest_buffer[LIBSPDM_MAX_HASH_SIZE * SPDM_MAX_SLOT_COUNT];
     uint8_t measurement_hash[LIBSPDM_MAX_HASH_SIZE];
     size_t cert_chain_size;
-    uint8_t cert_chain[LIBSPDM_MAX_CERT_CHAIN_SIZE];
+    uint8_t *cert_chain;
 
     spdm_context = m_spdm_context;
 
+    cert_chain_size = (m_use_cert_buf_size != 0) ? m_use_cert_buf_size :
+                      LIBSPDM_MAX_CERT_CHAIN_SIZE;
+    cert_chain = (uint8_t *)calloc(1, cert_chain_size);
+    if (cert_chain == NULL) {
+        return LIBSPDM_STATUS_ACQUIRE_FAIL;
+    }
+
     libspdm_zero_mem(total_digest_buffer, sizeof(total_digest_buffer));
-    cert_chain_size = sizeof(cert_chain);
-    libspdm_zero_mem(cert_chain, sizeof(cert_chain));
     libspdm_zero_mem(measurement_hash, sizeof(measurement_hash));
     status = spdm_authentication(spdm_context, &slot_mask,
                                  &total_digest_buffer, m_use_slot_id,
                                  &cert_chain_size, cert_chain,
                                  m_use_measurement_summary_hash_type,
                                  measurement_hash);
+    free(cert_chain);
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         return status;
     }
