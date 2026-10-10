@@ -34,7 +34,7 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--mut_auth NO|WO_ENCAP|W_ENCAP|DIGESTS]
          [--meas_sum NO|TCB|ALL]
          [--meas_op ONE_BY_ONE|ALL]
-         [--meas_att HASH|RAW]
+         [--meas_att HASH|RAW|SIG|NEW]
          [--key_upd REQ|ALL|RSP]
          [--slot_id <0~7|0xFF>]
          [--slot_count <1~8>]
@@ -105,6 +105,12 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--meas_sum] is the measurement summary hash type in CHALLENGE_AUTH, KEY_EXCHANGE_RSP and PSK_EXCHANGE_RSP. By default, ALL is used.
          [--meas_op] is the measurement operation in GET_MEASUREMENT. By default, ONE_BY_ONE is used.
          [--meas_att] is the measurement attribute in GET_MEASUREMENT. By default, HASH is used.
+                 Multiple flags can be set together. Please use ',' for them, e.g. RAW,SIG,NEW.
+                 HASH means request measurement digests.
+                 RAW means request raw bit stream (RawBitStreamRequested).
+                 SIG means request a signature (SignatureRequested) in every GET_MEASUREMENTS.
+                     Without SIG, a signature is requested in the last GET_MEASUREMENTS only, if the Responder supports MEAS_SIG.
+                 NEW means request a new measurement (NewMeasurementRequested). It is sent with SPDM 1.3 and above only.
          [--key_upd] is the key update operation in KEY_UPDATE. By default, ALL is used. RSP will trigger encapsulated KEY_UPDATE.
          [--slot_id] is to select the responder slot ID in GET_MEASUREMENT, CHALLENGE_AUTH and KEY_EXCHANGE. By default, 0 is used.
          [--req_slot_id] is to select the requester slot ID in KEY_EXCHANGE_RSP and FINISH. By default, 0 is used.
