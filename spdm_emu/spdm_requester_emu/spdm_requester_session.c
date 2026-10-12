@@ -85,6 +85,10 @@ libspdm_return_t get_digest_cert_in_session(const uint32_t *session_id)
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 return status;
             }
+            if (status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+                EMU_INFO("Slot %d: certificate chain matches no provisioned root "
+                         "(LIBSPDM_STATUS_VERIF_NO_AUTHORITY), continuing\n", m_use_slot_id);
+            }
         }
     }
 

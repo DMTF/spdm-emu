@@ -1,6 +1,6 @@
 /**
  *  Copyright Notice:
- *  Copyright 2021-2022 DMTF. All rights reserved.
+ *  Copyright 2021-2026 DMTF. All rights reserved.
  *  License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/spdm-emu/blob/main/LICENSE.md
  **/
 
@@ -28,6 +28,10 @@ spdm_device_evidence_collection (void *spdm_context)
     if (LIBSPDM_STATUS_IS_ERROR(status)) {
         printf("libspdm_get_certificate (slot=%d) - %x\n", slot_id, (uint32_t)status);
         return;
+    }
+    if (status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+        printf("Slot %d: certificate chain matches no provisioned root "
+               "(LIBSPDM_STATUS_VERIF_NO_AUTHORITY), continuing\n", slot_id);
     }
     cert_chain_name[18] = slot_id + '0';
     LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "write file - %s\n", cert_chain_name));
@@ -74,6 +78,10 @@ spdm_device_evidence_collection (void *spdm_context)
         if (LIBSPDM_STATUS_IS_ERROR(status)) {
             printf("libspdm_get_certificate (slot=%d) - %x\n", slot_id, (uint32_t)status);
             cert_chain.cert_chain_size = 0;
+        }
+        if (status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+            printf("Slot %d: certificate chain matches no provisioned root "
+                   "(LIBSPDM_STATUS_VERIF_NO_AUTHORITY), continuing\n", slot_id);
         }
         cert_chain_name[18] = slot_id + '0';
         LIBSPDM_DEBUG((LIBSPDM_DEBUG_INFO, "write file - %s\n", cert_chain_name));

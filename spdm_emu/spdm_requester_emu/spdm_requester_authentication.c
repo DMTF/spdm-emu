@@ -65,6 +65,10 @@ spdm_authentication(void *context, uint8_t *slot_mask,
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     return status;
                 }
+                if (status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+                    EMU_INFO("Slot %d: certificate chain matches no provisioned root "
+                             "(LIBSPDM_STATUS_VERIF_NO_AUTHORITY), continuing\n", slot_id);
+                }
                 if (m_other_slot_id != 0) {
                     *cert_chain_size = cert_chain_buffer_size;
                     libspdm_zero_mem(cert_chain, cert_chain_buffer_size);
@@ -73,12 +77,21 @@ spdm_authentication(void *context, uint8_t *slot_mask,
                     if (LIBSPDM_STATUS_IS_ERROR(status)) {
                         return status;
                     }
+                    if (status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+                        EMU_INFO("Slot %d: certificate chain matches no provisioned root "
+                                 "(LIBSPDM_STATUS_VERIF_NO_AUTHORITY), continuing\n",
+                                 m_other_slot_id);
+                    }
                 }
             } else {
                 status = libspdm_get_certificate(
                     context, NULL, slot_id, cert_chain_size, cert_chain);
                 if (LIBSPDM_STATUS_IS_ERROR(status)) {
                     return status;
+                }
+                if (status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+                    EMU_INFO("Slot %d: certificate chain matches no provisioned root "
+                             "(LIBSPDM_STATUS_VERIF_NO_AUTHORITY), continuing\n", slot_id);
                 }
             }
         }
@@ -108,6 +121,10 @@ spdm_authentication(void *context, uint8_t *slot_mask,
                 context, NULL, slot_id, cert_chain_size, cert_chain);
             if (LIBSPDM_STATUS_IS_ERROR(status)) {
                 return status;
+            }
+            if (status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+                EMU_INFO("Slot %d: certificate chain matches no provisioned root "
+                         "(LIBSPDM_STATUS_VERIF_NO_AUTHORITY), continuing\n", slot_id);
             }
         }
     }
