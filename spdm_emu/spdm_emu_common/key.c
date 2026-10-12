@@ -66,6 +66,10 @@ uint32_t m_use_peer_capability_flags = 0;
 uint32_t m_use_data_transfer_size = 0;
 /* 0 means LIBSPDM_MAX_SPDM_MSG_SIZE, or DataTransferSize without CHUNK_CAP. */
 uint32_t m_use_max_spdm_msg_size = 0;
+/* CTExponent advertised in GET_CAPABILITIES/CAPABILITIES. */
+uint8_t m_use_ct_exponent = 0;
+/* Round-trip time in microseconds. 0 means no response timeout is enforced. */
+uint64_t m_use_rtt_us = 0;
 /*
  * 0
  * 1
