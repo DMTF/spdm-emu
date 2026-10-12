@@ -175,7 +175,7 @@ void *spdm_client_init(void)
     libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
-    data8 = 0;
+    data8 = m_use_ct_exponent;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                      &parameter, &data8, sizeof(data8));
     m_use_requester_capability_flags =

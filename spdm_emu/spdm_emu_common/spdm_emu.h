@@ -53,6 +53,8 @@ extern uint32_t m_use_capability_flags;
 extern uint32_t m_use_peer_capability_flags;
 extern uint32_t m_use_data_transfer_size;
 extern uint32_t m_use_max_spdm_msg_size;
+extern uint8_t m_use_ct_exponent;
+extern uint64_t m_use_rtt_us;
 
 extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;
@@ -170,6 +172,8 @@ bool receive_platform_transport_type(SOCKET socket, uint32_t *transport_type);
 bool receive_platform_data(SOCKET socket, uint32_t *command,
                            uint8_t *receive_buffer,
                            size_t *bytes_to_receive);
+
+bool wait_for_socket_readable(SOCKET socket, uint64_t timeout_us);
 
 bool receive_platform_message(SOCKET socket, uint32_t *command,
                               uint8_t *receive_buffer,
