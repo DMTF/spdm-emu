@@ -428,9 +428,16 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
                 free(cert_chain_to_set);
                 cert_chain_to_set = NULL;
                 cert_chain_size_to_set = 0;
-                res = libspdm_read_responder_public_certificate_chain_per_slot(
-                    slot_id, m_use_hash_algo, m_use_asym_algo,
-                    &cert_chain_to_set, &cert_chain_size_to_set, NULL, NULL);
+                if (m_use_asym_algo != 0) {
+                    res = libspdm_read_responder_public_certificate_chain_per_slot(
+                        slot_id, m_use_hash_algo, m_use_asym_algo,
+                        &cert_chain_to_set, &cert_chain_size_to_set, NULL, NULL);
+                }
+                if (m_use_pqc_asym_algo != 0) {
+                    res = libspdm_read_pqc_responder_public_certificate_chain_per_slot(
+                        slot_id, m_use_hash_algo, m_use_pqc_asym_algo,
+                        &cert_chain_to_set, &cert_chain_size_to_set, NULL, NULL);
+                }
                 if (!res) {
                     EMU_ERR("set certificate :read_responder_public_certificate_chain_per_slot "
                             "fail!\n");
