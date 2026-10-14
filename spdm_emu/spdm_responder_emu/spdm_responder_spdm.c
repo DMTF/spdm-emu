@@ -735,7 +735,11 @@ void spdm_server_connection_state_callback(
                     m_use_mut_auth = SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED;
                 }
                 g_key_exchange_start_mut_auth = m_use_mut_auth;
-                g_key_exchange_req_slot_id = m_use_req_slot_id;
+                /* With the encapsulated flow, SlotIDParam in KEY_EXCHANGE_RSP shall be 0. The slot
+                 * is designated in the final ENCAPSULATED_RESPONSE_ACK instead. */
+                g_key_exchange_req_slot_id =
+                    (m_use_mut_auth == SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED) ?
+                    m_use_req_slot_id : 0;
 
                 g_start_basic_mut_auth = (m_use_basic_mut_auth == 1);
             }
@@ -939,8 +943,17 @@ static libspdm_return_t spdm_encap_flow_handler(
                 spdm_context, session_id, 0, SPDM_MAX_CERTIFICATE_CHAIN_SIZE,
                 m_requester_cert_chain_buffer, encap_request_size, encap_request);
         default:
-            /* The Requester's certificate chain has been retrieved, so end the flow. libspdm
-             * designates m_use_req_slot_id in the final ENCAPSULATED_RESPONSE_ACK. */
+            /* The Requester's certificate chain has been retrieved, so end the flow. Designate
+             * m_use_req_slot_id in the final ENCAPSULATED_RESPONSE_ACK. */
+            if (session_id != NULL) {
+                libspdm_data_parameter_t parameter;
+
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_SESSION;
+                *(uint32_t *)parameter.additional_data = *session_id;
+                libspdm_set_data(spdm_context, LIBSPDM_DATA_SESSION_ENCAP_REQ_SLOT_ID,
+                                 &parameter, &m_use_req_slot_id, sizeof(m_use_req_slot_id));
+            }
             sess_mut_auth_counter = 0;
             break;
         }
