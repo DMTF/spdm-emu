@@ -384,11 +384,12 @@ void spdm_server_connection_state_callback(
     size_t hash_size;
     const uint8_t *root_cert;
     size_t root_cert_size;
-    uint8_t index;
+    size_t slot_index;
     spdm_version_number_t spdm_version;
     bool requester_pub_key_needed;
     bool multi_key_conn_rsp;
-    uint8_t populated_slot_count;
+    static const uint8_t populated_slot_id[] = { 0, 1, 4 };
+    const size_t populated_slot_count = LIBSPDM_ARRAY_SIZE(populated_slot_id);
 
     switch (connection_state) {
     case LIBSPDM_CONNECTION_STATE_NOT_STARTED:
@@ -574,10 +575,8 @@ void spdm_server_connection_state_callback(
                      * KeyPairID is the REAL device-global id of the negotiated algorithm's key pair:
                      * slots 0/1 use that algorithm's primary key pair, slot 4 its secondary
                      * (resolved by libspdm_get_key_pair_id_by_slot). */
-                    static const uint8_t populated_slot_id[] = { 0, 1, 4 };
                     void *slot_data[3];
                     size_t slot_data_size[3];
-                    size_t slot_index;
                     size_t multi_key_data_size;
 
                     libspdm_zero_mem(&parameter, sizeof(parameter));
@@ -596,7 +595,6 @@ void spdm_server_connection_state_callback(
                     slot_data_size[0] = data_size;
                     slot_data_size[1] = data1_size;
                     slot_data_size[2] = multi_key_conn_rsp ? data4_size : 0;
-                    populated_slot_count = (uint8_t)LIBSPDM_ARRAY_SIZE(populated_slot_id);
 
                     libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
@@ -689,12 +687,20 @@ void spdm_server_connection_state_callback(
                     if (requester_pub_key_needed) {
                         libspdm_zero_mem(&parameter, sizeof(parameter));
                         parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
-                        for (index = 0; index < m_use_slot_count; index++) {
-                            parameter.additional_data[0] = index;
+                        for (slot_index = 0; slot_index < populated_slot_count;
+                             slot_index++) {
+                            parameter.additional_data[0] = populated_slot_id[slot_index];
                             libspdm_set_data(spdm_context,
                                              LIBSPDM_DATA_PEER_USED_CERT_CHAIN_BUFFER,
                                              &parameter, data1, data1_size);
-                            data8 = (uint8_t)(0xB0 + index);
+                            /* same KeyPairID as the requester sets for this slot. */
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
+                            data8 = libspdm_get_key_pair_id_by_slot(
+                                m_use_req_asym_algo, m_use_req_pqc_asym_algo,
+                                populated_slot_id[slot_index]);
+#else
+                            data8 = (uint8_t)(slot_index + 1);
+#endif
                             libspdm_set_data(spdm_context,
                                              LIBSPDM_DATA_PEER_KEY_PAIR_ID,
                                              &parameter, &data8, sizeof(data8));

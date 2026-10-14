@@ -166,7 +166,9 @@ void *spdm_client_init(void)
     void *fips_selftest_buffer;
     size_t fips_selftest_buffer_size;
 #endif /*LIBSPDM_FIPS_MODE*/
-    uint8_t index;
+    size_t slot_index;
+    /* Non-contiguous slots, same as responder. */
+    static const uint8_t populated_slot_id[] = { 0, 1, 4 };
     libspdm_return_t status;
     bool res;
     void *data;
@@ -696,13 +698,20 @@ void *spdm_client_init(void)
                 libspdm_zero_mem(&parameter, sizeof(parameter));
                 parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
 
-                for (index = 0; index < m_use_slot_count; index++) {
-                    parameter.additional_data[0] = index;
+                for (slot_index = 0; slot_index < LIBSPDM_ARRAY_SIZE(populated_slot_id);
+                     slot_index++) {
+                    parameter.additional_data[0] = populated_slot_id[slot_index];
                     libspdm_set_data(spdm_context,
                                      LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
                                      &parameter, data, data_size);
-                    /* Valid contiguous 1-based KeyPairID (1..TotalKeyPairs). */
-                    data8 = (uint8_t)(index + 1);
+                    /* real, algorithm-matched, contiguous KeyPairID for this slot. */
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
+                    data8 = libspdm_get_key_pair_id_by_slot(
+                        m_use_req_asym_algo, m_use_req_pqc_asym_algo,
+                        populated_slot_id[slot_index]);
+#else
+                    data8 = (uint8_t)(slot_index + 1);
+#endif
                     libspdm_set_data(spdm_context,
                                      LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
                                      &parameter, &data8, sizeof(data8));
@@ -731,8 +740,8 @@ void *spdm_client_init(void)
     libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
     data8 = 0;
-    for (index = 0; index < m_use_slot_count; index++) {
-        data8 |= (1 << index);
+    for (slot_index = 0; slot_index < LIBSPDM_ARRAY_SIZE(populated_slot_id); slot_index++) {
+        data8 |= (1 << populated_slot_id[slot_index]);
     }
     libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SUPPORTED_SLOT_MASK, &parameter,
                      &data8, sizeof(data8));

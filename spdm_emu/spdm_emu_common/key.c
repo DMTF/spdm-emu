@@ -104,7 +104,6 @@ uint8_t m_use_measurement_operation =
  */
 uint8_t m_use_measurement_attribute = 0;
 uint8_t m_use_slot_id = 0;
-uint8_t m_use_slot_count = 3;
 uint8_t m_use_req_slot_id = 0;
 
 /*

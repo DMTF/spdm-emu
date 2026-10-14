@@ -121,7 +121,6 @@ void print_usage(const char *name)
     printf("   [--meas_att HASH|RAW|SIG|NEW]\n");
     printf("   [--key_upd REQ|ALL|RSP]\n");
     printf("   [--slot_id <0~7|0xFF>]\n");
-    printf("   [--slot_count <1~8>]\n");
     printf("   [--req_slot_id <0~7|0xFF>]\n");
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
@@ -228,8 +227,6 @@ void print_usage(const char *name)
         "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
     printf(
         "           0xFF must be used to if PUB_KEY_ID is set. No GET_DIGEST/GET_CERTIFICATE is sent.\n");
-    printf(
-        "   [--slot_count] is to select the local slot count. By default, 3 is used.  And the slot store cert chain continuously in emu.\n");
     printf("   [--save_state] is to save the current negotiated state to a write-only file.\n");
     printf(
         "           The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
@@ -571,11 +568,6 @@ value_string_entry_t m_slot_id_string_table[] = {
     { 0x0, "0" }, { 0x1, "1" }, { 0x2, "2" },
     { 0x3, "3" }, { 0x4, "4" }, { 0x5, "5" },
     { 0x6, "6" }, { 0x7, "7" }, { 0xFF, "0xFF" },
-};
-
-value_string_entry_t m_slot_count_string_table[] = {
-    { 0x1, "1" }, { 0x2, "2" }, { 0x3, "3" }, { 0x4, "4" },
-    { 0x5, "5" }, { 0x6, "6" }, { 0x7, "7" }, { 0x8, "8" },
 };
 
 value_string_entry_t m_exe_mode_string_table[] = {
@@ -1693,31 +1685,6 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --slot_id\n");
-                print_usage(program_name);
-                exit(0);
-            }
-        }
-
-        if (strcmp(argv[0], "--slot_count") == 0) {
-            if (argc >= 2) {
-                if (!get_value_from_name(
-                        m_slot_count_string_table,
-                        LIBSPDM_ARRAY_SIZE(
-                            m_slot_count_string_table),
-                        argv[1], &data32)) {
-                    printf("invalid --slot_count %s\n",
-                           argv[1]);
-                    print_usage(program_name);
-                    exit(0);
-                }
-                m_use_slot_count = (uint8_t)data32;
-                printf("slot_count - 0x%02x\n",
-                       m_use_slot_count);
-                argc -= 2;
-                argv += 2;
-                continue;
-            } else {
-                printf("invalid --slot_count\n");
                 print_usage(program_name);
                 exit(0);
             }
