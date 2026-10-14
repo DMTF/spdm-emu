@@ -172,9 +172,14 @@ void *spdm_client_init(void)
     libspdm_return_t status;
     bool res;
     void *data;
+    void *data0;
     void *data1;
+    void *data4;
     size_t data_size;
+    size_t data0_size;
     size_t data1_size;
+    size_t data4_size;
+    bool multi_key_conn_req;
     libspdm_data_parameter_t parameter;
     uint8_t data8;
     uint16_t data16;
@@ -658,6 +663,13 @@ void *spdm_client_init(void)
         }
     }
 
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+    data_size = sizeof(multi_key_conn_req);
+    multi_key_conn_req = false;
+    libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_REQ, &parameter,
+                     &multi_key_conn_req, &data_size);
+
     if (m_use_req_slot_id == 0xFF) {
         if (m_use_req_asym_algo != 0) {
             res = libspdm_read_requester_public_key(m_use_req_asym_algo, &data, &data_size);
@@ -681,67 +693,104 @@ void *spdm_client_init(void)
             }
         }
     } else {
-        if (m_use_req_asym_algo != 0) {
-            res = libspdm_read_requester_public_certificate_chain(m_use_hash_algo,
-                                                                  m_use_req_asym_algo,
-                                                                  &data, &data_size, NULL,
-                                                                  NULL);
-        }
-        if (m_use_req_pqc_asym_algo != 0) {
-            res = libspdm_read_pqc_requester_public_certificate_chain(m_use_hash_algo,
-                                                                      m_use_req_pqc_asym_algo,
-                                                                      &data, &data_size, NULL,
-                                                                      NULL);
-        }
         if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
-            if (res) {
-                libspdm_zero_mem(&parameter, sizeof(parameter));
-                parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+            void *slot_data[3];
+            size_t slot_data_size[3];
 
-                for (slot_index = 0; slot_index < LIBSPDM_ARRAY_SIZE(populated_slot_id);
-                     slot_index++) {
-                    parameter.additional_data[0] = populated_slot_id[slot_index];
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
-                                     &parameter, data, data_size);
-                    /* real, algorithm-matched, contiguous KeyPairID for this slot. */
-#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
-                    data8 = libspdm_get_key_pair_id_by_slot(
-                        m_use_req_asym_algo, m_use_req_pqc_asym_algo,
-                        populated_slot_id[slot_index]);
-#else
-                    data8 = (uint8_t)(slot_index + 1);
-#endif
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
-                                     &parameter, &data8, sizeof(data8));
-                    data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_CERT_INFO,
-                                     &parameter, &data8, sizeof(data8));
-                    data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE | 
-                            SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
-                            SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
-                            SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
-                    libspdm_set_data(spdm_context,
-                                     LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
-                                     &parameter, &data16, sizeof(data16));
+            /* Slots 0 and 1 share the default leaf key. Slot 4 carries a DIFFERENT leaf key
+             * to demonstrate multiple keys. */
+            res = false;
+            if (m_use_req_asym_algo != 0) {
+                res = libspdm_read_requester_public_certificate_chain_per_slot(
+                    0, m_use_hash_algo, m_use_req_asym_algo,
+                    &data0, &data0_size, NULL, NULL);
+                if (res) {
+                    res = libspdm_read_requester_public_certificate_chain_per_slot(
+                        1, m_use_hash_algo, m_use_req_asym_algo,
+                        &data1, &data1_size, NULL, NULL);
                 }
-                /* do not free it*/
-            } else {
+                if (res) {
+                    res = libspdm_read_requester_public_certificate_chain_per_slot(
+                        4, m_use_hash_algo, m_use_req_asym_algo,
+                        &data4, &data4_size, NULL, NULL);
+                }
+            }
+            if (m_use_req_pqc_asym_algo != 0) {
+                res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                    0, m_use_hash_algo, m_use_req_pqc_asym_algo,
+                    &data0, &data0_size, NULL, NULL);
+                if (res) {
+                    res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                        1, m_use_hash_algo, m_use_req_pqc_asym_algo,
+                        &data1, &data1_size, NULL, NULL);
+                }
+                if (res) {
+                    res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                        4, m_use_hash_algo, m_use_req_pqc_asym_algo,
+                        &data4, &data4_size, NULL, NULL);
+                }
+            }
+            if (!res) {
                 EMU_ERR("read_requester_public_certificate_chain fail!\n");
                 free(m_spdm_context);
                 m_spdm_context = NULL;
                 return NULL;
+            }
+
+            /* slot 4 is provisioned only when this connection is multi-key. */
+            slot_data[0] = data0;
+            slot_data[1] = data1;
+            slot_data[2] = multi_key_conn_req ? data4 : NULL;
+            slot_data_size[0] = data0_size;
+            slot_data_size[1] = data1_size;
+            slot_data_size[2] = multi_key_conn_req ? data4_size : 0;
+
+            libspdm_zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
+
+            for (slot_index = 0; slot_index < LIBSPDM_ARRAY_SIZE(populated_slot_id);
+                 slot_index++) {
+                if (slot_data[slot_index] == NULL) {
+                    continue;
+                }
+                parameter.additional_data[0] = populated_slot_id[slot_index];
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_PUBLIC_CERT_CHAIN,
+                                 &parameter, slot_data[slot_index],
+                                 slot_data_size[slot_index]);
+                /* real, algorithm-matched, contiguous KeyPairID for this slot. */
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
+                data8 = libspdm_get_key_pair_id_by_slot(
+                    m_use_req_asym_algo, m_use_req_pqc_asym_algo,
+                    populated_slot_id[slot_index]);
+#else
+                data8 = (uint8_t)(slot_index + 1);
+#endif
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
+                                 &parameter, &data8, sizeof(data8));
+                data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_CERT_INFO,
+                                 &parameter, &data8, sizeof(data8));
+                data16 = SPDM_KEY_USAGE_BIT_MASK_KEY_EX_USE |
+                         SPDM_KEY_USAGE_BIT_MASK_CHALLENGE_USE |
+                         SPDM_KEY_USAGE_BIT_MASK_MEASUREMENT_USE |
+                         SPDM_KEY_USAGE_BIT_MASK_ENDPOINT_INFO_USE;
+                libspdm_set_data(spdm_context,
+                                 LIBSPDM_DATA_LOCAL_KEY_USAGE_BIT_MASK,
+                                 &parameter, &data16, sizeof(data16));
+                /* do not free it*/
             }
         }
     }
 
     libspdm_zero_mem(&parameter, sizeof(parameter));
     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
-    data8 = 0;
-    for (slot_index = 0; slot_index < LIBSPDM_ARRAY_SIZE(populated_slot_id); slot_index++) {
-        data8 |= (1 << populated_slot_id[slot_index]);
+    /* Slots 0 and 1 are always populated. Slot 4 only in a multi-key connection. */
+    data8 = (1 << 0) | (1 << 1);
+    if (multi_key_conn_req) {
+        data8 |= (1 << 4);
     }
     libspdm_set_data(spdm_context, LIBSPDM_DATA_LOCAL_SUPPORTED_SLOT_MASK, &parameter,
                      &data8, sizeof(data8));
