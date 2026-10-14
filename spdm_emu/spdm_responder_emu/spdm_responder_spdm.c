@@ -388,6 +388,7 @@ void spdm_server_connection_state_callback(
     spdm_version_number_t spdm_version;
     bool requester_pub_key_needed;
     bool multi_key_conn_rsp;
+    bool multi_key_conn_req;
     static const uint8_t populated_slot_id[] = { 0, 1, 4 };
     const size_t populated_slot_count = LIBSPDM_ARRAY_SIZE(populated_slot_id);
 
@@ -655,21 +656,11 @@ void spdm_server_connection_state_callback(
                 res = libspdm_read_requester_root_public_certificate(
                     m_use_hash_algo, m_use_req_asym_algo, &data,
                     &data_size, &hash, &hash_size);
-                if (requester_pub_key_needed) {
-                    res = libspdm_read_requester_public_certificate_chain(
-                        m_use_hash_algo, m_use_req_asym_algo,
-                        &data1, &data1_size, NULL, NULL);
-                }
             }
             if (m_use_req_pqc_asym_algo != 0) {
                 res = libspdm_read_pqc_requester_root_public_certificate(
                     m_use_hash_algo, m_use_req_pqc_asym_algo, &data,
                     &data_size, &hash, &hash_size);
-                if (requester_pub_key_needed) {
-                    res = libspdm_read_pqc_requester_public_certificate_chain(
-                        m_use_hash_algo, m_use_req_pqc_asym_algo,
-                        &data1, &data1_size, NULL, NULL);
-                }
             }
             if ((m_use_req_asym_algo != 0) || (m_use_req_pqc_asym_algo != 0)) {
                 if (res) {
@@ -685,14 +676,62 @@ void spdm_server_connection_state_callback(
                         &parameter, (void *)root_cert, root_cert_size);
                     /* Do not free it.*/
                     if (requester_pub_key_needed) {
-                        libspdm_zero_mem(&parameter, sizeof(parameter));
-                        parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
-                        for (slot_index = 0; slot_index < populated_slot_count;
+                        void *slot_data[3];
+                        size_t slot_data_size[3];
+                        void *data0;
+                        size_t data0_size;
+                        size_t multi_key_data_size;
+
+                        /* Slots 0 and 1 share the default leaf key. Slot 4 carries a
+                         * DIFFERENT leaf key. */
+                        if (m_use_req_asym_algo != 0) {
+                            res = libspdm_read_requester_public_certificate_chain_per_slot(
+                                0, m_use_hash_algo, m_use_req_asym_algo,
+                                &data0, &data0_size, NULL, NULL);
+                            res = libspdm_read_requester_public_certificate_chain_per_slot(
+                                1, m_use_hash_algo, m_use_req_asym_algo,
+                                &data1, &data1_size, NULL, NULL);
+                            res = libspdm_read_requester_public_certificate_chain_per_slot(
+                                4, m_use_hash_algo, m_use_req_asym_algo,
+                                &data4, &data4_size, NULL, NULL);
+                        }
+                        if (m_use_req_pqc_asym_algo != 0) {
+                            res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                                0, m_use_hash_algo, m_use_req_pqc_asym_algo,
+                                &data0, &data0_size, NULL, NULL);
+                            res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                                1, m_use_hash_algo, m_use_req_pqc_asym_algo,
+                                &data1, &data1_size, NULL, NULL);
+                            res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                                4, m_use_hash_algo, m_use_req_pqc_asym_algo,
+                                &data4, &data4_size, NULL, NULL);
+                        }
+                        if (res) {
+                            libspdm_zero_mem(&parameter, sizeof(parameter));
+                            parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+                            multi_key_data_size = sizeof(multi_key_conn_req);
+                            multi_key_conn_req = false;
+                            libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_REQ,
+                                             &parameter, &multi_key_conn_req,
+                                             &multi_key_data_size);
+                            /* slot 4 is used only when this connection is multi-key. */
+                            slot_data[0] = data0;
+                            slot_data[1] = data1;
+                            slot_data[2] = multi_key_conn_req ? data4 : NULL;
+                            slot_data_size[0] = data0_size;
+                            slot_data_size[1] = data1_size;
+                            slot_data_size[2] = multi_key_conn_req ? data4_size : 0;
+                        }
+                        for (slot_index = 0; res && (slot_index < populated_slot_count);
                              slot_index++) {
+                            if (slot_data[slot_index] == NULL) {
+                                continue;
+                            }
                             parameter.additional_data[0] = populated_slot_id[slot_index];
                             libspdm_set_data(spdm_context,
                                              LIBSPDM_DATA_PEER_USED_CERT_CHAIN_BUFFER,
-                                             &parameter, data1, data1_size);
+                                             &parameter, slot_data[slot_index],
+                                             slot_data_size[slot_index]);
                             /* same KeyPairID as the requester sets for this slot. */
 #if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP
                             data8 = libspdm_get_key_pair_id_by_slot(
@@ -740,6 +779,19 @@ void spdm_server_connection_state_callback(
                 g_key_exchange_req_slot_id =
                     (m_use_mut_auth == SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED) ?
                     m_use_req_slot_id : 0;
+
+                /* Requester slot 4 exists only in a multi-key connection, so do not request it
+                 * otherwise. */
+                libspdm_zero_mem(&parameter, sizeof(parameter));
+                parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+                data_size = sizeof(multi_key_conn_req);
+                multi_key_conn_req = false;
+                libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_REQ, &parameter,
+                                 &multi_key_conn_req, &data_size);
+                if ((m_use_req_slot_id == 4) && !multi_key_conn_req) {
+                    EMU_LOG("req_slot_id 4 needs multi-key, mutual auth is not requested\n");
+                    g_key_exchange_start_mut_auth = 0;
+                }
 
                 g_start_basic_mut_auth = (m_use_basic_mut_auth == 1);
             }
