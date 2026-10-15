@@ -122,6 +122,8 @@ void print_usage(const char *name)
     printf("   [--key_upd REQ|ALL|RSP]\n");
     printf("   [--slot_id <0~7|0xFF>]\n");
     printf("   [--req_slot_id <0~7|0xFF>]\n");
+    printf("   [--cert_buf <bytes>]\n");
+    printf("   [--cert_block_len <bytes>]\n");
     printf("   [--save_state <NegotiateStateFileName>]\n");
     printf("   [--load_state <NegotiateStateFileName>]\n");
     printf("   [--exe_mode SHUTDOWN|CONTINUE]\n");
@@ -227,6 +229,19 @@ void print_usage(const char *name)
         "           0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.\n");
     printf(
         "           0xFF must be used to if PUB_KEY_ID is set. No GET_DIGEST/GET_CERTIFICATE is sent.\n");
+    printf(
+        "   [--cert_buf] is the size of the Requester's buffer for a certificate chain, from 1 to 0xFFFF before SPDM 1.4 or without LARGE_RESP_CAP, or to 0xFFFFFFFF with SPDM 1.4 and LARGE_RESP_CAP.\n");
+    printf(
+        "           By default, LIBSPDM_MAX_CERT_CHAIN_SIZE (%u) is used. It applies to the Requester only.\n",
+        (unsigned int)LIBSPDM_MAX_CERT_CHAIN_SIZE);
+    printf(
+        "           If LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT is 1, a value above LIBSPDM_MAX_CERT_CHAIN_SIZE is meaningless, because libspdm cannot keep a longer chain in the transcript.\n");
+    printf(
+        "   [--cert_block_len] is the Length requested in each GET_CERTIFICATE. It applies to the Requester only.\n");
+    printf(
+        "           By default, 0 is used: each request asks for as much as MaxSPDMmsgSize allows.\n");
+    printf(
+        "           A value above 0xFFFF requires SPDM 1.4 and the Responder's LARGE_RESP capability.\n");
     printf("   [--save_state] is to save the current negotiated state to a write-only file.\n");
     printf(
         "           The requester and responder will save state after GET_VERSION/GET_CAPABILLITIES/NEGOTIATE_ALGORITHMS.\n");
@@ -1708,6 +1723,62 @@ void process_args(char *program_name, int argc, char *argv[])
                 continue;
             } else {
                 printf("invalid --req_slot_id\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--cert_buf") == 0) {
+            if (argc >= 2) {
+                char *end;
+                unsigned long long value;
+
+                value = strtoull(argv[1], &end, 0);
+                if ((end == argv[1]) || (*end != '\0') || (argv[1][0] == '-') ||
+                    (value == 0) || (value > UINT32_MAX)) {
+                    printf("invalid --cert_buf %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+#if LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT
+                /* libspdm keeps the chain in a LIBSPDM_MAX_CERT_CHAIN_SIZE transcript buffer. */
+                if (value > LIBSPDM_MAX_CERT_CHAIN_SIZE) {
+                    printf("--cert_buf 0x%llx is larger than LIBSPDM_MAX_CERT_CHAIN_SIZE 0x%x, "
+                           "which is meaningless when LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT is 1\n",
+                           value, (unsigned int)LIBSPDM_MAX_CERT_CHAIN_SIZE);
+                }
+#endif
+                m_use_cert_buf_size = (uint32_t)value;
+                printf("cert_buf - 0x%08x\n", m_use_cert_buf_size);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --cert_buf\n");
+                print_usage(program_name);
+                exit(0);
+            }
+        }
+
+        if (strcmp(argv[0], "--cert_block_len") == 0) {
+            if (argc >= 2) {
+                char *end;
+                unsigned long long value;
+
+                value = strtoull(argv[1], &end, 0);
+                if ((end == argv[1]) || (*end != '\0') || (argv[1][0] == '-') ||
+                    (value > UINT32_MAX)) {
+                    printf("invalid --cert_block_len %s\n", argv[1]);
+                    print_usage(program_name);
+                    exit(0);
+                }
+                m_use_cert_block_len = (uint32_t)value;
+                printf("cert_block_len - 0x%08x\n", m_use_cert_block_len);
+                argc -= 2;
+                argv += 2;
+                continue;
+            } else {
+                printf("invalid --cert_block_len\n");
                 print_usage(program_name);
                 exit(0);
             }

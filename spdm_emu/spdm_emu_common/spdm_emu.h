@@ -55,6 +55,8 @@ extern uint32_t m_use_data_transfer_size;
 extern uint32_t m_use_max_spdm_msg_size;
 extern uint8_t m_use_ct_exponent;
 extern uint64_t m_use_rtt_us;
+extern uint32_t m_use_cert_buf_size;
+extern uint32_t m_use_cert_block_len;
 
 extern uint8_t m_use_basic_mut_auth;
 extern uint8_t m_use_mut_auth;

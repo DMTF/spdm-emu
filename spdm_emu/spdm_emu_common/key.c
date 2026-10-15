@@ -70,6 +70,10 @@ uint32_t m_use_max_spdm_msg_size = 0;
 uint8_t m_use_ct_exponent = 0;
 /* Round-trip time in microseconds. 0 means no response timeout is enforced. */
 uint64_t m_use_rtt_us = 0;
+/* Size of the Requester's certificate chain buffer. 0 means LIBSPDM_MAX_CERT_CHAIN_SIZE. */
+uint32_t m_use_cert_buf_size = 0;
+/* Length requested in each GET_CERTIFICATE. 0 means as much as MaxSPDMmsgSize allows. */
+uint32_t m_use_cert_block_len = 0;
 /*
  * 0
  * 1
