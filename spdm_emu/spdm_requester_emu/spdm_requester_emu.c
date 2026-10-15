@@ -18,6 +18,41 @@ extern void *m_scratch_buffer;
 
 uint8_t m_other_slot_id = 0;
 
+size_t get_cert_chain_buffer_size(void *spdm_context)
+{
+    libspdm_data_parameter_t parameter;
+    size_t data_size;
+    uint32_t responder_flags;
+    uint32_t spdm_version;
+
+    if (m_use_cert_buf_size == 0) {
+        return LIBSPDM_MAX_CERT_CHAIN_SIZE;
+    }
+
+    if (m_use_cert_buf_size > SPDM_MAX_CERTIFICATE_CHAIN_SIZE) {
+        libspdm_zero_mem(&parameter, sizeof(parameter));
+        parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+        responder_flags = 0;
+        data_size = sizeof(responder_flags);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
+                         &responder_flags, &data_size);
+        spdm_version = 0;
+        data_size = sizeof(spdm_version);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
+                         &spdm_version, &data_size);
+
+        /* The certificate chain length is 16 bits before SPDM 1.4 or without LARGE_RESP_CAP. */
+        if (((spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT) < SPDM_MESSAGE_VERSION_14) ||
+            ((responder_flags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_LARGE_RESP_CAP) == 0)) {
+            EMU_INFO("WARNING: --cert_buf 0x%x exceeds 0x%x, the largest certificate chain "
+                     "before SPDM 1.4 or without LARGE_RESP_CAP\n",
+                     m_use_cert_buf_size, (uint32_t)SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
+        }
+    }
+
+    return m_use_cert_buf_size;
+}
+
 void *spdm_client_init(void);
 
 libspdm_return_t pci_doe_init_requester(void);

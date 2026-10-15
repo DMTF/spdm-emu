@@ -40,6 +40,8 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--key_upd REQ|ALL|RSP]
          [--slot_id <0~7|0xFF>]
          [--req_slot_id <0~7|0xFF>]
+         [--cert_buf <bytes>]
+         [--cert_block_len <bytes>]
          [--save_state <NegotiateStateFileName>]
          [--load_state <NegotiateStateFileName>]
          [--exe_mode SHUTDOWN|CONTINUE]
@@ -126,6 +128,13 @@ This document describes spdm_requester_emu and spdm_responder_emu tool. It can b
          [--slot_id] is to select the responder slot ID in GET_MEASUREMENT, CHALLENGE_AUTH and KEY_EXCHANGE. By default, 0 is used.
          [--req_slot_id] is to select the requester slot ID in KEY_EXCHANGE_RSP and FINISH. By default, 0 is used.
                  0xFF can be used to indicate provisioned certificate chain. No GET_CERTIFICATE is needed.
+         [--cert_buf] is the size of the Requester's buffer for a certificate chain, from 1 to 0xFFFF before SPDM 1.4 or without LARGE_RESP_CAP, or from 1 to 0xFFFFFFFF with SPDM 1.4 and LARGE_RESP_CAP. By default, LIBSPDM_MAX_CERT_CHAIN_SIZE is used.
+                It applies to the Requester only. Increase it to retrieve a large certificate chain (such as a PQC chain).
+                If LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT is 1, libspdm copies the chain into a LIBSPDM_MAX_CERT_CHAIN_SIZE buffer,
+                so setting --cert_buf above LIBSPDM_MAX_CERT_CHAIN_SIZE is meaningless. If it is below the chain size, GET_CERTIFICATE fails with BUFFER_TOO_SMALL.
+         [--cert_block_len] is the Length requested in each GET_CERTIFICATE. It applies to the Requester only.
+                By default, 0 is used: each request asks for as much as MaxSPDMmsgSize allows.
+                A value above 0xFFFF requires SPDM 1.4 and the Responder's LARGE_RESP capability.
          [--save_state] is to save the current negotiated state to a write-only file.
                  The requester and responder will save state after GET_VERSION/GET_CAPABILITIES /NEGOTIATE_ALGORITHMS.
                  (negotiated state == ver|cap|hash|meas_spec|meas_hash|asym|req_asym|dhe|aead|key_schedule|other_param)

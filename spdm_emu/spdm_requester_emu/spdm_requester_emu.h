@@ -29,6 +29,12 @@
 extern uint8_t m_other_slot_id;
 
 /**
+ * Resolve the Requester's certificate chain buffer size from --cert_buf, and warn if it
+ * exceeds what the negotiated version and the Responder's LARGE_RESP_CAP allow.
+ */
+size_t get_cert_chain_buffer_size(void *spdm_context);
+
+/**
  * Create an AF_MCTP SOCK_DGRAM socket for the SPDM requester (Linux kernel
  * MCTP stack).  See spdm_requester_linux_mctp.c for details.
  *
