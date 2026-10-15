@@ -14,7 +14,7 @@
 
 ### Build Tool
 
-1) [Visual Studio](https://visualstudio.microsoft.com/) (VS2015 or VS2019 or VS2022)
+1) [Visual Studio](https://visualstudio.microsoft.com/) (2019 version 16.8 or later, with Windows SDK 10.0.20348.0 or later)
 
 2) [GCC](https://gcc.gnu.org/) (above GCC5)
 
@@ -42,7 +42,7 @@ TPM-backed SPDM flows require additional dependencies.
 
 ### Windows Build with CMake
 
-   Use x86 command prompt for ARCH=ia32 and x64 command prompt for ARCH=x64. (TOOLCHAIN=VS2022|VS2019|VS2015|CLANG)
+   Use x86 command prompt for ARCH=ia32 and x64 command prompt for ARCH=x64. (TOOLCHAIN=VS|CLANG)
    ```
    cd spdm-emu
    mkdir build
