@@ -190,9 +190,9 @@ def translate_data(output, input):
                 output.append([])
                 translate_data(output[index], input[index])
             else:
-                if input[index] == "comid_tag_creator":
-                    output.append(AllMapDict[input[index]])
-                elif input[index] == "sha256":
+                if input[index] in ComidRoleTypeChoice:
+                    output.append(ComidRoleTypeChoice[input[index]])
+                elif input[index] in SupportHashAlgMap:
                     output.append(SupportHashAlgMap[input[index]])
                 else:
                     output.append(input[index])
