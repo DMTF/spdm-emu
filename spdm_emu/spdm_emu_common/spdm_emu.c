@@ -913,14 +913,14 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &m_use_transport_layer)) {
                     printf("invalid --trans %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("trans - 0x%x\n", m_use_transport_layer);
 #ifdef _MSC_VER
                 if (m_use_transport_layer ==
                         SOCKET_TRANSPORT_TYPE_MCTP_LINUX_KERNEL) {
                     printf("MCTP_KERNEL transport is only supported on Linux.\n");
-                    exit(0);
+                    exit(1);
                 }
 #endif
                 argc -= 2;
@@ -929,7 +929,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --trans\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -942,7 +942,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &m_use_tcp_role_inquiry)) {
                     printf("invalid --tcp_sub %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("tcp_sub - 0x%x\n", m_use_tcp_role_inquiry);
                 argc -= 2;
@@ -951,7 +951,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --tcp_sub\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -960,7 +960,7 @@ void process_args(char *program_name, int argc, char *argv[])
                 if (strlen(argv[1]) >= sizeof(m_ip_address_string)) {
                     printf("invalid --ip %s (too long)\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 strncpy(m_ip_address_string, argv[1], sizeof(m_ip_address_string) - 1);
                 m_ip_address_string[sizeof(m_ip_address_string) - 1] = '\0';
@@ -972,7 +972,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --ip\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -981,7 +981,7 @@ void process_args(char *program_name, int argc, char *argv[])
                 if (argv[1][0] == '\0' || strlen(argv[1]) >= sizeof(m_bind_interface)) {
                     printf("invalid --iface %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 strncpy(m_bind_interface, argv[1], sizeof(m_bind_interface) - 1);
                 m_bind_interface[sizeof(m_bind_interface) - 1] = '\0';
@@ -992,7 +992,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --iface\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1002,7 +1002,7 @@ void process_args(char *program_name, int argc, char *argv[])
                 if (m_custom_port == 0) {
                     printf("invalid --port %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("port - %d\n", m_custom_port);
                 argc -= 2;
@@ -1011,7 +1011,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --port\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1024,7 +1024,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &data32)) {
                     printf("invalid --ver %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_version = (uint8_t)data32;
                 printf("ver - 0x%02x\n", m_use_version);
@@ -1034,7 +1034,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --ver\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1048,7 +1048,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --sec_ver %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_secured_message_version = (uint8_t)data32;
                 printf("sec_ver - 0x%02x\n",
@@ -1059,7 +1059,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --sec_ver\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1091,14 +1091,14 @@ void process_args(char *program_name, int argc, char *argv[])
                     LIBSPDM_ASSERT(false);
                     printf("unsupported --cap\n");
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 if (!get_flags_from_name(
                         CapabilitiesStringTable, count,
                         argv[1], &m_use_capability_flags)) {
                     printf("invalid --cap %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("cap - 0x%08x\n",
                        m_use_capability_flags);
@@ -1108,7 +1108,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --cap\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1133,14 +1133,14 @@ void process_args(char *program_name, int argc, char *argv[])
                     LIBSPDM_ASSERT(false);
                     printf("unsupported --peer_cap\n");
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 if (!get_flags_from_name(
                         CapabilitiesStringTable, count,
                         argv[1], &m_use_peer_capability_flags)) {
                     printf("invalid --peer_cap %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("peer_cap - 0x%08x\n",
                        m_use_peer_capability_flags);
@@ -1150,7 +1150,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --peer_cap\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1163,7 +1163,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &m_support_hash_algo)) {
                     printf("invalid --hash %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("hash - 0x%08x\n", m_support_hash_algo);
                 argc -= 2;
@@ -1172,7 +1172,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --hash\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1186,7 +1186,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --meas_spec %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_measurement_spec = (uint8_t)data32;
                 printf("meas_spec - 0x%02x\n",
@@ -1197,7 +1197,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --meas_spec\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1211,7 +1211,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --mel_spec %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_mel_spec = (uint8_t)data32;
                 printf("mel_spec - 0x%02x\n",
@@ -1222,7 +1222,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --mel_spec\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1237,7 +1237,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --meas_hash %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("meas_hash - 0x%08x\n",
                        m_support_measurement_hash_algo);
@@ -1247,7 +1247,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --meas_hash\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1260,7 +1260,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &m_support_asym_algo)) {
                     printf("invalid --asym %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("asym - 0x%08x\n", m_support_asym_algo);
                 argc -= 2;
@@ -1269,7 +1269,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --asym\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1283,7 +1283,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --req_asym %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_req_asym_algo = (uint16_t)data32;
                 printf("req_asym - 0x%04x\n",
@@ -1294,7 +1294,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --req_asym\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1306,7 +1306,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &data32)) {
                     printf("invalid --dhe %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_dhe_algo = (uint16_t)data32;
                 printf("dhe - 0x%04x\n", m_support_dhe_algo);
@@ -1316,7 +1316,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --dhe\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1329,7 +1329,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &data32)) {
                     printf("invalid --aead %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_aead_algo = (uint16_t)data32;
                 printf("aead - 0x%04x\n", m_support_aead_algo);
@@ -1339,7 +1339,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --aead\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1352,7 +1352,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &m_support_pqc_asym_algo)) {
                     printf("invalid --pqc_asym %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("pqc_asym - 0x%08x\n", m_support_pqc_asym_algo);
                 argc -= 2;
@@ -1361,7 +1361,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --pqc_asym\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1375,7 +1375,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --req_pqc_asym %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_req_pqc_asym_algo = data32;
                 printf("req_pqc_asym - 0x%08x\n",
@@ -1386,7 +1386,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --req_pqc_asym\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1398,7 +1398,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &data32)) {
                     printf("invalid --kem %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_kem_algo = data32;
                 printf("kem - 0x%08x\n", m_support_kem_algo);
@@ -1408,7 +1408,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --kem\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1422,7 +1422,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --key_schedule %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_key_schedule_algo = (uint16_t)data32;
                 printf("key_schedule - 0x%04x\n",
@@ -1433,7 +1433,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --key_schedule\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1447,7 +1447,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --other_param %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_other_params_support = (uint8_t)data32;
                 printf("other_param - 0x%04x\n",
@@ -1458,7 +1458,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --other_param\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1470,7 +1470,7 @@ void process_args(char *program_name, int argc, char *argv[])
                         argv[1], &data32)) {
                     printf("invalid --pqc_first %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_support_pqc_first = (bool)data32;
                 printf("pqc_first - 0x%02x\n", m_support_pqc_first);
@@ -1480,7 +1480,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --pqc_first\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1494,7 +1494,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     (value > UINT8_MAX)) {
                     printf("invalid --ct_exponent %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_ct_exponent = (uint8_t)value;
                 printf("ct_exponent - 0x%02x\n", m_use_ct_exponent);
@@ -1504,7 +1504,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --ct_exponent\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1518,7 +1518,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     (value > UINT32_MAX)) {
                     printf("invalid --rtt %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_rtt_us = (uint64_t)value;
                 printf("rtt - %llu us\n", (unsigned long long)m_use_rtt_us);
@@ -1528,7 +1528,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --rtt\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1542,7 +1542,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --basic_mut_auth %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_basic_mut_auth = (uint8_t)data32;
                 printf("basic_mut_auth - 0x%02x\n",
@@ -1553,7 +1553,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --basic_mut_auth\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1567,7 +1567,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --mut_auth %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_mut_auth = (uint8_t)data32;
                 printf("mut_auth - 0x%02x\n", m_use_mut_auth);
@@ -1577,7 +1577,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --mut_auth\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1591,7 +1591,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --meas_sum %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_measurement_summary_hash_type =
                     (uint8_t)data32;
@@ -1603,7 +1603,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --meas_sum\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1617,7 +1617,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --meas_op %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_measurement_operation = (uint8_t)data32;
                 printf("meas_op - 0x%02x\n",
@@ -1628,7 +1628,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --meas_op\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1642,7 +1642,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --meas_att %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_measurement_attribute = (uint8_t)data32;
                 printf("meas_att - 0x%02x\n",
@@ -1653,7 +1653,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --meas_att\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1667,7 +1667,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --key_upd %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_key_update_action = data32;
                 printf("key_upd - 0x%08x\n",
@@ -1678,7 +1678,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --key_upd\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1691,7 +1691,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --slot_id %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_slot_id = (uint8_t)data32;
                 printf("slot_id - 0x%02x\n", m_use_slot_id);
@@ -1701,7 +1701,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --slot_id\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1714,7 +1714,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --req_slot_id %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_req_slot_id = (uint8_t)data32;
                 printf("req_slot_id - 0x%02x\n", m_use_req_slot_id);
@@ -1724,7 +1724,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --req_slot_id\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1738,7 +1738,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     (value == 0) || (value > UINT32_MAX)) {
                     printf("invalid --cert_buf %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
 #if LIBSPDM_RECORD_TRANSCRIPT_DATA_SUPPORT
                 /* libspdm keeps the chain in a LIBSPDM_MAX_CERT_CHAIN_SIZE transcript buffer. */
@@ -1756,7 +1756,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --cert_buf\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1770,7 +1770,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     (value > UINT32_MAX)) {
                     printf("invalid --cert_block_len %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_cert_block_len = (uint32_t)value;
                 printf("cert_block_len - 0x%08x\n", m_use_cert_block_len);
@@ -1780,7 +1780,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --cert_block_len\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1793,7 +1793,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --save_state\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1806,7 +1806,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --load_state\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1819,7 +1819,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --exe_mode %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("exe_mode - 0x%08x\n", m_exe_mode);
                 argc -= 2;
@@ -1828,7 +1828,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --exe_mode\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1841,7 +1841,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --serve_mode %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("serve_mode - 0x%08x\n", m_serve_mode);
                 argc -= 2;
@@ -1850,7 +1850,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --serve_mode\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1864,7 +1864,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --exe_conn %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("exe_conn - 0x%08x\n", m_exe_connection);
                 argc -= 2;
@@ -1873,7 +1873,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --exe_conn\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1887,7 +1887,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --exe_session %s\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 printf("exe_session - 0x%08x\n", m_exe_session);
                 argc -= 2;
@@ -1896,7 +1896,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --exe_session\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1911,7 +1911,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     (value > SPDM_EMU_MAX_BUFFER_SIZE)) {
                     printf("invalid --data_transfer_size %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_data_transfer_size = (uint32_t)value;
                 printf("data_transfer_size - 0x%08x\n", m_use_data_transfer_size);
@@ -1921,7 +1921,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --data_transfer_size\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1936,7 +1936,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     (value > SPDM_EMU_MAX_BUFFER_SIZE)) {
                     printf("invalid --max_spdm_msg_size %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_max_spdm_msg_size = (uint32_t)value;
                 printf("max_spdm_msg_size - 0x%08x\n", m_use_max_spdm_msg_size);
@@ -1946,7 +1946,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --max_spdm_msg_size\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1959,7 +1959,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --pcap\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -1968,7 +1968,7 @@ void process_args(char *program_name, int argc, char *argv[])
                 if ((strcmp(argv[1], "PEM") != 0) && (strcmp(argv[1], "RAW") != 0)) {
                     printf("invalid --priv_key_mode %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 if (strcmp(argv[1], "PEM") == 0) {
                     g_private_key_mode = 1;
@@ -1985,7 +1985,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --priv_key_mode\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -2008,7 +2008,7 @@ void process_args(char *program_name, int argc, char *argv[])
                     printf("invalid --eid %s (valid unicast range: 1-254)\n",
                            argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_eid = (uint8_t)val;
                 printf("eid - 0x%02x\n", m_use_eid);
@@ -2018,7 +2018,7 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --eid\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
@@ -2028,7 +2028,7 @@ void process_args(char *program_name, int argc, char *argv[])
                 if (val < 0) {
                     printf("invalid --net %s\n", argv[1]);
                     print_usage(program_name);
-                    exit(0);
+                    exit(1);
                 }
                 m_use_net = (uint32_t)val;
                 printf("net - %u\n", m_use_net);
@@ -2038,13 +2038,13 @@ void process_args(char *program_name, int argc, char *argv[])
             } else {
                 printf("invalid --net\n");
                 print_usage(program_name);
-                exit(0);
+                exit(1);
             }
         }
 
         printf("invalid %s\n", argv[0]);
         print_usage(program_name);
-        exit(0);
+        exit(1);
     }
 
     if (m_bind_interface[0] != '\0') {
@@ -2054,7 +2054,7 @@ void process_args(char *program_name, int argc, char *argv[])
         if (strcmp(program_name, "spdm_requester_emu") == 0) {
             printf("ERROR: --iface applies to the Responder only\n");
             print_usage(program_name);
-            exit(0);
+            exit(1);
         }
         /* --iface and --ip both select the address the Responder binds to.
          * Accepting both would mean silently honouring one and ignoring the
@@ -2062,7 +2062,7 @@ void process_args(char *program_name, int argc, char *argv[])
         if (m_ip_explicitly_set) {
             printf("ERROR: --iface and --ip are mutually exclusive\n");
             print_usage(program_name);
-            exit(0);
+            exit(1);
         }
     }
 
@@ -2073,7 +2073,7 @@ void process_args(char *program_name, int argc, char *argv[])
         if (strcmp(program_name, "spdm_requester_emu") == 0) {
             printf("ERROR: --serve_mode applies to the Responder only\n");
             print_usage(program_name);
-            exit(0);
+            exit(1);
         }
         /* With TCP RoleInquiry the responder connects out instead of listening,
          * so there is no accept() to return to once a connection ends. */
@@ -2081,14 +2081,14 @@ void process_args(char *program_name, int argc, char *argv[])
             m_use_tcp_role_inquiry == SOCKET_TCP_ROLE_INQUIRY) {
             printf("ERROR: --serve_mode PERSIST and --tcp_sub RI are mutually exclusive\n");
             print_usage(program_name);
-            exit(0);
+            exit(1);
         }
     }
 
     /* The send/receive buffer is sized after the transport type is known. */
     if (!spdm_emu_init_send_receive_buffer(spdm_emu_get_receiver_buffer_size())) {
         printf("ERROR: cannot allocate the send/receive buffer\n");
-        exit(0);
+        exit(1);
     }
 
     /* Open PCAP file as last option, after the user indicates transport type.*/
@@ -2096,7 +2096,7 @@ void process_args(char *program_name, int argc, char *argv[])
     if (pcap_file_name != NULL) {
         if (!open_pcap_packet_file(pcap_file_name)) {
             print_usage(program_name);
-            exit(0);
+            exit(1);
         }
     }
 
