@@ -105,6 +105,7 @@ void *spdm_client_init(void)
     uint32_t data32;
     size_t scratch_buffer_size;
     uint32_t max_spdm_msg_size;
+    bool chunk_cap;
 
     printf("context_size - 0x%x\n", (uint32_t)libspdm_get_context_size());
 
@@ -118,7 +119,26 @@ void *spdm_client_init(void)
     libspdm_register_device_io_func(spdm_context, spdm_device_send_message,
                                     spdm_device_receive_message);
 
-    max_spdm_msg_size = spdm_emu_get_max_spdm_msg_size(true);
+    m_use_requester_capability_flags =
+        (0 |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHAL_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCRYPT_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MAC_CAP |
+         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MUT_AUTH_CAP | */
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_EX_CAP |
+         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PSK_CAP_REQUESTER | */
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCAP_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HBEAT_CAP |
+         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_UPD_CAP |
+         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HANDSHAKE_IN_THE_CLEAR_CAP |
+          * SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP |*/
+         0);
+    if (m_use_capability_flags != 0) {
+        m_use_requester_capability_flags = m_use_capability_flags;
+    }
+    chunk_cap = (m_use_requester_capability_flags & SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHUNK_CAP) != 0;
+    max_spdm_msg_size = spdm_emu_get_max_spdm_msg_size(chunk_cap);
     if (max_spdm_msg_size == 0) {
         free(m_spdm_context);
         m_spdm_context = NULL;
@@ -156,7 +176,7 @@ void *spdm_client_init(void)
     }
 
     libspdm_register_device_buffer_func(spdm_context,
-                                        spdm_emu_get_sender_buffer_size(true),
+                                        spdm_emu_get_sender_buffer_size(chunk_cap),
                                         spdm_emu_get_receiver_buffer_size(),
                                         spdm_device_acquire_sender_buffer,
                                         spdm_device_release_sender_buffer,
@@ -178,25 +198,7 @@ void *spdm_client_init(void)
     data8 = m_use_ct_exponent;
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_CT_EXPONENT,
                      &parameter, &data8, sizeof(data8));
-    m_use_requester_capability_flags =
-        (0 |
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CERT_CAP |
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_CHAL_CAP |
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCRYPT_CAP |
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MAC_CAP |
-         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_MUT_AUTH_CAP | */
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_EX_CAP |
-         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PSK_CAP_REQUESTER | */
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCAP_CAP |
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HBEAT_CAP |
-         SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_UPD_CAP |
-         /* SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HANDSHAKE_IN_THE_CLEAR_CAP |
-          * SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP |*/
-         0);
     data32 = m_use_requester_capability_flags;
-    if (m_use_capability_flags != 0) {
-        data32 = m_use_capability_flags;
-    }
     libspdm_set_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS, &parameter,
                      &data32, sizeof(data32));
 
