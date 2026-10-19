@@ -156,9 +156,9 @@ void print_usage(const char *name)
     printf(
         "   [--cap] is capability flags. Multiple flags can be set together. Please use ',' for them.\n");
     printf(
-        "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,MULTI_KEY_NEG,LARGE_RESP is used for Requester.\n");
+        "           By default, CERT,CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,CHUNK,MULTI_KEY_NEG,EP_INFO_SIG,LARGE_RESP is used for Requester.\n");
     printf(
-        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,LARGE_RESP is used for Responder.\n");
+        "           By default, CACHE,CERT,CHAL,MEAS_SIG,MEL,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,CHUNK,SET_CERT,CSR,MULTI_KEY_NEG,GET_KEY_PAIR_INFO,SET_KEY_PAIR_INFO,EP_INFO_SIG,LARGE_RESP is used for Responder.\n");
     printf("   [--hash] is hash algorithm. By default, SHA_384,SHA_256 is used.\n");
     printf("   [--meas_spec] is measurement hash spec. By default, DMTF is used.\n");
     printf(
