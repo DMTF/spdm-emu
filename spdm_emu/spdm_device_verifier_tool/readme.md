@@ -69,6 +69,8 @@ The tools can also verify the CoRIM(CoSWID/CoMID) based upon SPDM measurement ru
 
    For example, "comid.svn" can use a tag to indicate "tagged-svn" #6.552(svn) or "tagged-min-svn" #6.553(min-svn). Then the JSON key name will be "comid_svn_tagged_svn" or "comid_svn_tagged_min_svn".
 
+   The two tags around the whole document, "corim" #6.500 and "unsigned-corim-map" #6.501, become the keys "corim" and "unsigned_corim_map" in the JSON file cbor_to_json writes. json_to_cbor accepts a JSON file with or without them.
+
 ## Verification
 
 ### Prepare evidence file
