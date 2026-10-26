@@ -102,6 +102,13 @@ def GetKeyByValue(dict_list, value):
                 return key
 
 def GenCbor(json_data, output):
+    # cbor_to_json writes the corim tag #6.500 and the unsigned-corim-map tag #6.501 as the keys
+    # 'corim' and 'unsigned_corim_map'. Take them off, since both tags are added again below.
+    if isinstance(json_data, dict) and list(json_data) == ['corim']:
+        if list(json_data['corim']) != ['unsigned_corim_map']:
+            raise Exception("ERROR: json_to_cbor takes an unsigned CoRIM; this file holds '%s' !"
+                            % list(json_data['corim'])[0])
+        json_data = json_data['corim']['unsigned_corim_map']
     CborData = {}
     translate_data(CborData, json_data)
     # Add concise-swid-tag #6.505 or concise-mid-tag #6.506
