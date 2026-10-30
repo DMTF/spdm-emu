@@ -280,6 +280,23 @@ bool platform_server_routine(uint16_t port_number)
                 socket_cleanup();
                 return false;
             }
+#ifdef TCP_KEEPIDLE
+            /* A requester that vanishes without FIN or RST (link down, power loss)
+             * would leave recv() blocked forever, so accept() never runs again.
+             * Keepalive fails the recv() after ~25s of silence instead, and PERSIST
+             * then waits for the next requester. */
+            if (m_serve_mode == SERVE_MODE_PERSIST &&
+                (setsockopt(m_server_socket, SOL_SOCKET, SO_KEEPALIVE, &(int){1},
+                            sizeof(int)) < 0 ||
+                 setsockopt(m_server_socket, IPPROTO_TCP, TCP_KEEPIDLE, &(int){10},
+                            sizeof(int)) < 0 ||
+                 setsockopt(m_server_socket, IPPROTO_TCP, TCP_KEEPINTVL, &(int){5},
+                            sizeof(int)) < 0 ||
+                 setsockopt(m_server_socket, IPPROTO_TCP, TCP_KEEPCNT, &(int){3},
+                            sizeof(int)) < 0)) {
+                EMU_ERR("Cannot enable TCP keepalive.  Error is 0x%x\n", socket_errno());
+            }
+#endif /*TCP_KEEPIDLE*/
         }
         continue_serving = platform_server(m_server_socket);
         closesocket(m_server_socket);
