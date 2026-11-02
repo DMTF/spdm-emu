@@ -171,6 +171,8 @@ void *spdm_client_init(void)
     static const uint8_t populated_slot_id[] = { 0, 1, 4 };
     libspdm_return_t status;
     bool res;
+    bool res1;
+    bool res4;
     void *data;
     void *data0;
     void *data1;
@@ -655,10 +657,8 @@ void *spdm_client_init(void)
                                 &parameter, (void *)root_cert1, root_cert1_size);
                 /* Do not free it.*/
             } else {
-                EMU_ERR("read_responder_root_public_certificate fail!\n");
-                free(m_spdm_context);
-                m_spdm_context = NULL;
-                return NULL;
+                /* Only slot 0's root is required, as slot 1 is optional. */
+                EMU_INFO("Responder slot 1: root certificate not loaded\n");
             }
         }
     }
@@ -698,19 +698,21 @@ void *spdm_client_init(void)
             size_t slot_data_size[3];
 
             /* Slots 0 and 1 share the default leaf key. Slot 4 carries a DIFFERENT leaf key
-             * to demonstrate multiple keys. */
+             * to demonstrate multiple keys. Slot 0 must hold a chain. Slots 1 and 4 are
+             * optional: each is provisioned from its own chain, and slot 4, provisioned
+             * only in a multi-key connection, is read only in one. */
             res = false;
+            res1 = false;
+            res4 = false;
             if (m_use_req_asym_algo != 0) {
                 res = libspdm_read_requester_public_certificate_chain_per_slot(
                     0, m_use_hash_algo, m_use_req_asym_algo,
                     &data0, &data0_size, NULL, NULL);
-                if (res) {
-                    res = libspdm_read_requester_public_certificate_chain_per_slot(
-                        1, m_use_hash_algo, m_use_req_asym_algo,
-                        &data1, &data1_size, NULL, NULL);
-                }
-                if (res) {
-                    res = libspdm_read_requester_public_certificate_chain_per_slot(
+                res1 = libspdm_read_requester_public_certificate_chain_per_slot(
+                    1, m_use_hash_algo, m_use_req_asym_algo,
+                    &data1, &data1_size, NULL, NULL);
+                if (multi_key_conn_req) {
+                    res4 = libspdm_read_requester_public_certificate_chain_per_slot(
                         4, m_use_hash_algo, m_use_req_asym_algo,
                         &data4, &data4_size, NULL, NULL);
                 }
@@ -719,13 +721,11 @@ void *spdm_client_init(void)
                 res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
                     0, m_use_hash_algo, m_use_req_pqc_asym_algo,
                     &data0, &data0_size, NULL, NULL);
-                if (res) {
-                    res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
-                        1, m_use_hash_algo, m_use_req_pqc_asym_algo,
-                        &data1, &data1_size, NULL, NULL);
-                }
-                if (res) {
-                    res = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                res1 = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
+                    1, m_use_hash_algo, m_use_req_pqc_asym_algo,
+                    &data1, &data1_size, NULL, NULL);
+                if (multi_key_conn_req) {
+                    res4 = libspdm_read_pqc_requester_public_certificate_chain_per_slot(
                         4, m_use_hash_algo, m_use_req_pqc_asym_algo,
                         &data4, &data4_size, NULL, NULL);
                 }
@@ -736,14 +736,19 @@ void *spdm_client_init(void)
                 m_spdm_context = NULL;
                 return NULL;
             }
+            if (!res1) {
+                EMU_INFO("Slot 1: certificate chain not loaded, not provisioned\n");
+            }
+            if (multi_key_conn_req && !res4) {
+                EMU_INFO("Slot 4: certificate chain not loaded, not provisioned\n");
+            }
 
-            /* slot 4 is provisioned only when this connection is multi-key. */
             slot_data[0] = data0;
-            slot_data[1] = data1;
-            slot_data[2] = multi_key_conn_req ? data4 : NULL;
+            slot_data[1] = res1 ? data1 : NULL;
+            slot_data[2] = res4 ? data4 : NULL;
             slot_data_size[0] = data0_size;
-            slot_data_size[1] = data1_size;
-            slot_data_size[2] = multi_key_conn_req ? data4_size : 0;
+            slot_data_size[1] = res1 ? data1_size : 0;
+            slot_data_size[2] = res4 ? data4_size : 0;
 
             libspdm_zero_mem(&parameter, sizeof(parameter));
             parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
