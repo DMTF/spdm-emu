@@ -359,6 +359,51 @@ void *spdm_server_init(void)
     return m_spdm_context;
 }
 
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP && \
+    LIBSPDM_ENABLE_CAPABILITY_SET_KEY_PAIR_INFO_CAP
+/* For each of the populated slots 0, 1 and 4: the key pair the slot was removed from
+ * because its chain did not load in the current connection, and the AssocCertSlotMask
+ * left to that key pair; KeyPairID 0 if none. */
+static uint8_t m_slot_removed_key_pair_id[3];
+static uint8_t m_slot_removed_assoc_cert_slot_mask[3];
+
+/* Read the AssocCertSlotMask of a key pair; false if the key pair has no algorithm. */
+static bool spdm_server_read_assoc_cert_slot_mask(void *spdm_context, uint8_t key_pair_id,
+                                                  uint8_t *assoc_cert_slot_mask)
+{
+    uint8_t total_key_pairs;
+    uint16_t capabilities;
+    uint16_t key_usage_capabilities;
+    uint16_t current_key_usage;
+    uint32_t asym_algo_capabilities;
+    uint32_t current_asym_algo;
+    uint32_t pqc_asym_algo_capabilities;
+    uint32_t current_pqc_asym_algo;
+
+    if (!libspdm_read_key_pair_info(spdm_context, NULL, key_pair_id, &total_key_pairs,
+                                    &capabilities, &key_usage_capabilities,
+                                    &current_key_usage, &asym_algo_capabilities,
+                                    &current_asym_algo, &pqc_asym_algo_capabilities,
+                                    &current_pqc_asym_algo, assoc_cert_slot_mask,
+                                    NULL, NULL)) {
+        return false;
+    }
+    return (current_asym_algo != 0) || (current_pqc_asym_algo != 0);
+}
+
+/* Write the AssocCertSlotMask of a key pair, as SET_KEY_PAIR_INFO's CHANGE operation does. */
+static bool spdm_server_write_assoc_cert_slot_mask(void *spdm_context, uint8_t key_pair_id,
+                                                   uint8_t assoc_cert_slot_mask)
+{
+    bool need_reset;
+
+    need_reset = false;
+    return libspdm_write_key_pair_info(spdm_context, NULL, key_pair_id,
+                                       SPDM_SET_KEY_PAIR_INFO_CHANGE_OPERATION, 0, 0, 0,
+                                       assoc_cert_slot_mask, &need_reset);
+}
+#endif
+
 /**
  * Notify the connection state to an SPDM context register.
  *
@@ -369,6 +414,8 @@ void spdm_server_connection_state_callback(
     void *spdm_context, libspdm_connection_state_t connection_state)
 {
     bool res;
+    bool res1;
+    bool res4;
     void *data;
     void *data1;
     void *data4;
@@ -428,6 +475,24 @@ void spdm_server_connection_state_callback(
         }
 
         /* Provision new content*/
+
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP && \
+    LIBSPDM_ENABLE_CAPABILITY_SET_KEY_PAIR_INFO_CAP
+        /* A slot is removed from its key pair only for the connection whose provisioning
+         * left the slot empty, so give each back first, in the reverse order (two slots
+         * may share a key pair), unless SET_KEY_PAIR_INFO has changed that key pair since. */
+        for (slot_index = populated_slot_count; slot_index > 0; slot_index--) {
+            if ((m_slot_removed_key_pair_id[slot_index - 1] != 0) &&
+                spdm_server_read_assoc_cert_slot_mask(
+                    spdm_context, m_slot_removed_key_pair_id[slot_index - 1], &data8) &&
+                (data8 == m_slot_removed_assoc_cert_slot_mask[slot_index - 1])) {
+                spdm_server_write_assoc_cert_slot_mask(
+                    spdm_context, m_slot_removed_key_pair_id[slot_index - 1],
+                    (uint8_t)(data8 | (1 << populated_slot_id[slot_index - 1])));
+            }
+            m_slot_removed_key_pair_id[slot_index - 1] = 0;
+        }
+#endif
 
         libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
@@ -501,6 +566,18 @@ void spdm_server_connection_state_callback(
                 }
             }
         } else {
+            size_t multi_key_data_size;
+
+            /* slot 4 (the distinct-key example) is provisioned only in a multi-key
+             * connection, so its chain is read only in one. */
+            libspdm_zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+            multi_key_data_size = sizeof(multi_key_conn_rsp);
+            multi_key_conn_rsp = false;
+            libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_RSP, &parameter,
+                             &multi_key_conn_rsp, &multi_key_data_size);
+            res4 = false;
+
             if (m_use_asym_algo != 0) {
                 if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
                     res = libspdm_read_responder_public_certificate_chain(
@@ -516,7 +593,7 @@ void spdm_server_connection_state_callback(
                         NULL, NULL);
                 }
 
-                res = libspdm_read_responder_public_certificate_chain_per_slot(
+                res1 = libspdm_read_responder_public_certificate_chain_per_slot(
                     1,
                     m_use_hash_algo,
                     m_use_asym_algo,
@@ -524,12 +601,14 @@ void spdm_server_connection_state_callback(
                     NULL, NULL);
 
                 /* slot 4 uses a different leaf key (multi-key example). */
-                res = libspdm_read_responder_public_certificate_chain_per_slot(
-                    4,
-                    m_use_hash_algo,
-                    m_use_asym_algo,
-                    &data4, &data4_size,
-                    NULL, NULL);
+                if (multi_key_conn_rsp) {
+                    res4 = libspdm_read_responder_public_certificate_chain_per_slot(
+                        4,
+                        m_use_hash_algo,
+                        m_use_asym_algo,
+                        &data4, &data4_size,
+                        NULL, NULL);
+                }
             }
             if (m_use_pqc_asym_algo != 0) {
                 if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) == 0) {
@@ -546,7 +625,7 @@ void spdm_server_connection_state_callback(
                         NULL, NULL);
                 }
 
-                res = libspdm_read_pqc_responder_public_certificate_chain_per_slot(
+                res1 = libspdm_read_pqc_responder_public_certificate_chain_per_slot(
                     1,
                     m_use_hash_algo,
                     m_use_pqc_asym_algo,
@@ -554,15 +633,34 @@ void spdm_server_connection_state_callback(
                     NULL, NULL);
 
                 /* slot 4 uses a different leaf key (multi-key example). */
-                res = libspdm_read_pqc_responder_public_certificate_chain_per_slot(
-                    4,
-                    m_use_hash_algo,
-                    m_use_pqc_asym_algo,
-                    &data4, &data4_size,
-                    NULL, NULL);
+                if (multi_key_conn_rsp) {
+                    res4 = libspdm_read_pqc_responder_public_certificate_chain_per_slot(
+                        4,
+                        m_use_hash_algo,
+                        m_use_pqc_asym_algo,
+                        &data4, &data4_size,
+                        NULL, NULL);
+                }
             }
             if ((m_use_asym_algo != 0) || (m_use_pqc_asym_algo != 0)) {
-                if (res) {
+                /* Slot 0 is the default slot and must hold a chain whenever CERT_CAP is
+                 * set (DSP0274), so without one the responder stops. The other slots are
+                 * optional: each is provisioned from its own chain, so a chain that does
+                 * not load leaves only its own slot empty. */
+                if (!res) {
+                    if ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP) != 0) {
+                        EMU_ERR("Slot 0: certificate chain not loaded; CERT_CAP requires one\n");
+                        exit(1);
+                    }
+                    EMU_INFO("Slot 0: certificate chain not loaded, not provisioned\n");
+                }
+                if (!res1) {
+                    EMU_INFO("Slot 1: certificate chain not loaded, not provisioned\n");
+                }
+                if (multi_key_conn_rsp && !res4) {
+                    EMU_INFO("Slot 4: certificate chain not loaded, not provisioned\n");
+                }
+                if (res || res1 || res4) {
                     /* Populate a NON-CONTIGUOUS set of slots. Slots 0 and 1 share the negotiated
                      * algorithm's (single) leaf key. Slot 4 carries a DIFFERENT leaf key (data4) to
                      * demonstrate multiple keys; it is provisioned ONLY in a multi-key connection.
@@ -578,24 +676,47 @@ void spdm_server_connection_state_callback(
                      * (resolved by libspdm_get_key_pair_id_by_slot). */
                     void *slot_data[3];
                     size_t slot_data_size[3];
-                    size_t multi_key_data_size;
 
-                    libspdm_zero_mem(&parameter, sizeof(parameter));
-                    parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
-                    multi_key_data_size = sizeof(multi_key_conn_rsp);
-                    multi_key_conn_rsp = false;
-                    libspdm_get_data(spdm_context, LIBSPDM_DATA_MULTI_KEY_CONN_RSP, &parameter,
-                                     &multi_key_conn_rsp, &multi_key_data_size);
                     /* slot 4 (the distinct-key example) is provisioned only when this
                      * connection is multi-key; otherwise its cert chain data is empty,
                      * so a long-lived responder never carries slot 4 over from an
                      * earlier multi-key connection into a later non-multi-key one. */
-                    slot_data[0] = data;
-                    slot_data[1] = data1;
-                    slot_data[2] = multi_key_conn_rsp ? data4 : NULL;
-                    slot_data_size[0] = data_size;
-                    slot_data_size[1] = data1_size;
-                    slot_data_size[2] = multi_key_conn_rsp ? data4_size : 0;
+                    slot_data[0] = res ? data : NULL;
+                    slot_data[1] = res1 ? data1 : NULL;
+                    slot_data[2] = (multi_key_conn_rsp && res4) ? data4 : NULL;
+                    slot_data_size[0] = res ? data_size : 0;
+                    slot_data_size[1] = res1 ? data1_size : 0;
+                    slot_data_size[2] = (multi_key_conn_rsp && res4) ? data4_size : 0;
+
+#if LIBSPDM_ENABLE_CAPABILITY_GET_KEY_PAIR_INFO_CAP && \
+    LIBSPDM_ENABLE_CAPABILITY_SET_KEY_PAIR_INFO_CAP
+                    /* A slot left empty is removed from the key pair the sample library
+                     * associates it with, as SET_KEY_PAIR_INFO does, so that KEY_PAIR_INFO
+                     * reports the slots DIGESTS does. Slot 4 is provisioned only in a
+                     * multi-key connection, so only there is an empty slot 4 removed. */
+                    for (slot_index = 0; slot_index < populated_slot_count; slot_index++) {
+                        uint8_t assoc_cert_slot_mask;
+
+                        if ((slot_data[slot_index] != NULL) ||
+                            ((populated_slot_id[slot_index] == 4) && !multi_key_conn_rsp)) {
+                            continue;
+                        }
+                        data8 = libspdm_get_key_pair_id_by_slot(
+                            m_use_asym_algo, m_use_pqc_asym_algo, populated_slot_id[slot_index]);
+                        if ((data8 == 0) ||
+                            !spdm_server_read_assoc_cert_slot_mask(spdm_context, data8,
+                                                                   &assoc_cert_slot_mask)) {
+                            continue;
+                        }
+                        assoc_cert_slot_mask &= (uint8_t)~(1 << populated_slot_id[slot_index]);
+                        if (spdm_server_write_assoc_cert_slot_mask(spdm_context, data8,
+                                                                   assoc_cert_slot_mask)) {
+                            m_slot_removed_key_pair_id[slot_index] = data8;
+                            m_slot_removed_assoc_cert_slot_mask[slot_index] =
+                                assoc_cert_slot_mask;
+                        }
+                    }
+#endif
 
                     libspdm_zero_mem(&parameter, sizeof(parameter));
                     parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
