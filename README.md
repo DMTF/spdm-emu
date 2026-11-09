@@ -10,7 +10,7 @@
 
    The user guide can be found at [user_guide](https://github.com/DMTF/spdm-emu/blob/main/doc/spdm_emu.md)
 
-## Prerequisit
+## Prerequisites
 
 ### Build Tool
 
