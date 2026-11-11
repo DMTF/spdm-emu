@@ -201,11 +201,10 @@ bool platform_client_routine(uint16_t port_number)
         }
 #if LIBSPDM_ENABLE_CAPABILITY_ENCAP_CAP
         response_size = 0;
-        result = communicate_platform_data(
-            m_socket,
-            SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
-            0, &response, &response_size, NULL);
-        if (!result) {
+        if (!communicate_platform_data(
+                m_socket,
+                SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO, NULL,
+                0, &response, &response_size, NULL)) {
             EMU_ERR("communicate_platform_data - SOCKET_SPDM_COMMAND_OOB_ENCAP_ENDPOINT_INFO fail\n");
         } else {
             status = libspdm_send_receive_encap_request(
