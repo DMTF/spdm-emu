@@ -55,6 +55,7 @@ static libspdm_return_t spdm_encap_flow_handler(
     const uint32_t *session_id,
     libspdm_encap_flow_type_t encap_flow_type,
     uint8_t last_request_code,
+    libspdm_return_t encap_response_status,
     uint8_t error_code,
     bool *terminate_flow,
     size_t *encap_request_size,
@@ -1063,14 +1064,12 @@ static libspdm_return_t spdm_encap_flow_handler(
     const uint32_t *session_id,
     libspdm_encap_flow_type_t encap_flow_type,
     uint8_t last_request_code,
+    libspdm_return_t encap_response_status,
     uint8_t error_code,
     bool *terminate_flow,
     size_t *encap_request_size,
     void *encap_request)
 {
-    static uint8_t basic_mut_auth_counter = 0;
-    static uint8_t sess_mut_auth_counter = 0;
-
     EMU_LOG("spdm_encap_flow_handler()\n");
     EMU_LOG("  session_id - ");
     if (session_id == NULL) {
@@ -1080,16 +1079,14 @@ static libspdm_return_t spdm_encap_flow_handler(
     }
     EMU_LOG("  encap_flow_type - %d\n", encap_flow_type);
     EMU_LOG("  last_request_code - 0x%x\n", last_request_code);
+    EMU_LOG("  encap_response_status - 0x%x\n", encap_response_status);
     EMU_LOG("  error_code - 0x%x\n", error_code);
 
-    if (error_code != 0) {
-        /* The Requester returned an encapsulated ERROR, so the flow ends here. Reset the
-         * counters so that a later flow starts from the beginning. */
-        EMU_LOG("  Requester returned encapsulated ERROR, terminating flow\n");
-        basic_mut_auth_counter = 0;
-        sess_mut_auth_counter = 0;
-        *terminate_flow = true;
-        *encap_request_size = 0;
+    if (LIBSPDM_STATUS_IS_ERROR(encap_response_status)) {
+        /* The Requester returned an encapsulated ERROR, whose ErrorCode is in error_code, or its
+         * encapsulated response could not be processed. libspdm ends the flow, or resumes it
+         * after ResponseNotReady, and ignores any request produced here. */
+        EMU_LOG("  encapsulated response failed\n");
 
         return LIBSPDM_STATUS_SUCCESS;
     }
@@ -1115,44 +1112,43 @@ static libspdm_return_t spdm_encap_flow_handler(
         }
     }
 
-    *terminate_flow = false;
-
+    /* last_request_code is the request whose response has just been delivered, or 0 when the
+     * Requester asks for the first request, so it tells where the flow is. The DIGESTS variant
+     * of session-based mutual authentication starts at SPDM_GET_DIGESTS, as KEY_EXCHANGE_RSP
+     * carried that request. */
     switch (encap_flow_type) {
     case LIBSPDM_ENCAP_FLOW_BASIC_MUT_AUTH:
-        switch (basic_mut_auth_counter) {
+        switch (last_request_code) {
         case 0:
-            basic_mut_auth_counter++;
-
             return libspdm_get_encap_request_get_digests(
                 spdm_context, session_id, encap_request_size, encap_request);
-        case 1:
-            basic_mut_auth_counter++;
-
+        case SPDM_GET_DIGESTS:
             return libspdm_get_encap_request_get_certificate(
                 spdm_context, session_id, 0, LIBSPDM_MAX_CERT_CHAIN_SIZE,
                 m_requester_cert_chain_buffer, encap_request_size, encap_request);
-        default:
-            /* CHALLENGE is the last request of this flow. libspdm terminates the flow itself once
-             * the Requester delivers CHALLENGE_AUTH, so this handler is not called again. */
-            basic_mut_auth_counter = 0;
-
+        case SPDM_GET_CERTIFICATE:
             return libspdm_get_encap_request_challenge(
                 spdm_context, 0, NULL, encap_request_size, encap_request);
-        }
-    case LIBSPDM_ENCAP_FLOW_SESS_MUT_AUTH:
-        switch (sess_mut_auth_counter) {
-        case 0:
-            sess_mut_auth_counter++;
+        case SPDM_CHALLENGE:
+            /* The signature of the Requester's CHALLENGE_AUTH has been verified. libspdm ends the
+             * flow itself and ignores anything produced here. */
+            EMU_LOG("  Requester authenticated\n");
 
+            return LIBSPDM_STATUS_SUCCESS;
+        default:
+            break;
+        }
+        break;
+    case LIBSPDM_ENCAP_FLOW_SESS_MUT_AUTH:
+        switch (last_request_code) {
+        case 0:
             return libspdm_get_encap_request_get_digests(
                 spdm_context, session_id, encap_request_size, encap_request);
-        case 1:
-            sess_mut_auth_counter++;
-
+        case SPDM_GET_DIGESTS:
             return libspdm_get_encap_request_get_certificate(
                 spdm_context, session_id, 0, LIBSPDM_MAX_CERT_CHAIN_SIZE,
                 m_requester_cert_chain_buffer, encap_request_size, encap_request);
-        default:
+        case SPDM_GET_CERTIFICATE:
             /* The Requester's certificate chain has been retrieved, so end the flow. Designate
              * m_use_req_slot_id in the final ENCAPSULATED_RESPONSE_ACK. */
             if (session_id != NULL) {
@@ -1164,7 +1160,8 @@ static libspdm_return_t spdm_encap_flow_handler(
                 libspdm_set_data(spdm_context, LIBSPDM_DATA_SESSION_ENCAP_REQ_SLOT_ID,
                                  &parameter, &m_use_req_slot_id, sizeof(m_use_req_slot_id));
             }
-            sess_mut_auth_counter = 0;
+            break;
+        default:
             break;
         }
         break;
