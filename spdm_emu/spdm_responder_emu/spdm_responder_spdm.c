@@ -1098,6 +1098,33 @@ static libspdm_return_t spdm_encap_flow_handler(
             LIBSPDM_STATUS_SUCCESS) {
             EMU_LOG("  retrieved cert_chain_size - 0x%x\n", (uint32_t)cert_chain_size);
         }
+
+        if (encap_response_status == LIBSPDM_STATUS_VERIF_NO_AUTHORITY) {
+            libspdm_data_parameter_t parameter;
+            spdm_version_number_t spdm_version;
+            size_t data_size;
+            uint8_t error_code_to_send;
+
+            /* No provisioned root certificate anchors the Requester's certificate chain. Reject
+             * the chain, which fails mutual authentication. ErrorCode InvalidPolicy exists from
+             * SPDM 1.3. */
+            EMU_LOG("  no root certificate anchors the certificate chain\n");
+
+            libspdm_zero_mem(&parameter, sizeof(parameter));
+            parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+            spdm_version = 0;
+            data_size = sizeof(spdm_version);
+            libspdm_get_data(spdm_context, LIBSPDM_DATA_SPDM_VERSION, &parameter,
+                             &spdm_version, &data_size);
+            if ((spdm_version >> SPDM_VERSION_NUMBER_SHIFT_BIT) >= SPDM_MESSAGE_VERSION_13) {
+                error_code_to_send = SPDM_ERROR_CODE_INVALID_POLICY;
+            } else {
+                error_code_to_send = SPDM_ERROR_CODE_UNSPECIFIED;
+            }
+
+            return libspdm_generate_error_response(spdm_context, error_code_to_send, 0,
+                                                   encap_request_size, encap_request);
+        }
     }
 
     if (last_request_code == SPDM_GET_ENDPOINT_INFO) {
