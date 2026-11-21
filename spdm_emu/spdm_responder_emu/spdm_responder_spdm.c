@@ -238,7 +238,7 @@ void *spdm_server_init(void)
     }
     libspdm_set_scratch_buffer (spdm_context, m_scratch_buffer, scratch_buffer_size);
 
-    m_requester_cert_chain_buffer = (void *)malloc(SPDM_MAX_CERTIFICATE_CHAIN_SIZE);
+    m_requester_cert_chain_buffer = (void *)malloc(LIBSPDM_MAX_CERT_CHAIN_SIZE);
     if (m_requester_cert_chain_buffer == NULL)
     {
         return NULL;
@@ -1129,7 +1129,7 @@ static libspdm_return_t spdm_encap_flow_handler(
             basic_mut_auth_counter++;
 
             return libspdm_get_encap_request_get_certificate(
-                spdm_context, session_id, 0, SPDM_MAX_CERTIFICATE_CHAIN_SIZE,
+                spdm_context, session_id, 0, LIBSPDM_MAX_CERT_CHAIN_SIZE,
                 m_requester_cert_chain_buffer, encap_request_size, encap_request);
         default:
             /* CHALLENGE is the last request of this flow. libspdm terminates the flow itself once
@@ -1150,7 +1150,7 @@ static libspdm_return_t spdm_encap_flow_handler(
             sess_mut_auth_counter++;
 
             return libspdm_get_encap_request_get_certificate(
-                spdm_context, session_id, 0, SPDM_MAX_CERTIFICATE_CHAIN_SIZE,
+                spdm_context, session_id, 0, LIBSPDM_MAX_CERT_CHAIN_SIZE,
                 m_requester_cert_chain_buffer, encap_request_size, encap_request);
         default:
             /* The Requester's certificate chain has been retrieved, so end the flow. Designate
