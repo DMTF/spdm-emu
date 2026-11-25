@@ -287,6 +287,33 @@ libspdm_return_t do_session_via_spdm(bool use_psk)
     return status;
 }
 
+#if LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP
+/*
+ * Return the KeyPairID that DIGESTS reported for the slot. SET_CERTIFICATE names the key pair that
+ * the certificate chain belongs to, and the chain set here is the slot's own, so the Responder,
+ * which records the KeyPairID for the slot, keeps the slot on its key pair. Return 1, as sent
+ * before, if DIGESTS has not reported a KeyPairID for the slot.
+ */
+static uint8_t get_slot_key_pair_id(void *spdm_context, uint8_t slot_id)
+{
+    libspdm_data_parameter_t parameter;
+    uint8_t key_pair_id;
+    size_t data_size;
+
+    libspdm_zero_mem(&parameter, sizeof(parameter));
+    parameter.location = LIBSPDM_DATA_LOCATION_CONNECTION;
+    parameter.additional_data[0] = slot_id;
+    key_pair_id = 0;
+    data_size = sizeof(key_pair_id);
+    if (LIBSPDM_STATUS_IS_ERROR(libspdm_get_data(spdm_context, LIBSPDM_DATA_PEER_KEY_PAIR_ID,
+                                                 &parameter, &key_pair_id, &data_size)) ||
+        (key_pair_id == 0)) {
+        return 1;
+    }
+    return key_pair_id;
+}
+#endif /*LIBSPDM_ENABLE_CAPABILITY_SET_CERT_CAP*/
+
 /*
  * These function implements the request and response messages used for provisioning a device with certificate chains.
  * Provisioning of Slot 0 should be only done in a secure environment (such as a secure manufacturing environment)
@@ -304,6 +331,7 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
     void *cert_chain_to_set;
     size_t cert_chain_size_to_set;
     uint8_t slot_id;
+    uint8_t set_cert_key_pair_id;
     bool res;
     uint32_t data32;
     size_t  data32_size;
@@ -407,10 +435,11 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
         slot_id = 0;
 
         if (multi_key_conn_rsp) {
+            set_cert_key_pair_id = get_slot_key_pair_id(spdm_context, slot_id);
             status = libspdm_set_certificate_ex(
                 spdm_context, NULL, slot_id, cert_chain_to_set, cert_chain_size_to_set,
                 SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT <<
-                SPDM_SET_CERTIFICATE_REQUEST_ATTRIBUTES_CERT_MODEL_OFFSET, 1);
+                SPDM_SET_CERTIFICATE_REQUEST_ATTRIBUTES_CERT_MODEL_OFFSET, set_cert_key_pair_id);
         } else {
             status = libspdm_set_certificate(spdm_context, NULL, slot_id,
                                              cert_chain_to_set, cert_chain_size_to_set);
@@ -454,11 +483,13 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
                 }
 
                 if (multi_key_conn_rsp) {
+                    set_cert_key_pair_id = get_slot_key_pair_id(spdm_context, slot_id);
                     status = libspdm_set_certificate_ex(
                         spdm_context, session_id, slot_id,
                         cert_chain_to_set, cert_chain_size_to_set,
                         SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT <<
-                        SPDM_SET_CERTIFICATE_REQUEST_ATTRIBUTES_CERT_MODEL_OFFSET, 1);
+                        SPDM_SET_CERTIFICATE_REQUEST_ATTRIBUTES_CERT_MODEL_OFFSET,
+                        set_cert_key_pair_id);
                 } else {
                     status = libspdm_set_certificate(spdm_context, session_id, slot_id,
                                                     cert_chain_to_set, cert_chain_size_to_set);
