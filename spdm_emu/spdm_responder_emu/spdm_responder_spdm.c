@@ -922,10 +922,15 @@ void spdm_server_connection_state_callback(
                 }
                 g_key_exchange_start_mut_auth = m_use_mut_auth;
                 /* With the encapsulated flow, SlotIDParam in KEY_EXCHANGE_RSP shall be 0. The slot
-                 * is designated in the final ENCAPSULATED_RESPONSE_ACK instead. */
-                g_key_exchange_req_slot_id =
-                    (m_use_mut_auth == SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED) ?
-                    m_use_req_slot_id : 0;
+                 * is designated in the final ENCAPSULATED_RESPONSE_ACK instead. Without it,
+                 * SlotIDParam is 0xF for a provisioned public key. */
+                if (m_use_mut_auth != SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED) {
+                    g_key_exchange_req_slot_id = 0;
+                } else if (m_use_req_slot_id == 0xFF) {
+                    g_key_exchange_req_slot_id = 0xF;
+                } else {
+                    g_key_exchange_req_slot_id = m_use_req_slot_id;
+                }
 
                 /* Requester slot 4 exists only in a multi-key connection, so do not request it
                  * otherwise. */
@@ -1147,6 +1152,12 @@ static libspdm_return_t spdm_encap_flow_handler(
     case LIBSPDM_ENCAP_FLOW_BASIC_MUT_AUTH:
         switch (last_request_code) {
         case 0:
+            if (m_use_req_slot_id == 0xFF) {
+                /* The Requester's public key was provisioned, so there is no certificate
+                 * chain to retrieve, and the flow is CHALLENGE alone. */
+                return libspdm_get_encap_request_challenge(
+                    spdm_context, 0xFF, NULL, encap_request_size, encap_request);
+            }
             return libspdm_get_encap_request_get_digests(
                 spdm_context, session_id, encap_request_size, encap_request);
         case SPDM_GET_DIGESTS:
