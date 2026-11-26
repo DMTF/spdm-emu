@@ -435,6 +435,7 @@ void spdm_server_connection_state_callback(
     size_t slot_index;
     spdm_version_number_t spdm_version;
     bool requester_pub_key_needed;
+    uint32_t requester_capabilities_flag;
     bool multi_key_conn_rsp;
     bool multi_key_conn_req;
     uint8_t req_slot_mask;
@@ -523,6 +524,9 @@ void spdm_server_connection_state_callback(
         libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_PQC_ASYM_ALG,
                          &parameter, &data32, &data_size);
         m_use_req_pqc_asym_algo = data32;
+        data_size = sizeof(requester_capabilities_flag);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
+                         &parameter, &requester_capabilities_flag, &data_size);
 
         libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
@@ -534,7 +538,7 @@ void spdm_server_connection_state_callback(
              SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) != 0) {
             m_use_slot_id = 0xFF;
         }
-        if ((m_use_requester_capability_flags &
+        if ((requester_capabilities_flag &
              SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
             m_use_req_slot_id = 0xFF;
         }
