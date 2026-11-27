@@ -436,9 +436,12 @@ libspdm_return_t do_certificate_provising_via_spdm(uint32_t* session_id)
 
         if (multi_key_conn_rsp) {
             set_cert_key_pair_id = get_slot_key_pair_id(spdm_context, slot_id);
+            /* With ALIAS_CERT_CAP the chain is the AliasCert partial chain. */
             status = libspdm_set_certificate_ex(
                 spdm_context, NULL, slot_id, cert_chain_to_set, cert_chain_size_to_set,
-                SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT <<
+                (((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) != 0) ?
+                 SPDM_CERTIFICATE_INFO_CERT_MODEL_ALIAS_CERT :
+                 SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT) <<
                 SPDM_SET_CERTIFICATE_REQUEST_ATTRIBUTES_CERT_MODEL_OFFSET, set_cert_key_pair_id);
         } else {
             status = libspdm_set_certificate(spdm_context, NULL, slot_id,
