@@ -556,7 +556,7 @@ void *spdm_client_init(void)
                      &data32, &data_size);
     m_use_req_pqc_asym_algo = data32;
 
-    if ((m_use_responder_capability_flags &
+    if ((responder_capabilities_flag &
          SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) != 0) {
         m_use_slot_id = 0xFF;
     }

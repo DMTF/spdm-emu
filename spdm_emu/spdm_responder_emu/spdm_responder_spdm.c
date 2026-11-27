@@ -435,6 +435,7 @@ void spdm_server_connection_state_callback(
     size_t slot_index;
     spdm_version_number_t spdm_version;
     bool requester_pub_key_needed;
+    uint32_t requester_capabilities_flag;
     bool multi_key_conn_rsp;
     bool multi_key_conn_req;
     uint8_t req_slot_mask;
@@ -523,6 +524,9 @@ void spdm_server_connection_state_callback(
         libspdm_get_data(spdm_context, LIBSPDM_DATA_REQ_PQC_ASYM_ALG,
                          &parameter, &data32, &data_size);
         m_use_req_pqc_asym_algo = data32;
+        data_size = sizeof(requester_capabilities_flag);
+        libspdm_get_data(spdm_context, LIBSPDM_DATA_CAPABILITY_FLAGS,
+                         &parameter, &requester_capabilities_flag, &data_size);
 
         libspdm_zero_mem(&parameter, sizeof(parameter));
         parameter.location = LIBSPDM_DATA_LOCATION_LOCAL;
@@ -534,7 +538,7 @@ void spdm_server_connection_state_callback(
              SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP) != 0) {
             m_use_slot_id = 0xFF;
         }
-        if ((m_use_requester_capability_flags &
+        if ((requester_capabilities_flag &
              SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP) != 0) {
             m_use_req_slot_id = 0xFF;
         }
@@ -922,10 +926,15 @@ void spdm_server_connection_state_callback(
                 }
                 g_key_exchange_start_mut_auth = m_use_mut_auth;
                 /* With the encapsulated flow, SlotIDParam in KEY_EXCHANGE_RSP shall be 0. The slot
-                 * is designated in the final ENCAPSULATED_RESPONSE_ACK instead. */
-                g_key_exchange_req_slot_id =
-                    (m_use_mut_auth == SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED) ?
-                    m_use_req_slot_id : 0;
+                 * is designated in the final ENCAPSULATED_RESPONSE_ACK instead. Without it,
+                 * SlotIDParam is 0xF for a provisioned public key. */
+                if (m_use_mut_auth != SPDM_KEY_EXCHANGE_RESPONSE_MUT_AUTH_REQUESTED) {
+                    g_key_exchange_req_slot_id = 0;
+                } else if (m_use_req_slot_id == 0xFF) {
+                    g_key_exchange_req_slot_id = 0xF;
+                } else {
+                    g_key_exchange_req_slot_id = m_use_req_slot_id;
+                }
 
                 /* Requester slot 4 exists only in a multi-key connection, so do not request it
                  * otherwise. */
@@ -1147,6 +1156,12 @@ static libspdm_return_t spdm_encap_flow_handler(
     case LIBSPDM_ENCAP_FLOW_BASIC_MUT_AUTH:
         switch (last_request_code) {
         case 0:
+            if (m_use_req_slot_id == 0xFF) {
+                /* The Requester's public key was provisioned, so there is no certificate
+                 * chain to retrieve, and the flow is CHALLENGE alone. */
+                return libspdm_get_encap_request_challenge(
+                    spdm_context, 0xFF, NULL, encap_request_size, encap_request);
+            }
             return libspdm_get_encap_request_get_digests(
                 spdm_context, session_id, encap_request_size, encap_request);
         case SPDM_GET_DIGESTS:

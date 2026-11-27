@@ -56,6 +56,31 @@ jobs:
           ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID &
           sleep 5s
           ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID >requester.log
+          # The slot named on both programs, instead of detected from PUB_KEY_ID_CAP.
+          ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF &
+          sleep 5s
+          ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF >requester_slot.log
+          # Mutual authentication in KEY_EXCHANGE instead of the basic flow.
+          ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF --basic_mut_auth NO &
+          sleep 5s
+          ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF >requester_no_basic.log
+          # A public key that is not the peer's must fail authentication: the Requester's, then the
+          # Responder's. Without public keys in use the run would pass.
+          cp -r ../bin ../wrong_requester_key
+          cp rsa3072/end_responder.key.pub.der ../wrong_requester_key/rsa3072/end_requester.key.pub.der
+          cp -r ../bin ../wrong_responder_key
+          cp ecp384/end_requester.key.pub.der ../wrong_responder_key/ecp384/end_responder.key.pub.der
+          for dir in wrong_requester_key wrong_responder_key; do
+            cd ../$dir
+            ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID &
+            sleep 5s
+            if ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID >requester.log 2>&1; then
+              echo "$dir: the peer was authenticated"
+              exit 1
+            fi
+            grep "do_authentication_via_spdm" requester.log
+          done
+          cd ../bin
 
   gcc_openssl_build:
     runs-on: ubuntu-latest
@@ -87,6 +112,38 @@ jobs:
           ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID &
           sleep 5s
           ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID >requester.log
+          # The slot named on both programs, instead of detected from PUB_KEY_ID_CAP.
+          ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF &
+          sleep 5s
+          ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF >requester_slot.log
+          # Mutual authentication in KEY_EXCHANGE instead of the basic flow.
+          ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF --basic_mut_auth NO &
+          sleep 5s
+          ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF >requester_no_basic.log
+          # A public key that is not the peer's must fail authentication: the Requester's, then the
+          # Responder's. Without public keys in use the run would pass.
+          cp -r ../bin ../wrong_requester_key
+          cp rsa3072/end_responder.key.pub.der ../wrong_requester_key/rsa3072/end_requester.key.pub.der
+          cp -r ../bin ../wrong_responder_key
+          cp ecp384/end_requester.key.pub.der ../wrong_responder_key/ecp384/end_responder.key.pub.der
+          for dir in wrong_requester_key wrong_responder_key; do
+            cd ../$dir
+            ./spdm_responder_emu --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID &
+            sleep 5s
+            if ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,PUB_KEY_ID >requester.log 2>&1; then
+              echo "$dir: the peer was authenticated"
+              exit 1
+            fi
+            grep "do_authentication_via_spdm" requester.log
+          done
+          cd ../bin
+          # ML-DSA-87, which needs CHUNK on both programs: its signature is longer than 4,608 bytes.
+          ./spdm_responder_emu --pqc_first TRUE --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,CHUNK,PUB_KEY_ID &
+          sleep 5s
+          ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,CHUNK,PUB_KEY_ID >requester_pqc.log
+          ./spdm_responder_emu --pqc_first TRUE --cap CACHE,CHAL,MEAS_SIG,MEAS_FRESH,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK_WITH_CONTEXT,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,CHUNK,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF &
+          sleep 5s
+          ./spdm_requester_emu --cap CHAL,ENCRYPT,MAC,MUT_AUTH,KEY_EX,PSK,ENCAP,HBEAT,KEY_UPD,HANDSHAKE_IN_CLEAR,CHUNK,PUB_KEY_ID --slot_id 0xFF --req_slot_id 0xFF >requester_pqc_slot.log
 
   VS_mbedtls_build:
     runs-on: windows-latest
