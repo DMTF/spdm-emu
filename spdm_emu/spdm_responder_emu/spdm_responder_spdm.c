@@ -740,7 +740,13 @@ void spdm_server_connection_state_callback(
                         libspdm_set_data(spdm_context,
                                          LIBSPDM_DATA_LOCAL_KEY_PAIR_ID,
                                          &parameter, &data8, sizeof(data8));
-                        data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                        /* With ALIAS_CERT_CAP, slot 0 holds the AliasCert chain. */
+                        if ((populated_slot_id[slot_index] == 0) &&
+                            ((data32 & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ALIAS_CERT_CAP) != 0)) {
+                            data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_ALIAS_CERT;
+                        } else {
+                            data8 = SPDM_CERTIFICATE_INFO_CERT_MODEL_DEVICE_CERT;
+                        }
                         libspdm_set_data(spdm_context,
                                          LIBSPDM_DATA_LOCAL_CERT_INFO,
                                          &parameter, &data8, sizeof(data8));
